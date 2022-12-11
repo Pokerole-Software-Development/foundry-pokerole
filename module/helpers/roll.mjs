@@ -139,7 +139,7 @@ export async function rollAccuracy(item, actor, showPopup = true) {
     constantBonus -= item.system.attributes.accuracyReduction;
   }
 
-  const chatData = { actor };
+  const chatData = { speaker: ChatMessage.implementation.getSpeaker({ actor }) };
   await successRoll(dicePool, `Accuracy roll: ${item.name}`, chatData, constantBonus);
 }
 
@@ -197,7 +197,7 @@ export async function rollDamage(item, actor) {
       rollCount += actor.getIntrinsicOrSocialAttribute(item.system.dmgMod)?.value ?? 0;
     }
 
-    const chatData = { actor };
+    const chatData = { speaker: ChatMessage.implementation.getSpeaker({ actor }) };
     const [rollResult, messageData] = await createSuccessRollMessageData(rollCount, `Damage roll: ${item.name}`, chatData, constantBonus);
 
     let damage = 1; // Dealt damage is always at least 1

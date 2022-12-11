@@ -10,4 +10,4 @@ This repo includes both CSS for the theme and SCSS source files. If you're new t
 
 ## Installation
 
-Copy the folder with the built CSS files to `[Foundry data directory]/Data/systems/pokerole`. This system is in early development, using it is not recommended as features are missing and non-backwards compatible changes to data will occur.
+Copy/symlink this folder to `[Foundry data directory]/Data/systems/pokerole` after compiling CSS. This system is in early development, using it is not recommended as features are missing and non-backwards compatible changes to data will occur.
