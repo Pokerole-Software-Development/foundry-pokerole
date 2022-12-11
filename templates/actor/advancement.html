@@ -1,0 +1,69 @@
+<form class="pokerole advancement">
+  {{#gt progression.attributePoints 0}}
+  <h3>Attributes</h3>
+  <p class="attribute-info">Increase {{progression.attributePoints}} attributes (<span class="pointsleft attributes">{{progression.attributePoints}}</span> left).</p>
+
+  <div class="list attributes">
+  {{#each attributes as |attribute key|}}
+    <div class="form-group">
+      <label for="attributes.{{key}}.value">{{key}} (Maximum: {{attribute.max}})</label>
+      <button class="decrease" data-target="attributes.{{key}}.value" data-kind="attributes">-</button>
+      <button class="increase" data-target="attributes.{{key}}.value" data-kind="attributes">+</button>
+      <input type="text" name="attributes.{{key}}.value" value="{{attribute.value}}" data-min="{{attribute.value}}" data-max="{{attribute.max}}" data-dtype="Number" disabled/>
+      <span class="delta" data-delta-target="attributes.{{key}}.value">(+0)</span>
+    </div>
+  {{/each}}
+  </div>
+  {{/gt}}
+
+  {{#gt progression.skillPoints 0}}
+  <h3>Skills</h3>
+  <p class="attribute-info">Increase {{progression.skillPoints}} skills (<span class="pointsleft skills">{{progression.skillPoints}}</span> left).</p>
+
+  <div class="list skills">
+  {{#each skills as |skill key|}}
+    <div class="form-group">
+      <label for="skills.{{key}}.value">{{key}} (Maximum: {{@root.skillLimit}})</label>
+      <button class="decrease" data-target="skills.{{key}}.value" data-kind="skills">-</button>
+      <button class="increase" data-target="skills.{{key}}.value" data-kind="skills">+</button>
+      <input type="text" name="skills.{{key}}.value" value="{{skill.value}}" data-min="{{skill.value}}" data-max="{{@root.skillLimit}}" data-dtype="Number" disabled/>
+      <span class="delta" data-delta-target="skills.{{key}}.value">(+0)</span>
+    </div>
+  {{/each}}
+  </div>
+  {{/gt}}
+
+  {{#gt progression.socialPoints 0}}
+  <h3>Social attributes</h3>
+  <p class="attribute-info">Increase {{progression.socialPoints}} social attributes (<span class="pointsleft social">{{progression.socialPoints}}</span> left).</p>
+
+  <div class="list social">
+  {{#each social as |attribute key|}}
+    <div class="form-group">
+      <label for="social.{{key}}.value">{{key}} (Maximum: {{attribute.max}})</label>
+      <button class="decrease" data-target="social.{{key}}.value" data-kind="social">-</button>
+      <button class="increase" data-target="social.{{key}}.value" data-kind="social">+</button>
+      <input type="text" name="social.{{key}}.value" value="{{attribute.value}}" data-min="{{attribute.value}}" data-max="{{attribute.max}}" data-dtype="Number" disabled/>
+      <span class="delta" data-delta-target="social.{{key}}.value">(+0)</span>
+    </div>
+  {{/each}}
+  </div>
+  {{/gt}}
+  
+  <h3>General</h3>
+  <div class="form-group max-hp-box">
+    <label>Apply maximum HP increase: {{oldMaxHp}} → <span class="max-hp">{{oldMaxHp}}</span></label>
+    <input type="checkbox" name="applyMaxHp" checked/>
+  </div>
+  <div class="form-group max-will-box">
+    <label>Apply maximum Will increase: {{oldMaxWill}} → <span class="max-will">{{oldMaxWill}}</span></label>
+    <input type="checkbox" name="applyMaxWill" checked/>
+  </div>
+
+  {{#if showSkillLimit}}
+  <div class="form-group">
+    <label>Skill limit increase: {{oldSkillLimit}} → {{skillLimit}}</label>
+    <input type="checkbox" checked disabled/>
+  </div>
+  {{/if}}
+</form>

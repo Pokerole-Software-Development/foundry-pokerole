@@ -1,0 +1,18 @@
+&.advancement {
+  .list {
+    font-size: 0.85em;
+    --form-field-height: 1.4em;
+
+    button {
+      line-height: unset;
+    }
+
+    label {
+      flex: 10;
+    }
+
+    input {
+      text-align: right;
+    }
+  }
+}

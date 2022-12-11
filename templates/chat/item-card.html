@@ -1,0 +1,35 @@
+<div class="pokerole chat-card item-card" data-actor-id="{{actor._id}}" data-item-id="{{item._id}}"
+     {{#if tokenId}}data-token-id="{{tokenId}}"{{/if}}>
+    <header class="card-header flexrow">
+        <img src="{{item.img}}" title="{{item.name}}" width="36" height="36"/>
+        <h3 class="item-name">{{item.name}}</h3>
+    </header>
+
+    <div class="card-content">
+        {{{item.system.description}}}
+
+        {{#if isMove}}
+        {{#if item.system.effect}}
+        <p><b>Added effect:</b> {{item.system.effect}}</p>
+        {{/if}}
+        {{/if}}
+    </div>
+
+    <div class="card-buttons">
+        {{#if hasAccuracy}}<button data-action="accuracy">Roll Accuracy</button>{{/if}}
+
+        {{#if hasDamage}}
+        <button data-action="damage">Roll Damage</button>
+        {{/if}}
+
+        {{#if hasChanceDice}}
+        <button data-action="chance">Roll Chance Dice</button>
+        {{/if}}
+    </div>
+
+    <footer class="card-footer">
+        {{#each properties}}
+        <span>{{this}}</span>
+        {{/each}}
+    </footer>
+</div>

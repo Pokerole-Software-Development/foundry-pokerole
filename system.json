@@ -1,0 +1,34 @@
+{
+  "id": "pokerole",
+  "title": "Pokérole",
+  "description": "FoundryVTT system for playing Pokérole",
+  "version": "0.1.0",
+  "compatibility": {
+    "minimum": 10,
+    "verified": "10.291",
+    "maximum": 10
+  },
+  "authors": [{
+    "name": "techticks"
+  }],
+  "esmodules": ["module/pokerole.mjs"],
+  "styles": ["css/pokerole.css"],
+  "scripts": [],
+  "packs": [],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "gridDistance": 5,
+  "gridUnits": "ft",
+  "primaryTokenAttribute": "hp",
+  "secondaryTokenAttribute": "will",
+  "url": "",
+  "manifest": "",
+  "download": "",
+  "license": "LICENSE.txt",
+  "changelog": "CHANGELOG.md"
+}

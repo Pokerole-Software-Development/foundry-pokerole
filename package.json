@@ -1,0 +1,26 @@
+{
+  "name": "pokerole",
+  "version": "1.0.0",
+  "description": "Pokérole system for FoundryVTT",
+  "scripts": {
+    "build": "gulp build",
+    "compile": "gulp css",
+    "watch": "gulp",
+    "gulp": "gulp"
+  },
+  "browserslist": [
+    "last 3 versions"
+  ],
+  "author": "techticks",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "gulp-sass": "^5.1.0",
+    "gulp-sourcemaps": "^3.0.0",
+    "gulp-autoprefixer": "^8.0.0",
+    "sass": "^1.53.0"
+  },
+  "dependencies": {
+    "gulp": "^4.0.2"
+  }
+}

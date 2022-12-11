@@ -1,0 +1,88 @@
+<form class="{{cssClass}}" autocomplete="off">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+    <div class="header-fields">
+      <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+    </div>
+  </header>
+
+  {{!-- Sheet Tab Navigation --}}
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="attributes">Attributes</a>
+    <a class="item" data-tab="description">Description</a>
+  </nav>
+
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
+
+    {{!-- Attributes Tab --}}
+    <div class="tab attributes" data-group="primary" data-tab="attributes">
+      {{#if owned}}
+      <div class="form-group">
+        <label class="resource-label">Learned at Rank</label>
+        <select name="system.rank" value="{{system.rank}}" data-dtype="String">
+          {{selectOptions ranks selected=system.rank}}
+        </select>
+      </div>
+      {{/if}}
+      <div class="form-group">
+        <label class="resource-label">Type</label>
+        <select name="system.type" value="{{system.type}}" data-dtype="String">
+          {{selectOptions types selected=system.type}}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="resource-label">Category</label>
+        <select name="system.category" value="{{system.category}}" data-dtype="String">
+          {{selectOptions categories selected=system.category}}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="resource-label">Target</label>
+        <select name="system.target" value="{{system.target}}" data-dtype="String">
+          {{selectOptions targets selected=system.target}}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="resource-label">Power</label>
+        <input type="text" name="system.power" value="{{system.power}}" data-dtype="Number"/>
+      </div>
+      <div class="form-group">
+        <label class="resource-label">Accuracy Modifier 1 (Attribute)</label>
+        <select name="system.accMod1" value="{{system.accMod1}}" data-dtype="String">
+          {{selectOptions attributes selected=system.accMod1}}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="resource-label">Accuracy Modifier 2 (Skill)</label>
+        <select name="system.accMod2" value="{{system.accMod2}}" data-dtype="String">
+          {{selectOptions skills selected=system.accMod2}}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="resource-label">Damage Modifier</label>
+        <select name="system.dmgMod" value="{{system.dmgMod}}" data-dtype="String">
+          {{selectOptions attributes selected=system.dmgMod}}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="resource-label">Added Effect</label>
+        <textarea type="text" name="system.effect" data-dtype="String">{{system.effect}}</textarea>
+      </div>
+      <div class="form-group">
+        <label class="resource-label">Accuracy Reduction</label>
+        <input type="text" name="system.attributes.accuracyReduction" value="{{system.attributes.accuracyReduction}}" data-dtype="Number"/>
+      </div>
+      <div class="form-group">
+        <label class="resource-label">Source</label>
+        <input type="text" name="system.source" value="{{system.source}}" data-dtype="String"/>
+      </div>
+    </div>
+
+    {{!-- Description Tab --}}
+    <div class="tab" data-group="primary" data-tab="description">
+      {{editor descriptionHtml target="system.description" button=true owner=owner editable=editable engine="prosemirror"}}
+    </div>
+
+  </section>
+</form>

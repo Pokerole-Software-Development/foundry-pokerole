@@ -1,0 +1,242 @@
+&.actor .resource {
+  background-color: black;
+  border-radius: 20px;
+  display: flex;
+  color: white;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  font-size: 1.3em;
+
+  input, .rank-select {
+    width: 40px;
+    background-color: white;
+    border: none;
+    border-radius: 20px;
+    text-align: center;
+  }
+
+  .rank-select {
+    width: 110px;
+    text-align: left;
+  }
+}
+
+&.actor .resource-label {
+  font-weight: bold;
+  width: 30px;
+  text-transform: uppercase;
+}
+
+.attribute {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1px;
+
+  label {
+    width: 100px;
+    display: inline-block;
+  }
+
+  input {
+    width: 22px;
+    height: 22px;
+    text-align: center;
+    border: none;
+    background-color: white;
+    border-radius: 50%;
+  }
+}
+
+.attributes .skills {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background-color: #A74D39;
+  border-radius: 15px;
+  padding: 5px;
+  color: white;
+  height: fit-content;
+
+  .attribute label {
+    width: 80px;
+  }
+}
+
+.attribute-col {
+  gap: 10px;
+  display: flex;
+  flex-direction: column;
+
+  .main-attributes, .social, .extra-attributes {
+    gap: 3px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .attribute[data-kind="social.tough"] {
+    background-color: #F5E28E;
+  }
+
+  .attribute[data-kind="social.cool"] {
+    background-color: #FBA485;
+  }
+
+  .attribute[data-kind="social.beauty"] {
+    background-color: #A5BDD9;
+  }
+
+  .attribute[data-kind="social.cute"] {
+    background-color: #F8AABD;
+  }
+
+  .attribute[data-kind="social.clever"] {
+    background-color: #A3CF8E;
+  }
+}
+
+.attribute-col .attribute {
+  padding: 1px 6px;
+  border-radius: 30px;
+  border: 3px black solid;
+  background-color: #48A49D;
+}
+
+.nature-box, .battles-box {
+  background-color: black;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 5px;
+  margin-bottom: 10px;
+
+  .attribute {
+    label {
+      color: white;
+    }
+
+    input, select {
+      background-color: white;
+      border-radius: 10px;
+      width: 40px;
+    }
+
+    input {
+      text-align: right;
+    }
+
+    select {
+      text-align: left;
+    }
+
+    select.large {
+      width: 90px;
+    }
+  }
+}
+
+.battles-box {
+  background-color: #A74D39;
+}
+
+.derived {
+  h3 {
+    color: #A74D39;
+    text-transform: uppercase;
+    text-align: center;
+    border-bottom: none;
+  }
+
+  .derived-attributes {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .attribute {
+    border: 2px solid black;
+    padding: 1px 5px;
+    border-radius: 30px;
+    background-color: white;
+
+    input {
+      width: 20px;
+      height: unset;
+      text-align: right;
+      border-radius: 0;
+    }
+  }
+}
+
+.middle {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.matchups {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  li {
+    border-radius: 15px;
+    border: 3px solid #AB3E2E;
+    padding: 2px 5px;
+    background-color: white;
+    font-size: 0.85em;
+
+    h4 {
+      text-transform: uppercase;
+      color: #AB3E2E;
+      margin-bottom: 0;
+    }
+  }
+}
+
+.biography {
+  align-items: center;
+}
+
+.abilities {
+  background-color: black;
+  color: white;
+  border-radius: 15px;
+  padding: 5px;
+
+  h4 {
+    text-transform: uppercase;
+    margin: 3px 0;
+  }
+
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    li {
+      background-color: white;
+      color: black;
+      border-radius: 15px;
+      padding: 5px;
+    }
+
+    h5 {
+      margin: 0;
+      font-weight: bold;
+      font-size: inherit;
+    }
+
+    p:empty {
+      min-height: initial;
+    }
+  }
+}

@@ -1,0 +1,219 @@
+{
+  "Actor": {
+    "types": ["pokemon"],
+    "templates": {
+      "base": {
+        "hp": {
+          "value": 0,
+          "min": 0,
+          "max": 0
+        },
+        "will": {
+          "value": 0,
+          "min": 0,
+          "max": 2
+        },
+        "biography": ""
+      }
+    },
+    "pokemon": {
+      "templates": ["base"],
+      "rank": {
+        "value": "none"
+      },
+      "confidence": {
+        "value": 0
+      },
+      "nature": {
+        "value": ""
+      },
+      "battles": {
+        "value": 0
+      },
+      "victories": {
+        "value": 0
+      },
+      "species": {
+        "value": ""
+      },
+      "pokedex": {
+        "value": 0
+      },
+      "type1": {
+        "value": "none"
+      },
+      "type2": {
+        "value": "none"
+      },
+      "attributes": {
+        "strength": {
+          "value": 0,
+          "min": 0,
+          "max": 12
+        },
+        "dexterity": {
+          "value": 0,
+          "min": 0,
+          "max": 12
+        },
+        "vitality": {
+          "value": 0,
+          "min": 0,
+          "max": 12
+        },
+        "special": {
+          "value": 0,
+          "min": 0,
+          "max": 12
+        },
+        "insight": {
+          "value": 0,
+          "min": 0,
+          "max": 12
+        }
+      },
+      "skills": {
+        "brawl": {
+          "value": 0,
+          "min": 0
+        },
+        "channel": {
+          "value": 0,
+          "min": 0
+        },
+        "clash": {
+          "value": 0,
+          "min": 0
+        },
+        "evasion": {
+          "value": 0,
+          "min": 0
+        },
+        "alert": {
+          "value": 0,
+          "min": 0
+        },
+        "athletic": {
+          "value": 0,
+          "min": 0
+        },
+        "nature": {
+          "value": 0,
+          "min": 0
+        },
+        "stealth": {
+          "value": 0,
+          "min": 0
+        },
+        "allure": {
+          "value": 0,
+          "min": 0
+        },
+        "etiquette": {
+          "value": 0,
+          "min": 0
+        },
+        "intimidate": {
+          "value": 0,
+          "min": 0
+        },
+        "perform": {
+          "value": 0,
+          "min": 0
+        }
+      },
+      "social": {
+        "tough": {
+          "value": 1,
+          "min": 0,
+          "max": 5
+        },
+        "cool": {
+          "value": 1,
+          "min": 0,
+          "max": 5
+        },
+        "beauty": {
+          "value": 1,
+          "min": 0,
+          "max": 5
+        },
+        "cute": {
+          "value": 1,
+          "min": 0,
+          "max": 5
+        },
+        "clever": {
+          "value": 1,
+          "min": 0,
+          "max": 5
+        }
+      },
+      "extra": {
+        "happiness": {
+          "value": 2,
+          "min": 0,
+          "max": 5
+        },
+        "loyalty": {
+          "value": 2,
+          "min": 0,
+          "max": 5
+        }
+      }
+    }
+  },
+  "Item": {
+    "types": ["item", "move", "ability"],
+    "templates": {
+      "base": {
+        "description": ""
+      }
+    },
+    "item": {
+      "templates": ["base"],
+      "quantity": 1,
+      "weight": 0,
+      "formula": "d20 + @str.mod + ceil(@lvl / 2)"
+    },
+    "ability": {
+      "templates": ["base"]
+    },
+    "move": {
+      "templates": ["base"],
+      "type": "none",
+      "category": "physical",
+      "target": "foe",
+      "power": 0,
+      "accMod1": null,
+      "accMod2": null,
+      "dmgMod": null,
+      "effect": "",
+      "source": "homebrew",
+      "attributes": {
+        "accuracyReduction": 0,
+        "priority": 0,
+        "highCritical": false,
+        "lethal": false,
+        "physicalRanged": false,
+        "charge": false,
+        "mustRecharge": false,
+        "fistBased": false,
+        "soundBased": false,
+        "shieldMove": false,
+        "neverFail": false,
+        "switcherMove": false,
+        "recoil": false,
+        "rampage": false,
+        "doubleAction": false,
+        "alwaysCrit": false,
+        "destroyShield": false,
+        "successiveActions": false,
+        "userFaints": false,
+        "resetTerrain": false,
+        "resistedWithDefense": false,
+        "ignoreDefenses": false
+      }
+    }
+  }
+}

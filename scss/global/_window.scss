@@ -1,0 +1,16 @@
+.actor .window-app {
+  font-family: $font-primary;
+}
+
+.actor .window-content, .item .window-content {
+  padding: 0;
+}
+
+.rollable {
+  &:hover,
+  &:focus {
+    color: #000;
+    text-shadow: 0 0 10px red;
+    cursor: pointer;
+  }
+}
