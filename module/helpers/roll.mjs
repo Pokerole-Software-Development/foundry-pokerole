@@ -15,12 +15,10 @@ export async function successRollFromChatMessage(expr, actor, chatData) {
       throw new Error('No actor selected');
     }
 
-    for (let group of [actor.system.attributes, actor.system.skills, actor.system.social]) {
-      for (let [key, value] of Object.entries(group)) {
-        if (key.toLowerCase() == statName) {
-          console.log(`${key}=${value.value}`);
-          rollCount += value.value;
-        }
+    for (let [key, value] of Object.entries({...actor.getIntrinsicOrSocialAttributes(), ...actor.system.skills})) {
+      if (key.toLowerCase() == statName) {
+        console.log(`${key}=${value.value}`);
+        rollCount += value.value;
       }
     }
   }

@@ -14,7 +14,13 @@
   "esmodules": ["module/pokerole.mjs"],
   "styles": ["css/pokerole.css"],
   "scripts": [],
-  "packs": [],
+  "packs": [{
+      "name": "moves",
+      "label": "Moves",
+      "system": "pokerole",
+      "path": "./packs/moves.db",
+      "type": "Item"
+  }],
   "languages": [
     {
       "lang": "en",

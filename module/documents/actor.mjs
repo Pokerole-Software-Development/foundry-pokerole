@@ -97,17 +97,24 @@ export class PokeroleActor extends Actor {
   }
 
   getIntrinsicOrSocialAttribute(name) {
-    let system = this.system;
-    return system.attributes[name] ?? system.social[name] ?? system.extra[name] ?? system.derived[name];
+    const lcName = name.toLowerCase();
+    const system = this.system;
+    if (lcName === 'will') {
+      return {...system.will};
+    }
+    return system.attributes[lcName] ?? system.social[lcName] ?? system.extra[lcName] ?? system.derived[lcName];
   }
 
   getIntrinsicOrSocialAttributes() {
-    return mergeObject(this.system.attributes,
+    const obj = mergeObject(this.system.attributes,
       mergeObject(this.system.social, this.system.extra)
     );
+    obj.will = {...this.system.will};
+    return obj;
   }
 
   getSkill(name) {
-    return this.system.skills[name];
+    const lcName = name.toLowerCase();
+    return this.system.skills[lcName];
   }
 }
