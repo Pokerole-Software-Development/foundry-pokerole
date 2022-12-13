@@ -13,70 +13,123 @@
           "min": 0,
           "max": 2
         },
+        "rank": "none",
+        "nature": "",
+        "confidence": 0,
+        "attributes": {
+          "strength": {
+            "value": 0,
+            "min": 0,
+            "max": 12
+          },
+          "dexterity": {
+            "value": 0,
+            "min": 0,
+            "max": 12
+          },
+          "vitality": {
+            "value": 0,
+            "min": 0,
+            "max": 12
+          },
+          "insight": {
+            "value": 0,
+            "min": 0,
+            "max": 12
+          }
+        },
+        "social": {
+          "tough": {
+            "value": 1,
+            "min": 0,
+            "max": 5
+          },
+          "cool": {
+            "value": 1,
+            "min": 0,
+            "max": 5
+          },
+          "beauty": {
+            "value": 1,
+            "min": 0,
+            "max": 5
+          },
+          "cute": {
+            "value": 1,
+            "min": 0,
+            "max": 5
+          },
+          "clever": {
+            "value": 1,
+            "min": 0,
+            "max": 5
+          }
+        },
+        "skills": {
+          "brawl": {
+            "value": 0,
+            "min": 0
+          },
+          "evasion": {
+            "value": 0,
+            "min": 0
+          },
+          "alert": {
+            "value": 0,
+            "min": 0
+          },
+          "athletic": {
+            "value": 0,
+            "min": 0
+          },
+          "nature": {
+            "value": 0,
+            "min": 0
+          },
+          "stealth": {
+            "value": 0,
+            "min": 0
+          },
+          "allure": {
+            "value": 0,
+            "min": 0
+          },
+          "etiquette": {
+            "value": 0,
+            "min": 0
+          },
+          "intimidate": {
+            "value": 0,
+            "min": 0
+          },
+          "perform": {
+            "value": 0,
+            "min": 0
+          }
+        },
         "biography": ""
       }
     },
     "pokemon": {
       "templates": ["base"],
-      "rank": {
-        "value": "none"
-      },
-      "confidence": {
-        "value": 0
-      },
-      "nature": {
-        "value": ""
-      },
-      "battles": {
-        "value": 0
-      },
-      "victories": {
-        "value": 0
-      },
-      "species": {
-        "value": ""
-      },
-      "pokedex": {
-        "value": 0
-      },
-      "type1": {
-        "value": "none"
-      },
-      "type2": {
-        "value": "none"
-      },
+      "battles": 0,
+      "victories": 0,
+      "pokedexId": 0,
+      "species": "",
+      "pokedexCategory": "",
+      "pokedexDescription": "",
+      "type1": "none",
+      "type2": "none",
+      "height": 0,
+      "weight": 0,
       "attributes": {
-        "strength": {
-          "value": 0,
-          "min": 0,
-          "max": 12
-        },
-        "dexterity": {
-          "value": 0,
-          "min": 0,
-          "max": 12
-        },
-        "vitality": {
-          "value": 0,
-          "min": 0,
-          "max": 12
-        },
         "special": {
-          "value": 0,
-          "min": 0,
-          "max": 12
-        },
-        "insight": {
           "value": 0,
           "min": 0,
           "max": 12
         }
       },
       "skills": {
-        "brawl": {
-          "value": 0,
-          "min": 0
-        },
         "channel": {
           "value": 0,
           "min": 0
@@ -84,69 +137,6 @@
         "clash": {
           "value": 0,
           "min": 0
-        },
-        "evasion": {
-          "value": 0,
-          "min": 0
-        },
-        "alert": {
-          "value": 0,
-          "min": 0
-        },
-        "athletic": {
-          "value": 0,
-          "min": 0
-        },
-        "nature": {
-          "value": 0,
-          "min": 0
-        },
-        "stealth": {
-          "value": 0,
-          "min": 0
-        },
-        "allure": {
-          "value": 0,
-          "min": 0
-        },
-        "etiquette": {
-          "value": 0,
-          "min": 0
-        },
-        "intimidate": {
-          "value": 0,
-          "min": 0
-        },
-        "perform": {
-          "value": 0,
-          "min": 0
-        }
-      },
-      "social": {
-        "tough": {
-          "value": 1,
-          "min": 0,
-          "max": 5
-        },
-        "cool": {
-          "value": 1,
-          "min": 0,
-          "max": 5
-        },
-        "beauty": {
-          "value": 1,
-          "min": 0,
-          "max": 5
-        },
-        "cute": {
-          "value": 1,
-          "min": 0,
-          "max": 5
-        },
-        "clever": {
-          "value": 1,
-          "min": 0,
-          "max": 5
         }
       },
       "extra": {

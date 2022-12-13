@@ -45,7 +45,7 @@ export class PokeroleActor extends Actor {
   _prepareCharacterData(actorData) {
     const systemData = actorData.system;
 
-    const { totalPassiveIncrease, skillLimit } = POKEROLE.rankProgression[systemData.rank?.value ?? 'none'];
+    const { totalPassiveIncrease, skillLimit } = POKEROLE.rankProgression[systemData.rank ?? 'none'];
 
     systemData.derived ??= {};
     systemData.derived.initiative = { value: systemData.attributes.insight.value + systemData.skills.alert.value + totalPassiveIncrease };
@@ -102,7 +102,9 @@ export class PokeroleActor extends Actor {
   }
 
   getIntrinsicOrSocialAttributes() {
-    return mergeObject(this.system.attributes, this.system.social, this.system.derived);
+    return mergeObject(this.system.attributes,
+      mergeObject(this.system.social, this.system.extra)
+    );
   }
 
   getSkill(name) {

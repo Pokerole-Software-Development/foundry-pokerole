@@ -63,7 +63,7 @@ export class PokeroleActorSheet extends ActorSheet {
     context.types = getLocalizedTypesForSelect();
 
     context.matchups = {};
-    const matchups = getDualTypeMatchups(context.system.type1.value, context.system.type2.value);
+    const matchups = getDualTypeMatchups(context.system.type1, context.system.type2);
     if (matchups.resist) {
       context.matchups.resist = matchups.resist.map(getLocalizedType).join(', ');
     }
@@ -84,6 +84,20 @@ export class PokeroleActorSheet extends ActorSheet {
       secrets: this.document.isOwner,
       async: true
     });
+
+    // m -> ft
+    let heightImperial = (context.system.height ?? 0) * 3.28084;
+    if (heightImperial < 0 || Number.isNaN(heightImperial)) {
+      heightImperial = 0;
+    }
+    context.heightImperial = Math.round(heightImperial * 100) / 100;
+
+    // kg -> lbs 
+    let weightImperial = (context.system.weight ?? 0) * 2.20462262185;
+    if (weightImperial < 0 || Number.isNaN(weightImperial)) {
+      weightImperial = 0;
+    }
+    context.weightImperial = Math.round(weightImperial);
 
     return context;
   }
@@ -126,7 +140,10 @@ export class PokeroleActorSheet extends ActorSheet {
     const moves = {};
 
     for (const rank of POKEROLE.ranks.slice(1)) {
-      moves[rank] = [];
+      moves[rank] = {
+        locRankName: game.i18n.localize(POKEROLE.i18n.ranks[rank]),
+        moveList: []
+      };
     }
 
     // Iterate through items, allocating to containers
@@ -145,7 +162,7 @@ export class PokeroleActorSheet extends ActorSheet {
         if (i.system.rank == undefined) {
           i.system.rank = 'starter';
         }
-        moves[i.system.rank].push({
+        moves[i.system.rank].moveList.push({
           data: i,
           locType: game.i18n.localize(POKEROLE.i18n.types[i.system.type]) ?? i.system.type,
           locTarget: game.i18n.localize(POKEROLE.i18n.targets[i.system.target]) ?? i.system.target,
@@ -205,8 +222,35 @@ export class PokeroleActorSheet extends ActorSheet {
         li.addEventListener("dragstart", handler, false);
       });
     }
-  }
 
+    html.find('.custom-attribute .add-value-button').click(() => {
+      this._addCustomAttributeFromInput(html);
+    });
+    html.find('.custom-attribute .add-value-input').keypress(event => {
+      if (event.which === 13 /* Return key */) {
+        this._addCustomAttributeFromInput(html);
+      }
+    });
+    html.find('.custom-skill .add-value-button').click(() => {
+      this._addCustomSkillFromInput(html);
+    });
+    html.find('.custom-skill .add-value-input').keypress(event => {
+      if (event.which === 13 /* Return key */) {
+        this._addCustomSkillFromInput(html);
+      }
+    });
+
+    html.find('.delete-value-button').click(ev => {
+      const { attributeKey, skillKey } = $(ev.target).closest('.delete-value-button')[0].dataset;
+      let obj = {};
+      if (attributeKey) {
+        obj[`system.extra.-=${attributeKey}`] = null;
+      } else if (skillKey) {
+        obj[`system.skills.-=${skillKey}`] = null;
+      }
+      this.actor.update(obj);
+    });
+  }
 
   /**
    * Handle creating a new Owned Item for the actor using initial data defined in the HTML dataset
@@ -271,12 +315,41 @@ export class PokeroleActorSheet extends ActorSheet {
 
   async _onSelectRank(event) {
     const newRank = event.target.value;
-    const oldRank = this.actor.system.rank.value;
+    const oldRank = this.actor.system.rank;
 
     await this._advanceRank(oldRank, newRank);
   }
 
-  
+  _addCustomAttributeFromInput(html) {
+    const name = html.find('.custom-attribute .add-value-input').val();
+      // Remove non-alphanumeric characters
+      const sanitizedName = this.constructor._sanitizeName(name ?? '');
+      if (sanitizedName) {
+        const obj = {}; 
+        obj[`system.extra.${sanitizedName}`] = {
+          value: 0,
+          min: 0,
+          max: 5,
+          custom: true,
+        };
+        this.actor.update(obj);
+      }
+  }
+
+  _addCustomSkillFromInput(html) {
+    const name = html.find('.custom-skill .add-value-input').val();
+      // Remove non-alphanumeric characters
+      const sanitizedName = this.constructor._sanitizeName(name ?? '');
+      if (sanitizedName) {
+        const obj = {}; 
+        obj[`system.skills.${sanitizedName}`] = {
+          value: 0,
+          min: 0,
+          custom: true,
+        };
+        this.actor.update(obj);
+      }
+  }
 
   static ADVANCEMENT_DIALOGUE_TEMPLATE = "systems/pokerole/templates/actor/advancement.html";
 
@@ -450,5 +523,9 @@ export class PokeroleActorSheet extends ActorSheet {
         updateCounters();
       }
     });
+  }
+
+  static _sanitizeName(name) {
+    return name.replace(/[\W_]+/g, "").toLowerCase();
   }
 }

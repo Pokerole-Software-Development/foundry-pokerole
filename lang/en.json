@@ -74,6 +74,7 @@
   "POKEROLE.TargetUserAndAllies": "User and Allies",
   "POKEROLE.TargetArea": "Area",
   "POKEROLE.TargetBattlefield": "Battlefield",
+  "POKEROLE.TargetBattlefieldFoes": "Battlefield (Foes)",
   "POKEROLE.TargetBattlefieldAndArea": "Battlefield and Area",
 
   "POKEROLE.MoveCategoryPhysical": "Physical",

@@ -359,15 +359,16 @@ POKEROLE.i18n = {
   },
 
   targets: {
-    "foe": "POKEROLE.TargetFoe",
-    "randomFoe": "POKEROLE.TargetRandomFoe",
-    "allFoes": "POKEROLE.TargetAllFoes",
-    "user": "POKEROLE.TargetUser",
-    "ally": "POKEROLE.TargetAlly",
-    "userAndAllies": "POKEROLE.TargetUserAndAllies",
-    "area": "POKEROLE.TargetArea",
-    "battlefield": "POKEROLE.TargetBattlefield",
-    "battlefieldAndArea": "POKEROLE.TargetBattlefieldAndArea",
+    "Foe": "POKEROLE.TargetFoe",
+    "Random Foe": "POKEROLE.TargetRandomFoe",
+    "All Foes": "POKEROLE.TargetAllFoes",
+    "User": "POKEROLE.TargetUser",
+    "Ally": "POKEROLE.TargetAlly",
+    "User and Allies": "POKEROLE.TargetUserAndAllies",
+    "Area": "POKEROLE.TargetArea",
+    "Battlefield": "POKEROLE.TargetBattlefield",
+    "Battlefield (Foes)": "POKEROLE.TargetBattlefieldFoes",
+    "Battlefield and Area": "POKEROLE.TargetBattlefieldAndArea",
   },
 
   moveCategories: {

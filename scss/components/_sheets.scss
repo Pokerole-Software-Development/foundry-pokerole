@@ -28,7 +28,7 @@
   text-transform: uppercase;
 }
 
-.attribute {
+.attribute, .add-custom-value {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -39,7 +39,7 @@
     display: inline-block;
   }
 
-  input {
+  .value-input, .add-value-button {
     width: 22px;
     height: 22px;
     text-align: center;
@@ -96,7 +96,7 @@
   }
 }
 
-.attribute-col .attribute {
+.attribute-col .attribute, .custom-attribute {
   padding: 1px 6px;
   border-radius: 30px;
   border: 3px black solid;
@@ -141,14 +141,14 @@
   background-color: #A74D39;
 }
 
-.derived {
-  h3 {
-    color: #A74D39;
-    text-transform: uppercase;
-    text-align: center;
-    border-bottom: none;
-  }
+.section-header {
+  color: #A74D39;
+  text-transform: uppercase;
+  text-align: center;
+  border-bottom: none;
+}
 
+.derived {
   .derived-attributes {
     display: flex;
     flex-direction: column;
@@ -166,6 +166,7 @@
       height: unset;
       text-align: right;
       border-radius: 0;
+      background-color: unset;
     }
   }
 }
@@ -176,7 +177,7 @@
   gap: 5px;
 }
 
-.matchups {
+.matchups, .pokedex {
   list-style-type: none;
   margin: 0;
   padding: 0;
@@ -185,11 +186,11 @@
   gap: 3px;
 
   li {
-    border-radius: 15px;
+    border-radius: 13px;
     border: 3px solid #AB3E2E;
-    padding: 2px 5px;
+    padding: 3px 5px;
     background-color: white;
-    font-size: 0.85em;
+    font-size: 0.75rem;
 
     h4 {
       text-transform: uppercase;
@@ -197,10 +198,77 @@
       margin-bottom: 0;
     }
   }
+
+  li.inner-list {
+    background-color: #AB3E2E;
+    padding: 0;
+  }
+
+  .inner-list ul {
+    display: flex;
+    flex-direction: row;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    gap: 3px;
+
+    li {
+      flex: 1;
+      background-color: white;
+      border: none;
+
+      span {
+        margin-left: 5px;
+      }
+    }
+  }
+
+  input, textarea {
+    font-family: inherit;
+    font-size: inherit; 
+    background-color: unset;
+    border: none; 
+    padding: 0;
+    width: 100%;
+
+    &.small {
+      width: 35px;
+      text-align: right;
+    }
+  }
+
+  input {
+    border-bottom: 1px solid black;
+    border-radius: 0;
+  }
+
+  input:hover, input:active, input:focus, textarea:hover, textarea:active, textarea:focus {
+    background-color: #f3f3f3;
+  }
 }
 
 .biography {
-  align-items: center;
+  gap: 10px;
+}
+
+.sheet-body .biography .editor {
+  background-color: white;
+  border-radius: 20px;
+  padding: 5px;
+  height: calc(100% - 5px);
+  flex: 1.5;
+}
+
+.species-data {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 5px 0; 
+
+  .section-header {
+    text-align: left;
+    margin: 0;
+  }
 }
 
 .abilities {
@@ -227,6 +295,9 @@
       color: black;
       border-radius: 15px;
       padding: 5px;
+
+      max-height: 150px;
+      overflow: hidden;
     }
 
     h5 {
@@ -239,4 +310,57 @@
       min-height: initial;
     }
   }
+}
+
+.custom-skill {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+}
+
+.add-custom-value {
+  .add-value-input {
+    height: 20px;
+    border: none;
+    border-bottom: 2px solid white;
+    background-color: unset;
+    border-radius: 0;
+    flex: 1;
+    margin: 0;
+    padding: 0;
+    color: white;
+    text-transform: uppercase;
+  }
+
+  .add-value-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+  }
+
+  .add-value-button {
+    color: black;
+    background-color: rgba(255, 255, 255, 0.5);
+
+    i {
+      width: 100%;
+      height: 100%;
+      line-height: 22px;
+    }
+  }
+}
+
+.custom-attribute.add-custom-value {
+  .add-value-input {
+    color: black;
+    border: none;
+  }
+
+  .add-value-input::placeholder {
+    color: rgba(0, 0, 0, 0.5);
+  }
+}
+
+.delete-value-button {
+  margin-right: 5px;
 }

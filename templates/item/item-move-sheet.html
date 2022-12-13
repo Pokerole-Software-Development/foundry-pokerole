@@ -49,25 +49,19 @@
       </div>
       <div class="form-group">
         <label class="resource-label">Accuracy Modifier 1 (Attribute)</label>
-        <select name="system.accMod1" value="{{system.accMod1}}" data-dtype="String">
-          {{selectOptions attributes selected=system.accMod1}}
-        </select>
+        <input type="text" name="system.accMod1" value="{{system.accMod1}}" data-dtype="String">
       </div>
       <div class="form-group">
         <label class="resource-label">Accuracy Modifier 2 (Skill)</label>
-        <select name="system.accMod2" value="{{system.accMod2}}" data-dtype="String">
-          {{selectOptions skills selected=system.accMod2}}
-        </select>
+        <input type="text" name="system.accMod2" value="{{system.accMod2}}" data-dtype="String">
       </div>
       <div class="form-group">
         <label class="resource-label">Damage Modifier</label>
-        <select name="system.dmgMod" value="{{system.dmgMod}}" data-dtype="String">
-          {{selectOptions attributes selected=system.dmgMod}}
-        </select>
+        <input type="text" name="system.dmgMod" value="{{system.dmgMod}}" data-dtype="String">
       </div>
       <div class="form-group">
         <label class="resource-label">Added Effect</label>
-        <textarea type="text" name="system.effect" data-dtype="String">{{system.effect}}</textarea>
+        <textarea name="system.effect" data-dtype="String">{{system.effect}}</textarea>
       </div>
       <div class="form-group">
         <label class="resource-label">Accuracy Reduction</label>

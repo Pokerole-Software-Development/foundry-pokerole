@@ -1,4 +1,4 @@
-import { getAllAttributes, getLocalizedTypesForSelect, getSkills, POKEROLE } from "../helpers/config.mjs";
+import { getLocalizedTypesForSelect, POKEROLE } from "../helpers/config.mjs";
 
 /**
  * Extend the basic ItemSheet with some very simple modifications
@@ -54,15 +54,6 @@ export class PokeroleItemSheet extends ItemSheet {
     for (let [k, v] of Object.entries(POKEROLE.i18n.targets)) {
       context.targets[k] = game.i18n.localize(v) ?? v;
     }
-
-    context.attributes = getAllAttributes().reduce((curr, name) => {
-      curr[name] = name;
-      return curr
-    }, {'': '-'});
-    context.skills = getSkills().reduce((curr, name) => {
-      curr[name] = name;
-      return curr;
-    }, {'': '-'});
 
     context.ranks = {};
     for (let rank of POKEROLE.ranks.slice(1)) {
