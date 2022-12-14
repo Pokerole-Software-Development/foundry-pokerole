@@ -259,7 +259,7 @@ export async function createSuccessRollMessageData(rollCount, flavor, chatData, 
 
   text += '</ol></div></div>';
 
-  if (game.dice3d.show) {
+  if (game.dice3d?.show) {
     const data = {
       throws: [{
         dice: rolls.map(roll => ({
@@ -271,7 +271,7 @@ export async function createSuccessRollMessageData(rollCount, flavor, chatData, 
         }))
       }]
     }
-    await game.dice3d.show(data);
+    await game.dice3d?.show(data);
   }
 
   const result = successCount + modifier;
