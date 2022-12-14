@@ -107,7 +107,8 @@
             "min": 0
           }
         },
-        "biography": ""
+        "biography": "",
+        "source": "homebrew"
       }
     },
     "pokemon": {
@@ -157,7 +158,8 @@
     "types": ["item", "move", "ability"],
     "templates": {
       "base": {
-        "description": ""
+        "description": "",
+        "source": "homebrew"
       }
     },
     "item": {
@@ -179,7 +181,6 @@
       "accMod2": null,
       "dmgMod": null,
       "effect": "",
-      "source": "homebrew",
       "attributes": {
         "accuracyReduction": 0,
         "priority": 0,

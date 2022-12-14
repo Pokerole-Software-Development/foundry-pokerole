@@ -26,6 +26,12 @@
     "system": "pokerole",
     "path": "./packs/moves.db",
     "type": "Item"
+  }, {
+    "name": "abilities",
+    "label": "Abilities",
+    "system": "pokerole",
+    "path": "./packs/abilities.db",
+    "type": "Item"
   }],
   "languages": [
     {

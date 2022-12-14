@@ -235,6 +235,10 @@
       width: 35px;
       text-align: right;
     }
+
+    &.pokedex-description {
+      height: 76px;
+    }
   }
 
   input {
@@ -298,16 +302,21 @@
 
       max-height: 150px;
       overflow: hidden;
+
+      // Only show the first non-empty paragraph
+      p, p:not(:empty) ~ p {
+        display: none;
+      }
+  
+      p:not(:empty) {
+        display: block;
+      }
     }
 
     h5 {
       margin: 0;
       font-weight: bold;
       font-size: inherit;
-    }
-
-    p:empty {
-      min-height: initial;
     }
   }
 }
