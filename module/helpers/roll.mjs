@@ -164,17 +164,21 @@ export async function rollDamage(item, actor) {
   });
 
   // Create the Dialog window and await submission of the form
-  const result = await new Promise(resolve => {
+  const [result, isCrit] = await new Promise(resolve => {
     new Dialog({
       title: `Damage roll: ${item.name}`,
       content,
       buttons: {
-        roll: {
-          label: "Roll",
-          callback: html => resolve(html),
+        crit: {
+          label: "Critical Hit",
+          callback: html => resolve([html, true]),
+        },
+        normal: {
+          label: "Normal",
+          callback: html => resolve([html, false]),
         },
       },
-      close: () => resolve(undefined),
+      close: () => resolve([undefined, false]),
     }, { popOutModuleDisable: true }).render(true);
   });
 
@@ -188,6 +192,9 @@ export async function rollDamage(item, actor) {
     poolBonus -= enemyDef;
     if (stab) {
       poolBonus += 1;
+    }
+    if (isCrit) {
+      poolBonus += 2;
     }
 
     let rollCount = (item.system.power ?? 0) + poolBonus;
@@ -227,7 +234,9 @@ export async function rollDamage(item, actor) {
       }
     }
 
-    messageData.content += `<hr>${effectiveHtml}<p class="pokerole roll-highlight">The attack deals ${damage} damage!</p>`;
+    const critText = isCrit ? 'A critical hit! ' : '';
+
+    messageData.content += `<hr>${effectiveHtml}<p class="pokerole roll-highlight">${critText}The attack deals ${damage} damage!</p>`;
 
     await ChatMessage.create(messageData);
   }

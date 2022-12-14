@@ -30,6 +30,7 @@ This system implements special support for the following optional modules:
 - [PopOut](https://foundryvtt.com/packages/popout): Allows displaying documents in a separate window.
 
 The following modules are known to work and provide useful functionality:
+- [Visual Active Effects](https://foundryvtt.com/packages/visual-active-effects): Displays Active Effects such as status ailments in the top right.
 - [Quick Insert - Search Widget](https://foundryvtt.com/packages/quick-insert): Adds a search tool that can be accessed with Ctrl+Space. Useful for searching through the large compendiums.
 - [Next Up](https://foundryvtt.com/packages/Next-Up): Adds a config option to automatically open the active combatant's character sheet. Useful for Storytellers in battle.
 
@@ -37,8 +38,8 @@ The following modules are known to work and provide useful functionality:
 
 ### Compiling the CSS
 
-This repo includes both CSS for the theme and SCSS source files. If you're new to CSS, it's probably easier to just work in those files directly and delete the SCSS directory. If you're interested in using a CSS preprocessor to add support for nesting, variables, and more, you can run `npm install` in this directory to install the dependencies for the scss compiler. After that, just run `npm run gulp` to compile the SCSS and start a process that watches for new changes.
+This repository includes SCSS files that must be compiled to CSS. Run `npm install` followed by `npm run gulp` to automatically watch for changes in SCSS files.
 
 ### Installation from source
 
-Run `npm run build`, then copy/symlink this folder to `[Foundry data directory]/Data/systems/pokerole`.
+Run `npm install` followed by `npm run build`, then copy/symlink this folder to `[Foundry data directory]/Data/systems/pokerole`.

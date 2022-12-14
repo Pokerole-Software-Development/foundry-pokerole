@@ -15,11 +15,17 @@
   "styles": ["css/pokerole.css"],
   "scripts": [],
   "packs": [{
-      "name": "moves",
-      "label": "Moves",
-      "system": "pokerole",
-      "path": "./packs/moves.db",
-      "type": "Item"
+    "name": "pokemon",
+    "label": "Pokémon",
+    "system": "pokerole",
+    "path": "./packs/pokedex.db",
+    "type": "Actor"
+  }, {
+    "name": "moves",
+    "label": "Moves",
+    "system": "pokerole",
+    "path": "./packs/moves.db",
+    "type": "Item"
   }],
   "languages": [
     {
