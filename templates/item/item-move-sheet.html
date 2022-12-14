@@ -18,13 +18,26 @@
     {{!-- Attributes Tab --}}
     <div class="tab attributes" data-group="primary" data-tab="attributes">
       {{#if owned}}
+      {{#unless system.attributes.maneuver}}
+      <div class="form-group">
+        <label class="resource-label">Learned?</label>
+        <input type="checkbox" name="system.learned" {{checked system.learned}} data-dtype="Boolean">
+        </select>
+      </div>
+
+      {{#unless system.learned}}
       <div class="form-group">
         <label class="resource-label">Learned at Rank</label>
         <select name="system.rank" value="{{system.rank}}" data-dtype="String">
           {{selectOptions ranks selected=system.rank}}
         </select>
       </div>
+      {{/unless}}
+      
+      <hr>
+      {{/unless}}
       {{/if}}
+
       <div class="form-group">
         <label class="resource-label">Type</label>
         <select name="system.type" value="{{system.type}}" data-dtype="String">
@@ -66,6 +79,11 @@
       <div class="form-group">
         <label class="resource-label">Accuracy Reduction</label>
         <input type="text" name="system.attributes.accuracyReduction" value="{{system.attributes.accuracyReduction}}" data-dtype="Number"/>
+      </div>
+      <div class="form-group">
+        <label class="resource-label">Typeless Maneuver?</label>
+        <input type="checkbox" name="system.attributes.maneuver" {{checked system.attributes.maneuver}} data-dtype="Boolean">
+        </select>
       </div>
       <div class="form-group">
         <label class="resource-label">Source</label>

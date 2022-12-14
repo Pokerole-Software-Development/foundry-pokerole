@@ -1,6 +1,6 @@
 # Pokérole
 
-Work-in-progress [FoundryVVT](https://foundryvtt.com/) system for [Pokérole](https://www.pokeroleproject.com/). **Note that this system is in early development, using it in actual games is not recommended as features are missing and non-backwards compatible changes to data will occur.**
+Work-in-progress [FoundryVTT](https://foundryvtt.com/) system for [Pokérole](https://www.pokeroleproject.com/). **Note that this system is in early development, using it in actual games is not recommended as features are missing and non-backwards compatible changes to data will occur.**
 
 Partially based on [Boilerplate](https://gitlab.com/asacolips-projects/foundry-mods/boilerplate) and [dnd5e](https://github.com/foundryvtt/dnd5e).
 

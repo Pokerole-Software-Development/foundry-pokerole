@@ -299,6 +299,7 @@
       color: black;
       border-radius: 15px;
       padding: 5px;
+      font-size: 0.75rem;
 
       max-height: 150px;
       overflow: hidden;
@@ -372,4 +373,28 @@
 
 .delete-value-button {
   margin-right: 5px;
+}
+
+&.item textarea {
+  font-family: inherit;
+  border: revert;
+}
+
+.items-list {
+  ul.inner {
+    margin: 0;
+    padding: 0 0 5px 0;
+  
+    &.items-hidden {
+      padding: 0;
+
+      li {
+        display: none;
+      }
+    }
+  }
+
+  .hidden-header {
+    opacity: 60%;
+  }
 }

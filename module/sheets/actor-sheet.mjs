@@ -24,6 +24,9 @@ export class PokeroleActorSheet extends ActorSheet {
     return `systems/pokerole/templates/actor/actor-pokemon-sheet.html`;
   }
 
+  // Move groups that are collapsed by default
+  static HIDDEN_GROUPS = [...POKEROLE.ranks];
+
   /* -------------------------------------------- */
 
   /** @override */
@@ -134,17 +137,19 @@ export class PokeroleActorSheet extends ActorSheet {
    * @return {undefined}
    */
   _prepareItems(context) {
-    // Initialize containers.
     const gear = [];
     const abilities = [];
     const moves = {};
 
-    for (const rank of POKEROLE.ranks.slice(1)) {
-      moves[rank] = {
-        locRankName: game.i18n.localize(POKEROLE.i18n.ranks[rank]),
+    for (const group of POKEROLE.moveGroups) {
+      moves[group] = {
+        groupName: game.i18n.localize(POKEROLE.i18n.moveGroups[group]),
+        hidden: (this.constructor.HIDDEN_GROUPS ?? []).includes(group),
         moveList: []
       };
     }
+    
+    let learnedMoveNum = 0;
 
     // Iterate through items, allocating to containers
     for (let i of context.items) {
@@ -162,7 +167,16 @@ export class PokeroleActorSheet extends ActorSheet {
         if (i.system.rank == undefined) {
           i.system.rank = 'starter';
         }
-        moves[i.system.rank].moveList.push({
+
+        let group = i.system.rank;
+        if (i.system.learned) {
+          group = 'learned';
+          learnedMoveNum++;
+        } 
+        if (i.system.attributes.maneuver) {
+          group = 'maneuver';
+        }
+        moves[group].moveList.push({
           data: i,
           locType: game.i18n.localize(POKEROLE.i18n.types[i.system.type]) ?? i.system.type,
           locTarget: game.i18n.localize(POKEROLE.i18n.targets[i.system.target]) ?? i.system.target,
@@ -171,10 +185,25 @@ export class PokeroleActorSheet extends ActorSheet {
       }
     }
 
-    // Assign and return
     context.gear = gear;
     context.abilities = abilities;
     context.moves = moves;
+
+    // Show number of learned moves and max number of learnable moves
+    const maxLearnedMoves = (context.system.attributes.insight?.value ?? 0) + 2;
+    const learnedGroup = context.moves['learned'];
+    if (learnedGroup) {
+      learnedGroup.groupName += ` (${learnedMoveNum}/${maxLearnedMoves})`;
+    }
+
+    // Remove empty move groups
+    for (const group of POKEROLE.moveGroups) {
+      if (group !== 'learned' && group !== 'maneuver') {
+        if (moves[group]?.moveList && moves[group].moveList.length === 0) {
+          delete moves[group];
+        }
+      }
+    }
   }
 
   /* -------------------------------------------- */
@@ -212,6 +241,29 @@ export class PokeroleActorSheet extends ActorSheet {
 
     // Rollable attributes.
     html.find('.rollable').click(this._onRoll.bind(this));
+
+    // Toggle moves
+    html.find(".move-toggle").click(event => {
+      const li = event.currentTarget.closest("li");
+      const item = this.actor.items.get(li.dataset.itemId);
+      item.update({ 'system.learned': !item.system.learned });
+    });
+
+    // Toggle move groups in the UI
+    html.find(".toggle-group").click(event => {
+      const group = event.currentTarget.dataset.group;
+      $(event.currentTarget.closest('li')).toggleClass('hidden-header');
+      html.find(`.list-${group}`).toggleClass('items-hidden');
+
+      const hiddenGroups = (this.constructor.HIDDEN_GROUPS ?? []);
+      const groupIndex = hiddenGroups.indexOf(group);
+      if (groupIndex > -1) {
+        hiddenGroups.splice(groupIndex, 1);
+      } else {
+        hiddenGroups.push(group);
+      }
+      this.constructor.hiddenGroups = hiddenGroups;
+    });
 
     // Drag events for macros.
     if (this.actor.isOwner) {

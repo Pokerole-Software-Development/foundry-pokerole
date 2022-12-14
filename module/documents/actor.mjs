@@ -53,7 +53,7 @@ export class PokeroleActor extends Actor {
     systemData.derived.clashPhysical = { value: systemData.attributes.strength.value + systemData.skills.clash.value };
     systemData.derived.clashSpecial = { value: systemData.attributes.special.value + systemData.skills.clash.value };
 
-    if (systemData.skills?.medicine?.value) { // Pokémon don't have Medicine
+    if (systemData.skills?.medicine?.value !== undefined) { // Pokémon don't have Medicine
       systemData.derived.useItem = { value: systemData.social.clever.value + systemData.skills.medicine.value };
     }
     systemData.derived.searchForCover = { value: systemData.attributes.insight.value + systemData.skills.alert.value };

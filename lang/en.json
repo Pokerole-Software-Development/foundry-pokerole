@@ -46,6 +46,8 @@
   "POKEROLE.EffectEdit": "Edit Effect",
   "POKEROLE.EffectDelete": "Delete Effect",
 
+  "POKEROLE.MoveToggle": "Toggle Learned status",
+
   "POKEROLE.TypeNone": "-",
   "POKEROLE.TypeNormal": "Normal",
   "POKEROLE.TypeBug": "Bug",
@@ -89,6 +91,16 @@
   "POKEROLE.RankPro": "Pro",
   "POKEROLE.RankMaster": "Master",
   "POKEROLE.RankChampion": "Champion",
+
+  "POKEROLE.MoveGroupLearned": "Learned Moves",
+  "POKEROLE.MoveGroupManeuver": "Typeless Maneuvers",
+  "POKEROLE.MoveGroupStarter": "Starter Rank",
+  "POKEROLE.MoveGroupBeginner": "Beginner Rank",
+  "POKEROLE.MoveGroupAmateur": "Amateur Rank",
+  "POKEROLE.MoveGroupAce": "Ace Rank",
+  "POKEROLE.MoveGroupPro": "Pro Rank",
+  "POKEROLE.MoveGroupMaster": "Master Rank",
+  "POKEROLE.MoveGroupChampion": "Champion Rank",
 
   "POKEROLE.NatureHardy": "Hardy",
   "POKEROLE.NatureLonely": "Lonely",

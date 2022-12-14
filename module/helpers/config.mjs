@@ -128,6 +128,7 @@ POKEROLE.typeMatchups = {
 };
 
 POKEROLE.ranks = ['none', 'starter', 'beginner', 'amateur', 'ace', 'pro', 'master', 'champion'];
+POKEROLE.moveGroups = ['learned', ...POKEROLE.ranks.slice(1), 'maneuver'];
 
 POKEROLE.types = Object.keys(POKEROLE.typeMatchups);
 
@@ -414,5 +415,19 @@ POKEROLE.i18n = {
     "pro": "POKEROLE.RankPro",
     "master": "POKEROLE.RankMaster",
     "champion": "POKEROLE.RankChampion",
-  }
+  },
+
+  moveGroups: {
+    "learned": "POKEROLE.MoveGroupLearned",
+
+    "starter": "POKEROLE.MoveGroupStarter",
+    "beginner": "POKEROLE.MoveGroupBeginner",
+    "amateur": "POKEROLE.MoveGroupAmateur",
+    "ace": "POKEROLE.MoveGroupAce",
+    "pro": "POKEROLE.MoveGroupPro",
+    "master": "POKEROLE.MoveGroupMaster",
+    "champion": "POKEROLE.MoveGroupChampion",
+
+    "maneuver": "POKEROLE.MoveGroupManeuver",
+  },
 };

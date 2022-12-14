@@ -175,7 +175,7 @@
       "templates": ["base"],
       "type": "none",
       "category": "physical",
-      "target": "foe",
+      "target": "Foe",
       "power": 0,
       "accMod1": null,
       "accMod2": null,
