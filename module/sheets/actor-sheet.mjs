@@ -144,7 +144,7 @@ export class PokeroleActorSheet extends ActorSheet {
     for (const group of POKEROLE.moveGroups) {
       moves[group] = {
         groupName: game.i18n.localize(POKEROLE.i18n.moveGroups[group]),
-        hidden: (this.constructor.HIDDEN_GROUPS ?? []).includes(group),
+        hidden: (this.constructor.HIDDEN_GROUPS ?? []).includes(group) && this.isEditable,
         moveList: []
       };
     }
@@ -219,6 +219,22 @@ export class PokeroleActorSheet extends ActorSheet {
       item.sheet.render(true);
     });
 
+    // Toggle move groups in the UI
+    html.find(".toggle-group").click(event => {
+      const group = event.currentTarget.dataset.group;
+      $(event.currentTarget.closest('li')).toggleClass('hidden-header');
+      html.find(`.list-${group}`).toggleClass('items-hidden');
+
+      const hiddenGroups = (this.constructor.HIDDEN_GROUPS ?? []);
+      const groupIndex = hiddenGroups.indexOf(group);
+      if (groupIndex > -1) {
+        hiddenGroups.splice(groupIndex, 1);
+      } else {
+        hiddenGroups.push(group);
+      }
+      this.constructor.hiddenGroups = hiddenGroups;
+    });
+
     // -------------------------------------------------------------
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
@@ -247,22 +263,6 @@ export class PokeroleActorSheet extends ActorSheet {
       const li = event.currentTarget.closest("li");
       const item = this.actor.items.get(li.dataset.itemId);
       item.update({ 'system.learned': !item.system.learned });
-    });
-
-    // Toggle move groups in the UI
-    html.find(".toggle-group").click(event => {
-      const group = event.currentTarget.dataset.group;
-      $(event.currentTarget.closest('li')).toggleClass('hidden-header');
-      html.find(`.list-${group}`).toggleClass('items-hidden');
-
-      const hiddenGroups = (this.constructor.HIDDEN_GROUPS ?? []);
-      const groupIndex = hiddenGroups.indexOf(group);
-      if (groupIndex > -1) {
-        hiddenGroups.splice(groupIndex, 1);
-      } else {
-        hiddenGroups.push(group);
-      }
-      this.constructor.hiddenGroups = hiddenGroups;
     });
 
     // Drag events for macros.
@@ -327,6 +327,16 @@ export class PokeroleActorSheet extends ActorSheet {
     // Remove the type from the dataset since it's in the itemData.type prop.
     delete itemData.system["type"];
 
+    if (type === 'move') {
+      if (itemData.system.rank === 'learned') {
+        itemData.system.rank = 'starter';
+        itemData.system.learned = true;
+      } else if (itemData.system.rank === 'maneuver') {
+        itemData.system.rank = 'starter';
+        itemData.system.attributes = { maneuver: true };
+      }
+    };
+
     // Finally, create the item!
     return await Item.create(itemData, {parent: this.actor});
   }
@@ -351,7 +361,7 @@ export class PokeroleActorSheet extends ActorSheet {
     }
 
     if (dataset.rollAttribute) {
-      let value = this.actor.getIntrinsicOrSocialAttribute(dataset.rollAttribute).value;
+      let value = this.actor.getAnyAttribute(dataset.rollAttribute).value;
       successRollAttribute({ name: dataset.rollAttribute, value }, {
         speaker: ChatMessage.implementation.getSpeaker({ actor: this.actor })
       });
@@ -377,6 +387,8 @@ export class PokeroleActorSheet extends ActorSheet {
       // Remove non-alphanumeric characters
       const sanitizedName = this.constructor._sanitizeName(name ?? '');
       if (sanitizedName) {
+        if (this._checkDuplicateAttributeOrSkill(sanitizedName)) return;
+
         const obj = {}; 
         obj[`system.extra.${sanitizedName}`] = {
           value: 0,
@@ -393,6 +405,8 @@ export class PokeroleActorSheet extends ActorSheet {
       // Remove non-alphanumeric characters
       const sanitizedName = this.constructor._sanitizeName(name ?? '');
       if (sanitizedName) {
+        if (this._checkDuplicateAttributeOrSkill(sanitizedName)) return;
+
         const obj = {}; 
         obj[`system.skills.${sanitizedName}`] = {
           value: 0,
@@ -401,6 +415,16 @@ export class PokeroleActorSheet extends ActorSheet {
         };
         this.actor.update(obj);
       }
+  }
+
+  /** Shows an error message if an attribute or skill with the given name already exists */
+  _checkDuplicateAttributeOrSkill(name) {
+    const allKeys = Object.keys(this.actor.getAllSkillsAndAttributes());
+    if (allKeys.includes(name)) {
+      ui.notifications.error(`A skill or attribute named "${name}" already exists`);
+      return true;
+    }
+    return false;
   }
 
   static ADVANCEMENT_DIALOGUE_TEMPLATE = "systems/pokerole/templates/actor/advancement.html";

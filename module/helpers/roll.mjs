@@ -92,7 +92,7 @@ export async function rollAccuracy(item, actor, showPopup = true) {
   let dicePool = 0;
   if (accMod1) {
     baseFormula = accMod1;
-    dicePool += actor.getIntrinsicOrSocialAttribute(accMod1)?.value ?? 0;
+    dicePool += actor.getAnyAttribute(accMod1)?.value ?? 0;
 
     if (accMod2) {
       baseFormula += `+${accMod2}`;
@@ -199,7 +199,7 @@ export async function rollDamage(item, actor) {
 
     let rollCount = (item.system.power ?? 0) + poolBonus;
     if (item.system.dmgMod) {
-      rollCount += actor.getIntrinsicOrSocialAttribute(item.system.dmgMod)?.value ?? 0;
+      rollCount += actor.getAnyAttribute(item.system.dmgMod)?.value ?? 0;
     }
 
     const chatData = { speaker: ChatMessage.implementation.getSpeaker({ actor }) };

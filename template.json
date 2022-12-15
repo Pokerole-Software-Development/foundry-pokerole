@@ -31,11 +31,6 @@
             "value": 0,
             "min": 0,
             "max": 12
-          },
-          "insight": {
-            "value": 0,
-            "min": 0,
-            "max": 12
           }
         },
         "social": {
@@ -125,6 +120,11 @@
       "weight": 0,
       "attributes": {
         "special": {
+          "value": 0,
+          "min": 0,
+          "max": 12
+        },
+        "insight": {
           "value": 0,
           "min": 0,
           "max": 12

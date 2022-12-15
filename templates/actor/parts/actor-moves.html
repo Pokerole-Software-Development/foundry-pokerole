@@ -27,7 +27,7 @@
             {{else}}
             <div class="item-prop flex-small" title="no">-</div>
             {{/if}}
-            <div class="item-prop">{{item.data.system.accMod1}}+{{item.data.system.accMod2}}</div>
+            <div class="item-prop">{{item.data.system.accMod1}}{{#if item.data.system.accMod2}}+{{item.data.system.accMod2}}{{/if}}</div>
             <div class="item-prop">{{item.locTarget}}</div>
           </div>
           <div class="item-controls">

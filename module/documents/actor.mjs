@@ -93,16 +93,19 @@ export class PokeroleActor extends Actor {
   }
 
   getAttributeOrSkill(name) {
-    return this.getIntrinsicOrSocialAttribute(name) ?? this.getSkill(name);
+    return this.getAnyAttribute(name) ?? this.getSkill(name);
   }
 
-  getIntrinsicOrSocialAttribute(name) {
+  /** Get an attribute of any kind (attribute, social, extra, derived) */
+  getAnyAttribute(name) {
     const lcName = name.toLowerCase();
     const system = this.system;
-    if (lcName === 'will') {
-      return {...system.will};
+    const allAttrs = mergeObject(this.getIntrinsicOrSocialAttributes(), system.derived);
+    for (const [key, attr] of Object.entries(allAttrs)) {
+      if (key.toLowerCase() === lcName) {
+        return attr;
+      }
     }
-    return system.attributes[lcName] ?? system.social[lcName] ?? system.extra[lcName] ?? system.derived[lcName];
   }
 
   getIntrinsicOrSocialAttributes() {
@@ -111,6 +114,10 @@ export class PokeroleActor extends Actor {
     );
     obj.will = {...this.system.will};
     return obj;
+  }
+
+  getAllSkillsAndAttributes() {
+    return mergeObject(this.getIntrinsicOrSocialAttributes(), this.system.skills);
   }
 
   getSkill(name) {
