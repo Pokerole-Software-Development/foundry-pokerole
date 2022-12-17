@@ -7,7 +7,7 @@ import { PokeroleItemSheet } from "./sheets/item-sheet.mjs";
 // Import helper/utility classes and constants.
 import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { POKEROLE } from "./helpers/config.mjs";
-import { successRollFromChatMessage } from "./helpers/roll.mjs";
+import { successRollFromExpression } from "./helpers/roll.mjs";
 
 /* -------------------------------------------- */
 /*  Init Hook                                   */
@@ -85,15 +85,12 @@ Hooks.once("ready", async function() {
   // Wait to register hotbar drop hook on ready so that modules could register earlier if they want to
   Hooks.on("hotbarDrop", (bar, data, slot) => {
     if (["Item"/*, "ActiveEffect"*/].includes(data.type) ) {
-      if (data.uuid.includes('Actor.')) {
-        createItemMacro(data, slot);
-        return false;
-      }
-      // If the item is not owned, allow opening the item sheet on the macro bar as usual
-      return true;
+      createItemMacro(data, slot);
+      return false;
     }
   });
   $("body").on("click", "a.inline-roll-cmd", onInlineRollClick);
+  $("body").on("click", "button.chat-action", onChatActionClick);
 });
 
 /* -------------------------------------------- */
@@ -165,6 +162,33 @@ async function useItemMacro(itemUuid) {
   item.use();
 }
 
+/** Called when clicking chat action buttons like "Clash" etc. */
+function onChatActionClick(event) {
+  event.preventDefault();
+
+  const token = canvas.tokens.controlled.length > 0 ? canvas.tokens.controlled[0] : null;
+  const actor = token?.actor ?? game.user?.character;
+  const chatData = { speaker: ChatMessage.implementation.getSpeaker({ token, actor }) };
+
+  const action = event.target.dataset?.action;
+
+  try {
+    switch (action) {
+      case 'clashPhysical':
+        successRollFromExpression('strength+clash # Clash (Physical)', actor, chatData);
+        break;
+      case 'clashSpecial':
+        successRollFromExpression('special+clash # Clash (Special)', actor, chatData);
+        break;
+      case 'evade':
+        successRollFromExpression('dexterity+evasion # Evade', actor, chatData);
+        break;
+    }
+  } catch (e) {
+    ui.notifications.error(e.message);
+  }
+}
+
 function createButton(mode, roll, flavor) {
   const a = document.createElement('a');
   // add classes
@@ -197,11 +221,12 @@ async function onInlineRollClick(event) {
       const roll = a.dataset.roll;
 
       const token = canvas.tokens.controlled.length > 0 ? canvas.tokens.controlled[0] : null;
-      const actor = token.actor ?? game.user?.character;
-      await successRollFromChatMessage(a.dataset.roll, actor, { speaker: ChatMessage.implementation.getSpeaker({ token, actor }) });
+      const actor = token?.actor ?? game.user?.character;
+      await successRollFromExpression(a.dataset.roll, actor, { speaker: ChatMessage.implementation.getSpeaker({ token, actor }) });
       break;
   }
 }
+
 
 let originalProcessMessage = ChatLog.prototype.processMessage;
 ChatLog.prototype.processMessage = async function (message) {
@@ -218,7 +243,7 @@ ChatLog.prototype.processMessage = async function (message) {
     }
 
     let actor = canvas?.tokens.get(speaker?.token)?.actor ?? game.user?.character;
-    return successRollFromChatMessage(split[1], actor, chatData);
+    return successRollFromExpression(split.slice(1).join(' '), actor, chatData);
   }
 
   return originalProcessMessage.call(this, message);

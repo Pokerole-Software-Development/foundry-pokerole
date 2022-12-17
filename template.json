@@ -203,7 +203,8 @@
         "userFaints": false,
         "resetTerrain": false,
         "resistedWithDefense": false,
-        "ignoreDefenses": false
+        "ignoreDefenses": false,
+        "maneuver": false
       }
     }
   }

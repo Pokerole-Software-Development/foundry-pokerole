@@ -1,10 +1,15 @@
-export async function successRollFromChatMessage(expr, actor, chatData) {
+import { calcDualTypeMatchupScore } from "./config.mjs";
+
+export async function successRollFromExpression(expr, actor, chatData) {
   expr = expr.trim();
 
-  let exprSplit = expr.split('+');
+  let [exprWithoutComment, comment] = expr.split('#');
+  comment = comment?.trim() ?? undefined;
+
+  let exprSplit = exprWithoutComment.split('+');
   let rollCount = 0;
   for (let i = 0; i < exprSplit.length; i++) {
-    let statName = exprSplit[i].toLowerCase();
+    let statName = exprSplit[i].trim().toLowerCase();
     let statInt = parseInt(statName);
     if (!isNaN(statInt)) {
       rollCount += statInt;
@@ -23,7 +28,7 @@ export async function successRollFromChatMessage(expr, actor, chatData) {
     }
   }
 
-  return successRoll(rollCount, expr, chatData);
+  return successRoll(rollCount, comment ?? expr, chatData);
 }
 
 // attribute = { name: String, value: number };
@@ -81,7 +86,7 @@ export async function successRollSkillDialogue(skill, attributes, chatData) {
 
 const ACCURACY_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/accuracy-roll.html";
 
-export async function rollAccuracy(item, actor, showPopup = true) {
+export async function rollAccuracy(item, actor, canBeClashed, canBeEvaded, showPopup = true) {
   let { accMod1, accMod2 } = item.system;
   if (accMod2 == !accMod1) {
     accMod1 = accMod2;
@@ -138,7 +143,21 @@ export async function rollAccuracy(item, actor, showPopup = true) {
   }
 
   const chatData = { speaker: ChatMessage.implementation.getSpeaker({ actor }) };
-  await successRoll(dicePool, `Accuracy roll: ${item.name}`, chatData, constantBonus);
+  const [, newChatData] = await createSuccessRollMessageData(dicePool, `Accuracy roll: ${item.name}`, chatData, constantBonus);
+
+  let html = '<div class="pokerole"><div class="action-buttons">';
+  if (canBeClashed) {
+    html += `<button class="chat-action" data-action="clashPhysical">Clash (Physical)</button>`;
+    html += `<button class="chat-action" data-action="clashSpecial">Clash (Special)</button>`;
+  }
+  if (canBeEvaded) {
+    html += `<button class="chat-action" data-action="evade">Evade</button>`;
+  }
+  html += '</div></div>';
+
+  newChatData.content += html;
+
+  await ChatMessage.create(newChatData);
 }
 
 const DAMAGE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/damage-roll.html";
@@ -146,8 +165,19 @@ const DAMAGE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/damage-ro
 export async function rollDamage(item, actor) {
   let baseFormula = `${item.system.power}-[def/sp.def]`;
   if (item.system.dmgMod) {
-    baseFormula = `${item.system.dmgMod}+${item.system.power}-[def/sp.def]`;
+    baseFormula = `${item.system.dmgMod}+${item.system.power}-[def/sp.def]+[STAB]`;
   }
+
+  let selectedTokens = canvas.tokens.controlled
+    .filter(token => token.actor);
+  if (
+    ['Foe', 'Random Foe', 'All Foes', 'Battlefield (Foes)'].includes(item.system.target)
+  ) {
+    // Exclude the current actor from the list if it can't target itself
+    selectedTokens = selectedTokens.filter(token => token.actor._id !== actor.id);
+  }
+
+  const targetNames = selectedTokens.map(token => token.actor.name).join(', ');
 
   const content = await renderTemplate(DAMAGE_ROLL_DIALOGUE_TEMPLATE, {
     baseFormula,
@@ -160,7 +190,8 @@ export async function rollDamage(item, actor) {
       neutral: 'Neutral',
       superEffective: 'Super Effective (+1)',
       doubleSuperEffective: 'Double Super Effective (+2)',
-    }
+    },
+    targetNames
   });
 
   // Create the Dialog window and await submission of the form
@@ -169,13 +200,13 @@ export async function rollDamage(item, actor) {
       title: `Damage roll: ${item.name}`,
       content,
       buttons: {
-        crit: {
-          label: "Critical Hit",
-          callback: html => resolve([html, true]),
-        },
         normal: {
           label: "Normal",
           callback: html => resolve([html, false]),
+        },
+        crit: {
+          label: "Critical Hit",
+          callback: html => resolve([html, true]),
         },
       },
       close: () => resolve([undefined, false]),
@@ -185,11 +216,10 @@ export async function rollDamage(item, actor) {
   if (result) {
     const formElement = result[0].querySelector('form');
     const formData = new FormDataExtended(formElement).object;
-    let { enemyDef, stab, effectiveness, poolBonus, constantBonus } = formData;
+    let { enemyDef, stab, effectiveness, poolBonus, constantBonus, applyDamage } = formData;
     poolBonus ??= 0;
     constantBonus ??= 0;
 
-    poolBonus -= enemyDef;
     if (stab) {
       poolBonus += 1;
     }
@@ -197,48 +227,128 @@ export async function rollDamage(item, actor) {
       poolBonus += 2;
     }
 
-    let rollCount = (item.system.power ?? 0) + poolBonus;
+    let rollCountBeforeDef = (item.system.power ?? 0) + poolBonus;
     if (item.system.dmgMod) {
-      rollCount += actor.getAnyAttribute(item.system.dmgMod)?.value ?? 0;
+      rollCountBeforeDef += actor.getAnyAttribute(item.system.dmgMod)?.value ?? 0;
     }
 
     const chatData = { speaker: ChatMessage.implementation.getSpeaker({ actor }) };
-    const [rollResult, messageData] = await createSuccessRollMessageData(rollCount, `Damage roll: ${item.name}`, chatData, constantBonus);
+    let html = '';
+    const critText = isCrit ? 'A critical hit! ' : '';
 
-    let damage = 1; // Dealt damage is always at least 1
-    let effectiveHtml = '';
-    if (rollResult > 0) {
-      damage = rollResult;
+    if (selectedTokens.length === 0) {
+      let rollCount = rollCountBeforeDef - enemyDef;
 
-      switch (effectiveness) {
-        case 'superEffective':
-          effectiveHtml = "<p><b>It's super effective! (+1)</b></p>";
-          damage += 1;
-          break;
-        case 'doubleSuperEffective':
-          effectiveHtml = "<p><b>It's super effective! (+2)</b></p>";
-          damage += 2;
-          break;
-        case 'notVeryEffective':
-          effectiveHtml = "<p><b>It's not very effective... (-1)</b></p>";
-          damage -= 1;
-          break;
-        case 'notVeryEffective':
-          effectiveHtml = "<p><b>It's not very effective... (-2)</b></p>";
-          damage -= 2;
-          break;
-        case 'immune':
-          effectiveHtml = "<p><b>It doesn't affect the target...</b></p>";
-          damage -= 2;
-          break;
+      const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus);
+      html += '<hr>' + messageDataPart.content;
+
+      let damage = rollResult;
+      
+      if (rollResult > 0) {
+        let effectivenessLevel = 0;
+
+        switch (effectiveness) {
+          case 'superEffective':
+            effectivenessLevel = 1;
+            break;
+          case 'doubleSuperEffective':
+            effectivenessLevel = 2;
+            break;
+          case 'notVeryEffective':
+            effectivenessLevel = -1;
+            break;
+          case 'doubleNotVeryEffective':
+            effectivenessLevel = -2;
+            break;
+          case 'immune':
+            effectivenessLevel = -Infinity;
+            break;
+          default:
+            effectivenessLevel = 0;
+            break;
+        }
+
+        if (effectivenessLevel !== 0) {
+          html += `<p><b>${getEffectivenessText(effectivenessLevel)}</b></p>`;
+        }
+        damage += effectivenessLevel;
+        damage = Math.max(damage, 1); // Dealt damage is always at least 1
+      }
+
+      html += `<p>${critText}The attack deals ${damage} damage!</p>`;
+    } else {
+      // One or more tokens to apply damage to are selected
+      const actorUpdates = [];
+      const tokenUpdates = [];
+
+      for (let defenderToken of selectedTokens) {
+        const defender = defenderToken.actor;
+        const defStat = item.system.category === 'special'
+          ? defender.system.derived.def.value
+          : defender.system.derived.spDef.value;
+        const rollCount = rollCountBeforeDef - defStat;
+
+        const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus);
+        html += '<hr>' + messageDataPart.content;
+
+        let damage = rollResult;
+        let effectiveness = calcDualTypeMatchupScore(
+          item.system.type,
+          defender.system.type1,
+          defender.system.type2
+        );
+
+        if (rollCount > 0) {
+          damage += effectiveness;
+          if (effectiveness !== 0) {
+            html += `<p><b>${getEffectivenessText(effectiveness)}</b></p>`;
+          }
+        }
+        
+        // Damage is always at least 1, unless the target is immune
+        damage = Math.max(damage, effectiveness === -Infinity ? 0 : 1);
+        html += `<p>${critText}${defender.name} took ${damage} damage!</p>`;
+
+        if (applyDamage) {
+          const oldHp = defender.system.hp.value;
+          const newHp = Math.max(oldHp - damage, 0);
+          if (defenderToken.document.actorLink) {
+            // If the token is linked to the actor, update the actor itself
+            actorUpdates.push({
+              _id: defenderToken.document.actorId,
+              'system.hp.value': newHp
+            });
+          } else {
+            // Otherwise, update the override data in the token
+            tokenUpdates.push({
+              _id: defenderToken.id,
+              'actorData.system.hp.value': newHp
+            });
+          }
+
+          if (newHp === 0 && oldHp > 0) {
+            html += `<p><b>${defender.name} fainted!</b></p>`;
+          }
+        }
+      }
+
+      if (applyDamage) {
+        const promises = [];
+        if (actorUpdates.length > 0) {
+          promises.push(Actor.updateDocuments(actorUpdates));
+        }
+        if (tokenUpdates.length > 0) {
+          promises.push(canvas.scene.updateEmbeddedDocuments('Token', tokenUpdates));
+        }
+        await Promise.all(promises);
       }
     }
 
-    const critText = isCrit ? 'A critical hit! ' : '';
-
-    messageData.content += `<hr>${effectiveHtml}<p class="pokerole roll-highlight">${critText}The attack deals ${damage} damage!</p>`;
-
-    await ChatMessage.create(messageData);
+    await ChatMessage.create({
+      ...chatData,
+      content: html,
+      flavor: `Damage roll: ${item.name}`
+    });
   }
 }
 
@@ -268,7 +378,8 @@ export async function createSuccessRollMessageData(rollCount, flavor, chatData, 
 
   text += '</ol></div></div>';
 
-  if (game.dice3d?.show) {
+  // 3D dice are capped at 50 to keep things from getting to crazy
+  if (game.dice3d?.show && rolls.length <= 50) {
     const data = {
       throws: [{
         dice: rolls.map(roll => ({
@@ -280,7 +391,7 @@ export async function createSuccessRollMessageData(rollCount, flavor, chatData, 
         }))
       }]
     }
-    await game.dice3d?.show(data);
+    await game.dice3d.show(data);
   }
 
   const result = successCount + modifier;
@@ -295,4 +406,25 @@ export async function createSuccessRollMessageData(rollCount, flavor, chatData, 
   messageData = ChatMessage.implementation.applyRollMode(messageData, game.settings.get('core', 'rollMode'));
 
   return [result, messageData];
+}
+
+/**
+ * @param {number} effectiveness Effectiveness as a number: -Infinity or -2 to +2
+ * @returns {string | undefined}
+ */
+function getEffectivenessText(effectiveness) {
+  switch (effectiveness) {
+    case 1:
+      return "It's super effective! (+1)";
+    case 2:
+      return "It's super effective! (+2)";
+    case -1:
+      return "It's not very effective... (-1)";
+    case -2:
+      return "It's not very effective... (-2)";
+    case -Infinity:
+      return "It doesn't affect the target...";
+    default:
+      return undefined;
+  }
 }

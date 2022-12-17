@@ -6,14 +6,10 @@
   </div>
   {{/if}}
 
+  {{#unless targetNames}}
   <div class="form-group">
     <label>Enemy Def./Sp. Def</label>
     <input type="number" name="enemyDef" value="{{enemyDef}}"/>
-  </div>
-
-  <div class="form-group">
-    <label title="Same-Type Attack Bonus">STAB?</label>
-    <input type="checkbox" name="stab" {{#if stab}}checked{{/if}}/>
   </div>
 
   <div class="form-group">
@@ -22,6 +18,23 @@
         {{selectOptions effectivenessList selected=effectiveness}}
     </select>
   </div>
+  {{/unless}}
+
+  <div class="form-group">
+    <label title="Same-Type Attack Bonus">STAB?</label>
+    <input type="checkbox" name="stab" {{#if stab}}checked{{/if}}/>
+  </div>
+
+  {{#if targetNames}}
+  <hr>
+  
+  <p>Targets: {{targetNames}}</p>
+
+  <div class="form-group">
+    <label>Apply damage to selected tokens</label>
+    <input type="checkbox" name="applyDamage" checked/>
+  </div>
+  {{/if}}
 
   <hr>
 

@@ -80,7 +80,9 @@ export class PokeroleItem extends Item {
       isMove: this.type === 'move',
       properties,
       hasAccuracy,
-      hasDamage
+      hasDamage,
+      canBeClashed: this.canBeClashed(),
+      canBeEvaded: this.canBeEvaded(),
     };
 
     const html = await renderTemplate("systems/pokerole/templates/chat/item-card.html", templateData);
@@ -97,6 +99,43 @@ export class PokeroleItem extends Item {
     chatData = ChatMessage.implementation.applyRollMode(chatData, game.settings.get('core', 'rollMode'));
 
     await ChatMessage.create(chatData);
+  }
+
+  /**
+   * Whether the item is a move that can be clashed
+   * @return {boolean}
+   */
+  canBeClashed() {
+    if (this.system.type !== 'move') {
+      return false;
+    }
+
+    return this.system.category !== 'support'
+      && this.system.power > 0
+      && !this.hasSocialAttributeAccuracyRoll()
+      && this.system.target !== 'Battlefield'
+      && this.system.target !== 'Battlefield (Foes)';
+  }
+
+  /**
+   * Whether the item is a move that can be evaded
+   * @return {boolean}
+   */
+   canBeEvaded() {
+    if (this.system.type !== 'move') {
+      return false;
+    }
+
+    return !this.hasSocialAttributeAccuracyRoll()
+      && !this.system.attributes.neverFail
+      && this.system.target !== 'Battlefield'
+      && this.system.target !== 'Battlefield (Foes)';
+  }
+
+  /** Cannot be clashed/evaded if true */
+  _hasSocialAttributeAccuracyRoll() {
+    // accMod1 is always an attribute
+    return POKEROLE.socialAttributes.includes(this.system.accMod1);
   }
 
    /**
@@ -138,6 +177,8 @@ export class PokeroleItem extends Item {
     // Get the Item from stored flag data or by the item ID on the Actor
     const storedData = message.getFlag("pokerole", "itemData");
     const item = storedData ? new this(storedData, {parent: actor}) : actor.items.get(card.dataset.itemId);
+    const canBeClashed = card.dataset.canBeClashed;
+    const canBeEvaded = card.dataset.canBeEvaded;
     if (!item) {
       const err = game.i18n.format("POKEROLE.ActionWarningNoItem", {item: card.dataset.itemId, name: actor.name});
       return ui.notifications.error(err);
@@ -146,7 +187,7 @@ export class PokeroleItem extends Item {
     // Handle different actions
     switch (action) {
       case "accuracy":
-        await rollAccuracy(item, actor, !event.shiftKey);
+        await rollAccuracy(item, actor, canBeClashed, canBeEvaded, !event.shiftKey);
         break;
       case "damage":
         await rollDamage(item, actor);

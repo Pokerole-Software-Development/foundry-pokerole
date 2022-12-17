@@ -1,34 +1,5 @@
 export const POKEROLE = {};
 
-// TODO
-POKEROLE.natureConfidence = {
-  "hardy": 0,
-  "lonely": 0,
-  "brave": 0,
-  "adamant": 0,
-  "naughty": 0,
-  "bold": 0,
-  "docile": 0,
-  "relaxed": 0,
-  "impish": 0,
-  "lax": 0,
-  "timid": 0,
-  "hasty": 0,
-  "serious": 0,
-  "jolly": 0,
-  "naive": 0,
-  "modest": 0,
-  "mild": 0,
-  "quiet": 0,
-  "bashful": 0,
-  "rash": 0,
-  "calm": 0,
-  "gentle": 0,
-  "sassy": 0,
-  "careful": 0,
-  "quirky": 0,
-};
-
 POKEROLE.typeMatchups = {
   'none': {
     weak: [],
@@ -204,6 +175,35 @@ POKEROLE.attributes = ['strength', 'dexterity', 'vitality', 'special', 'insight'
 POKEROLE.skills = ['brawl', 'channel', 'clash', 'evasion', 'alert', 'athletic', 'nature', 'stealth', 'allure', 'etiquette', 'intimidate', 'perform', 'crafts', 'lore', 'medicine', 'science'];
 POKEROLE.socialAttributes = ['tough', 'cool', 'beauty', 'cute', 'clever'];
 POKEROLE.extraAttributes = ['happiness', 'loyalty', 'logic', 'instinct'];
+
+// TODO
+POKEROLE.natureConfidence = {
+  "hardy": 0,
+  "lonely": 0,
+  "brave": 0,
+  "adamant": 0,
+  "naughty": 0,
+  "bold": 0,
+  "docile": 0,
+  "relaxed": 0,
+  "impish": 0,
+  "lax": 0,
+  "timid": 0,
+  "hasty": 0,
+  "serious": 0,
+  "jolly": 0,
+  "naive": 0,
+  "modest": 0,
+  "mild": 0,
+  "quiet": 0,
+  "bashful": 0,
+  "rash": 0,
+  "calm": 0,
+  "gentle": 0,
+  "sassy": 0,
+  "careful": 0,
+  "quirky": 0,
+};
 
 export function getAllAttributesAndSkills() {
   return [...getAllAttributes(), ...POKEROLE.skills];

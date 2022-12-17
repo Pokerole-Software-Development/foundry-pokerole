@@ -42,24 +42,6 @@
     }
   }
 
-  .card-buttons {
-    margin: 5px 0;
-
-    span {
-      display: block;
-      line-height: 28px;
-      text-align: center;
-      border: 1px solid #aaa;
-    }
-
-    button {
-      font-size: 12px;
-      height: 24px;
-      line-height: 20px;
-      margin: 2px 0;
-    }
-  }
-
   .card-footer {
     padding: 3px 0 0;
     border-top: 2px groove #FFF;
@@ -93,6 +75,24 @@
   }
   &.fumble {
     color: red;
+  }
+}
+
+.pokerole .card-buttons, .pokerole .action-buttons {
+  margin: 5px 0;
+
+  span {
+    display: block;
+    line-height: 28px;
+    text-align: center;
+    border: 1px solid #aaa;
+  }
+
+  button {
+    font-size: 12px;
+    height: 24px;
+    line-height: 20px;
+    margin: 2px 0;
   }
 }
 
