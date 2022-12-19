@@ -171,7 +171,7 @@ export class PokeroleItem extends Item {
     if (!(game.user.isGM || message.isAuthor)) return;
 
     // Recover the actor for the chat card
-    const actor = await this._getChatCardActor(card);
+    const { actor, token } = await this._getChatCardActor(card);
     if (!actor) return;
 
     // Get the Item from stored flag data or by the item ID on the Actor
@@ -187,7 +187,7 @@ export class PokeroleItem extends Item {
     // Handle different actions
     switch (action) {
       case "accuracy":
-        await rollAccuracy(item, actor, canBeClashed, canBeEvaded, !event.shiftKey);
+        await rollAccuracy(item, actor, token, canBeClashed, canBeEvaded, !event.shiftKey);
         break;
       case "damage":
         await rollDamage(item, actor);
@@ -214,19 +214,18 @@ export class PokeroleItem extends Item {
   /**
    * Get the Actor which is the author of a chat card
    * @param {HTMLElement} card    The chat card being used
-   * @returns {Actor|null}        The Actor document or null
-   * @private
+   * @returns {{actor: Actor | undefined, token: token | undefined}} The Actor document or undefined
    */
    static async _getChatCardActor(card) {
     // Case 1 - a synthetic actor from a Token
     if (card.dataset.tokenId) {
       const token = await fromUuid(card.dataset.tokenId);
-      if (!token) return null;
-      return token.actor;
+      if (!token) return { actor: undefined, token: undefined };
+      return { token, actor: token.actor };
     }
 
     // Case 2 - use Actor ID directory
     const actorId = card.dataset.actorId;
-    return game.actors.get(actorId) || null;
+    return { actor: game.actors.get(actorId) ?? undefined, token: undefined };
   }
 }

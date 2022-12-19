@@ -92,6 +92,14 @@ export class PokeroleActor extends Actor {
     }
   }
 
+  getMoves() {
+    return this.items.filter(item => item.type === 'move');
+  }
+
+  getLearnedMoves() {
+    return this.getMoves().filter(move => move.system.learned);
+  }
+
   getAttributeOrSkill(name) {
     return this.getAnyAttribute(name) ?? this.getSkill(name);
   }
@@ -100,7 +108,10 @@ export class PokeroleActor extends Actor {
   getAnyAttribute(name) {
     const lcName = name.toLowerCase();
     const system = this.system;
-    const allAttrs = mergeObject(this.getIntrinsicOrSocialAttributes(), system.derived);
+    const allAttrs = mergeObject(
+      this.getIntrinsicOrSocialAttributes(),
+      foundry.utils.deepClone(system.derived)
+    );
     for (const [key, attr] of Object.entries(allAttrs)) {
       if (key.toLowerCase() === lcName) {
         return attr;
@@ -109,19 +120,25 @@ export class PokeroleActor extends Actor {
   }
 
   getIntrinsicOrSocialAttributes() {
-    const obj = mergeObject(this.system.attributes,
-      mergeObject(this.system.social, this.system.extra)
+    const obj = mergeObject(foundry.utils.deepClone(this.system.attributes),
+      mergeObject(
+        foundry.utils.deepClone(this.system.social),
+        foundry.utils.deepClone(this.system.extra)
+      )
     );
-    obj.will = {...this.system.will};
+    obj.will = foundry.utils.deepClone(this.system.will);
     return obj;
   }
 
   getAllSkillsAndAttributes() {
-    return mergeObject(this.getIntrinsicOrSocialAttributes(), this.system.skills);
+    return mergeObject(
+      this.getIntrinsicOrSocialAttributes(),
+      foundry.utils.deepClone(this.system.skills)
+    );
   }
 
   getSkill(name) {
     const lcName = name.toLowerCase();
-    return this.system.skills[lcName];
+    return foundry.utils.deepClone(this.system.skills[lcName]);
   }
 }

@@ -8,6 +8,7 @@ import { PokeroleItemSheet } from "./sheets/item-sheet.mjs";
 import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { POKEROLE } from "./helpers/config.mjs";
 import { successRollFromExpression } from "./helpers/roll.mjs";
+import { showClashDialog } from "./helpers/clash.mjs";
 
 /* -------------------------------------------- */
 /*  Init Hook                                   */
@@ -163,25 +164,37 @@ async function useItemMacro(itemUuid) {
 }
 
 /** Called when clicking chat action buttons like "Clash" etc. */
-function onChatActionClick(event) {
+async function onChatActionClick(event) {
   event.preventDefault();
 
   const token = canvas.tokens.controlled.length > 0 ? canvas.tokens.controlled[0] : null;
   const actor = token?.actor ?? game.user?.character;
-  const chatData = { speaker: ChatMessage.implementation.getSpeaker({ token, actor }) };
+  const chatData = { speaker: ChatMessage.implementation.getSpeaker({ token: token?.document, actor }) };
 
-  const action = event.target.dataset?.action;
-
+  const action = event.target.dataset.action;
   try {
     switch (action) {
-      case 'clashPhysical':
-        successRollFromExpression('strength+clash # Clash (Physical)', actor, chatData);
-        break;
-      case 'clashSpecial':
-        successRollFromExpression('special+clash # Clash (Special)', actor, chatData);
+      case 'clash':
+        if (!actor) {
+          throw new Error('No actor selected');
+        }
+
+        const { attackerId, moveId, expectedSuccesses } = event.target.dataset;
+        const attacker = await fromUuid(attackerId);
+        if (!attacker) {
+          throw new Error("The attacking actor doesn't exist anymore");
+        }
+        if (attacker.id === actor.id) {
+          throw new Error("You can't clash your own attack!");
+        }
+        const move = await fromUuid(moveId);
+        if (!move) {
+          throw new Error("The move to be clashed doesn't exist anymore");
+        }
+        await showClashDialog(actor, token, attacker, move, expectedSuccesses ?? 1, chatData);
         break;
       case 'evade':
-        successRollFromExpression('dexterity+evasion # Evade', actor, chatData);
+        await successRollFromExpression('dexterity+evasion # Evade', actor, chatData);
         break;
     }
   } catch (e) {

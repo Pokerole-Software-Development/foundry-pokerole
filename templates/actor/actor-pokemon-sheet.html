@@ -215,7 +215,7 @@
               {{#each system.derived as |attribute key|}}
               <div class="attribute">
                 <label for="system.derived.{{key}}.value" class="rollable resource-label flexlarge align-left" data-roll-attribute="{{key}}" data-roll-label="{{attribute.label}}">{{attribute.label}}</label>
-                <input type="text" name="system.derived.{{key}}.value" value="{{attribute.value}}" data-dtype="Number" disabled/>
+                <input type="text" value="{{attribute.value}}" data-dtype="Number" disabled/>
               </div>
               {{/each}}
             </div>

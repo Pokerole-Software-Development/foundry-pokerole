@@ -7,10 +7,12 @@
   {{/if}}
 
   {{#unless targetNames}}
+  {{#unless ignoreDefenses}}
   <div class="form-group">
     <label>Enemy Def./Sp. Def</label>
     <input type="number" name="enemyDef" value="{{enemyDef}}"/>
   </div>
+  {{/unless}}
 
   <div class="form-group">
     <label>Effectiveness</label>
@@ -31,7 +33,7 @@
   <p>Targets: {{targetNames}}</p>
 
   <div class="form-group">
-    <label>Apply damage to selected tokens</label>
+    <label>Apply damage to selected targets</label>
     <input type="checkbox" name="applyDamage" checked/>
   </div>
   {{/if}}

@@ -86,7 +86,7 @@ export async function successRollSkillDialogue(skill, attributes, chatData) {
 
 const ACCURACY_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/accuracy-roll.html";
 
-export async function rollAccuracy(item, actor, canBeClashed, canBeEvaded, showPopup = true) {
+export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeEvaded, showPopup = true) {
   let { accMod1, accMod2 } = item.system;
   if (accMod2 == !accMod1) {
     accMod1 = accMod2;
@@ -142,16 +142,20 @@ export async function rollAccuracy(item, actor, canBeClashed, canBeEvaded, showP
     constantBonus -= item.system.attributes.accuracyReduction;
   }
 
-  const chatData = { speaker: ChatMessage.implementation.getSpeaker({ actor }) };
-  const [, newChatData] = await createSuccessRollMessageData(dicePool, `Accuracy roll: ${item.name}`, chatData, constantBonus);
+  let chatData = { speaker: ChatMessage.implementation.getSpeaker({ actor }) };
+  const [rollResult, newChatData] = await createSuccessRollMessageData(dicePool, `Accuracy roll: ${item.name}`, chatData, constantBonus);
+  chatData = newChatData;
 
   let html = '<div class="pokerole"><div class="action-buttons">';
-  if (canBeClashed) {
-    html += `<button class="chat-action" data-action="clashPhysical">Clash (Physical)</button>`;
-    html += `<button class="chat-action" data-action="clashSpecial">Clash (Special)</button>`;
-  }
-  if (canBeEvaded) {
-    html += `<button class="chat-action" data-action="evade">Evade</button>`;
+  if (rollResult > 0) {
+    if (canBeClashed) {
+      html += `<button class="chat-action" data-action="clash"
+        data-attacker-id="${actor.uuid}" data-move-id="${item.uuid}"data-expected-successes="${rollResult}"
+        >Clash</button>`;
+    }
+    if (canBeEvaded) {
+      html += `<button class="chat-action" data-action="evade">Evade</button>`;
+    }
   }
   html += '</div></div>';
 
@@ -168,7 +172,7 @@ export async function rollDamage(item, actor) {
     baseFormula = `${item.system.dmgMod}+${item.system.power}-[def/sp.def]+[STAB]`;
   }
 
-  let selectedTokens = canvas.tokens.controlled
+  let selectedTokens = Array.from(game.user.targets)
     .filter(token => token.actor);
   if (
     ['Foe', 'Random Foe', 'All Foes', 'Battlefield (Foes)'].includes(item.system.target)
@@ -182,6 +186,7 @@ export async function rollDamage(item, actor) {
   const content = await renderTemplate(DAMAGE_ROLL_DIALOGUE_TEMPLATE, {
     baseFormula,
     enemyDef: 0,
+    ignoreDefenses: item.system.attributes?.ignoreDefenses,
     stab: item.system.stab,
     effectiveness: 'neutral',
     effectivenessList: {
@@ -232,6 +237,10 @@ export async function rollDamage(item, actor) {
       rollCountBeforeDef += actor.getAnyAttribute(item.system.dmgMod)?.value ?? 0;
     }
 
+    if (item.system.attributes?.ignoreDefenses) {
+      enemyDef = 0;
+    }
+
     const chatData = { speaker: ChatMessage.implementation.getSpeaker({ actor }) };
     let html = '';
     const critText = isCrit ? 'A critical hit! ' : '';
@@ -242,9 +251,10 @@ export async function rollDamage(item, actor) {
       const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus);
       html += '<hr>' + messageDataPart.content;
 
-      let damage = rollResult;
+      let damage = 1;
       
       if (rollResult > 0) {
+        damage = rollResult;
         let effectivenessLevel = 0;
 
         switch (effectiveness) {
@@ -272,20 +282,22 @@ export async function rollDamage(item, actor) {
           html += `<p><b>${getEffectivenessText(effectivenessLevel)}</b></p>`;
         }
         damage += effectivenessLevel;
-        damage = Math.max(damage, 1); // Dealt damage is always at least 1
       }
+      damage = Math.max(damage, 1); // Dealt damage is always at least 1
 
       html += `<p>${critText}The attack deals ${damage} damage!</p>`;
     } else {
       // One or more tokens to apply damage to are selected
-      const actorUpdates = [];
-      const tokenUpdates = [];
+      const hpUpdates = [];
 
       for (let defenderToken of selectedTokens) {
         const defender = defenderToken.actor;
-        const defStat = item.system.category === 'special'
-          ? defender.system.derived.def.value
-          : defender.system.derived.spDef.value;
+        let defStat = 0;
+        if (!item.system.attributes?.ignoreDefenses) {
+          defStat = item.system.category === 'special'
+            ? defender.system.derived.def.value
+            : defender.system.derived.spDef.value;
+        }
         const rollCount = rollCountBeforeDef - defStat;
 
         const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus);
@@ -298,7 +310,7 @@ export async function rollDamage(item, actor) {
           defender.system.type2
         );
 
-        if (rollCount > 0) {
+        if (rollResult > 0) {
           damage += effectiveness;
           if (effectiveness !== 0) {
             html += `<p><b>${getEffectivenessText(effectiveness)}</b></p>`;
@@ -311,36 +323,17 @@ export async function rollDamage(item, actor) {
 
         if (applyDamage) {
           const oldHp = defender.system.hp.value;
-          const newHp = Math.max(oldHp - damage, 0);
-          if (defenderToken.document.actorLink) {
-            // If the token is linked to the actor, update the actor itself
-            actorUpdates.push({
-              _id: defenderToken.document.actorId,
-              'system.hp.value': newHp
-            });
-          } else {
-            // Otherwise, update the override data in the token
-            tokenUpdates.push({
-              _id: defenderToken.id,
-              'actorData.system.hp.value': newHp
-            });
-          }
+          const hp = Math.max(oldHp - damage, 0);
+          hpUpdates.push({ token: defenderToken, hp });
 
-          if (newHp === 0 && oldHp > 0) {
+          if (hp === 0 && oldHp > 0) {
             html += `<p><b>${defender.name} fainted!</b></p>`;
           }
         }
       }
 
       if (applyDamage) {
-        const promises = [];
-        if (actorUpdates.length > 0) {
-          promises.push(Actor.updateDocuments(actorUpdates));
-        }
-        if (tokenUpdates.length > 0) {
-          promises.push(canvas.scene.updateEmbeddedDocuments('Token', tokenUpdates));
-        }
-        await Promise.all(promises);
+        await bulkApplyHp(hpUpdates);
       }
     }
 
@@ -350,6 +343,46 @@ export async function rollDamage(item, actor) {
       flavor: `Damage roll: ${item.name}`
     });
   }
+}
+
+/**
+ * @param {Array<{ actor?: Actor, token?: TokenDocument, hp: number }>} healthUpdates 
+ */
+export async function bulkApplyHp(healthUpdates) {
+  const actorUpdates = [];
+  const tokenUpdates = [];
+
+  for (const { actor, token, hp } of healthUpdates) {
+    if (token) {
+      if (token.actorLink) {
+        // If the token is linked to the actor, update the actor itself
+        actorUpdates.push({
+          _id: token.actorId,
+          'system.hp.value': hp
+        });
+      } else {
+        // Otherwise, update the override data in the token
+        tokenUpdates.push({
+          _id: token.id,
+          'actorData.system.hp.value': hp
+        });
+      }
+    } else if (actor) {
+      actorUpdates.push({
+        _id: actor.id,
+        'system.hp.value': hp
+      });
+    }
+  }
+
+  const promises = [];
+  if (actorUpdates.length > 0) {
+    promises.push(Actor.updateDocuments(actorUpdates));
+  }
+  if (tokenUpdates.length > 0) {
+    promises.push(canvas.scene.updateEmbeddedDocuments('Token', tokenUpdates));
+  }
+  await Promise.all(promises);  
 }
 
 export async function successRoll(rollCount, flavor, chatData, modifier = 0) {
@@ -412,7 +445,7 @@ export async function createSuccessRollMessageData(rollCount, flavor, chatData, 
  * @param {number} effectiveness Effectiveness as a number: -Infinity or -2 to +2
  * @returns {string | undefined}
  */
-function getEffectivenessText(effectiveness) {
+export function getEffectivenessText(effectiveness) {
   switch (effectiveness) {
     case 1:
       return "It's super effective! (+1)";

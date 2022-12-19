@@ -174,7 +174,7 @@ POKEROLE.rankProgression = {
 POKEROLE.attributes = ['strength', 'dexterity', 'vitality', 'special', 'insight'];
 POKEROLE.skills = ['brawl', 'channel', 'clash', 'evasion', 'alert', 'athletic', 'nature', 'stealth', 'allure', 'etiquette', 'intimidate', 'perform', 'crafts', 'lore', 'medicine', 'science'];
 POKEROLE.socialAttributes = ['tough', 'cool', 'beauty', 'cute', 'clever'];
-POKEROLE.extraAttributes = ['happiness', 'loyalty', 'logic', 'instinct'];
+POKEROLE.extraAttributes = ['happiness', 'loyalty'];
 
 // TODO
 POKEROLE.natureConfidence = {
@@ -319,8 +319,6 @@ POKEROLE.i18n = {
   extra: {
     "happiness": "POKEROLE.ExtraHappiness",
     "loyalty": "POKEROLE.ExtraLoyalty",
-    "logic": "POKEROLE.ExtraLogic",
-    "instinct": "POKEROLE.ExtraInstinct",
   },
 
   derived: {

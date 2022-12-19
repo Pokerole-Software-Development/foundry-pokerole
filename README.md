@@ -19,9 +19,12 @@ Pokérole is a d6-based role-playing system, where most rolls are based on succe
 This system adds a custom chat command for convenient success-based rolls: Enter `/sc` followed by a space and the number of dice you want to roll in the chat. While a token is selected, you can also enter a formula based on your attributes and skills, such as `/sc dexterity+channel+2`.
 
 ## Tips
+- Click the icon on a move on the character sheet to automatically roll for accuracy and damage.
+- Drag moves, items and abilities from a character sheet into the macro bar at the bottom of the screen to activate the item's effects via hotkeys.
 - Assign characters to each user by right-clicking their name under "Players" in the bottom right and selecting "User Configuration". This allows players to roll without selecting a token.
 - You can skip the dialogue for accuracy rolls by holding the Shift key while clicking the "Roll Accuracy" button
 - Right-click any tab on the right to open it in a movable window. Especially useful to show the chat while in combat.
+- Use the "Select Targets" tool under "Token Controls" to automatically apply damage to enemy tokens on damage rolls.
 
 ## Recommended modules
 
