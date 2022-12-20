@@ -68,6 +68,7 @@ export async function successRollSkillDialogue(skill, attributes, chatData) {
           callback: html => resolve(html),
         },
       },
+      default: 'roll',
       close: () => resolve(undefined),
     }, { popOutModuleDisable: true }).render(true);
   });
@@ -125,6 +126,7 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
             callback: html => resolve(html),
           },
         },
+        default: 'roll',
         close: () => resolve(undefined),
       }, { popOutModuleDisable: true }).render(true);
     });
@@ -214,6 +216,7 @@ export async function rollDamage(item, actor) {
           callback: html => resolve([html, true]),
         },
       },
+      default: 'normal',
       close: () => resolve([undefined, false]),
     }, { popOutModuleDisable: true }).render(true);
   });
@@ -295,8 +298,8 @@ export async function rollDamage(item, actor) {
         let defStat = 0;
         if (!item.system.attributes?.ignoreDefenses) {
           defStat = item.system.category === 'special'
-            ? defender.system.derived.def.value
-            : defender.system.derived.spDef.value;
+            ? defender.system.derived.spDef.value
+            : defender.system.derived.def.value;
         }
         const rollCount = rollCountBeforeDef - defStat;
 

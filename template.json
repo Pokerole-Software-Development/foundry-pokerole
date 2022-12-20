@@ -14,8 +14,9 @@
           "max": 2
         },
         "rank": "none",
-        "nature": "",
+        "personality": "hardy",
         "confidence": 0,
+        "baseHp": 0,
         "attributes": {
           "strength": {
             "value": 0,
@@ -118,6 +119,7 @@
       "type2": "none",
       "height": 0,
       "weight": 0,
+      "recommendedRank": "none",
       "attributes": {
         "special": {
           "value": 0,

@@ -38,11 +38,12 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
       title: 'Select a move to clash with',
       content,
       buttons: {
-        roll: {
-          label: "Clash",
+        clash: {
+          label: 'Clash',
           callback: html => resolve(html),
         },
       },
+      default: 'clash',
       close: () => resolve(undefined),
     }, { popOutModuleDisable: true }).render(true);
   });

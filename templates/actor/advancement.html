@@ -50,20 +50,19 @@
   </div>
   {{/gt}}
   
-  <h3>General</h3>
-  <div class="form-group max-hp-box">
-    <label>Apply maximum HP increase: {{oldMaxHp}} → <span class="max-hp">{{oldMaxHp}}</span></label>
-    <input type="checkbox" name="applyMaxHp" checked/>
-  </div>
-  <div class="form-group max-will-box">
-    <label>Apply maximum Will increase: {{oldMaxWill}} → <span class="max-will">{{oldMaxWill}}</span></label>
-    <input type="checkbox" name="applyMaxWill" checked/>
-  </div>
+  <h3>Other stat changes (always applied)</h3>
+  <ul>
+    <li class="max-hp-box">
+      <label>Maximum HP: {{oldMaxHp}} → <span class="max-hp">{{oldMaxHp}}</span></label>
+    </li>
+    <li class="max-will-box">
+      <label>Maximum Will: {{oldMaxWill}} → <span class="max-will">{{oldMaxWill}}</span></label>
+    </li>
 
-  {{#if showSkillLimit}}
-  <div class="form-group">
-    <label>Skill limit increase: {{oldSkillLimit}} → {{skillLimit}}</label>
-    <input type="checkbox" checked disabled/>
-  </div>
-  {{/if}}
+    {{#if showSkillLimit}}
+    <li>
+      <label>Skill limit: {{oldSkillLimit}} → {{skillLimit}}</label>
+    </li>
+    {{/if}}
+  </ul>
 </form>

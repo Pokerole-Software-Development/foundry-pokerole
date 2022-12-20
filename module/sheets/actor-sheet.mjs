@@ -1,5 +1,5 @@
 import { getDualTypeMatchups, getLocalizedType, getLocalizedTypesForSelect, POKEROLE } from "../helpers/config.mjs";
-import {onManageActiveEffect, prepareActiveEffectCategories} from "../helpers/effects.mjs";
+import { onManageActiveEffect, prepareActiveEffectCategories } from "../helpers/effects.mjs";
 import { successRollAttribute, successRollAttributeSkill, successRollSkillDialogue } from "../helpers/roll.mjs";
 
 /**
@@ -26,6 +26,8 @@ export class PokeroleActorSheet extends ActorSheet {
 
   // Move groups that are collapsed by default
   static HIDDEN_GROUPS = [...POKEROLE.ranks];
+
+  static SETTINGS_TEMPLATE_PATH = `systems/pokerole/templates/actor/actor-settings.html`;
 
   /* -------------------------------------------- */
 
@@ -58,11 +60,7 @@ export class PokeroleActorSheet extends ActorSheet {
     for (let nature of Object.keys(POKEROLE.natureConfidence)) {
       context.natures[nature] = game.i18n.localize(POKEROLE.i18n.natures[nature]) ?? nature;
     }
-    context.ranks = {};
-    for (let rank of POKEROLE.ranks) {
-      context.ranks[rank] = game.i18n.localize(POKEROLE.i18n.ranks[rank]) ?? rank;
-    }
-
+    context.ranks = this.constructor.getLocalizedRanks();
     context.types = getLocalizedTypesForSelect();
 
     context.matchups = {};
@@ -302,6 +300,8 @@ export class PokeroleActorSheet extends ActorSheet {
       }
       this.actor.update(obj);
     });
+
+    html.find('.settings-button').click(ev => this._showSettings());
   }
 
   /**
@@ -480,11 +480,11 @@ export class PokeroleActorSheet extends ActorSheet {
         content,
         buttons: {
           skip: {
-            label: "Skip",
+            label: 'Skip',
             callback: _ => resolve(undefined),
           },
           apply: {
-            label: "Apply",
+            label: 'Apply',
             callback: html => {
               if (dialogueProgression.attributePoints > 0 || dialogueProgression.skillPoints > 0 || dialogueProgression.socialPoints > 0) {
                 throw new Error("Not all points have been distributed");
@@ -495,6 +495,7 @@ export class PokeroleActorSheet extends ActorSheet {
             },
           },
         },
+        default: 'apply',
         render: (html) => this._renderProgressionDialogue(html, dialogueProgression),
         close: () => resolve(undefined),
       }, { popOutModuleDisable: true }).render(true);
@@ -503,22 +504,6 @@ export class PokeroleActorSheet extends ActorSheet {
     if (result) {
       const formElement = result[0].querySelector('form');
       const updateData = new FormDataExtended(formElement).object;
-
-      console.log(updateData);
-
-      const { applyMaxHp, applyMaxWill } = updateData;
-      delete updateData.applyMaxHp;
-      delete updateData.applyMaxWill;
-
-      if (applyMaxHp && updateData['attributes.vitality.value'] ) {
-        const vitalityDelta = updateData['attributes.vitality.value'] - this.actor.system.attributes.vitality.value;
-        updateData['hp.max'] = this.actor.system.hp.max + vitalityDelta;
-      }
-
-      if (applyMaxWill && updateData['attributes.insight.value']) {
-        const insightDelta = updateData['attributes.insight.value'] - this.actor.system.attributes.insight.value;
-        updateData['will.max'] = this.actor.system.will.max + insightDelta;
-      }
 
       this.actor.update({ system: updateData });
     }
@@ -547,18 +532,14 @@ export class PokeroleActorSheet extends ActorSheet {
       html.find('.max-will').text(newWill);
       if (progression.oldMaxHp == newHp) {
         html.find('.max-hp-box').hide();
-        html.find('.max-hp-box').prop('disabled', true);
       } else {
         html.find('.max-hp-box').show();
-        html.find('.max-hp-box').prop('disabled', false);
       }
 
       if (progression.oldMaxWill == newWill) {
         html.find('.max-will-box').hide();
-        html.find('.max-will-box').prop('disabled', true);
       } else {
         html.find('.max-will-box').show();
-        html.find('.max-will-box').prop('disabled', false);
       }
     };
     
@@ -601,7 +582,44 @@ export class PokeroleActorSheet extends ActorSheet {
     });
   }
 
+  async _showSettings() {
+    const content = await renderTemplate(this.constructor.SETTINGS_TEMPLATE_PATH, {
+      baseHp: this.actor.system.baseHp,
+      recommendedRank: this.actor.system.recommendedRank,
+      ranks: this.constructor.getLocalizedRanks()
+    });
+
+    const result = await new Promise(resolve => {
+      new Dialog({
+        title: `Actor settings`,
+        content,
+        buttons: {
+          save: {
+            label: 'Save',
+            callback: html => resolve(html),
+          },
+        },
+        default: 'save',
+        close: () => resolve(undefined),
+      }, { popOutModuleDisable: true }).render(true);
+    });
+
+    if (!result) return;
+    const formElement = result[0].querySelector('form');
+    const formData = new FormDataExtended(formElement).object;
+
+    this.actor.update(formData);
+  }
+
   static _sanitizeName(name) {
     return name.replace(/[\W_]+/g, "").toLowerCase();
+  }
+
+  static getLocalizedRanks() {
+    const ranks = {};
+    for (let rank of POKEROLE.ranks) {
+      ranks[rank] = game.i18n.localize(POKEROLE.i18n.ranks[rank]) ?? rank;
+    }
+    return ranks;
   }
 }

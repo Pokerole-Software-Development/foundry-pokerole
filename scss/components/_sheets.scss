@@ -20,6 +20,15 @@
     width: 110px;
     text-align: left;
   }
+
+  &.large {
+    flex: 1.35;
+  }
+}
+
+.resources {
+  gap: 10px;
+  margin: 10px 0 5px 0;
 }
 
 &.actor .resource-label {

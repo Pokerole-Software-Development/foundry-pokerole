@@ -98,10 +98,49 @@ POKEROLE.typeMatchups = {
   },
 };
 
+POKEROLE.types = Object.keys(POKEROLE.typeMatchups);
+
+POKEROLE.getStatusEffects = () => [{
+  id: 'paralysis',
+  label: game.i18n.localize('POKEROLE.StatusParalysis'),
+  icon: 'icons/svg/paralysis.svg',
+  changes: [{ key: 'system.attributes.dexterity.value', mode: 2 /* Add */, value: "-2" }]
+}, {
+  id: 'frozen', label: game.i18n.localize('POKEROLE.StatusFrozen'), icon: 'icons/svg/frozen.svg', tint: '#96CFD0'
+}, {
+  id: 'poison', label: game.i18n.localize('POKEROLE.StatusPoison'), icon: 'icons/svg/poison.svg', tint: '#8F6995'
+}, {
+  id: 'badlyPoisoned', label: game.i18n.localize('POKEROLE.StatusBadlyPoisoned'), icon: 'icons/svg/radiation.svg', tint: '#714783'
+}, {
+  id: 'sleep', label: game.i18n.localize('POKEROLE.StatusSleep'), icon: 'icons/svg/sleep.svg', tint: '#B5B590'
+}, {
+  id: 'burn1', label: game.i18n.localize('POKEROLE.StatusBurn1'), icon: 'icons/svg/fire.svg', tint: '#E16436'
+}, {
+  id: 'burn2', label: game.i18n.localize('POKEROLE.StatusBurn2'), icon: 'icons/svg/fire.svg', tint: '#B84129'
+}, {
+  id: 'burn3', label: game.i18n.localize('POKEROLE.StatusBurn3'), icon: 'icons/svg/fire.svg', tint: '#93291B'
+}, {
+  id: 'flinch', label: game.i18n.localize('POKEROLE.StatusFlinch'), icon: 'icons/svg/silenced.svg', tint: '#575D69'
+}, {
+  id: 'confused', label: game.i18n.localize('POKEROLE.StatusConfused'), icon: 'icons/svg/daze.svg', tint: '#4DAF81'
+}, {
+  id: 'infaturated', label: game.i18n.localize('POKEROLE.StatusInfaturated'), icon: 'icons/svg/daze.svg', tint: '#E1657F'
+}, {
+  id: 'fainted', label: game.i18n.localize('POKEROLE.StatusFainted'), icon: 'icons/svg/unconscious.svg'
+}, {
+  id: 'invisible', label: game.i18n.localize('POKEROLE.StatusInvisible'), icon: 'icons/svg/invisible.svg'
+}, {
+  id: 'blind', label: game.i18n.localize('POKEROLE.StatusBlind'), icon: 'icons/svg/blind.svg'
+}];
+
+POKEROLE.specialStatusEffects = {
+  BLIND: 'blind',
+  DEFEATED: 'fainted',
+  INVISIBLE: 'invisible',
+}
+
 POKEROLE.ranks = ['none', 'starter', 'beginner', 'amateur', 'ace', 'pro', 'master', 'champion'];
 POKEROLE.moveGroups = ['learned', ...POKEROLE.ranks.slice(1), 'maneuver'];
-
-POKEROLE.types = Object.keys(POKEROLE.typeMatchups);
 
 POKEROLE.rankProgression = {
   'none': {
@@ -362,7 +401,7 @@ POKEROLE.i18n = {
     "Random Foe": "POKEROLE.TargetRandomFoe",
     "All Foes": "POKEROLE.TargetAllFoes",
     "User": "POKEROLE.TargetUser",
-    "Ally": "POKEROLE.TargetAlly",
+    "One Ally": "POKEROLE.TargetAlly",
     "User and Allies": "POKEROLE.TargetUserAndAllies",
     "Area": "POKEROLE.TargetArea",
     "Battlefield": "POKEROLE.TargetBattlefield",

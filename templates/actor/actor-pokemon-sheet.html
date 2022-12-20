@@ -7,7 +7,9 @@
     <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100"/>
     <div class="header-fields">
       <div class="header-top">
-        <h1 class="charname"><input name="name" type="text" value="{{actor.name}}" placeholder="Name"/></h1>
+        <h1 class="charname">
+          <input name="name" type="text" value="{{actor.name}}" placeholder="Name"/>
+        </h1>
         <div class="sidedata">
           <div class="species">
             <label for="system.pokedexId" class="resource-label">Pokédex</label>
@@ -33,14 +35,12 @@
       </div>
 
 
-      <div class="resources grid grid-3col">
-
+      <div class="resources flexrow">
         <div class="resource">
           <label for="system.hp.value" class="resource-label">HP</label>
           <div class="resource-content flex-center flex-between">
             <input type="text" name="system.hp.value" value="{{system.hp.value}}" data-dtype="Number"/>
-            <span> / </span>
-            <input type="text" name="system.hp.max" value="{{system.hp.max}}" data-dtype="Number"/>
+            <span> / {{ system.hp.max }}</span>
           </div>
         </div>
 
@@ -48,12 +48,11 @@
           <label for="system.will.value" class="resource-label">Will</label>
           <div class="resource-content flex-center flex-between">
             <input type="text" name="system.will.value" value="{{system.will.value}}" data-dtype="Number"/>
-            <span> / </span>
-            <input type="text" name="system.will.max" value="{{system.will.max}}" data-dtype="Number"/>
+            <span> / {{ system.will.max }}</span>
           </div>
         </div>
 
-        <div class="resource">
+        <div class="resource large">
           <label for="system.rank" class="resource-label">Rank</label>
           <select class="rank-select" name="system.rank" value="{{system.rank}}" data-dtype="String" class="rank-select">
             {{selectOptions ranks selected=system.rank}}
@@ -187,9 +186,9 @@
         <aside>
           <div class="nature-box">
             <div class="attribute">
-              <label for="system.nature" class="resource-label flexlarge align-left">Nature</label>
-              <select name="system.nature" value="{{system.nature}}" data-dtype="String" class="large">
-                  {{selectOptions natures selected=system.nature}}
+              <label for="system.personality" class="resource-label flexlarge align-left">Nature</label>
+              <select name="system.personality" value="{{system.personality}}" data-dtype="String" class="large">
+                  {{selectOptions natures selected=system.personality}}
               </select>
             </div>
             <div class="attribute">
@@ -228,7 +227,10 @@
     {{!-- Biography Tab --}}
     <div class="tab biography flexrow" data-group="primary" data-tab="biography">
       <aside class="species-data">
-        <h3 class="section-header">#{{system.pokedexId}} {{system.species}}</h3>
+        <h3 class="section-header">
+          #{{system.pokedexId}} {{system.species}}
+          <a class="settings-button"><i class="fas fa-cogs"></i></a>
+        </h3>
         <ul class="pokedex">
           <li>
             <h4>Category</h4>

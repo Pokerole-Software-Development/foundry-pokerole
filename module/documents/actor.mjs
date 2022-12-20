@@ -47,6 +47,9 @@ export class PokeroleActor extends Actor {
 
     const { totalPassiveIncrease, skillLimit } = POKEROLE.rankProgression[systemData.rank ?? 'none'];
 
+    systemData.hp.max = systemData.baseHp + systemData.attributes.vitality.value;
+    systemData.will.max = systemData.attributes.insight.value + 2;
+
     systemData.derived ??= {};
     systemData.derived.initiative = { value: systemData.attributes.insight.value + systemData.skills.alert.value + totalPassiveIncrease };
     systemData.derived.evade = { value: systemData.attributes.dexterity.value + systemData.skills.evasion.value };

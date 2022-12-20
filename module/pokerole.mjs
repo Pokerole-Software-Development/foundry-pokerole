@@ -43,6 +43,9 @@ Hooks.once('init', async function() {
     enricher: successRollEnricher,
   });
 
+  CONFIG.statusEffects = POKEROLE.getStatusEffects();
+  CONFIG.specialStatusEffects = POKEROLE.specialStatusEffects;
+
   // Preload Handlebars templates.
   return preloadHandlebarsTemplates();
 });
