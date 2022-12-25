@@ -360,18 +360,26 @@ export class PokeroleActorSheet extends ActorSheet {
       }
     }
 
+    const chatData = {
+      speaker: ChatMessage.implementation.getSpeaker({ actor: this.actor })
+    };
+
     if (dataset.rollAttribute) {
-      let value = this.actor.getAnyAttribute(dataset.rollAttribute).value;
-      successRollAttribute({ name: dataset.rollAttribute, value }, {
-        speaker: ChatMessage.implementation.getSpeaker({ actor: this.actor })
-      });
+      if (dataset.rollAttribute === 'initiative') {
+        const roll = new Roll('1d6 + @dexterity + @alert', {
+          dexterity: this.actor.system.attributes.dexterity.value,
+          alert: this.actor.system.skills.alert.value
+        });
+        await roll.toMessage(chatData, { create: true });
+      } else {
+        let value = this.actor.getAnyAttribute(dataset.rollAttribute).value;
+        successRollAttribute({ name: dataset.rollAttribute, value }, chatData);
+      }
     }
 
     if (dataset.rollSkill) {
       let value = this.actor.getSkill(dataset.rollSkill).value;
-      successRollSkillDialogue({ name: dataset.rollSkill, value }, this.actor.getIntrinsicOrSocialAttributes(), {
-        speaker: ChatMessage.implementation.getSpeaker({ actor: this.actor })
-      });
+      successRollSkillDialogue({ name: dataset.rollSkill, value }, this.actor.getIntrinsicOrSocialAttributes(), chatData);
     }
   }
 

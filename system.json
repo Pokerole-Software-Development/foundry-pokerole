@@ -40,7 +40,7 @@
       "path": "lang/en.json"
     }
   ],
-  "gridDistance": 5,
+  "gridDistance": 2.5,
   "gridUnits": "ft",
   "primaryTokenAttribute": "hp",
   "secondaryTokenAttribute": "will",
