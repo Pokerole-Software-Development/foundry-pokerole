@@ -23,6 +23,7 @@ This system adds a custom chat command for convenient success-based rolls: Enter
 
 ## Tips
 - Click the icon on a move on the character sheet to automatically roll for accuracy and damage.
+- You can configure the combat tracker to show how many actions have already been used by each combatant in this round: click the Cog icon (Combat Tracker Settings) in the "Combat Encounters" tab to select `actionCount.value` as the tracked resource. The action counter for each actor resets on every new round.
 - Drag moves, items and abilities from a character sheet into the macro bar at the bottom of the screen to activate the item's effects via hotkeys.
 - Assign characters to each user by right-clicking their name under "Players" in the bottom right and selecting "User Configuration". This allows players to roll without selecting a token.
 - You can skip the dialogue for accuracy rolls by holding the Shift key while clicking the "Roll Accuracy" button

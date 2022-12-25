@@ -407,3 +407,30 @@
     opacity: 60%;
   }
 }
+
+.action-count {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-size: 0.75rem;
+  margin-bottom: 5px;
+
+  .input-group {
+    margin: 0 5px;
+  }
+
+  input {
+    width: 30px;
+    text-align: right;
+  }
+
+  button {
+    width: fit-content;
+    line-height: 20px;
+    font-size: 0.75rem;
+
+    i.fa-plus {
+      margin: 0;
+    }
+  }
+}

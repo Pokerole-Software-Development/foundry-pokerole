@@ -1,3 +1,15 @@
+<div class="action-count">
+  <label for="system.actionCount.value">Actions per round: </label>
+  <div class="input-group">
+    <input type="text" name="system.actionCount.value" value="{{system.actionCount.value}}" data-dtype="Number">
+    <span> / {{system.actionCount.max}}</span>
+  </div>
+  <button title="Increment action count" class="increment-action-num" {{#unless hasAvailableActions}}disabled{{/unless}}>
+    <i class="fas fa-plus"></i>
+  </button>
+  <button title="Reset action count" class="reset-action-num">Reset</button>
+</div>
+
 <ol class="items-list">
   {{#each moves as |moves key|}}
     <li class="item flexrow items-header{{#if moves.hidden}} hidden-header{{/if}}">

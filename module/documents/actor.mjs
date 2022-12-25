@@ -144,4 +144,23 @@ export class PokeroleActor extends Actor {
     const lcName = name.toLowerCase();
     return foundry.utils.deepClone(this.system.skills[lcName]);
   }
+
+  /** Whether this actor can still use an action in this round */
+  hasAvailableActions() {
+    return this.system.actionCount.value < this.system.actionCount.max;
+  }
+
+  /** Increase the number of taken actions this round */
+  increaseActionCount() {
+    this.update({
+      'system.actionCount.value': (this.system.actionCount?.value ?? 0) + 1
+    });
+  }
+
+  /** Reset the number of taken actions this round to 0 */
+  resetActionCount() {
+    this.update({
+      'system.actionCount.value': 0
+    });
+  }
 }

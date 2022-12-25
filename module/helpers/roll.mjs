@@ -87,6 +87,15 @@ export async function successRollSkillDialogue(skill, attributes, chatData) {
 
 const ACCURACY_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/accuracy-roll.html";
 
+/**
+ * @param {Item} item The move to roll accuracy for
+ * @param {Actor} actor The actor using the move
+ * @param {TokenDocument} actorToken The token using the move
+ * @param {boolean} canBeClashed Whether an option to clash should be provided
+ * @param {boolean} canBeEvaded Whether an option to evade should be provided
+ * @param {boolean} showPopup If `false`, the popup is skipped and default values are assumed
+ * @returns {boolean} `true` if accuracy was rolled, `false` if cancelled
+ */
 export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeEvaded, showPopup = true) {
   let { accMod1, accMod2 } = item.system;
   if (accMod2 == !accMod1) {
@@ -108,11 +117,13 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
 
   let poolBonus = 0;
   let constantBonus = 0;
+  let multiActionPenalty = actor.system.actionCount.value;
 
   if (showPopup) {
     const content = await renderTemplate(ACCURACY_ROLL_DIALOGUE_TEMPLATE, {
       baseFormula,
-      accuracyReduction: item.system.attributes.accuracyReduction
+      accuracyReduction: item.system.attributes.accuracyReduction,
+      multiActionPenalty
     });
 
     // Create the Dialog window and await submission of the form
@@ -131,18 +142,22 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
       }, { popOutModuleDisable: true }).render(true);
     });
 
-    if (!result) return;
+    if (!result) return false;
 
     const formElement = result[0].querySelector('form');
     const formData = new FormDataExtended(formElement).object;
     poolBonus = formData.poolBonus ?? 0;
     constantBonus = formData.constantBonus ?? 0;
+    if (formData.multiActionPenalty) {
+      multiActionPenalty = formData.multiActionPenalty;
+    }
   }
 
   dicePool += poolBonus;
   if (item.system.attributes.accuracyReduction) {
     constantBonus -= item.system.attributes.accuracyReduction;
   }
+  constantBonus -= multiActionPenalty;
 
   let chatData = { speaker: ChatMessage.implementation.getSpeaker({ actor }) };
   const [rollResult, newChatData] = await createSuccessRollMessageData(dicePool, `Accuracy roll: ${item.name}`, chatData, constantBonus);
@@ -164,10 +179,17 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
   newChatData.content += html;
 
   await ChatMessage.create(newChatData);
+  return true;
 }
 
 const DAMAGE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/damage-roll.html";
 
+/**
+ * 
+ * @param {Item} item The move to roll damage for
+ * @param {Actor} actor The actor using the move
+ * @returns {boolean} `true` if damage was rolled, `false` if cancelled
+ */
 export async function rollDamage(item, actor) {
   let baseFormula = `${item.system.power}-[def/sp.def]`;
   if (item.system.dmgMod) {
@@ -345,7 +367,10 @@ export async function rollDamage(item, actor) {
       content: html,
       flavor: `Damage roll: ${item.name}`
     });
+    return true;
   }
+
+  return false;
 }
 
 /**

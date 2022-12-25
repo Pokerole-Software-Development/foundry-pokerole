@@ -142,6 +142,9 @@ POKEROLE.specialStatusEffects = {
 POKEROLE.ranks = ['none', 'starter', 'beginner', 'amateur', 'ace', 'pro', 'master', 'champion'];
 POKEROLE.moveGroups = ['learned', ...POKEROLE.ranks.slice(1), 'maneuver'];
 
+/** The maximum number of actions allowed per round */
+POKEROLE.maxActions = 5;
+
 POKEROLE.rankProgression = {
   'none': {
     attributePoints: 0,

@@ -48,7 +48,7 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
     }, { popOutModuleDisable: true }).render(true);
   });
 
-  if (!result) return;
+  if (!result) return false;
 
   const formElement = result[0].querySelector('form');
   const { moveId, applyDamage, poolBonus, constantBonus } = new FormDataExtended(formElement).object;
@@ -102,6 +102,7 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
 
   messageData = ChatMessage.implementation.applyRollMode(messageData, game.settings.get('core', 'rollMode'));
   await ChatMessage.implementation.create(messageData);
+  return true;
 }
 
 function calculateClashDamage(move, defender) {

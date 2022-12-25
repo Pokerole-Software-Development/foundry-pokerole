@@ -100,6 +100,8 @@ export class PokeroleActorSheet extends ActorSheet {
     }
     context.weightImperial = Math.round(weightImperial);
 
+    context.hasAvailableActions = this.actor.hasAvailableActions();
+
     return context;
   }
 
@@ -302,6 +304,10 @@ export class PokeroleActorSheet extends ActorSheet {
     });
 
     html.find('.settings-button').click(ev => this._showSettings());
+
+    html.find('.increment-action-num').click(ev => this.actor.increaseActionCount());
+
+    html.find('.reset-action-num').click(ev => this.actor.resetActionCount());
   }
 
   /**

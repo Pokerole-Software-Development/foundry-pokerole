@@ -17,6 +17,11 @@
         "personality": "hardy",
         "confidence": 0,
         "baseHp": 0,
+        "actionCount": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
         "attributes": {
           "strength": {
             "value": 0,

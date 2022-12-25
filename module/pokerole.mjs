@@ -51,8 +51,26 @@ Hooks.once('init', async function() {
 });
 
 // Chat message hooks
-Hooks.on("renderChatLog", (app, html, data) => PokeroleItem.chatListeners(html));
-Hooks.on("renderChatPopout", (app, html, data) => PokeroleItem.chatListeners(html));
+Hooks.on('renderChatLog', (app, html, data) => PokeroleItem.chatListeners(html));
+Hooks.on('renderChatPopout', (app, html, data) => PokeroleItem.chatListeners(html));
+
+Hooks.on('combatRound', (combat, _, data) => {
+  // Reset action counters at the start of a new round
+  if (data.direction !== 1) {
+    return;
+  }
+
+  for (const combatant of combat.combatants) {
+    const scene = game.scenes.get(combatant.sceneId);
+    if (!scene) continue;
+    const token = scene.tokens.get(combatant.tokenId);
+    if (!token) continue;
+    // TODO: bulk-update
+    if (token.actor.isOwner) {
+      token.actor.resetActionCount();
+    }
+  }
+});
 
 /* -------------------------------------------- */
 /*  Handlebars Helpers                          */
@@ -174,14 +192,19 @@ async function onChatActionClick(event) {
   const actor = token?.actor ?? game.user?.character;
   const chatData = { speaker: ChatMessage.implementation.getSpeaker({ token: token?.document, actor }) };
 
+  if (!actor) {
+    return ui.notifications.error('No actor selected');
+  }
+
+  if (!actor.hasAvailableActions()) {
+    return ui.notifications.error("You can't use any more actions this round.");
+  }
+
   const action = event.target.dataset.action;
+  
   try {
     switch (action) {
       case 'clash':
-        if (!actor) {
-          throw new Error('No actor selected');
-        }
-
         const { attackerId, moveId, expectedSuccesses } = event.target.dataset;
         const attacker = await fromUuid(attackerId);
         if (!attacker) {
@@ -194,10 +217,13 @@ async function onChatActionClick(event) {
         if (!move) {
           throw new Error("The move to be clashed doesn't exist anymore");
         }
-        await showClashDialog(actor, token, attacker, move, expectedSuccesses ?? 1, chatData);
+        if (await showClashDialog(actor, token, attacker, move, expectedSuccesses ?? 1, chatData)) {
+          actor.increaseActionCount();
+        }
         break;
       case 'evade':
         await successRollFromExpression('dexterity+evasion # Evade', actor, chatData);
+        actor.increaseActionCount();
         break;
     }
   } catch (e) {

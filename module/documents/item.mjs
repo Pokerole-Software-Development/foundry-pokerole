@@ -187,7 +187,14 @@ export class PokeroleItem extends Item {
     // Handle different actions
     switch (action) {
       case "accuracy":
-        await rollAccuracy(item, actor, token, canBeClashed, canBeEvaded, !event.shiftKey);
+        if (!actor.hasAvailableActions()) {
+          button.disabled = false;
+          return ui.notifications.error("You can't use any more actions this round.");
+        }
+
+        if (await rollAccuracy(item, actor, token, canBeClashed, canBeEvaded, !event.shiftKey)) {
+          actor.increaseActionCount();
+        }
         break;
       case "damage":
         await rollDamage(item, actor);
