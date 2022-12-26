@@ -212,7 +212,6 @@ POKEROLE.rankProgression = {
   },
 };
 
-// TODO: custom attributes
 POKEROLE.attributes = ['strength', 'dexterity', 'vitality', 'special', 'insight'];
 POKEROLE.skills = ['brawl', 'channel', 'clash', 'evasion', 'alert', 'athletic', 'nature', 'stealth', 'allure', 'etiquette', 'intimidate', 'perform', 'crafts', 'lore', 'medicine', 'science'];
 POKEROLE.socialAttributes = ['tough', 'cool', 'beauty', 'cute', 'clever'];
@@ -314,16 +313,16 @@ export function getDualTypeMatchups(defending1, defending2) {
   return matchups;
 }
 
-export function getLocalizedType(type) {
-  return game.i18n.localize(CONFIG.POKEROLE.i18n.types[type]);
-}
-
-export function getLocalizedTypesForSelect() {
-  const obj = {};
-  for (const type of POKEROLE.types) {
-    obj[type] = getLocalizedType(type);
+/** How many regular and Lethal damage are healed from basic and complete heals */
+POKEROLE.healAmounts = {
+  basic: {
+    regular: 3,
+    lethal: 0,
+  },
+  complete: {
+    regular: 5,
+    lethal: 5
   }
-  return obj;
 }
 
 POKEROLE.i18n = {
@@ -470,4 +469,46 @@ POKEROLE.i18n = {
 
     "maneuver": "POKEROLE.MoveGroupManeuver",
   },
+
+  healTypes: {
+    "none": "POKEROLE.HealNone",
+    "basic": "POKEROLE.HealBasic",
+    "complete": "POKEROLE.HealComplete",
+    "leech": "POKEROLE.HealLeech",
+    "custom": "POKEROLE.HealCustom",
+  },
+
+  effectTargets: {
+    "user": "POKEROLE.EffectTargetUser",
+    "targets": "POKEROLE.EffectTargetTargets",
+  }
 };
+
+/**
+ * Get localized entries to be used with <select> elements for a given category
+ * @param {string} category A category in `POKEROLE.i18n`, such as `types`
+ * @returns {Object | undefined}
+ */
+export function getLocalizedEntriesForSelect(category) {
+  if (!POKEROLE.i18n[category]) {
+    return undefined;
+  }
+
+  const entries = {};
+  for (let [k, v] of Object.entries(POKEROLE.i18n[category])) {
+    entries[k] = game.i18n.localize(v) ?? v;
+  }
+  return entries;
+}
+
+export function getLocalizedType(type) {
+  return game.i18n.localize(CONFIG.POKEROLE.i18n.types[type]) ?? type;
+}
+
+export function getLocalizedTypesForSelect() {
+  const obj = {};
+  for (const type of POKEROLE.types) {
+    obj[type] = getLocalizedType(type);
+  }
+  return obj;
+}

@@ -1,5 +1,6 @@
 import { calcDualTypeMatchupScore } from "./config.mjs";
-import { bulkApplyHp, getEffectivenessText, createSuccessRollMessageData } from "./roll.mjs";
+import { getEffectivenessText, createSuccessRollMessageData } from "./roll.mjs";
+import { bulkApplyHp } from "./damage.mjs";
 
 const CLASH_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/clash.html";
 

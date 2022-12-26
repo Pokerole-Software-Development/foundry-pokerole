@@ -115,6 +115,15 @@
   "POKEROLE.MoveGroupMaster": "Master Rank",
   "POKEROLE.MoveGroupChampion": "Champion Rank",
 
+  "POKEROLE.HealNone": "None",
+  "POKEROLE.HealBasic": "Basic Heal",
+  "POKEROLE.HealComplete": "Complete Heal",
+  "POKEROLE.HealLeech": "Leech",
+  "POKEROLE.HealCustom": "Custom",
+
+  "POKEROLE.EffectTargetTargets": "Move Targets",
+  "POKEROLE.EffectTargetUser": "User",
+
   "POKEROLE.NatureHardy": "Hardy",
   "POKEROLE.NatureLonely": "Lonely",
   "POKEROLE.NatureBrave": "Brave",

@@ -1,4 +1,5 @@
 import { calcDualTypeMatchupScore } from "./config.mjs";
+import { bulkApplyHp, createHealMessage } from "./damage.mjs";
 
 export async function successRollFromExpression(expr, actor, chatData) {
   expr = expr.trim();
@@ -188,9 +189,10 @@ const DAMAGE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/damage-ro
  * 
  * @param {Item} item The move to roll damage for
  * @param {Actor} actor The actor using the move
+ * @param {TokenDocument} token The token using the move
  * @returns {boolean} `true` if damage was rolled, `false` if cancelled
  */
-export async function rollDamage(item, actor) {
+export async function rollDamage(item, actor, token) {
   let baseFormula = `${item.system.power}-[def/sp.def]`;
   if (item.system.dmgMod) {
     baseFormula = `${item.system.dmgMod}+${item.system.power}-[def/sp.def]+[STAB]`;
@@ -203,6 +205,15 @@ export async function rollDamage(item, actor) {
   ) {
     // Exclude the current actor from the list if it can't target itself
     selectedTokens = selectedTokens.filter(token => token.actor._id !== actor.id);
+  }
+
+  let shouldApplyLeechHeal = false;
+  let leechHealPercent = 0;
+  if (item.system.heal?.type === 'leech') {
+    leechHealPercent = item.system.heal?.amount;
+    if (leechHealPercent > 0) {
+      shouldApplyLeechHeal = true;
+    }
   }
 
   const targetNames = selectedTokens.map(token => token.actor.name).join(', ');
@@ -220,7 +231,8 @@ export async function rollDamage(item, actor) {
       superEffective: 'Super Effective (+1)',
       doubleSuperEffective: 'Double Super Effective (+2)',
     },
-    targetNames
+    targetNames,
+    hasLeechHeal: shouldApplyLeechHeal
   });
 
   // Create the Dialog window and await submission of the form
@@ -243,174 +255,142 @@ export async function rollDamage(item, actor) {
     }, { popOutModuleDisable: true }).render(true);
   });
 
-  if (result) {
-    const formElement = result[0].querySelector('form');
-    const formData = new FormDataExtended(formElement).object;
-    let { enemyDef, stab, effectiveness, poolBonus, constantBonus, applyDamage } = formData;
-    poolBonus ??= 0;
-    constantBonus ??= 0;
+  if (!result) return false;
 
-    if (stab) {
-      poolBonus += 1;
+  const formElement = result[0].querySelector('form');
+  const formData = new FormDataExtended(formElement).object;
+  let { enemyDef, stab, effectiveness, poolBonus, constantBonus, applyDamage, applyLeechHeal } = formData;
+  poolBonus ??= 0;
+  constantBonus ??= 0;
+
+  if (stab) {
+    poolBonus += 1;
+  }
+  if (isCrit) {
+    poolBonus += 2;
+  }
+
+  let rollCountBeforeDef = (item.system.power ?? 0) + poolBonus;
+  if (item.system.dmgMod) {
+    rollCountBeforeDef += actor.getAnyAttribute(item.system.dmgMod)?.value ?? 0;
+  }
+
+  if (item.system.attributes?.ignoreDefenses) {
+    enemyDef = 0;
+  }
+
+  const chatData = { speaker: ChatMessage.implementation.getSpeaker({ actor, token }) };
+  let html = '';
+  const critText = isCrit ? 'A critical hit! ' : '';
+
+  if (selectedTokens.length === 0) {
+    let rollCount = rollCountBeforeDef - enemyDef;
+
+    const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus);
+    html += '<hr>' + messageDataPart.content;
+
+    let damage = 1;
+    
+    if (rollResult > 0) {
+      damage = rollResult;
+      let effectivenessLevel = 0;
+
+      switch (effectiveness) {
+        case 'superEffective':
+          effectivenessLevel = 1;
+          break;
+        case 'doubleSuperEffective':
+          effectivenessLevel = 2;
+          break;
+        case 'notVeryEffective':
+          effectivenessLevel = -1;
+          break;
+        case 'doubleNotVeryEffective':
+          effectivenessLevel = -2;
+          break;
+        case 'immune':
+          effectivenessLevel = -Infinity;
+          break;
+        default:
+          effectivenessLevel = 0;
+          break;
+      }
+
+      if (effectivenessLevel !== 0) {
+        html += `<p><b>${getEffectivenessText(effectivenessLevel)}</b></p>`;
+      }
+      damage += effectivenessLevel;
     }
-    if (isCrit) {
-      poolBonus += 2;
-    }
+    damage = Math.max(damage, 1); // Dealt damage is always at least 1
 
-    let rollCountBeforeDef = (item.system.power ?? 0) + poolBonus;
-    if (item.system.dmgMod) {
-      rollCountBeforeDef += actor.getAnyAttribute(item.system.dmgMod)?.value ?? 0;
-    }
+    html += `<p>${critText}The attack deals ${damage} damage!</p>`;
+  } else {
+    // One or more tokens to apply damage to are selected
+    const hpUpdates = [];
 
-    if (item.system.attributes?.ignoreDefenses) {
-      enemyDef = 0;
-    }
-
-    const chatData = { speaker: ChatMessage.implementation.getSpeaker({ actor }) };
-    let html = '';
-    const critText = isCrit ? 'A critical hit! ' : '';
-
-    if (selectedTokens.length === 0) {
-      let rollCount = rollCountBeforeDef - enemyDef;
+    for (let defenderToken of selectedTokens) {
+      const defender = defenderToken.actor;
+      let defStat = 0;
+      if (!item.system.attributes?.ignoreDefenses) {
+        defStat = item.system.category === 'special'
+          ? defender.system.derived.spDef.value
+          : defender.system.derived.def.value;
+      }
+      const rollCount = rollCountBeforeDef - defStat;
 
       const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus);
       html += '<hr>' + messageDataPart.content;
 
-      let damage = 1;
-      
+      let damage = rollResult;
+      let effectiveness = calcDualTypeMatchupScore(
+        item.system.type,
+        defender.system.type1,
+        defender.system.type2
+      );
+
       if (rollResult > 0) {
-        damage = rollResult;
-        let effectivenessLevel = 0;
-
-        switch (effectiveness) {
-          case 'superEffective':
-            effectivenessLevel = 1;
-            break;
-          case 'doubleSuperEffective':
-            effectivenessLevel = 2;
-            break;
-          case 'notVeryEffective':
-            effectivenessLevel = -1;
-            break;
-          case 'doubleNotVeryEffective':
-            effectivenessLevel = -2;
-            break;
-          case 'immune':
-            effectivenessLevel = -Infinity;
-            break;
-          default:
-            effectivenessLevel = 0;
-            break;
-        }
-
-        if (effectivenessLevel !== 0) {
-          html += `<p><b>${getEffectivenessText(effectivenessLevel)}</b></p>`;
-        }
-        damage += effectivenessLevel;
-      }
-      damage = Math.max(damage, 1); // Dealt damage is always at least 1
-
-      html += `<p>${critText}The attack deals ${damage} damage!</p>`;
-    } else {
-      // One or more tokens to apply damage to are selected
-      const hpUpdates = [];
-
-      for (let defenderToken of selectedTokens) {
-        const defender = defenderToken.actor;
-        let defStat = 0;
-        if (!item.system.attributes?.ignoreDefenses) {
-          defStat = item.system.category === 'special'
-            ? defender.system.derived.spDef.value
-            : defender.system.derived.def.value;
-        }
-        const rollCount = rollCountBeforeDef - defStat;
-
-        const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus);
-        html += '<hr>' + messageDataPart.content;
-
-        let damage = rollResult;
-        let effectiveness = calcDualTypeMatchupScore(
-          item.system.type,
-          defender.system.type1,
-          defender.system.type2
-        );
-
-        if (rollResult > 0) {
-          damage += effectiveness;
-          if (effectiveness !== 0) {
-            html += `<p><b>${getEffectivenessText(effectiveness)}</b></p>`;
-          }
-        }
-        
-        // Damage is always at least 1, unless the target is immune
-        damage = Math.max(damage, effectiveness === -Infinity ? 0 : 1);
-        html += `<p>${critText}${defender.name} took ${damage} damage!</p>`;
-
-        if (applyDamage) {
-          const oldHp = defender.system.hp.value;
-          const hp = Math.max(oldHp - damage, 0);
-          hpUpdates.push({ token: defenderToken, hp });
-
-          if (hp === 0 && oldHp > 0) {
-            html += `<p><b>${defender.name} fainted!</b></p>`;
-          }
+        damage += effectiveness;
+        if (effectiveness !== 0) {
+          html += `<p><b>${getEffectivenessText(effectiveness)}</b></p>`;
         }
       }
+      
+      // Damage is always at least 1, unless the target is immune
+      damage = Math.max(damage, effectiveness === -Infinity ? 0 : 1);
+      html += `<p>${critText}${defender.name} took ${damage} damage!</p>`;
 
       if (applyDamage) {
-        await bulkApplyHp(hpUpdates);
+        const oldHp = defender.system.hp.value;
+        const hp = Math.max(oldHp - damage, 0);
+        hpUpdates.push({ token: defenderToken, hp });
+
+        if (hp === 0 && oldHp > 0) {
+          html += `<p><b>${defender.name} fainted!</b></p>`;
+        }
+      }
+
+      if (applyLeechHeal) {
+        const healAmount = Math.floor(damage / 2);
+        const oldHp = actor.system.hp.value;
+        const newHp = Math.min(oldHp + healAmount, actor.system.hp.max);
+
+        hpUpdates.push({ actor, token, hp: newHp });
+
+        html += createHealMessage(token?.name ?? actor.name, oldHp, newHp, actor.system.hp.max);
       }
     }
 
-    await ChatMessage.create({
-      ...chatData,
-      content: html,
-      flavor: `Damage roll: ${item.name}`
-    });
-    return true;
-  }
-
-  return false;
-}
-
-/**
- * @param {Array<{ actor?: Actor, token?: TokenDocument, hp: number }>} healthUpdates 
- */
-export async function bulkApplyHp(healthUpdates) {
-  const actorUpdates = [];
-  const tokenUpdates = [];
-
-  for (const { actor, token, hp } of healthUpdates) {
-    if (token) {
-      if (token.actorLink) {
-        // If the token is linked to the actor, update the actor itself
-        actorUpdates.push({
-          _id: token.actorId,
-          'system.hp.value': hp
-        });
-      } else {
-        // Otherwise, update the override data in the token
-        tokenUpdates.push({
-          _id: token.id,
-          'actorData.system.hp.value': hp
-        });
-      }
-    } else if (actor) {
-      actorUpdates.push({
-        _id: actor.id,
-        'system.hp.value': hp
-      });
+    if (applyDamage || applyLeechHeal) {
+      await bulkApplyHp(hpUpdates);
     }
   }
 
-  const promises = [];
-  if (actorUpdates.length > 0) {
-    promises.push(Actor.updateDocuments(actorUpdates));
-  }
-  if (tokenUpdates.length > 0) {
-    promises.push(canvas.scene.updateEmbeddedDocuments('Token', tokenUpdates));
-  }
-  await Promise.all(promises);  
+  await ChatMessage.create({
+    ...chatData,
+    content: html,
+    flavor: `Damage roll: ${item.name}`
+  });
+  return true;
 }
 
 export async function successRoll(rollCount, flavor, chatData, modifier = 0) {

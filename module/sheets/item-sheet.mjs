@@ -1,4 +1,4 @@
-import { getLocalizedTypesForSelect, POKEROLE } from "../helpers/config.mjs";
+import { getLocalizedEntriesForSelect, getLocalizedTypesForSelect, POKEROLE } from "../helpers/config.mjs";
 
 /**
  * Extend the basic ItemSheet with some very simple modifications
@@ -45,15 +45,9 @@ export class PokeroleItemSheet extends ItemSheet {
     context.flags = itemData.flags;
 
     context.types = getLocalizedTypesForSelect();
-    context.categories = {}
-    for (let [k, v] of Object.entries(POKEROLE.i18n.moveCategories)) {
-      context.categories[k] = game.i18n.localize(v) ?? v;
-    }
+    context.categories = getLocalizedEntriesForSelect('moveCategories');
 
-    context.targets = {};
-    for (let [k, v] of Object.entries(POKEROLE.i18n.targets)) {
-      context.targets[k] = game.i18n.localize(v) ?? v;
-    }
+    context.targets = getLocalizedEntriesForSelect('targets');
 
     context.ranks = {};
     for (let rank of POKEROLE.ranks.slice(1)) {
@@ -64,6 +58,13 @@ export class PokeroleItemSheet extends ItemSheet {
       secrets: this.document.isOwner,
       async: true
     });
+
+    context.healTypes = getLocalizedEntriesForSelect('healTypes');
+    context.effectTargets = getLocalizedEntriesForSelect('effectTargets');
+
+    context.healEnabled = context.system.heal.type !== 'none';
+    context.isCustomHeal = context.system.heal.type === 'custom';
+    context.isLeechHeal = context.system.heal.type === 'leech';
 
     return context;
   }

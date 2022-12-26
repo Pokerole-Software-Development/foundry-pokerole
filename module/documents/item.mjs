@@ -1,4 +1,5 @@
 import { POKEROLE } from "../helpers/config.mjs";
+import { bulkApplyHp, createHealMessage } from "../helpers/damage.mjs";
 import { rollAccuracy, rollDamage } from "../helpers/roll.mjs";
 
 /**
@@ -45,6 +46,7 @@ export class PokeroleItem extends Item {
     let properties = [];
     let hasAccuracy = false;
     let hasDamage = false;
+    let healText = undefined;
 
     if (this.type === 'move') {
       const locType = game.i18n.localize(POKEROLE.i18n.types[this.system.type]);
@@ -65,6 +67,26 @@ export class PokeroleItem extends Item {
       if (this.system.power || this.system.dmgMod) {
         hasDamage = true;
       }
+
+      switch (this.system.heal.type) {
+        case 'basic':
+          healText = 'Apply Basic Heal';
+          break;
+        case 'complete':
+          healText = 'Apply Complete Heal';
+          break;
+        case 'custom':
+          healText = `Heal ${this.system.heal.amount} HP`;
+          break;
+      }
+
+      if (healText && this.system.heal.willPointCost) {
+        if (this.system.heal.willPointCost !== 1) {
+          healText += ` (costs ${this.system.heal.willPointCost} Will Points)`;
+        } else {
+          healText += ` (costs 1 Will Point)`;
+        }
+      }
     }
 
     let flavor = this.name;
@@ -81,6 +103,7 @@ export class PokeroleItem extends Item {
       properties,
       hasAccuracy,
       hasDamage,
+      healText,
       canBeClashed: this.canBeClashed(),
       canBeEvaded: this.canBeEvaded(),
     };
@@ -138,6 +161,69 @@ export class PokeroleItem extends Item {
     return POKEROLE.socialAttributes.includes(this.system.accMod1);
   }
 
+  /**
+   * Heal the selected targets
+   * @param {Actor} actor The actor using the healing move
+   * @param {Token[]} selectedTargets Targets who should be healed (if `heal.target` is `targets`)
+   * @returns {boolean | any} `true` if healing was applied successfully
+   */
+  async applyHeal(actor, selectedTargets) {
+    const heal = this.system.heal;
+    if (!heal) {
+      return false;
+    }
+
+    const mayTargetOthers = this.system.target !== 'User' && heal.target !== 'user';
+    if (mayTargetOthers && selectedTargets.length < 1) {
+      return ui.notifications.error("Select at least one target to heal.");
+    }
+
+    const willCost = heal.willPointCost;
+    if (willCost > 0 && actor.system.will.value < willCost) {
+      return ui.notifications.error("You don't have enough Will Points.");
+    }
+
+    const healAmount = ['basic', 'complete'].includes(heal.type)
+      ? POKEROLE.healAmounts[heal.type].regular
+      : heal.amount;
+
+    let chatMessage = '';
+    const hpUpdates = [];
+    if (mayTargetOthers) {
+      for (const target of selectedTargets) {
+        const maxHp = target.document.actor.system.hp.max;
+        const oldHp = target.document.actor.system.hp.value;
+        const newHp = Math.min(oldHp + healAmount, maxHp);
+        chatMessage += createHealMessage(target.document.name, oldHp, newHp, maxHp);
+        hpUpdates.push({ token: target.document, hp: newHp });
+      }
+    } else {
+      const maxHp = actor.system.hp.max;
+      const oldHp = actor.system.hp.value;
+      const newHp = Math.min(oldHp + healAmount, maxHp);
+      chatMessage += createHealMessage(actor.name, oldHp, newHp, maxHp);
+      hpUpdates.push({ actor, hp: newHp });
+    }
+
+    const promises = [bulkApplyHp(hpUpdates)];
+    if (willCost > 0) {
+      promises.push(actor.update({
+        'system.will.value': actor.system.will.value - willCost
+      }));
+      chatMessage += `<p>${actor.name}'s Will was reduced by ${willCost}</p>`;
+    }
+    await Promise.all(promises);
+
+    let chatData = {
+      flavor: this.name,
+      content: chatMessage,
+      speaker: ChatMessage.implementation.getSpeaker({ actor })
+    };
+    chatData = ChatMessage.implementation.applyRollMode(chatData, game.settings.get('core', 'rollMode'));
+    await ChatMessage.create(chatData);
+    return true;
+  }
+
    /**
    * Apply listeners to chat messages.
    * @param {HTML} html  Rendered chat message.
@@ -186,7 +272,7 @@ export class PokeroleItem extends Item {
 
     // Handle different actions
     switch (action) {
-      case "accuracy":
+      case 'accuracy':
         if (!actor.hasAvailableActions()) {
           button.disabled = false;
           return ui.notifications.error("You can't use any more actions this round.");
@@ -196,8 +282,11 @@ export class PokeroleItem extends Item {
           actor.increaseActionCount();
         }
         break;
-      case "damage":
-        await rollDamage(item, actor);
+      case 'damage':
+        await rollDamage(item, actor, token);
+        break;
+      case 'heal':
+        await item.applyHeal(actor, Array.from(game.user.targets));
         break;
     }
 
@@ -223,7 +312,7 @@ export class PokeroleItem extends Item {
    * @param {HTMLElement} card    The chat card being used
    * @returns {{actor: Actor | undefined, token: token | undefined}} The Actor document or undefined
    */
-   static async _getChatCardActor(card) {
+  static async _getChatCardActor(card) {
     // Case 1 - a synthetic actor from a Token
     if (card.dataset.tokenId) {
       const token = await fromUuid(card.dataset.tokenId);

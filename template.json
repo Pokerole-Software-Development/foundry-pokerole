@@ -212,6 +212,12 @@
         "resistedWithDefense": false,
         "ignoreDefenses": false,
         "maneuver": false
+      },
+      "heal": {
+        "type": "none",
+        "amount": 0,
+        "willPointCost": 1,
+        "target": "targets"
       }
     }
   }
