@@ -253,8 +253,9 @@ export class PokeroleItem extends Item {
     const action = button.dataset.action;
 
     // Validate permission to proceed with the roll
-    // TODO: revisit when implementing clashing/evading in response
-    if (!(game.user.isGM || message.isAuthor)) return;
+    if (!(game.user.isGM || message.isAuthor)) {
+      return ui.notifications.error("You can't use this item.");
+    }
 
     // Recover the actor for the chat card
     const { actor, token } = await this._getChatCardActor(card);

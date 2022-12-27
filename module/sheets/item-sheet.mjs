@@ -62,9 +62,9 @@ export class PokeroleItemSheet extends ItemSheet {
     context.healTypes = getLocalizedEntriesForSelect('healTypes');
     context.effectTargets = getLocalizedEntriesForSelect('effectTargets');
 
-    context.healEnabled = context.system.heal.type !== 'none';
-    context.isCustomHeal = context.system.heal.type === 'custom';
-    context.isLeechHeal = context.system.heal.type === 'leech';
+    context.healEnabled = context.system.heal?.type !== 'none';
+    context.isCustomHeal = context.system.heal?.type === 'custom';
+    context.isLeechHeal = context.system.heal?.type === 'leech';
 
     return context;
   }

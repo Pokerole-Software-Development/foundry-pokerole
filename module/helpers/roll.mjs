@@ -1,6 +1,13 @@
 import { calcDualTypeMatchupScore } from "./config.mjs";
 import { bulkApplyHp, createHealMessage } from "./damage.mjs";
 
+/**
+ * Success roll from a chat expression
+ * @param {String} expr Expression such as `Dexterity+Alert+2`
+ * @param {Actor | undefined} actor The actor to roll as.
+ * @param {Object} chatData Settings passed to `ChatMessage.create`
+ * @returns 
+ */
 export async function successRollFromExpression(expr, actor, chatData) {
   expr = expr.trim();
 
@@ -149,7 +156,7 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
     const formData = new FormDataExtended(formElement).object;
     poolBonus = formData.poolBonus ?? 0;
     constantBonus = formData.constantBonus ?? 0;
-    if (formData.multiActionPenalty) {
+    if (formData.multiActionPenalty !== undefined) {
       multiActionPenalty = formData.multiActionPenalty;
     }
   }
@@ -283,13 +290,14 @@ export async function rollDamage(item, actor, token) {
   let html = '';
   const critText = isCrit ? 'A critical hit! ' : '';
 
+  let damage;
   if (selectedTokens.length === 0) {
     let rollCount = rollCountBeforeDef - enemyDef;
 
     const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus);
     html += '<hr>' + messageDataPart.content;
 
-    let damage = 1;
+    damage = 1;
     
     if (rollResult > 0) {
       damage = rollResult;
@@ -332,7 +340,7 @@ export async function rollDamage(item, actor, token) {
       const defender = defenderToken.actor;
       let defStat = 0;
       if (!item.system.attributes?.ignoreDefenses) {
-        defStat = item.system.category === 'special'
+        defStat = item.system.category === 'special' && !item.system.attributes.resistedWithDefense
           ? defender.system.derived.spDef.value
           : defender.system.derived.def.value;
       }
@@ -341,7 +349,7 @@ export async function rollDamage(item, actor, token) {
       const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus);
       html += '<hr>' + messageDataPart.content;
 
-      let damage = rollResult;
+      damage = rollResult;
       let effectiveness = calcDualTypeMatchupScore(
         item.system.type,
         defender.system.type1,
@@ -369,20 +377,33 @@ export async function rollDamage(item, actor, token) {
         }
       }
 
+      // Calculate healing/damage to user
+      const oldHp = actor.system.hp.value;
+      let newHp = oldHp;
+
       if (applyLeechHeal) {
         const healAmount = Math.floor(damage / 2);
-        const oldHp = actor.system.hp.value;
-        const newHp = Math.min(oldHp + healAmount, actor.system.hp.max);
-
-        hpUpdates.push({ actor, token, hp: newHp });
+        newHp += healAmount;
 
         html += createHealMessage(token?.name ?? actor.name, oldHp, newHp, actor.system.hp.max);
+      }
+
+      if (newHp !== oldHp) {
+        hpUpdates.push({ actor, token, hp: newHp });
       }
     }
 
     if (applyDamage || applyLeechHeal) {
       await bulkApplyHp(hpUpdates);
     }
+  }
+
+  if (damage > 0 && item.system.attributes.recoil) {
+    const dataTokenUuid = token ? `data-token-uuid="${token.uuid}"` : undefined;
+    html += `<div class="pokerole"><div class="action-buttons">
+      <button class="chat-action" data-action="recoil" data-actor-id="${actor.id}"
+        ${dataTokenUuid} data-damage="${damage}">Roll Recoil Damage</button>
+    </div></div>`;
   }
 
   await ChatMessage.create({
@@ -393,14 +414,61 @@ export async function rollDamage(item, actor, token) {
   return true;
 }
 
+/**
+ * Roll for recoil damage
+ * @param {Actor} actor The actor receiving recoil
+ * @param {TokenDocument | undefined} token The token of the actor receiving recoil 
+ * @param {number} damage The damage dealt by the attack (serves as the dice pool for recoil)
+ */
+export async function rollRecoil(actor, token, damage) {
+  const chatData = {
+    speaker: ChatMessage.implementation.getSpeaker({ token, actor })
+  };
+  const [result, newChatData] = await createSuccessRollMessageData(damage, 'Recoil', chatData); 
+
+  if (result > 0) {
+    const oldHp = actor.system.hp.value;
+    const newHp = Math.max(oldHp - result, 0);
+
+    await bulkApplyHp([{
+      token, actor, hp: newHp
+    }]);
+  
+    newChatData.content += `<p>${actor.name} took ${result} damage from recoil.</p>`;
+
+    if (newHp === 0 && oldHp > 0) {
+      newChatData.content += `<p><b>${actor.name} fainted!</b></p>`;
+    }
+  } else {
+    newChatData.content += `<p>${actor.name} didn't take any recoil damage.</p>`;
+  }
+
+  await ChatMessage.implementation.create(newChatData);
+}
+
+/**
+ * Roll for successes. Each of the rolled d6 count as a success if they show up as 4 or higher.
+ * Also creates a chat message with the results.
+ * 
+ * @param {number} rollCount The number of dice to roll
+ * @param {string} flavor Displayed flavor text
+ * @param {Object} chatData Settings passed to `ChatMessage.create`
+ * @param {number} modifier Constant number added to the result
+ * @returns {Promise<number>} The number of successes
+ */
 export async function successRoll(rollCount, flavor, chatData, modifier = 0) {
   const [result, messageData] = await createSuccessRollMessageData(rollCount, flavor, chatData, modifier);
-  await ChatMessage.create(messageData);
+  await ChatMessage.implementation.create(messageData);
   return result;
 }
 
 /**
- * @returns [result: number, chatMessageData: object]
+ * Rolls for successes and returns the formatted chat message data.
+ * @param {number} rollCount The number of dice to roll
+ * @param {string} flavor Displayed flavor text
+ * @param {Object} chatData Chat message settings that will be merged with the resulting HTML
+ * @param {number} modifier Constant number added to the result
+ * @returns {Promise<[result: number, chatMessageData: object]>}
  */
 export async function createSuccessRollMessageData(rollCount, flavor, chatData, modifier = 0) {
   let text = '<div class="dice-tooltip"><div class="dice"><ol class="dice-rolls">';

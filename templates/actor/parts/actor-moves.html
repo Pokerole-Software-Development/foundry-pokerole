@@ -26,7 +26,8 @@
     <li>
       <ul class="inner{{#if moves.hidden}} items-hidden{{/if}} list-{{key}}">
         {{#each moves.moveList as |item id|}}
-        <li class="item flexrow" data-item-id="{{item.data._id}}">
+        <li class="item flexrow" data-item-id="{{item.data._id}}"
+            {{#if item.data.system.effect}}title="Added effect: {{item.data.system.effect}}"{{/if}}>
           <div class="item-name flexrow">
             <div class="item-image">
               <a class="rollable" data-roll-type="item"><img src="{{item.data.img}}" title="{{itemdata.data.name}}" width="30" height="30"/></a>

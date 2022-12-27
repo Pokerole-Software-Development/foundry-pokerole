@@ -7,7 +7,7 @@ import { PokeroleItemSheet } from "./sheets/item-sheet.mjs";
 // Import helper/utility classes and constants.
 import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { POKEROLE } from "./helpers/config.mjs";
-import { successRollFromExpression } from "./helpers/roll.mjs";
+import { rollRecoil, successRollFromExpression } from "./helpers/roll.mjs";
 import { showClashDialog } from "./helpers/clash.mjs";
 
 /* -------------------------------------------- */
@@ -188,6 +188,9 @@ async function useItemMacro(itemUuid) {
 async function onChatActionClick(event) {
   event.preventDefault();
 
+  const messageId = event.currentTarget.closest(".message").dataset.messageId;
+  const message = game.messages.get(messageId);
+
   const token = canvas.tokens.controlled.length > 0 ? canvas.tokens.controlled[0] : null;
   const actor = token?.actor ?? game.user?.character;
   const chatData = { speaker: ChatMessage.implementation.getSpeaker({ token: token?.document, actor }) };
@@ -204,7 +207,7 @@ async function onChatActionClick(event) {
   
   try {
     switch (action) {
-      case 'clash':
+      case 'clash': {
         const { attackerId, moveId, expectedSuccesses } = event.target.dataset;
         const attacker = await fromUuid(attackerId);
         if (!attacker) {
@@ -221,10 +224,25 @@ async function onChatActionClick(event) {
           actor.increaseActionCount();
         }
         break;
-      case 'evade':
+      }
+      case 'evade': {
         await successRollFromExpression('dexterity+evasion # Evade', actor, chatData);
         actor.increaseActionCount();
         break;
+      }
+      case 'recoil': {
+        const { actorId, tokenUuid, damage } = event.target.dataset;
+        const token = tokenUuid ? await fromUuid(tokenUuid) : undefined;
+        const attacker = token ? token?.actor : await Actor.get(actorId);
+        if (!attacker) {
+          return ui.notifications.error("The attacking actor doesn't exist anymore");
+        }
+        if (!(game.user.isGM || message.isAuthor)) {
+          return ui.notifications.error("You can't use this item.");
+        }    
+        await rollRecoil(attacker, token, damage);
+        break;
+      }
     }
   } catch (e) {
     ui.notifications.error(e.message);
