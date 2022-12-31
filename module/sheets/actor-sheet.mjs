@@ -600,7 +600,8 @@ export class PokeroleActorSheet extends ActorSheet {
     const content = await renderTemplate(this.constructor.SETTINGS_TEMPLATE_PATH, {
       baseHp: this.actor.system.baseHp,
       recommendedRank: this.actor.system.recommendedRank,
-      ranks: this.constructor.getLocalizedRanks()
+      ranks: this.constructor.getLocalizedRanks(),
+      source: this.actor.system.source,
     });
 
     const result = await new Promise(resolve => {

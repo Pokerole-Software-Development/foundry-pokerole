@@ -129,13 +129,13 @@ export class PokeroleItem extends Item {
    * @return {boolean}
    */
   canBeClashed() {
-    if (this.system.type !== 'move') {
+    if (this.type !== 'move') {
       return false;
     }
 
     return this.system.category !== 'support'
       && this.system.power > 0
-      && !this.hasSocialAttributeAccuracyRoll()
+      && !this._hasSocialAttributeAccuracyRoll()
       && this.system.target !== 'Battlefield'
       && this.system.target !== 'Battlefield (Foes)';
   }
@@ -145,11 +145,11 @@ export class PokeroleItem extends Item {
    * @return {boolean}
    */
    canBeEvaded() {
-    if (this.system.type !== 'move') {
+    if (this.type !== 'move') {
       return false;
     }
 
-    return !this.hasSocialAttributeAccuracyRoll()
+    return !this._hasSocialAttributeAccuracyRoll()
       && !this.system.attributes.neverFail
       && this.system.target !== 'Battlefield'
       && this.system.target !== 'Battlefield (Foes)';
@@ -264,8 +264,8 @@ export class PokeroleItem extends Item {
     // Get the Item from stored flag data or by the item ID on the Actor
     const storedData = message.getFlag("pokerole", "itemData");
     const item = storedData ? new this(storedData, {parent: actor}) : actor.items.get(card.dataset.itemId);
-    const canBeClashed = card.dataset.canBeClashed;
-    const canBeEvaded = card.dataset.canBeEvaded;
+    const canBeClashed = !!card.dataset.canBeClashed;
+    const canBeEvaded = !!card.dataset.canBeEvaded;
     if (!item) {
       const err = game.i18n.format("POKEROLE.ActionWarningNoItem", {item: card.dataset.itemId, name: actor.name});
       return ui.notifications.error(err);
