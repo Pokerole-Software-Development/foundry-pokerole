@@ -51,7 +51,7 @@ export class PokeroleActor extends Actor {
     systemData.will.max = systemData.attributes.insight.value + 2;
 
     systemData.derived ??= {};
-    systemData.derived.initiative = { value: systemData.attributes.insight.value + systemData.skills.alert.value + totalPassiveIncrease };
+    systemData.derived.initiative = { value: systemData.attributes.dexterity.value + systemData.skills.alert.value + totalPassiveIncrease };
     systemData.derived.evade = { value: systemData.attributes.dexterity.value + systemData.skills.evasion.value };
     systemData.derived.clashPhysical = { value: systemData.attributes.strength.value + systemData.skills.clash.value };
     systemData.derived.clashSpecial = { value: systemData.attributes.special.value + systemData.skills.clash.value };
