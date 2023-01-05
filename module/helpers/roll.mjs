@@ -165,17 +165,21 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
   if (item.system.attributes.accuracyReduction) {
     constantBonus -= item.system.attributes.accuracyReduction;
   }
-  constantBonus -= multiActionPenalty;
 
   let chatData = { speaker: ChatMessage.implementation.getSpeaker({ actor }) };
   const [rollResult, newChatData] = await createSuccessRollMessageData(dicePool, `Accuracy roll: ${item.name}`, chatData, constantBonus);
   chatData = newChatData;
 
-  let html = '<div class="pokerole"><div class="action-buttons">';
+  const requiredSuccesses = 1 + multiActionPenalty;
+  let html = '';
+  if (requiredSuccesses > 1) {
+    html += `<p>(${requiredSuccesses} successes required)</p>`;
+  }
+  html += '<div class="pokerole"><div class="action-buttons">';
   if (rollResult > 0) {
     if (canBeClashed) {
       html += `<button class="chat-action" data-action="clash"
-        data-attacker-id="${actor.uuid}" data-move-id="${item.uuid}"data-expected-successes="${rollResult}"
+        data-attacker-id="${actor.uuid}" data-move-id="${item.uuid}" data-expected-successes="${rollResult}"
         >Clash</button>`;
     }
     if (canBeEvaded) {
