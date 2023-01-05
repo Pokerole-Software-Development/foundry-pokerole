@@ -28,7 +28,7 @@ POKEROLE.typeMatchups = {
   },
   'electric': {
     weak: ['ground'],
-    resist: ['electric', 'fire', 'grass', 'water'],
+    resist: ['flying', 'steel', 'electric'],
     immune: [],
   },
   'fairy': {
