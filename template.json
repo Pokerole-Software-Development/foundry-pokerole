@@ -109,7 +109,7 @@
           }
         },
         "biography": "",
-        "source": "homebrew"
+        "source": "Homebrew"
       }
     },
     "pokemon": {
@@ -166,7 +166,7 @@
     "templates": {
       "base": {
         "description": "",
-        "source": "homebrew"
+        "source": "Homebrew"
       }
     },
     "item": {

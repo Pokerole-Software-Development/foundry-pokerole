@@ -124,7 +124,7 @@ POKEROLE.getStatusEffects = () => [{
 }, {
   id: 'confused', label: game.i18n.localize('POKEROLE.StatusConfused'), icon: 'icons/svg/daze.svg', tint: '#4DAF81'
 }, {
-  id: 'infaturated', label: game.i18n.localize('POKEROLE.StatusInfaturated'), icon: 'icons/svg/daze.svg', tint: '#E1657F'
+  id: 'infatuated', label: game.i18n.localize('POKEROLE.StatusInfatuated'), icon: 'icons/svg/daze.svg', tint: '#E1657F'
 }, {
   id: 'fainted', label: game.i18n.localize('POKEROLE.StatusFainted'), icon: 'icons/svg/unconscious.svg'
 }, {
