@@ -372,9 +372,10 @@ export class PokeroleActorSheet extends ActorSheet {
 
     if (dataset.rollAttribute) {
       if (dataset.rollAttribute === 'initiative') {
-        const roll = new Roll('1d6 + @dexterity + @alert', {
+        const roll = new Roll('1d6 + @dexterity + @alert + @customInitiativeMod', {
           dexterity: this.actor.system.attributes.dexterity.value,
-          alert: this.actor.system.skills.alert.value
+          alert: this.actor.system.skills.alert.value,
+          customInitiativeMod: this.actor.system.customInitiativeMod,
         });
         await roll.toMessage(chatData, { create: true });
       } else {
@@ -597,11 +598,13 @@ export class PokeroleActorSheet extends ActorSheet {
   }
 
   async _showSettings() {
+    const { baseHp, customInitiativeMod, recommendedRank, source } = this.actor.system;
     const content = await renderTemplate(this.constructor.SETTINGS_TEMPLATE_PATH, {
-      baseHp: this.actor.system.baseHp,
-      recommendedRank: this.actor.system.recommendedRank,
+      baseHp,
+      customInitiativeMod,
+      recommendedRank,
+      source,
       ranks: this.constructor.getLocalizedRanks(),
-      source: this.actor.system.source,
     });
 
     const result = await new Promise(resolve => {

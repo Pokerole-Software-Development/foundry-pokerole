@@ -4,6 +4,10 @@
     <input type="number" name="system.baseHp" value="{{baseHp}}" min="0" max="99" data-dtype="Number"/>
   </div>
   <div class="form-group">
+    <label for="system.customInitiativeMod">Custom Initiative Bonus</label>
+    <input type="number" name="system.customInitiativeMod" value="{{customInitiativeMod}}" data-dtype="Number"/>
+  </div>
+  <div class="form-group">
     <label for="system.recommendedRank">Recommended Rank</label>
     <select name="system.recommendedRank">
       {{selectOptions ranks selected=recommendedRank}}

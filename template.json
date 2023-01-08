@@ -109,7 +109,8 @@
           }
         },
         "biography": "",
-        "source": "Homebrew"
+        "source": "Homebrew",
+        "customInitiativeMod": 0
       }
     },
     "pokemon": {

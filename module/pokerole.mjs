@@ -24,7 +24,7 @@ Hooks.once('init', async () => {
   // Add custom constants for configuration.
   CONFIG.POKEROLE = POKEROLE;
 
-  CONFIG.Combat.initiative.formula = "1d6 + @attributes.dexterity.value + @skills.alert.value";
+  CONFIG.Combat.initiative.formula = "1d6 + @attributes.dexterity.value + @skills.alert.value + @customInitiativeMod";
 
   // Define custom Document classes
   CONFIG.Actor.documentClass = PokeroleActor;
