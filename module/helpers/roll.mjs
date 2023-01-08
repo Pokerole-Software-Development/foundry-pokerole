@@ -1,4 +1,4 @@
-import { calcDualTypeMatchupScore } from "./config.mjs";
+import { calcDualTypeMatchupScore, getLocalizedPainPenaltiesForSelect, POKEROLE } from "./config.mjs";
 import { bulkApplyHp, createHealMessage } from "./damage.mjs";
 
 /**
@@ -62,7 +62,8 @@ export async function successRollSkillDialogue(skill, attributes, chatData) {
     attributes: Object.keys(attributes).reduce((curr, name) => {
       curr[name] = name;
       return curr;
-    }, {})
+    }, {}),
+    painPenalties: getLocalizedPainPenaltiesForSelect(),
   });
 
   // Create the Dialog window and await submission of the form
@@ -90,7 +91,8 @@ export async function successRollSkillDialogue(skill, attributes, chatData) {
   let poolBonus = formData.poolBonus ?? 0;
   let constantBonus = formData.constantBonus ?? 0;
 
-  await successRollAttributeSkill({ name: attributeName, value: attributes[attributeName].value }, skill, chatData, poolBonus, constantBonus);
+  const constantBonusWithPainPenalty = constantBonus - POKEROLE.painPenalties[formData.painPenalty];
+  await successRollAttributeSkill({ name: attributeName, value: attributes[attributeName].value }, skill, chatData, poolBonus, constantBonusWithPainPenalty);
 }
 
 const ACCURACY_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/accuracy-roll.html";
@@ -125,13 +127,15 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
 
   let poolBonus = 0;
   let constantBonus = 0;
+  let painPenalty = 'none';
   let multiActionPenalty = actor.system.actionCount.value;
 
   if (showPopup) {
     const content = await renderTemplate(ACCURACY_ROLL_DIALOGUE_TEMPLATE, {
       baseFormula,
       accuracyReduction: item.system.attributes.accuracyReduction,
-      multiActionPenalty
+      multiActionPenalty,
+      painPenalties: getLocalizedPainPenaltiesForSelect(),
     });
 
     // Create the Dialog window and await submission of the form
@@ -156,6 +160,8 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
     const formData = new FormDataExtended(formElement).object;
     poolBonus = formData.poolBonus ?? 0;
     constantBonus = formData.constantBonus ?? 0;
+    painPenalty = formData.painPenalty ?? 0;
+
     if (formData.multiActionPenalty !== undefined) {
       multiActionPenalty = formData.multiActionPenalty;
     }
@@ -166,8 +172,11 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
     constantBonus -= item.system.attributes.accuracyReduction;
   }
 
+  const constantBonusWithPainPenalty = constantBonus - POKEROLE.painPenalties[painPenalty];
+
   let chatData = { speaker: ChatMessage.implementation.getSpeaker({ actor }) };
-  const [rollResult, newChatData] = await createSuccessRollMessageData(dicePool, `Accuracy roll: ${item.name}`, chatData, constantBonus);
+  const [rollResult, newChatData] = await createSuccessRollMessageData(dicePool, `Accuracy roll: ${item.name}`, chatData,
+    constantBonusWithPainPenalty);
   chatData = newChatData;
 
   const requiredSuccesses = 1 + multiActionPenalty;
@@ -243,7 +252,8 @@ export async function rollDamage(item, actor, token) {
       doubleSuperEffective: 'Double Super Effective (+2)',
     },
     targetNames,
-    hasLeechHeal: shouldApplyLeechHeal
+    hasLeechHeal: shouldApplyLeechHeal,
+    painPenalties: getLocalizedPainPenaltiesForSelect(),
   });
 
   // Create the Dialog window and await submission of the form
@@ -270,9 +280,13 @@ export async function rollDamage(item, actor, token) {
 
   const formElement = result[0].querySelector('form');
   const formData = new FormDataExtended(formElement).object;
-  let { enemyDef, stab, effectiveness, poolBonus, constantBonus, applyLeechHeal } = formData;
+  let { enemyDef, stab, effectiveness, painPenalty, poolBonus, constantBonus, applyLeechHeal } = formData;
   poolBonus ??= 0;
   constantBonus ??= 0;
+
+  if (painPenalty) {
+    constantBonus -= POKEROLE.painPenalties[painPenalty];
+  }
 
   if (stab) {
     poolBonus += 1;

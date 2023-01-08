@@ -185,15 +185,16 @@ async function onChatActionClick(event) {
   const actor = token?.actor ?? game.user?.character;
   const chatData = { speaker: ChatMessage.implementation.getSpeaker({ token: token?.document, actor }) };
 
-  if (!actor) {
-    return ui.notifications.error('No actor selected');
-  }
-
-  if (!actor.hasAvailableActions()) {
-    return ui.notifications.error("You can't use any more actions this round.");
-  }
-
   const action = event.target.dataset.action;
+  if (action === 'clash' || action === 'evade') {
+    if (!actor) {
+      return ui.notifications.error('No actor selected');
+    }
+
+    if (!actor.hasAvailableActions()) {
+      return ui.notifications.error("You can't use any more actions this round.");
+    }
+  }
   
   try {
     switch (action) {

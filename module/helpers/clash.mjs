@@ -1,4 +1,4 @@
-import { calcDualTypeMatchupScore } from "./config.mjs";
+import { calcDualTypeMatchupScore, getLocalizedPainPenaltiesForSelect, POKEROLE } from "./config.mjs";
 import { getEffectivenessText, createSuccessRollMessageData } from "./roll.mjs";
 
 const CLASH_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/clash.html";
@@ -30,7 +30,8 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
   }
 
   const content = await renderTemplate(CLASH_DIALOGUE_TEMPLATE, {
-    moves
+    moves,
+    painPenalties: getLocalizedPainPenaltiesForSelect()
   });
 
   const result = await new Promise(resolve => {
@@ -51,7 +52,7 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
   if (!result) return false;
 
   const formElement = result[0].querySelector('form');
-  const { moveId,  poolBonus, constantBonus } = new FormDataExtended(formElement).object;
+  const { moveId, painPenalty, poolBonus, constantBonus } = new FormDataExtended(formElement).object;
   const move = moveList.find(move => move.id === moveId);
   if (!move) {
     throw new Error('Failed to resolve move');
@@ -60,9 +61,13 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
   const attributeVal = move.system.category === 'special'
     ? actor.system.attributes.special?.value
     : actor.system.attributes.strength?.value;
-  const rollCount = poolBonus + (attributeVal ?? 0) + (actor.system.skills.clash?.value ?? 0);
 
-  const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus);
+  const rollCount = poolBonus
+    + (attributeVal ?? 0)
+    + (actor.system.skills.clash?.value ?? 0);
+
+  const constantBonusWithPainPenalty = constantBonus - POKEROLE.painPenalties[painPenalty];
+  const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonusWithPainPenalty);
   let html = messageDataPart.content;
 
   if (rollResult >= expectedSuccesses) {    

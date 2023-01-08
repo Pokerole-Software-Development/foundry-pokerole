@@ -13,9 +13,16 @@
   {{/if}}
 
   <div class="form-group">
+    <label>Pain Penalization</label>
+    <select name="painPenalty">
+      {{selectOptions painPenalties}}
+     </select>
+  </div>
+
+  <div class="form-group">
     <label for="multiActionPenalty">Multi-Action Penalty</label>
     <input type="number" name="multiActionPenalty" value="{{multiActionPenalty}}"/>
-</div>
+  </div>
 
   <hr>
 

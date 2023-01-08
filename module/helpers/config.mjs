@@ -281,6 +281,12 @@ export function getTypeMatchups(defending) {
   return POKEROLE.typeMatchups[defending];
 }
 
+/**
+ * 
+ * @param {string} defending1 First type of the defender
+ * @param {string} defending2 Second type of the defender
+ * @returns {{weak: string[], doubleWeak: string[], resist: string[], doubleResist: string[], immune: string[]}}
+ */
 export function getDualTypeMatchups(defending1, defending2) {
   let matchups = {
     weak: [],
@@ -324,6 +330,13 @@ POKEROLE.healAmounts = {
     lethal: 5
   }
 }
+
+/** Number of dice to reduce for each pain penalty */
+POKEROLE.painPenalties = {
+  'none': 0,
+  'minus1': 1,
+  'minus2': 2
+};
 
 POKEROLE.i18n = {
   attributes: {
@@ -481,6 +494,12 @@ POKEROLE.i18n = {
   effectTargets: {
     "user": "POKEROLE.EffectTargetUser",
     "targets": "POKEROLE.EffectTargetTargets",
+  },
+
+  painPenalties: {
+    "none": "POKEROLE.PainPenaltyNone",
+    "minus1": "POKEROLE.PainPenaltyMinus1",
+    "minus2": "POKEROLE.PainPenaltyMinus2",
   }
 };
 
@@ -501,10 +520,19 @@ export function getLocalizedEntriesForSelect(category) {
   return entries;
 }
 
+/**
+ * Get a localized string for a Pokémon type key
+ * @param {string} type 
+ * @returns {string}
+ */
 export function getLocalizedType(type) {
-  return game.i18n.localize(CONFIG.POKEROLE.i18n.types[type]) ?? type;
+  return game.i18n.localize(POKEROLE.i18n.types[type]) ?? type;
 }
 
+/** 
+ * Get an object with key-value pairs of Pokémon type keys and their translations
+ *  @returns {Object}
+ */
 export function getLocalizedTypesForSelect() {
   const obj = {};
   for (const type of POKEROLE.types) {
@@ -512,3 +540,12 @@ export function getLocalizedTypesForSelect() {
   }
   return obj;
 }
+
+/**
+ * Get an object with key-value pairs of pain penalty keys and their translations
+ * @returns {Object}
+ */ 
+export function getLocalizedPainPenaltiesForSelect() {
+  return getLocalizedEntriesForSelect('painPenalties');
+}
+

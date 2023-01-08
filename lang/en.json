@@ -151,5 +151,9 @@
   "POKEROLE.NatureQuirky": "Quirky",
 
   "POKEROLE.Add": "Add",
-  "POKEROLE.ActionWarningNoItem": "The item doesn't exist."
+  "POKEROLE.ActionWarningNoItem": "The item doesn't exist.",
+
+  "POKEROLE.PainPenaltyNone": "No penalty",
+  "POKEROLE.PainPenaltyMinus1": "-1 success (Half HP rounded down)",
+  "POKEROLE.PainPenaltyMinus2": "-2 successes (1 HP remaining)"
 }

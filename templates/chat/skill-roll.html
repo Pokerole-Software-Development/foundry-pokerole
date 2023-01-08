@@ -3,12 +3,23 @@
       <label>Skill</label>
       <input type="text" name="skill" value="{{skill}}" disabled/>
   </div>
+  
   <div class="form-group">
       <label>Attribute</label>
       <select name="attribute">
           {{selectOptions attributes}}
       </select>
   </div>
+
+  <div class="form-group">
+    <label>Pain Penalization</label>
+    <select name="painPenalty">
+      {{selectOptions painPenalties}}
+     </select>
+  </div>
+
+  <hr>
+
   <div class="form-group" title="Increases the number of rolled dice">
       <label>Dice Pool Modifier</label>
       <input type="number" name="poolBonus" value="0"/>
