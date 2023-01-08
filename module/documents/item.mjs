@@ -220,7 +220,7 @@ export class PokeroleItem extends Item {
       speaker: ChatMessage.implementation.getSpeaker({ actor })
     };
     chatData = ChatMessage.implementation.applyRollMode(chatData, game.settings.get('core', 'rollMode'));
-    await ChatMessage.create(chatData);
+    await ChatMessage.implementation.create(chatData);
     return true;
   }
 

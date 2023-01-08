@@ -54,5 +54,48 @@ export async function bulkApplyHp(healthUpdates) {
   if (tokenUpdates.length > 0) {
     promises.push(canvas.scene.updateEmbeddedDocuments('Token', tokenUpdates));
   }
-  await Promise.all(promises);  
+  await Promise.all(promises);
+}
+
+/**
+ * Attempt to apply damage to each actor, providing a friendly error if
+ * the user doesn't have permission to do so.
+ * @param {Array<{ actorId?: string, tokenUuid?: string, damage: number }>} damageUpdates 
+ */
+export async function bulkApplyDamageValidated(damageUpdates) {
+  const hpUpdates = [];
+
+  let html = '';
+
+  for (const update of damageUpdates) {
+    const token = update.tokenUuid ? await fromUuid(update.tokenUuid) : undefined;
+    const actor = update.actorId ? Actor.implementation.get(update.actorId) : undefined;
+    if (!token && !actor) {
+      return ui.notifications.error("The actor to apply damage to doesn't exist anymore.");
+    }
+
+    const name = token?.name ?? actor?.name;
+
+    const allowedToModify = (!token || token.canUserModify(game.user)) && (!actor || actor.canUserModify(game.user));
+    if (!allowedToModify) {
+      return ui.notifications.error(`You don't have permission to apply damage to ${name}, `
+        + "ask the GM or the owning player to click this button instead.");
+    }
+
+    const oldHp = token?.actorData?.system?.hp?.value ?? actor.system.hp.value;
+    const newHp = Math.max(oldHp - update.damage, 0);
+    hpUpdates.push({ token, actor, hp: newHp });
+
+    html += `<p>Applied ${update.damage} damage to ${name}.</p>`;
+    if (newHp === 0 && oldHp > 0) {
+      html += `<p><b>${name} fainted!</b></p>`;
+    }
+  }
+
+  await bulkApplyHp(hpUpdates);
+
+  let chatData = {
+    content: html
+  };
+  await ChatMessage.implementation.create(chatData);
 }

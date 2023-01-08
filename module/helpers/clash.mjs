@@ -1,6 +1,5 @@
 import { calcDualTypeMatchupScore } from "./config.mjs";
 import { getEffectivenessText, createSuccessRollMessageData } from "./roll.mjs";
-import { bulkApplyHp } from "./damage.mjs";
 
 const CLASH_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/clash.html";
 
@@ -52,7 +51,7 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
   if (!result) return false;
 
   const formElement = result[0].querySelector('form');
-  const { moveId, applyDamage, poolBonus, constantBonus } = new FormDataExtended(formElement).object;
+  const { moveId,  poolBonus, constantBonus } = new FormDataExtended(formElement).object;
   const move = moveList.find(move => move.id === moveId);
   if (!move) {
     throw new Error('Failed to resolve move');
@@ -66,31 +65,28 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
   const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus);
   let html = messageDataPart.content;
 
-  if (rollResult >= expectedSuccesses) {
-    const hpUpdates = [];
-    
+  if (rollResult >= expectedSuccesses) {    
+    const damageUpdates = [];
+
     // Calculate damage to attacker
     let damageAndHtml = calculateClashDamage(move, attacker);
     html += '<hr>' + damageAndHtml.html + '<hr>';
-    if (applyDamage) {
-      const oldHp = attacker.system.hp.value;
-      const hp = Math.max(oldHp - damageAndHtml.damage, 0);
-      hpUpdates.push({ actor: attacker, token: attackerTokenDoc, hp });
-      if (hp === 0 && oldHp > 0) {
-        html += `<p><b>${attacker.name} fainted!</b></p>`;
-      }
+    let damageToAttacker = damageAndHtml.damage;
+
+    if (damageToAttacker > 0) {
+      damageUpdates.push({ tokenUuid: attackerTokenDoc?.uuid, actorId: attacker.id, damage: damageToAttacker });
     }
+
+    // Calculate damage to defender
     damageAndHtml = calculateClashDamage(attackingMove, actor);
     html += damageAndHtml.html;
-    if (applyDamage) {
-      const oldHp = actor.system.hp.value;
-      const hp = Math.max(oldHp - damageAndHtml.damage, 0);
-      hpUpdates.push({ actor, token: actorToken?.document, hp });
-      if (hp === 0 && oldHp > 0) {
-        html += `<p><b>${actor.name} fainted!</b></p>`;
-      }
-      await bulkApplyHp(hpUpdates);
+    let damageToDefender = damageAndHtml.damage;
+    if (damageToDefender > 0) {
+      damageUpdates.push({ tokenUuid: actorToken?.uuid, actorId: actor?.id, damage: damageToDefender });
     }
+
+    html += `<div class="pokerole"><div class="action-buttons"><button class="chat-action" data-action="applyDamage"
+      data-damage-updates='${JSON.stringify(damageUpdates)}'>Apply Damage</button></div></div>`;
   } else {
     html += '<p>It failed...</p>';
   }

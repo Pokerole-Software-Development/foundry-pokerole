@@ -1,14 +1,12 @@
-// Import document classes.
 import { PokeroleActor } from "./documents/actor.mjs";
 import { PokeroleItem } from "./documents/item.mjs";
-// Import sheet classes.
 import { PokeroleActorSheet } from "./sheets/actor-sheet.mjs";
 import { PokeroleItemSheet } from "./sheets/item-sheet.mjs";
-// Import helper/utility classes and constants.
 import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { POKEROLE } from "./helpers/config.mjs";
 import { rollRecoil, successRollFromExpression } from "./helpers/roll.mjs";
 import { showClashDialog } from "./helpers/clash.mjs";
+import { bulkApplyDamageValidated } from "./helpers/damage.mjs";
 
 /* -------------------------------------------- */
 /*  Init Hook                                   */
@@ -71,6 +69,8 @@ Hooks.on('combatRound', (combat, _, data) => {
     }
   }
 });
+
+// TODO: do the same on combatStart
 
 /* -------------------------------------------- */
 /*  Handlebars Helpers                          */
@@ -139,16 +139,6 @@ async function createItemMacro(dropData, slot) {
         flags: {"pokerole.itemMacro": true}
       });
       break;
-    /*case "ActiveEffect":
-      const effectData = await ActiveEffect.implementation.fromDropData(dropData);
-      if ( !effectData ) return ui.notifications.warn(game.i18n.localize("You can only create macro buttons for owned Items"));
-      foundry.utils.mergeObject(macroData, {
-        name: effectData.label,
-        img: effectData.icon,
-        command: `dnd5e.documents.macro.toggleEffect("${effectData.label}")`,
-        flags: {"dnd5e.effectMacro": true}
-      });
-      break;*/
     default:
       return true;
   }
@@ -241,6 +231,11 @@ async function onChatActionClick(event) {
           return ui.notifications.error("You can't use this item.");
         }    
         await rollRecoil(attacker, token, damage);
+        break;
+      }
+      case 'applyDamage': {
+        const updates = JSON.parse(event.target.dataset.damageUpdates);
+        await bulkApplyDamageValidated(updates);
         break;
       }
     }

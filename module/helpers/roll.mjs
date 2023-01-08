@@ -176,7 +176,7 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
     html += `<p>(${requiredSuccesses} successes required)</p>`;
   }
   html += '<div class="pokerole"><div class="action-buttons">';
-  if (rollResult > 0) {
+  if (rollResult >= requiredSuccesses) {
     if (canBeClashed) {
       html += `<button class="chat-action" data-action="clash"
         data-attacker-id="${actor.uuid}" data-move-id="${item.uuid}" data-expected-successes="${rollResult}"
@@ -270,7 +270,7 @@ export async function rollDamage(item, actor, token) {
 
   const formElement = result[0].querySelector('form');
   const formData = new FormDataExtended(formElement).object;
-  let { enemyDef, stab, effectiveness, poolBonus, constantBonus, applyDamage, applyLeechHeal } = formData;
+  let { enemyDef, stab, effectiveness, poolBonus, constantBonus, applyLeechHeal } = formData;
   poolBonus ??= 0;
   constantBonus ??= 0;
 
@@ -294,6 +294,7 @@ export async function rollDamage(item, actor, token) {
   let html = '';
   const critText = isCrit ? 'A critical hit! ' : '';
 
+  let damageUpdates = [];
   let damage;
   if (selectedTokens.length === 0) {
     let rollCount = rollCountBeforeDef - enemyDef;
@@ -338,7 +339,7 @@ export async function rollDamage(item, actor, token) {
     html += `<p>${critText}The attack deals ${damage} damage!</p>`;
   } else {
     // One or more tokens to apply damage to are selected
-    const hpUpdates = [];
+    let leechHealHp = 0;
 
     for (let defenderToken of selectedTokens) {
       const defender = defenderToken.actor;
@@ -371,43 +372,35 @@ export async function rollDamage(item, actor, token) {
       damage = Math.max(damage, effectiveness === -Infinity ? 0 : 1);
       html += `<p>${critText}${defender.name} took ${damage} damage!</p>`;
 
-      if (applyDamage) {
-        const oldHp = defender.system.hp.value;
-        const hp = Math.max(oldHp - damage, 0);
-        hpUpdates.push({ token: defenderToken, hp });
-
-        if (hp === 0 && oldHp > 0) {
-          html += `<p><b>${defender.name} fainted!</b></p>`;
-        }
-      }
-
-      // Calculate healing/damage to user
-      const oldHp = actor.system.hp.value;
-      let newHp = oldHp;
+      damageUpdates.push({ actorId: defender.id, tokenUuid: defenderToken.document.uuid, damage });
 
       if (applyLeechHeal) {
         const healAmount = Math.floor(damage / 2);
-        newHp += healAmount;
-
-        html += createHealMessage(token?.name ?? actor.name, oldHp, newHp, actor.system.hp.max);
-      }
-
-      if (newHp !== oldHp) {
-        hpUpdates.push({ actor, token, hp: newHp });
+        leechHealHp += healAmount;
       }
     }
 
-    if (applyDamage || applyLeechHeal) {
-      await bulkApplyHp(hpUpdates);
+    if (applyLeechHeal && leechHealHp > 0) {
+      const oldHp = actor.system.hp.value;
+      const newHp = Math.min(oldHp + leechHealHp, actor.system.hp.max);
+      await bulkApplyHp([{ actor, token, hp: newHp }]);
+  
+      html += createHealMessage(token?.name ?? actor.name, oldHp, newHp, actor.system.hp.max);
     }
   }
 
-  if (damage > 0 && item.system.attributes.recoil) {
-    const dataTokenUuid = token ? `data-token-uuid="${token.uuid}"` : undefined;
-    html += `<div class="pokerole"><div class="action-buttons">
-      <button class="chat-action" data-action="recoil" data-actor-id="${actor.id}"
-        ${dataTokenUuid} data-damage="${damage}">Roll Recoil Damage</button>
-    </div></div>`;
+  if (damage > 0) {
+    html += `<div class="pokerole"><div class="action-buttons">`;
+    if (damageUpdates.length > 0) {
+      html += `<button class="chat-action" data-action="applyDamage"
+        data-damage-updates='${JSON.stringify(damageUpdates)}'>Apply Damage</button>`;
+    }
+    if (item.system.attributes.recoil) {
+      const dataTokenUuid = token ? `data-token-uuid="${token.uuid}"` : undefined;
+      html += `<button class="chat-action" data-action="recoil" data-actor-id="${actor.id}"
+          ${dataTokenUuid} data-damage="${damage}">Roll Recoil Damage</button>`;
+    }
+    html += `</div></div>`;
   }
 
   await ChatMessage.create({
