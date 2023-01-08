@@ -12,7 +12,7 @@ import { bulkApplyDamageValidated } from "./helpers/damage.mjs";
 /*  Init Hook                                   */
 /* -------------------------------------------- */
 
-Hooks.once('init', async function() {
+Hooks.once('init', async () => {
   // Add utility classes to the global game object so that they're more easily
   // accessible in global contexts.
   game.pokerole = {
@@ -44,8 +44,20 @@ Hooks.once('init', async function() {
   CONFIG.statusEffects = POKEROLE.getStatusEffects();
   CONFIG.specialStatusEffects = POKEROLE.specialStatusEffects;
 
-  // Preload Handlebars templates.
-  return preloadHandlebarsTemplates();
+  await preloadHandlebarsTemplates();
+  registerSettings();
+});
+
+Hooks.once("ready", async function() {
+  // Wait to register hotbar drop hook on ready so that modules could register earlier if they want to
+  Hooks.on("hotbarDrop", (bar, data, slot) => {
+    if (["Item"/*, "ActiveEffect"*/].includes(data.type) ) {
+      createItemMacro(data, slot);
+      return false;
+    }
+  });
+  $("body").on("click", "a.inline-roll-cmd", onInlineRollClick);
+  $("body").on("click", "button.chat-action", onChatActionClick);
 });
 
 // Chat message hooks
@@ -100,20 +112,24 @@ Handlebars.registerHelper('lt', function( a, b ){
 });
 
 /* -------------------------------------------- */
-/*  Ready Hook                                  */
+/*  Settings                                    */
 /* -------------------------------------------- */
 
-Hooks.once("ready", async function() {
-  // Wait to register hotbar drop hook on ready so that modules could register earlier if they want to
-  Hooks.on("hotbarDrop", (bar, data, slot) => {
-    if (["Item"/*, "ActiveEffect"*/].includes(data.type) ) {
-      createItemMacro(data, slot);
-      return false;
-    }
+/** Register Pokérole game settings */
+function registerSettings() {
+  game.settings.register('pokerole', 'specialDefenseStat', {
+    name: 'POKEROLE.SettingNameSpecialDefenseStat',
+    hint: 'POKEROLE.SettingHintSpecialDefenseStat',
+    config: true,
+    type: String,
+    choices: {
+      'vitality': 'POKEROLE.AttributeVitality',
+      'insight': 'POKEROLE.AttributeInsight',
+    },
+    default: 'vitality',
+    requiresReload: true
   });
-  $("body").on("click", "a.inline-roll-cmd", onInlineRollClick);
-  $("body").on("click", "button.chat-action", onChatActionClick);
-});
+}
 
 /* -------------------------------------------- */
 /*  Hotbar Macros                               */

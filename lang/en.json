@@ -150,10 +150,13 @@
   "POKEROLE.NatureCareful": "Careful",
   "POKEROLE.NatureQuirky": "Quirky",
 
+  "POKEROLE.PainPenaltyNone": "No penalty",
+  "POKEROLE.PainPenaltyMinus1": "-1 success (Half HP rounded down)",
+  "POKEROLE.PainPenaltyMinus2": "-2 successes (1 HP remaining)",
+
   "POKEROLE.Add": "Add",
   "POKEROLE.ActionWarningNoItem": "The item doesn't exist.",
 
-  "POKEROLE.PainPenaltyNone": "No penalty",
-  "POKEROLE.PainPenaltyMinus1": "-1 success (Half HP rounded down)",
-  "POKEROLE.PainPenaltyMinus2": "-2 successes (1 HP remaining)"
+  "POKEROLE.SettingNameSpecialDefenseStat": "Special Defense Stat",
+  "POKEROLE.SettingHintSpecialDefenseStat": "Insight can be used for Special Defense instead of Vitality (optional rule)."
 }

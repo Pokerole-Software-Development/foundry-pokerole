@@ -63,7 +63,12 @@ export class PokeroleActor extends Actor {
     systemData.derived.runAway = { value: systemData.attributes.dexterity.value + systemData.skills.athletic.value };
     
     systemData.derived.def = { value: systemData.attributes.vitality.value + totalPassiveIncrease };
-    systemData.derived.spDef = { value: systemData.attributes.insight.value + totalPassiveIncrease };
+
+    if (game.settings.get('pokerole', 'specialDefenseStat') === 'insight') {
+      systemData.derived.spDef = { value: systemData.attributes.insight.value + totalPassiveIncrease };
+    } else {
+      systemData.derived.spDef = { value: systemData.attributes.vitality.value + totalPassiveIncrease };
+    }
 
     for (const skill of Object.values(systemData.skills)) {
       skill.max = skillLimit;
