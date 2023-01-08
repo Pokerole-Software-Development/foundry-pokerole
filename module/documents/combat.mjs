@@ -61,26 +61,49 @@ export class PokeroleCombat extends Combat {
 
   static registerHooks() {
     Hooks.on('renderCombatTracker', (tracker, elem) => {
-      if (!tracker.viewed || !tracker.viewed.round) {
-        // Only add the custom button if there's actually an active encounter
-        return;
+      // Show the number of actions each combatant has taken
+      for (const combatantElem of elem.find('.combatant')) {
+        const combatantId = combatantElem.dataset.combatantId;
+        const actor = game.combat?.combatants?.get(combatantId)?.actor;
+        if (!actor) return;
+
+        const actionCount = actor.system.actionCount.value;
+        const actionMax = actor.system.actionCount.max;
+
+        const controls = combatantElem.querySelector('.combatant-controls');
+        const actionCounterElem = document.createElement('span');
+        actionCounterElem.classList.add('combat-action-counter');
+        actionCounterElem.textContent = `${actionCount}/${actionMax}`;
+        controls.prepend(actionCounterElem);
       }
 
-      // Add a button that allows going back to the first combatant in initiative order
-      const resetRoundButton = document.createElement('a');
-      resetRoundButton.dataset.tooltip = game.i18n.localize('POKEROLE.CombatResetRound');
+      // Only add the Reset Turn button if there's actually an active encounter
+      if (tracker.viewed && tracker.viewed.round && game.user.isGM) {
+        // Add a button that allows going back to the first combatant in initiative order
+        const resetRoundButton = document.createElement('a');
+        resetRoundButton.dataset.tooltip = game.i18n.localize('POKEROLE.CombatResetRound');
 
-      const icon = document.createElement('i');
-      icon.classList.add('fas');
-      icon.classList.add('fa-repeat');
+        const icon = document.createElement('i');
+        icon.classList.add('fas');
+        icon.classList.add('fa-repeat');
 
-      resetRoundButton.appendChild(icon);
+        resetRoundButton.appendChild(icon);
 
-      elem.find('#combat-controls').append(resetRoundButton);
+        elem.find('#combat-controls').append(resetRoundButton);
 
-      resetRoundButton.addEventListener('click', () => {
-        game.combat.resetRound();
-      });
+        resetRoundButton.addEventListener('click', () => {
+          game.combat.resetRound();
+        });
+      }
+    });
+
+    const debounceRenderCombatTracker = foundry.utils.debounce(() => {
+      ui.combat.render();
+    }, 50);
+
+    Hooks.on('updateActor', () => {
+      // Make sure to update the combat tracker whenever the action count might have changed
+      debounceRenderCombatTracker();
     });
   }
 
@@ -95,13 +118,8 @@ export class PokeroleCombat extends Combat {
   /** Reset action counters at the start of a new round */
   resetActionCounters() {
     for (const combatant of this.combatants) {
-      const scene = game.scenes.get(combatant.sceneId);
-      if (!scene) continue;
-      const token = scene.tokens.get(combatant.tokenId);
-      if (!token) continue;
-
-      if (token.actor.isOwner) {
-        token.actor.resetActionCount();
+      if (combatant.actor?.isOwner) {
+        combatant.actor.resetActionCount();
       }
     }
   }
