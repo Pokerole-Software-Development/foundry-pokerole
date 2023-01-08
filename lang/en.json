@@ -158,5 +158,9 @@
   "POKEROLE.ActionWarningNoItem": "The item doesn't exist.",
 
   "POKEROLE.SettingNameSpecialDefenseStat": "Special Defense Stat",
-  "POKEROLE.SettingHintSpecialDefenseStat": "Insight can be used for Special Defense instead of Vitality (optional rule)."
+  "POKEROLE.SettingHintSpecialDefenseStat": "Insight can be used for Special Defense instead of Vitality (optional rule).",
+
+  "POKEROLE.CombatResetRound": "Reset Round",
+  "POKEROLE.CombatNextRoundDialogTitle": "Start the next round?",
+  "POKEROLE.CombatNextRoundDialogContent": "Start the next round and reset all participants' action counters? Click \"Reset Round\" instead if you want to go through initiative order again for multiple actions."
 }

@@ -1,5 +1,6 @@
 import { PokeroleActor } from "./documents/actor.mjs";
 import { PokeroleItem } from "./documents/item.mjs";
+import { PokeroleCombat } from "./documents/combat.mjs";
 import { PokeroleActorSheet } from "./sheets/actor-sheet.mjs";
 import { PokeroleItemSheet } from "./sheets/item-sheet.mjs";
 import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
@@ -29,6 +30,7 @@ Hooks.once('init', async () => {
   // Define custom Document classes
   CONFIG.Actor.documentClass = PokeroleActor;
   CONFIG.Item.documentClass = PokeroleItem;
+  CONFIG.Combat.documentClass = PokeroleCombat;
 
   // Register sheet application classes
   Actors.unregisterSheet("core", ActorSheet);
@@ -64,25 +66,7 @@ Hooks.once("ready", async function() {
 Hooks.on('renderChatLog', (app, html, data) => PokeroleItem.chatListeners(html));
 Hooks.on('renderChatPopout', (app, html, data) => PokeroleItem.chatListeners(html));
 
-Hooks.on('combatRound', (combat, _, data) => {
-  // Reset action counters at the start of a new round
-  if (data.direction !== 1) {
-    return;
-  }
-
-  for (const combatant of combat.combatants) {
-    const scene = game.scenes.get(combatant.sceneId);
-    if (!scene) continue;
-    const token = scene.tokens.get(combatant.tokenId);
-    if (!token) continue;
-    // TODO: bulk-update
-    if (token.actor.isOwner) {
-      token.actor.resetActionCount();
-    }
-  }
-});
-
-// TODO: do the same on combatStart
+PokeroleCombat.registerHooks();
 
 /* -------------------------------------------- */
 /*  Handlebars Helpers                          */
