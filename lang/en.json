@@ -162,5 +162,5 @@
 
   "POKEROLE.CombatResetRound": "Reset Round",
   "POKEROLE.CombatNextRoundDialogTitle": "Start the next round?",
-  "POKEROLE.CombatNextRoundDialogContent": "Start the next round and reset all participants' action counters? Click \"Reset Round\" instead if you want to go through initiative order again for multiple actions."
+  "POKEROLE.CombatNextRoundDialogContent": "Start the next round and reset all participants' action counters?"
 }
