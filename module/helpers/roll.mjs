@@ -468,6 +468,10 @@ export async function successRoll(rollCount, flavor, chatData, modifier = 0) {
  * @returns {Promise<[result: number, chatMessageData: object]>}
  */
 export async function createSuccessRollMessageData(rollCount, flavor, chatData, modifier = 0) {
+  if (rollCount > 999) {
+    throw new Error('You cannot roll for successes with more than 999 dice');
+  }
+
   let text = '<div class="dice-tooltip"><div class="dice"><ol class="dice-rolls">';
 
   let rolls = [];
@@ -484,6 +488,17 @@ export async function createSuccessRollMessageData(rollCount, flavor, chatData, 
 
   text += '</ol></div></div>';
 
+  const result = successCount + modifier;
+
+  let messageData = {
+    content: `<b>${result} successes</b>${text}`,
+    flavor,
+
+    ...chatData
+  };
+  const rollMode = game.settings.get('core', 'rollMode');
+  messageData = ChatMessage.implementation.applyRollMode(messageData, rollMode);
+
   // 3D dice are capped at 50 to keep things from getting to crazy
   if (game.dice3d?.show && rolls.length <= 50) {
     const data = {
@@ -497,19 +512,12 @@ export async function createSuccessRollMessageData(rollCount, flavor, chatData, 
         }))
       }]
     }
-    await game.dice3d.show(data);
+    await game.dice3d.show(
+      data,
+      game.user,
+      true,
+      messageData.whisper?.length > 0 ? messageData.whisper : undefined);
   }
-
-  const result = successCount + modifier;
-
-  let messageData = {
-    content: `<b>${result} successes</b>${text}`,
-    flavor,
-
-    ...chatData
-  };
-
-  messageData = ChatMessage.implementation.applyRollMode(messageData, game.settings.get('core', 'rollMode'));
 
   return [result, messageData];
 }
