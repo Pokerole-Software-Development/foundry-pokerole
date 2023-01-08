@@ -45,8 +45,8 @@
   "primaryTokenAttribute": "hp",
   "secondaryTokenAttribute": "will",
   "url": "https://github.com/tech-ticks/foundry-pokerole",
-  "manifest": "",
-  "download": "",
+  "manifest": "https://raw.githubusercontent.com/tech-ticks/foundry-pokerole/main/system.json",
+  "download": "https://github.com/tech-ticks/foundry-pokerole/releases/download/v0.1/foundry-pokerole-v0.1.zip",
   "license": "LICENSE.txt",
   "changelog": "CHANGELOG.md"
 }
