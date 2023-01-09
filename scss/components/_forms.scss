@@ -116,8 +116,14 @@
   text-shadow: 0 0 10px white;
 }
 
+&.actor {
+  .sheet-header, .sheet-tabs, .sheet-body {
+    min-width: 600px;
+  }
+}
+
 .sheet-header, .sheet-tabs, .sheet-body {
-  min-width: 600px;
+  min-width: 400px;
 }
 
 .sheet-body {

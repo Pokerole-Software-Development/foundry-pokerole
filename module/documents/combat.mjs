@@ -119,7 +119,7 @@ export class PokeroleCombat extends Combat {
   resetActionCounters() {
     for (const combatant of this.combatants) {
       if (combatant.actor?.isOwner) {
-        combatant.actor.resetActionCount();
+        combatant.actor.resetRoundBasedResources();
       }
     }
   }

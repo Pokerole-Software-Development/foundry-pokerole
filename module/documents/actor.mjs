@@ -180,17 +180,25 @@ export class PokeroleActor extends Actor {
     return this.system.actionCount.value < this.system.actionCount.max;
   }
 
-  /** Increase the number of taken actions this round */
-  increaseActionCount() {
+  /**
+   * Increase the number of taken actions this round
+   * @param {Object} update Other values that should be updated
+   */
+  increaseActionCount(update = {}) {
     this.update({
-      'system.actionCount.value': (this.system.actionCount?.value ?? 0) + 1
+      'system.actionCount.value': (this.system.actionCount?.value ?? 0) + 1,
+      ...update
     });
   }
 
-  /** Reset the number of taken actions this round to 0 */
-  resetActionCount() {
+  /** Reset resources depleted during a round */
+  resetRoundBasedResources() {
     this.update({
-      'system.actionCount.value': 0
+      system: {
+        'actionCount.value': 0,
+        'canClash': true,
+        'canEvade': true
+      }
     });
   }
 }

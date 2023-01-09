@@ -166,6 +166,7 @@ export class PokeroleActorSheet extends ActorSheet {
       else if (i.type === 'move') {
         if (i.system.rank == undefined) {
           i.system.rank = 'starter';
+          i.system.learned = true;
         }
 
         let group = i.system.rank;
@@ -308,7 +309,7 @@ export class PokeroleActorSheet extends ActorSheet {
 
     html.find('.increment-action-num').click(ev => this.actor.increaseActionCount());
 
-    html.find('.reset-action-num').click(ev => this.actor.resetActionCount());
+    html.find('.reset-round-based-resources').click(ev => this.actor.resetRoundBasedResources());
   }
 
   /**

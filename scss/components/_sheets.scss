@@ -408,21 +408,11 @@
   }
 }
 
-.action-count {
+.combat-resources {
   display: flex;
-  flex-direction: row;
-  align-items: center;
   font-size: 0.75rem;
   margin-bottom: 5px;
-
-  .input-group {
-    margin: 0 5px;
-  }
-
-  input {
-    width: 30px;
-    text-align: right;
-  }
+  gap: 5px;
 
   button {
     width: fit-content;
@@ -432,5 +422,30 @@
     i.fa-plus {
       margin: 0;
     }
+  }
+}
+
+.action-count {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  .input-group {
+    margin: 0 5px;
+  }
+
+  input {
+    width: 30px;
+    text-align: right;
+  }
+}
+
+.clash-evade {
+  display: flex;
+  gap: 2px;
+
+  .checkbox-group {
+    display: flex;
+    align-items: center;
   }
 }

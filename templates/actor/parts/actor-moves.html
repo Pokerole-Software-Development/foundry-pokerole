@@ -1,13 +1,28 @@
-<div class="action-count">
-  <label for="system.actionCount.value">Actions per round: </label>
-  <div class="input-group">
-    <input type="text" name="system.actionCount.value" value="{{system.actionCount.value}}" data-dtype="Number">
-    <span> / {{system.actionCount.max}}</span>
+<div class="combat-resources">
+  <div class="action-count">
+    <label for="system.actionCount.value">Actions per round: </label>
+    <div class="input-group">
+      <input type="text" name="system.actionCount.value" value="{{system.actionCount.value}}" data-dtype="Number">
+      <span> / {{system.actionCount.max}}</span>
+    </div>
+    <button title="Increment action count" class="increment-action-num" {{#unless hasAvailableActions}}disabled{{/unless}}>
+      <i class="fas fa-plus"></i>
+    </button>
   </div>
-  <button title="Increment action count" class="increment-action-num" {{#unless hasAvailableActions}}disabled{{/unless}}>
-    <i class="fas fa-plus"></i>
-  </button>
-  <button title="Reset action count" class="reset-action-num">Reset</button>
+
+  <div class="clash-evade">
+    <div class="checkbox-group">
+      <input name="system.canClash" type="checkbox" {{checked system.canClash}}/>
+      <label for="system.canClash">Clash</label>
+    </div>
+
+    <div class="checkbox-group">
+      <input name="system.canEvade" type="checkbox" {{checked system.canEvade}}/>
+      <label for="system.canEvade">Evade</label>
+    </div>
+  </div>
+
+  <button title="Reset resources" class="reset-round-based-resources">Reset</button>
 </div>
 
 <ol class="items-list">
@@ -31,7 +46,7 @@
             <div class="item-image">
               <a class="rollable" data-roll-type="item"><img src="{{item.data.img}}" title="{{itemdata.data.name}}" width="30" height="30"/></a>
             </div>
-            <h4 class="item-name" {{#if item.data.system.effect}}data-tooltip="Added effect: {{item.data.system.effect}}"{{/if}}>{{item.data.name}}</h4>
+            <h4 class="item-name" {{#if item.data.system.effect}}data-tooltip="{{item.data.system.effect}}"{{/if}}>{{item.data.name}}</h4>
             <div class="item-prop">{{item.locType}} ({{item.locCategory}})</div>
             <div class="item-prop">{{item.data.system.accMod1}}{{#if item.data.system.accMod2}}+{{item.data.system.accMod2}}{{/if}} ({{item.accuracyPool}})</div>
             <div class="item-prop flex-small">{{item.data.system.power}}</div>

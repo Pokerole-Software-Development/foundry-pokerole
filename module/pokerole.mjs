@@ -200,29 +200,38 @@ async function onChatActionClick(event) {
   try {
     switch (action) {
       case 'clash': {
+        if (!actor.system.canClash) {
+          return ui.notifications.error("You can only clash once per round.");
+        }
+        
         const { attackerId, moveId, expectedSuccesses } = event.target.dataset;
         const attacker = await fromUuid(attackerId);
         if (!attacker) {
-          throw new Error("The attacking actor doesn't exist anymore");
+          return ui.notifications.error("The attacking actor doesn't exist anymore");
         }
         if (attacker.id === actor.id) {
-          throw new Error("You can't clash your own attack!");
+          return ui.notifications.error("You can't clash your own attack!");
         }
+
         const move = await fromUuid(moveId);
         if (!move) {
-          throw new Error("The move to be clashed doesn't exist anymore");
+          return ui.notifications.error("The move to be clashed doesn't exist anymore");
         }
         if (await showClashDialog(actor, token, attacker, move, expectedSuccesses ?? 1, chatData)) {
-          actor.increaseActionCount();
+          actor.increaseActionCount({ 'system.canClash': false });
         }
         break;
       }
       case 'evade': {
+        if (!actor.system.canEvade) {
+          return ui.notifications.error("You can only evade once per round.");
+        }
+
         if (await successRollAttributeDialog({
           name: 'Evade',
           value: actor.system.derived.evade.value
         }, chatData, !event.shiftKey)) {
-          actor.increaseActionCount();
+          actor.increaseActionCount({ 'system.canEvade': false });
         }
         break;
       }
