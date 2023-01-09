@@ -15,9 +15,9 @@
     <li class="item flexrow items-header{{#if moves.hidden}} hidden-header{{/if}}">
       <a class="item-name toggle-group" data-group="{{key}}">{{moves.groupName}}</a>
       <div>Type/Category</div>
+      <div>Accuracy Pool</div>
       <div class="flex-small">Power</div>
       <div class="flex-small">STAB?</div>
-      <div>Accuracy Mod</div>
       <div>Target</div>
       <div class="item-controls">
         <a class="item-control item-create" title="Create move" data-type="move" data-rank="{{key}}"><i class="fas fa-plus"></i>Add</a>
@@ -26,21 +26,20 @@
     <li>
       <ul class="inner{{#if moves.hidden}} items-hidden{{/if}} list-{{key}}">
         {{#each moves.moveList as |item id|}}
-        <li class="item flexrow" data-item-id="{{item.data._id}}"
-            {{#if item.data.system.effect}}title="Added effect: {{item.data.system.effect}}"{{/if}}>
+        <li class="item flexrow" data-item-id="{{item.data._id}}">
           <div class="item-name flexrow">
             <div class="item-image">
               <a class="rollable" data-roll-type="item"><img src="{{item.data.img}}" title="{{itemdata.data.name}}" width="30" height="30"/></a>
             </div>
-            <h4 class="item-name">{{item.data.name}}</h4>
+            <h4 class="item-name" {{#if item.data.system.effect}}data-tooltip="Added effect: {{item.data.system.effect}}"{{/if}}>{{item.data.name}}</h4>
             <div class="item-prop">{{item.locType}} ({{item.locCategory}})</div>
+            <div class="item-prop">{{item.data.system.accMod1}}{{#if item.data.system.accMod2}}+{{item.data.system.accMod2}}{{/if}} ({{item.accuracyPool}})</div>
             <div class="item-prop flex-small">{{item.data.system.power}}</div>
             {{#if item.data.system.stab}}
             <div class="item-prop flex-small" title="yes">✓</div>
             {{else}}
             <div class="item-prop flex-small" title="no">-</div>
             {{/if}}
-            <div class="item-prop">{{item.data.system.accMod1}}{{#if item.data.system.accMod2}}+{{item.data.system.accMod2}}{{/if}}</div>
             <div class="item-prop">{{item.locTarget}}</div>
           </div>
           <div class="item-controls">

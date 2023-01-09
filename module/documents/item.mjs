@@ -276,7 +276,7 @@ export class PokeroleItem extends Item {
       case 'accuracy':
         if (!actor.hasAvailableActions()) {
           button.disabled = false;
-          return ui.notifications.error("You can't use any more actions this round.");
+          return ui.notifications.error("You can't take any more actions this round.");
         }
 
         if (await rollAccuracy(item, actor, token, canBeClashed, canBeEvaded, !event.shiftKey)) {

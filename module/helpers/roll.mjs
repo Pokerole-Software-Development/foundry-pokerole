@@ -54,9 +54,68 @@ export async function successRollAttributeSkill(attribute, skill, chatData, pool
   }
 }
 
+const ATTRIBUTE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/attribute-roll.html";
+
+/**
+ * Roll an attribute for successes with an optional dialog.
+ * @param {{name: string, value: string}} attribute 
+ * @param {boolean} showPopup If `false`, the popup is skipped and default values are assumed
+ * @param {Object} chatData
+ * @returns {boolean} `true` if the user has rolled, `false` if cancelled
+ */
+export async function successRollAttributeDialog(attribute, chatData, showPopup = true) {
+  const content = await renderTemplate(ATTRIBUTE_ROLL_DIALOGUE_TEMPLATE, {
+    attribute: `${attribute.name} (${attribute.value})`,
+    painPenalties: getLocalizedPainPenaltiesForSelect(),
+  });
+
+  let poolBonus = 0;
+  let constantBonus = 0;
+  let painPenalty = 'none';
+
+  if (showPopup) {
+  // Create the Dialog window and await submission of the form
+    const result = await new Promise(resolve => {
+      new Dialog({
+        title: `Attribute roll: ${attribute.name}`,
+        content,
+        buttons: {
+          roll: {
+            label: "Roll",
+            callback: html => resolve(html),
+          },
+        },
+        default: 'roll',
+        close: () => resolve(undefined),
+      }, { popOutModuleDisable: true }).render(true);
+    });
+
+    if (!result) return false;
+
+    const formElement = result[0].querySelector('form');
+    const formData = new FormDataExtended(formElement).object;
+
+    poolBonus = formData.poolBonus ?? 0;
+    constantBonus = formData.constantBonus ?? 0;
+    painPenalty = formData.painPenalty ?? 'none';
+  }
+
+  const constantBonusWithPainPenalty = constantBonus - POKEROLE.painPenalties[painPenalty];
+  await successRoll(attribute.value + poolBonus, attribute.name, chatData, constantBonusWithPainPenalty);
+
+  return true;
+}
+
 const SKILL_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/skill-roll.html";
 
-export async function successRollSkillDialogue(skill, attributes, chatData) {
+/**
+ * Show a dialog for rolling successes based on a skill.
+ * @param {{name: string, value: string}} skill 
+ * @param {Object} attributes The list of attributes to choose from
+ * @param {Object} chatData
+ * @returns {boolean} `true` if accuracy was rolled, `false` if cancelled
+ */
+export async function successRollSkillDialog(skill, attributes, chatData) {
   const content = await renderTemplate(SKILL_ROLL_DIALOGUE_TEMPLATE, {
     skill: `${skill.name} (${skill.value})`,
     attributes: Object.keys(attributes).reduce((curr, name) => {
@@ -114,16 +173,15 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
   }
 
   let baseFormula = '';
-  let dicePool = 0;
   if (accMod1) {
     baseFormula = accMod1;
-    dicePool += actor.getAnyAttribute(accMod1)?.value ?? 0;
 
     if (accMod2) {
       baseFormula += `+${accMod2}`;
-      dicePool += actor.getSkill(accMod2)?.value ?? 0;
     }
   }
+
+  let dicePool = actor.getAccuracyPoolForMove(item);
 
   let poolBonus = 0;
   let constantBonus = 0;

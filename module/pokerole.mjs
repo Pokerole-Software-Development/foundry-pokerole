@@ -5,7 +5,7 @@ import { PokeroleActorSheet } from "./sheets/actor-sheet.mjs";
 import { PokeroleItemSheet } from "./sheets/item-sheet.mjs";
 import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { POKEROLE } from "./helpers/config.mjs";
-import { rollRecoil, successRollFromExpression } from "./helpers/roll.mjs";
+import { rollRecoil, successRollAttributeDialog, successRollFromExpression } from "./helpers/roll.mjs";
 import { showClashDialog } from "./helpers/clash.mjs";
 import { bulkApplyDamageValidated } from "./helpers/damage.mjs";
 
@@ -193,7 +193,7 @@ async function onChatActionClick(event) {
     }
 
     if (!actor.hasAvailableActions()) {
-      return ui.notifications.error("You can't use any more actions this round.");
+      return ui.notifications.error("You can't take any more actions this round.");
     }
   }
   
@@ -218,8 +218,12 @@ async function onChatActionClick(event) {
         break;
       }
       case 'evade': {
-        await successRollFromExpression('dexterity+evasion # Evade', actor, chatData);
-        actor.increaseActionCount();
+        if (await successRollAttributeDialog({
+          name: 'Evade',
+          value: actor.system.derived.evade.value
+        }, chatData, !event.shiftKey)) {
+          actor.increaseActionCount();
+        }
         break;
       }
       case 'recoil': {

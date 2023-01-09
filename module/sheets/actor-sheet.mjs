@@ -1,6 +1,6 @@
 import { getDualTypeMatchups, getLocalizedType, getLocalizedTypesForSelect, POKEROLE } from "../helpers/config.mjs";
 import { onManageActiveEffect, prepareActiveEffectCategories } from "../helpers/effects.mjs";
-import { successRollAttribute, successRollAttributeSkill, successRollSkillDialogue } from "../helpers/roll.mjs";
+import { successRollAttribute, successRollAttributeDialog, successRollSkillDialog } from "../helpers/roll.mjs";
 
 /**
  * Extend the basic ActorSheet with some very simple modifications
@@ -181,6 +181,7 @@ export class PokeroleActorSheet extends ActorSheet {
           locType: game.i18n.localize(POKEROLE.i18n.types[i.system.type]) ?? i.system.type,
           locTarget: game.i18n.localize(POKEROLE.i18n.targets[i.system.target]) ?? i.system.target,
           locCategory: game.i18n.localize(POKEROLE.i18n.moveCategories[i.system.category]) ?? i.system.category,
+          accuracyPool: this.actor.getAccuracyPoolForMove(i)
         });
       }
     }
@@ -380,13 +381,13 @@ export class PokeroleActorSheet extends ActorSheet {
         await roll.toMessage(chatData, { create: true });
       } else {
         let value = this.actor.getAnyAttribute(dataset.rollAttribute).value;
-        successRollAttribute({ name: dataset.rollAttribute, value }, chatData);
+        successRollAttributeDialog({ name: dataset.rollAttribute, value }, chatData, !event.shiftKey);
       }
     }
 
     if (dataset.rollSkill) {
       let value = this.actor.getSkill(dataset.rollSkill).value;
-      successRollSkillDialogue({ name: dataset.rollSkill, value }, this.actor.getIntrinsicOrSocialAttributes(), chatData);
+      successRollSkillDialog({ name: dataset.rollSkill, value }, this.actor.getIntrinsicOrSocialAttributes(), chatData);
     }
   }
 

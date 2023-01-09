@@ -26,7 +26,7 @@ This system adds a custom chat command for convenient success-based rolls: Enter
 - You can configure the combat tracker to show a tracked value for each character: click the Cog icon (Combat Tracker Settings) in the "Combat Encounters" tab to select a resource like `hp.value`.
 - Drag moves, items and abilities from a character sheet into the macro bar at the bottom of the screen to activate the item's effects via hotkeys.
 - Assign characters to each user by right-clicking their name under "Players" in the bottom right and selecting "User Configuration". This allows players to roll without selecting a token.
-- You can skip the dialogue for accuracy rolls by holding the Shift key while clicking the "Roll Accuracy" button
+- You can skip the dialog for accuracy rolls and attribute checks by holding the Shift key while clicking the "Roll Accuracy" button or an attribute in the character sheet.
 - Right-click any tab on the right to open it in a movable window. Especially useful to show the chat while in combat.
 - Use the "Select Targets" tool under "Token Controls" to automatically apply damage to enemy tokens on damage rolls.
 

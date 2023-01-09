@@ -41,7 +41,7 @@
 
   // Item Name
   .item-name {
-    flex: 1.5;
+    flex: 1.1;
     margin: 0;
     overflow: hidden;
     font-size: 13px;
@@ -56,7 +56,7 @@
   }
 
   .items-header .item-name {
-    flex: 1.5 0 30px;
+    flex: 1.1 0 30px;
   }
 
   // Control Buttons
@@ -119,5 +119,5 @@
 }
 
 .items-list .flex-small {
-  flex: 0.5;
+  flex: 0.35;
 }

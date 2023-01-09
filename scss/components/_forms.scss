@@ -116,14 +116,12 @@
   text-shadow: 0 0 10px white;
 }
 
-.sheet-body {
-  padding: 0 8px;
+.sheet-header, .sheet-tabs, .sheet-body {
+  min-width: 600px;
 }
 
-.sheet-body,
-.sheet-body .tab,
-.sheet-body .tab .editor {
-  height: 100%;
+.sheet-body {
+  padding: 0 8px;
 }
 
 .tox {

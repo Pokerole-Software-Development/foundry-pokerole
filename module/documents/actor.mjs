@@ -155,6 +155,26 @@ export class PokeroleActor extends Actor {
     return foundry.utils.deepClone(this.system.skills[lcName]);
   }
 
+  /**
+   * Get the total number accuracy dice to roll for the given move
+   * @param {PokeroleItem} move 
+   * @returns {number | undefined} The number of dice to roll or undefined if the item is not a move
+   */
+  getAccuracyPoolForMove(move) {
+    if (move.type !== 'move') {
+      return undefined;
+    }
+
+    let diceCount = 0;
+    if (move.system.accMod1) {
+      diceCount += this.getAnyAttribute(move.system.accMod1)?.value ?? 0;
+    }
+    if (move.system.accMod2) {
+      diceCount += this.getSkill(move.system.accMod2)?.value ?? 0;
+    }
+    return diceCount;
+  }
+
   /** Whether this actor can still use an action in this round */
   hasAvailableActions() {
     return this.system.actionCount.value < this.system.actionCount.max;
