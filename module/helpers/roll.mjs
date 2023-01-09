@@ -315,18 +315,22 @@ export async function rollDamage(item, actor, token) {
   });
 
   // Create the Dialog window and await submission of the form
-  const [result, isCrit] = await new Promise(resolve => {
+  const [result, damageType] = await new Promise(resolve => {
     new Dialog({
       title: `Damage roll: ${item.name}`,
       content,
       buttons: {
+        holdBack: {
+          label: "Hold Back",
+          callback: html => resolve([html, 'holdBack']),
+        },
         normal: {
           label: "Normal",
-          callback: html => resolve([html, false]),
+          callback: html => resolve([html, 'normal']),
         },
         crit: {
           label: "Critical Hit",
-          callback: html => resolve([html, true]),
+          callback: html => resolve([html, 'crit']),
         },
       },
       default: 'normal',
@@ -349,7 +353,7 @@ export async function rollDamage(item, actor, token) {
   if (stab) {
     poolBonus += 1;
   }
-  if (isCrit) {
+  if (damageType === 'crit') {
     poolBonus += 2;
   }
 
@@ -364,7 +368,15 @@ export async function rollDamage(item, actor, token) {
 
   const chatData = { speaker: ChatMessage.implementation.getSpeaker({ actor, token }) };
   let html = '';
-  const critText = isCrit ? 'A critical hit! ' : '';
+
+  let damageTypeText = '';
+  if (damageType === 'crit') {
+    damageTypeText = 'A critical hit! ';
+  } else if (damageType === 'holdBack') {
+    damageTypeText = "They're holding back! ";
+  }
+
+  let damageFactor = damageType === 'holdBack' ? 0.5 : 1;
 
   let damageUpdates = [];
   let damage;
@@ -378,6 +390,8 @@ export async function rollDamage(item, actor, token) {
     
     if (rollResult > 0) {
       damage = rollResult;
+      damage = Math.max(Math.floor(damage * damageFactor), 1);
+
       let effectivenessLevel = 0;
 
       switch (effectiveness) {
@@ -408,7 +422,7 @@ export async function rollDamage(item, actor, token) {
     }
     damage = Math.max(damage, 0); // Dealt damage is always at least 0
 
-    html += `<p>${critText}The attack deals ${damage} damage!</p>`;
+    html += `<p>${damageTypeText}The attack deals ${damage} damage!</p>`;
   } else {
     // One or more tokens to apply damage to are selected
     let leechHealHp = 0;
@@ -427,6 +441,7 @@ export async function rollDamage(item, actor, token) {
       html += '<hr>' + messageDataPart.content;
 
       damage = rollResult;
+      damage = Math.max(Math.floor(damage * damageFactor), 1);
       let effectiveness = calcDualTypeMatchupScore(
         item.system.type,
         defender.system.type1,
@@ -445,9 +460,9 @@ export async function rollDamage(item, actor, token) {
       if (damage > 0) {
         damageUpdates.push({ actorId: defender.id, tokenUuid: defenderToken.document.uuid, damage });
 
-        html += `<p>${critText}${defender.name} took ${damage} damage!</p>`;
+        html += `<p>${damageTypeText}${defender.name} took ${damage} damage!</p>`;
       } else {
-        html += `<p>${critText}${defender.name} didn't take any damage.</p>`;
+        html += `<p>${damageTypeText}${defender.name} didn't take any damage.</p>`;
       }
 
       if (applyLeechHeal) {
