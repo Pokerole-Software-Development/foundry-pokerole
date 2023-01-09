@@ -348,7 +348,7 @@ export async function rollDamage(item, actor, token) {
       }
       damage += effectivenessLevel;
     }
-    damage = Math.max(damage, 1); // Dealt damage is always at least 1
+    damage = Math.max(damage, 0); // Dealt damage is always at least 0
 
     html += `<p>${critText}The attack deals ${damage} damage!</p>`;
   } else {
@@ -382,11 +382,15 @@ export async function rollDamage(item, actor, token) {
         }
       }
       
-      // Damage is always at least 1, unless the target is immune
-      damage = Math.max(damage, effectiveness === -Infinity ? 0 : 1);
-      html += `<p>${critText}${defender.name} took ${damage} damage!</p>`;
+      // Damage is always at least 0
+      damage = Math.max(damage, 0);
+      if (damage > 0) {
+        damageUpdates.push({ actorId: defender.id, tokenUuid: defenderToken.document.uuid, damage });
 
-      damageUpdates.push({ actorId: defender.id, tokenUuid: defenderToken.document.uuid, damage });
+        html += `<p>${critText}${defender.name} took ${damage} damage!</p>`;
+      } else {
+        html += `<p>${critText}${defender.name} didn't take any damage.</p>`;
+      }
 
       if (applyLeechHeal) {
         const healAmount = Math.floor(damage / 2);

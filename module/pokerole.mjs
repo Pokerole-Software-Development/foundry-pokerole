@@ -104,6 +104,7 @@ function registerSettings() {
   game.settings.register('pokerole', 'specialDefenseStat', {
     name: 'POKEROLE.SettingNameSpecialDefenseStat',
     hint: 'POKEROLE.SettingHintSpecialDefenseStat',
+    scope: 'world',
     config: true,
     type: String,
     choices: {

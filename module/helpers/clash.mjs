@@ -110,10 +110,7 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
 function calculateClashDamage(move, defender) {
   let matchup = calcDualTypeMatchupScore(move.system.type,
     defender.system.type1, defender.system.type2);
-  let damage = Math.max(1 + matchup, 1);
-  if (matchup === -Infinity) { // Immune
-    damage = 0;
-  }
+  let damage = Math.max(1 + matchup, 0);
   let html = '';
   let text = getEffectivenessText(matchup);
   if (text) {
@@ -121,6 +118,8 @@ function calculateClashDamage(move, defender) {
   }
   if (damage > 0) {
     html += `<p>${defender.name} took ${damage} damage!</p>`;
+  } else {
+    html += `<p>${defender.name} didn't take any damage.</p>`;
   }
 
   return { damage, html };
