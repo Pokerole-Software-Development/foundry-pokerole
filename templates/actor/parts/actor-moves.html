@@ -43,7 +43,7 @@
         {{#each moves.moveList as |item id|}}
         <li class="item flexrow" data-item-id="{{item.data._id}}">
           <div class="item-name flexrow">
-            <div class="item-image">
+            <div class="item-image move-image">
               <a class="rollable" data-roll-type="item"><img src="{{item.data.img}}" title="{{itemdata.data.name}}" width="30" height="30"/></a>
             </div>
             <h4 class="item-name" {{#if item.data.system.effect}}data-tooltip="{{item.data.system.effect}}"{{/if}}>{{item.data.name}}</h4>

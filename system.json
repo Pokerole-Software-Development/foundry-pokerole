@@ -16,19 +16,19 @@
   "scripts": [],
   "packs": [{
     "name": "pokemon",
-    "label": "Pokémon",
+    "label": "Pokémon (Core 2.0)",
     "system": "pokerole",
     "path": "./packs/pokedex.db",
     "type": "Actor"
   }, {
     "name": "moves",
-    "label": "Moves",
+    "label": "Moves (Core 2.0)",
     "system": "pokerole",
-    "path": "./packs/moves.db",
+    "path": "./packs/moves.db" ,
     "type": "Item"
   }, {
     "name": "abilities",
-    "label": "Abilities",
+    "label": "Abilities (Core 2.0)",
     "system": "pokerole",
     "path": "./packs/abilities.db",
     "type": "Item"
