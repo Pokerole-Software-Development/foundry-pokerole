@@ -39,7 +39,6 @@
     padding: 0;
   }
 
-  // Item Name
   .item-name {
     flex: 1.1;
     margin: 0;
@@ -48,6 +47,7 @@
     text-align: left;
     align-items: center;
     display: flex;
+
     h3, h4 {
       margin: 0;
       white-space: nowrap;

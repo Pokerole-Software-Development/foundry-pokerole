@@ -37,10 +37,17 @@ export class PokeroleItem extends Item {
 
   /**
    * Use the item (prints to chat).
-   * @param {Event} event   The originating click event
-   * @private
+   * @param {Event} event The originating click event
    */
   async use() {
+    if (this.actor && !this.actor.hasAvailableActions()) {
+      return ui.notifications.error("You can't take any more actions this round.");
+    }
+
+    if (this.system.usedInRound) {
+      return ui.notifications.error("You have already used this move in the current round.");
+    }
+
     const token = this.actor.token;
 
     let properties = [];
@@ -279,8 +286,15 @@ export class PokeroleItem extends Item {
           return ui.notifications.error("You can't take any more actions this round.");
         }
 
-        if (await rollAccuracy(item, actor, token, canBeClashed, canBeEvaded, !event.shiftKey)) {
+        if (item.system.usedInRound) {
+          button.disabled = false;
+          return ui.notifications.error("You have already used this move in the current round.");
+        }
+
+        if (await rollAccuracy(item, actor, token, canBeClashed, canBeEvaded, !event.shiftKey)
+            && game.settings.get('pokerole', 'combatResourceAutomation')) {
           actor.increaseActionCount();
+          item.update({'system.usedInRound': true});
         }
         break;
       case 'damage':

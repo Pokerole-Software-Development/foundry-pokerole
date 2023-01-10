@@ -11,15 +11,14 @@
   </div>
 
   <div class="clash-evade">
-    <div class="checkbox-group">
-      <input name="system.canClash" type="checkbox" {{checked system.canClash}}/>
-      <label for="system.canClash">Clash</label>
-    </div>
-
-    <div class="checkbox-group">
-      <input name="system.canEvade" type="checkbox" {{checked system.canEvade}}/>
-      <label for="system.canEvade">Evade</label>
-    </div>
+    <button type="button" class="toggle-can-clash {{#unless system.canClash}}translucent{{/unless}}">
+      <i class="{{#unless system.canClash}}fas fa-circle-xmark{{else}}fa-regular fa-circle{{/unless}}"></i>
+      <label>Clash</label>
+    </button>
+    <button type="button" class="toggle-can-evade {{#unless system.canEvade}}translucent{{/unless}}">
+      <i class="{{#unless system.canEvade}}fas fa-circle-xmark{{else}}fa-regular fa-circle{{/unless}}"></i>
+      <label>Evade</label>
+    </button>
   </div>
 
   <button title="Reset resources" class="reset-round-based-resources">Reset</button>
@@ -27,7 +26,7 @@
 
 <ol class="items-list">
   {{#each moves as |moves key|}}
-    <li class="item flexrow items-header{{#if moves.hidden}} hidden-header{{/if}}">
+    <li class="item flexrow items-header{{#if moves.hidden}} translucent{{/if}}">
       <a class="item-name toggle-group" data-group="{{key}}">{{moves.groupName}}</a>
       <div>Type/Category</div>
       <div>Accuracy Pool</div>
@@ -41,12 +40,19 @@
     <li>
       <ul class="inner{{#if moves.hidden}} items-hidden{{/if}} list-{{key}}">
         {{#each moves.moveList as |item id|}}
-        <li class="item flexrow" data-item-id="{{item.data._id}}">
+        <li class="item flexrow {{#if item.data.system.usedInRound}}translucent{{/if}}" data-item-id="{{item.data._id}}">
           <div class="item-name flexrow">
             <div class="item-image move-image">
               <a class="rollable" data-roll-type="item"><img src="{{item.data.img}}" title="{{itemdata.data.name}}" width="30" height="30"/></a>
             </div>
-            <h4 class="item-name" {{#if item.data.system.effect}}data-tooltip="{{item.data.system.effect}}"{{/if}}>{{item.data.name}}</h4>
+            <div class="item-name">
+            {{#if item.data.system.learned}}
+            <a class="move-toggle-used" title="{{localize 'POKEROLE.MoveToggleUsed'}}">
+              <i class="{{#if item.data.system.usedInRound}}fas fa-circle-xmark{{else}}fa-regular fa-circle{{/if}}"></i>
+            </a>
+            {{/if}}
+            <h4 {{#if item.data.system.effect}}data-tooltip="{{item.data.system.effect}}"{{/if}}>{{item.data.name}}</h4>
+            </div>
             <div class="item-prop">{{item.locType}} ({{item.locCategory}})</div>
             <div class="item-prop">{{item.data.system.accMod1}}{{#if item.data.system.accMod2}}+{{item.data.system.accMod2}}{{/if}} ({{item.accuracyPool}})</div>
             <div class="item-prop flex-small">{{item.data.system.power}}</div>
@@ -59,7 +65,7 @@
           </div>
           <div class="item-controls">
             {{#unless item.data.system.attributes.maneuver}}
-            <a class="move-toggle" title="{{localize 'POKEROLE.MoveToggle'}}">
+            <a class="move-toggle-learned" title="{{localize 'POKEROLE.MoveToggle'}}">
               <i class="fas {{#if item.data.system.learned}}fa-times{{else}}fa-check{{/if}}"></i>
             </a>
             {{/unless}}

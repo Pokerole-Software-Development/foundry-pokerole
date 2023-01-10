@@ -114,6 +114,15 @@ function registerSettings() {
     default: 'vitality',
     requiresReload: true
   });
+
+  game.settings.register('pokerole', 'combatResourceAutomation', {
+    name: 'POKEROLE.SettingNameCombatResourceAutomation',
+    hint: 'POKEROLE.SettingHintCombatResourceAutomation',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: true,
+  });
 }
 
 /* -------------------------------------------- */
@@ -217,8 +226,10 @@ async function onChatActionClick(event) {
         if (!move) {
           return ui.notifications.error("The move to be clashed doesn't exist anymore");
         }
-        if (await showClashDialog(actor, token, attacker, move, expectedSuccesses ?? 1, chatData)) {
+        const clashMove = await showClashDialog(actor, token, attacker, move, expectedSuccesses ?? 1, chatData);
+        if (clashMove && game.settings.get('pokerole', 'combatResourceAutomation')) {
           actor.increaseActionCount({ 'system.canClash': false });
+          clashMove.update({ 'system.usedInRound': true });
         }
         break;
       }
@@ -227,10 +238,12 @@ async function onChatActionClick(event) {
           return ui.notifications.error("You can only evade once per round.");
         }
 
-        if (await successRollAttributeDialog({
+        const hasEvaded = await successRollAttributeDialog({
           name: 'Evade',
           value: actor.system.derived.evade.value
-        }, chatData, !event.shiftKey)) {
+        }, chatData, !event.shiftKey);
+
+        if (hasEvaded && game.settings.get('pokerole', 'combatResourceAutomation')) {
           actor.increaseActionCount({ 'system.canEvade': false });
         }
         break;

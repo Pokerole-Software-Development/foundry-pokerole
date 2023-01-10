@@ -37,7 +37,6 @@ This system implements special support for the following optional modules:
 - [PopOut](https://foundryvtt.com/packages/popout): Allows displaying documents in a separate window.
 
 The following modules are known to work and provide useful functionality:
-- [Visual Active Effects](https://foundryvtt.com/packages/visual-active-effects): Displays Active Effects such as status ailments in the top right.
 - [Quick Insert - Search Widget](https://foundryvtt.com/packages/quick-insert): Adds a search tool that can be accessed with Ctrl+Space. Useful for searching through the large compendiums.
 - [Next Up](https://foundryvtt.com/packages/Next-Up): Adds a config option to automatically open the active combatant's character sheet. Useful for Storytellers in battle.
 

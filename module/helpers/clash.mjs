@@ -9,6 +9,7 @@ const CLASH_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/clash.html";
  * @param {Actor | TokenDocument} attacker The attacking actor
  * @param {Object} attackingMove The move that is being clashed
  * @param {Number} expectedSuccesses The number of successes that must be scored
+ * @returns {PokeroleItem | undefined} The move that was used to clash or undefined if the user has canceled the dialog
  */
 export async function showClashDialog(actor, actorToken, attacker, attackingMove, expectedSuccesses, chatData) {
   let attackerTokenDoc;
@@ -17,11 +18,18 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
     attacker = attackerTokenDoc.actor;
   }
 
-  const moveList = actor.getLearnedMoves()
+  // Only physical and special moves can be used to clash
+  let moveList = actor.getLearnedMoves()
     .filter(move => move.system.category !== 'support');
 
   if (moveList.length === 0) {
     throw new Error("No moves to clash with. At least one physical or special move must be learned to clash.");
+  }
+
+  // Only show moves that haven't been used yet in the current round
+  moveList = moveList.filter(move => !move.system.usedInRound);
+  if (moveList.length === 0) {
+    throw new Error("No moves to clash with. All moves eligible for clashing have already been used in the current round.");
   }
 
   const moves = {};
@@ -49,7 +57,7 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
     }, { popOutModuleDisable: true }).render(true);
   });
 
-  if (!result) return false;
+  if (!result) return undefined;
 
   const formElement = result[0].querySelector('form');
   const { moveId, painPenalty, poolBonus, constantBonus } = new FormDataExtended(formElement).object;
@@ -104,7 +112,7 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
 
   messageData = ChatMessage.implementation.applyRollMode(messageData, game.settings.get('core', 'rollMode'));
   await ChatMessage.implementation.create(messageData);
-  return true;
+  return move;
 }
 
 function calculateClashDamage(move, defender) {

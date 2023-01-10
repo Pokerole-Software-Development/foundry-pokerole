@@ -129,12 +129,12 @@
           {{selectOptions effectTargets selected=system.heal.target}}
         </select>
       </div>
-      {{/unless}}
 
       <div class="form-group">
         <label class="resource-label">Will Point Cost</label>
         <input type="text" name="system.heal.willPointCost" value="{{system.heal.willPointCost}}" data-dtype="Number"/>
       </div>
+      {{/unless}}
       {{/if}}
 
       {{#if isCustomHeal}}

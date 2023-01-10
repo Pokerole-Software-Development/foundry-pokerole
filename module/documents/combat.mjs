@@ -3,11 +3,18 @@ export class PokeroleCombat extends Combat {
   /** @override */
   async combatStart() {
     await super.combatStart();
-    this.resetActionCounters();
+    if (game.settings.get('pokerole', 'combatResourceAutomation')) {
+      this.resetActionCounters();
+    }
   }
 
   /** @override */
   async nextRound() {
+    if (!game.settings.get('pokerole', 'combatResourceAutomation')) {
+      return super.nextRound();
+    }
+
+    // If combat resource automation is enabled, show a dialog to confirm resetting all resources
     let shouldContinue = false;
     await Dialog.confirm({
       title: game.i18n.localize('POKEROLE.CombatNextRoundDialogTitle'),

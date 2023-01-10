@@ -403,9 +403,13 @@
     }
   }
 
-  .hidden-header {
-    opacity: 60%;
+  .move-toggle-used {
+    margin-right: 5px;
   }
+}
+
+.translucent {
+  opacity: 60%;
 }
 
 .combat-resources {
@@ -443,9 +447,4 @@
 .clash-evade {
   display: flex;
   gap: 2px;
-
-  .checkbox-group {
-    display: flex;
-    align-items: center;
-  }
 }

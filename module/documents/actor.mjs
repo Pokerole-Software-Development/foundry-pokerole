@@ -192,13 +192,20 @@ export class PokeroleActor extends Actor {
   }
 
   /** Reset resources depleted during a round */
-  resetRoundBasedResources() {
-    this.update({
+  async resetRoundBasedResources() {
+    const actorUpdate = this.update({
       system: {
         'actionCount.value': 0,
         'canClash': true,
         'canEvade': true
       }
     });
+
+    const moveUpdates = [];
+    for (const move of this.items.filter(i => i.type === 'move' && i.system.usedInRound)) {
+      moveUpdates.push({'_id': move.id, 'system.usedInRound': false});
+    }
+    const embeddedUpdate = this.updateEmbeddedDocuments('Item', moveUpdates);
+    await Promise.all([actorUpdate, embeddedUpdate]);
   }
 }

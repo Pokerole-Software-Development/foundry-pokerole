@@ -261,10 +261,16 @@ export class PokeroleActorSheet extends ActorSheet {
     html.find('.rollable').click(this._onRoll.bind(this));
 
     // Toggle moves
-    html.find(".move-toggle").click(event => {
+    html.find(".move-toggle-learned").click(event => {
       const li = event.currentTarget.closest("li");
       const item = this.actor.items.get(li.dataset.itemId);
       item.update({ 'system.learned': !item.system.learned });
+    });
+
+    html.find(".move-toggle-used").click(event => {
+      const li = event.currentTarget.closest("li");
+      const item = this.actor.items.get(li.dataset.itemId);
+      item.update({ 'system.usedInRound': !item.system.usedInRound });
     });
 
     // Drag events for macros.
@@ -308,8 +314,14 @@ export class PokeroleActorSheet extends ActorSheet {
     html.find('.settings-button').click(ev => this._showSettings());
 
     html.find('.increment-action-num').click(ev => this.actor.increaseActionCount());
-
     html.find('.reset-round-based-resources').click(ev => this.actor.resetRoundBasedResources());
+
+    html.find('.toggle-can-clash').click(() => {
+      this.actor.update({ 'system.canClash': !this.actor.system.canClash });
+    });
+    html.find('.toggle-can-evade').click(() => {
+      this.actor.update({ 'system.canEvade': !this.actor.system.canEvade });
+    });
   }
 
   /**
@@ -324,18 +336,18 @@ export class PokeroleActorSheet extends ActorSheet {
     const type = header.dataset.type;
     // Grab any data associated with this control.
     const data = duplicate(header.dataset);
-    // Initialize a default name.
     const name = `New ${type.capitalize()}`;
-    // Prepare the item object.
     const itemData = {
       name: name,
       type: type,
       system: data
     };
+
     // Remove the type from the dataset since it's in the itemData.type prop.
     delete itemData.system["type"];
 
     if (type === 'move') {
+      itemData.usedInRound = false;
       if (itemData.system.rank === 'learned') {
         itemData.system.rank = 'starter';
         itemData.system.learned = true;
@@ -345,7 +357,6 @@ export class PokeroleActorSheet extends ActorSheet {
       }
     };
 
-    // Finally, create the item!
     return await Item.create(itemData, {parent: this.actor});
   }
 

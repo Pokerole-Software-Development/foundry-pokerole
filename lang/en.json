@@ -45,6 +45,7 @@
   "POKEROLE.EffectDelete": "Delete Effect",
 
   "POKEROLE.MoveToggle": "Toggle Learned status",
+  "POKEROLE.MoveToggleUsed": "Toggle whether this move has been used in the current round",
 
   "POKEROLE.TypeNone": "-",
   "POKEROLE.TypeNormal": "Normal",
@@ -159,6 +160,8 @@
 
   "POKEROLE.SettingNameSpecialDefenseStat": "Special Defense Stat",
   "POKEROLE.SettingHintSpecialDefenseStat": "Insight can be used for Special Defense instead of Vitality (optional rule).",
+  "POKEROLE.SettingNameCombatResourceAutomation": "Automatic Tracking of Combat Resources",
+  "POKEROLE.SettingHintCombatResourceAutomation": "Automatically deplete resources used during combat, such as actions per round.",
 
   "POKEROLE.CombatResetRound": "Reset Round",
   "POKEROLE.CombatNextRoundDialogTitle": "Start the next round?",
