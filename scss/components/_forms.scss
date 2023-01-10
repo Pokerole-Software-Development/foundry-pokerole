@@ -130,6 +130,12 @@
   padding: 0 8px;
 }
 
+.sheet-body,
+.sheet-body .tab.description,
+.sheet-body .tab .editor {
+   height: 100%;
+ }
+
 .tox {
   .tox-editor-container {
     background: $c-white;
