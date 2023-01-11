@@ -2,7 +2,7 @@
   "id": "pokerole",
   "title": "Pokérole",
   "description": "FoundryVTT system for playing Pokérole",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "compatibility": {
     "minimum": 10,
     "verified": "10.291",
@@ -24,7 +24,7 @@
     "name": "moves",
     "label": "Moves (Core 2.0)",
     "system": "pokerole",
-    "path": "./packs/moves.db" ,
+    "path": "./packs/moves.db",
     "type": "Item"
   }, {
     "name": "abilities",
@@ -44,9 +44,9 @@
   "gridUnits": "ft",
   "primaryTokenAttribute": "hp",
   "secondaryTokenAttribute": "will",
-  "url": "https://github.com/tech-ticks/foundry-pokerole",
-  "manifest": "https://raw.githubusercontent.com/tech-ticks/foundry-pokerole/main/system.json",
-  "download": "https://github.com/tech-ticks/foundry-pokerole/releases/download/v0.1/foundry-pokerole-v0.1.zip",
+  "url": "https://github.com/Pokerole-Software-Development/foundry-pokerole",
+  "manifest": "https://raw.githubusercontent.com/Pokerole-Software-Development/foundry-pokerole/main/system.json",
+  "download": "https://github.com/Pokerole-Software-Development/foundry-pokerole/releases/download/v0.2.0/foundry-pokerole-v0.2.0.zip",
   "license": "LICENSE.txt",
   "changelog": "CHANGELOG.md"
 }
