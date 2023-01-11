@@ -1,4 +1,10 @@
 {
+  "ACTOR.TypePokemon": "Pokémon",
+
+  "ITEM.TypeMove": "Move",
+  "ITEM.TypeAbility": "Ability",
+  "ITEM.TypeItem": "Item",
+
   "POKEROLE.AttributeStrength": "Strength",
   "POKEROLE.AttributeDexterity": "Dexterity",
   "POKEROLE.AttributeVitality": "Vitality",

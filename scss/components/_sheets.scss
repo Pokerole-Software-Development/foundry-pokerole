@@ -412,11 +412,12 @@
   opacity: 60%;
 }
 
-.combat-resources {
+.combat-resources, .money {
   display: flex;
   font-size: 0.75rem;
   margin-bottom: 5px;
   gap: 5px;
+  align-items: center;
 
   button {
     width: fit-content;
@@ -427,7 +428,12 @@
       margin: 0;
     }
   }
+
+  input {
+    width: 80px;
+  }
 }
+
 
 .action-count {
   display: flex;

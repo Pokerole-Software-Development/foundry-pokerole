@@ -34,6 +34,7 @@ This system adds a custom chat command for convenient success-based rolls: Enter
 
 This system implements special support for the following optional modules:
 - [Dice So Nice](https://foundryvtt.com/packages/dice-so-nice/): Adds 3D animation to dice rolls. Custom roll commands such as `/sc` are supported.
+- [Item Piles](https://foundryvtt.com/packages/item-piles): Adds lootable objects that can be added to the canvas, item trading between players, merchants and more. If this module is installed, it is automatically configured with the right settings to work with this system.
 - [PopOut](https://foundryvtt.com/packages/popout): Allows displaying documents in a separate window.
 
 The following modules are known to work and provide useful functionality:

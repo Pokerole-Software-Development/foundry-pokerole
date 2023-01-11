@@ -8,6 +8,7 @@ import { POKEROLE } from "./helpers/config.mjs";
 import { rollRecoil, successRollAttributeDialog, successRollFromExpression } from "./helpers/roll.mjs";
 import { showClashDialog } from "./helpers/clash.mjs";
 import { bulkApplyDamageValidated } from "./helpers/damage.mjs";
+import { registerIntegrationHooks } from "./helpers/integrations.mjs";
 
 /* -------------------------------------------- */
 /*  Init Hook                                   */
@@ -67,6 +68,7 @@ Hooks.on('renderChatLog', (app, html, data) => PokeroleItem.chatListeners(html))
 Hooks.on('renderChatPopout', (app, html, data) => PokeroleItem.chatListeners(html));
 
 PokeroleCombat.registerHooks();
+registerIntegrationHooks();
 
 /* -------------------------------------------- */
 /*  Handlebars Helpers                          */

@@ -24,6 +24,7 @@
         },
         "canClash": true,
         "canEvade": true,
+        "money": 0,
         "attributes": {
           "strength": {
             "value": 0,
@@ -176,7 +177,7 @@
       "templates": ["base"],
       "quantity": 1,
       "weight": 0,
-      "formula": "d20 + @str.mod + ceil(@lvl / 2)"
+      "price": 0
     },
     "ability": {
       "templates": ["base"]
