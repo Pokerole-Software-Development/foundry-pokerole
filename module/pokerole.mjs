@@ -228,7 +228,7 @@ async function onChatActionClick(event) {
         }
         const clashMove = await showClashDialog(actor, token, attacker, move, expectedSuccesses ?? 1, chatData);
         if (clashMove && game.settings.get('pokerole', 'combatResourceAutomation')) {
-          actor.increaseActionCount({ 'system.canClash': false });
+          actor.decreaseActionCount({ 'system.canClash': false });
           clashMove.update({ 'system.usedInRound': true });
         }
         break;
@@ -244,7 +244,7 @@ async function onChatActionClick(event) {
         }, chatData, !event.shiftKey);
 
         if (hasEvaded && game.settings.get('pokerole', 'combatResourceAutomation')) {
-          actor.increaseActionCount({ 'system.canEvade': false });
+          actor.decreaseActionCount({ 'system.canEvade': false });
         }
         break;
       }

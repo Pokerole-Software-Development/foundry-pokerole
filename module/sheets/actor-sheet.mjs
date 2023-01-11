@@ -313,7 +313,7 @@ export class PokeroleActorSheet extends ActorSheet {
 
     html.find('.settings-button').click(ev => this._showSettings());
 
-    html.find('.increment-action-num').click(ev => this.actor.increaseActionCount());
+    html.find('.decrease-action-count').click(ev => this.actor.decreaseActionCount());
     html.find('.reset-round-based-resources').click(ev => this.actor.resetRoundBasedResources());
 
     html.find('.toggle-can-clash').click(() => {

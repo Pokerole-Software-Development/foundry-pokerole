@@ -177,16 +177,17 @@ export class PokeroleActor extends Actor {
 
   /** Whether this actor can still use an action in this round */
   hasAvailableActions() {
-    return this.system.actionCount.value < this.system.actionCount.max;
+    return this.system.actionCount.value > 0;
   }
 
   /**
    * Increase the number of taken actions this round
    * @param {Object} update Other values that should be updated
    */
-  increaseActionCount(update = {}) {
+  decreaseActionCount(update = {}) {
+    const newValue = Math.max((this.system.actionCount?.value ?? 0) - 1, 0);
     this.update({
-      'system.actionCount.value': (this.system.actionCount?.value ?? 0) + 1,
+      'system.actionCount.value': newValue,
       ...update
     });
   }
@@ -195,7 +196,7 @@ export class PokeroleActor extends Actor {
   async resetRoundBasedResources() {
     const actorUpdate = this.update({
       system: {
-        'actionCount.value': 0,
+        'actionCount.value': this.system.actionCount.max,
         'canClash': true,
         'canEvade': true
       }
