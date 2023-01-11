@@ -186,13 +186,13 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
   let poolBonus = 0;
   let constantBonus = 0;
   let painPenalty = 'none';
-  let multiActionPenalty = actor.system.actionCount.value;
+  let requiredSuccesses = Math.max(actor.system.actionCount.value, 0);
 
   if (showPopup) {
     const content = await renderTemplate(ACCURACY_ROLL_DIALOGUE_TEMPLATE, {
       baseFormula,
       accuracyReduction: item.system.attributes.accuracyReduction,
-      multiActionPenalty,
+      requiredSuccesses,
       painPenalties: getLocalizedPainPenaltiesForSelect(),
     });
 
@@ -220,8 +220,8 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
     constantBonus = formData.constantBonus ?? 0;
     painPenalty = formData.painPenalty ?? 0;
 
-    if (formData.multiActionPenalty !== undefined) {
-      multiActionPenalty = formData.multiActionPenalty;
+    if (formData.requiredSuccesses !== undefined) {
+      requiredSuccesses = formData.requiredSuccesses;
     }
   }
 
@@ -237,9 +237,10 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
     constantBonusWithPainPenalty);
   chatData = newChatData;
 
-  const requiredSuccesses = 1 + multiActionPenalty;
   let html = '';
-  if (requiredSuccesses > 1) {
+  if (requiredSuccesses === 1) {
+    html += `<p>(1 success required)</p>`;
+  } else {
     html += `<p>(${requiredSuccesses} successes required)</p>`;
   }
   html += '<div class="pokerole"><div class="action-buttons">';

@@ -1,12 +1,12 @@
 <div class="combat-resources">
   <div class="action-count">
-    <label for="system.actionCount.value">Actions per round: </label>
+    <label for="system.actionCount.value">Action: </label>
     <div class="input-group">
       <input type="text" name="system.actionCount.value" value="{{system.actionCount.value}}" data-dtype="Number">
       <span> / {{system.actionCount.max}}</span>
     </div>
     <button title="Increment action count" class="increment-action-num" {{#unless hasAvailableActions}}disabled{{/unless}}>
-      <i class="fas fa-plus"></i>
+      <i class="fas fa-plus"></i><label>Increase</label>
     </button>
   </div>
 
