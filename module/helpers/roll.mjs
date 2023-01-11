@@ -186,9 +186,7 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
   let poolBonus = 0;
   let constantBonus = 0;
   let painPenalty = 'none';
-  let multiActionPenalty = actor.system.actionCount.max - actor.system.actionCount.value;
-  // Clamp the penalty to a sane range
-  multiActionPenalty = Math.max(Math.min(multiActionPenalty, actor.system.actionCount.max), 0);
+  let multiActionPenalty = actor.system.actionCount.value;
 
   if (showPopup) {
     const content = await renderTemplate(ACCURACY_ROLL_DIALOGUE_TEMPLATE, {

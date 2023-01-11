@@ -5,9 +5,8 @@
       <input type="text" name="system.actionCount.value" value="{{system.actionCount.value}}" data-dtype="Number">
       <span> / {{system.actionCount.max}}</span>
     </div>
-    <button title="Decrease action count" class="decrease-action-count" {{#unless hasAvailableActions}}disabled{{/unless}}>
-      <i class="fas fa-minus"></i>
-      Decrease
+    <button title="Increment action count" class="increment-action-num" {{#unless hasAvailableActions}}disabled{{/unless}}>
+      <i class="fas fa-plus"></i>
     </button>
   </div>
 

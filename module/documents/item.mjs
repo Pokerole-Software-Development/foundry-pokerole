@@ -293,7 +293,7 @@ export class PokeroleItem extends Item {
 
         if (await rollAccuracy(item, actor, token, canBeClashed, canBeEvaded, !event.shiftKey)
             && game.settings.get('pokerole', 'combatResourceAutomation')) {
-          actor.decreaseActionCount();
+          actor.increaseActionCount();
           item.update({'system.usedInRound': true});
         }
         break;
