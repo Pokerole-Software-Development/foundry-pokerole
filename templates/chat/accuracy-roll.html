@@ -5,6 +5,12 @@
     <input type="text" value="{{baseFormula}}" disabled/>
   </div>
   {{/if}}
+  {{#if accuracyMod}}
+  <div class="form-group">
+    <label>Accuracy Modifier</label>
+    <input type="text" value="{{accuracyMod}}" disabled/>
+  </div>
+  {{/if}}
   {{#if accuracyReduction}}
   <div class="form-group">
     <label>Accuracy Reduction</label>
@@ -12,12 +18,14 @@
   </div>
   {{/if}}
 
+  {{#if enablePainPenalty}}
   <div class="form-group">
     <label>Pain Penalization</label>
     <select name="painPenalty">
-      {{selectOptions painPenalties}}
+      {{selectOptions painPenalties selected=painPenalty}}
      </select>
   </div>
+  {{/if}}
 
   <div class="form-group">
     <label for="requiredSuccesses">Required Successes</label>

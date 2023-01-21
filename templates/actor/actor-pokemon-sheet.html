@@ -4,17 +4,19 @@
   <header class="sheet-header">
     <div class="horizontal-line"></div>
 
-    <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100"/>
+    <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100" />
     <div class="header-fields">
       <div class="header-top">
         <h1 class="charname">
-          <input name="name" type="text" value="{{actor.name}}" placeholder="Name"/>
+          <input name="name" type="text" value="{{actor.name}}" placeholder="Name" />
         </h1>
         <div class="sidedata">
           <div class="species">
             <label for="system.pokedexId" class="resource-label">Pokédex</label>
-            <input type="text" class="pokedex-num" name="system.pokedexId" value="{{system.pokedexId}}" placeholder="0" data-dtype="Number"/>
-            <input type="text" name="system.species" value="{{system.species}}" placeholder="Species" data-dtype="String"/>
+            <input type="text" class="pokedex-num" name="system.pokedexId" value="{{system.pokedexId}}" placeholder="0"
+              data-dtype="Number" />
+            <input type="text" name="system.species" value="{{system.species}}" placeholder="Species"
+              data-dtype="String" />
           </div>
 
           <div class="types">
@@ -39,22 +41,24 @@
         <div class="resource">
           <label for="system.hp.value" class="resource-label">HP</label>
           <div class="resource-content flex-center flex-between">
-            <input type="text" name="system.hp.value" value="{{system.hp.value}}" data-dtype="Number"/>
+            <input type="text" name="system.hp.value" value="{{system.hp.value}}" data-dtype="Number" />
             <span> / {{ system.hp.max }}</span>
           </div>
         </div>
 
         <div class="resource">
-          <label for="system.will.value" class="resource-label rollable" data-roll-attribute="will" data-label="Will">Will</label>
+          <label for="system.will.value" class="resource-label rollable" data-roll-attribute="will"
+            data-label="Will">Will</label>
           <div class="resource-content flex-center flex-between">
-            <input type="text" name="system.will.value" value="{{system.will.value}}" data-dtype="Number"/>
+            <input type="text" name="system.will.value" value="{{system.will.value}}" data-dtype="Number" />
             <span> / {{ system.will.max }}</span>
           </div>
         </div>
 
         <div class="resource large">
           <label for="system.rank" class="resource-label">Rank</label>
-          <select class="rank-select" name="system.rank" value="{{system.rank}}" data-dtype="String" class="rank-select">
+          <select class="rank-select" name="system.rank" value="{{system.rank}}" data-dtype="String"
+            class="rank-select">
             {{selectOptions ranks selected=system.rank}}
           </select>
         </div>
@@ -84,21 +88,29 @@
           <div class="main-attributes">
             {{#each system.attributes as |attribute key|}}
             <div class="attribute">
-              <label for="system.attributes.{{key}}.value" class="rollable resource-label flexlarge align-left" data-roll-attribute="{{key}}" data-label="{{attribute.label}}">{{attribute.label}}</label>
-              <input type="text" class="value-input" name="system.attributes.{{key}}.value" value="{{attribute.value}}" data-dtype="Number"/>
+              <label for="system.attributes.{{key}}.value" class="rollable resource-label flexlarge align-left"
+                data-roll-attribute="{{key}}" data-label="{{attribute.label}}">{{attribute.label}}</label>
+              <input type="text" class="value-input {{#if attribute.overridden}}overridden{{/if}}"
+                name="system.attributes.{{key}}.value" value="{{attribute.value}}" {{disabled attribute.overridden}}
+                data-dtype="Number" />
               <span> / </span>
-              <input type="text" class="value-input" name="system.attributes.{{key}}.max" value="{{attribute.max}}" data-dtype="Number"/>
+              <input type="text" class="value-input" name="system.attributes.{{key}}.max" value="{{attribute.max}}"
+                data-dtype="Number" />
             </div>
             {{/each}}
           </div>
-  
+
           <div class="social">
             {{#each system.social as |attribute key|}}
             <div class="attribute" data-kind="social.{{key}}">
-              <label for="system.social.{{key}}.value" class="rollable resource-label flexlarge align-left" data-roll-attribute="{{key}}" data-label="{{attribute.label}}">{{attribute.label}}</label>
-              <input type="text" class="value-input" name="system.social.{{key}}.value" value="{{attribute.value}}" data-dtype="Number"/>
+              <label for="system.social.{{key}}.value" class="rollable resource-label flexlarge align-left"
+                data-roll-attribute="{{key}}" data-label="{{attribute.label}}">{{attribute.label}}</label>
+              <input type="text" class="value-input {{#if attribute.overridden}}overridden{{/if}}"
+                name="system.social.{{key}}.value" value="{{attribute.value}}" data-dtype="Number" {{disabled
+                attribute.overridden}} />
               <span> / </span>
-              <input type="text" class="value-input" name="system.social.{{key}}.max" value="{{attribute.max}}" data-dtype="Number"/>
+              <input type="text" class="value-input" name="system.social.{{key}}.max" value="{{attribute.max}}"
+                data-dtype="Number" />
             </div>
             {{/each}}
           </div>
@@ -106,7 +118,8 @@
           <div class="extra-attributes">
             {{#each system.extra as |attribute key|}}
             <div class="attribute">
-              <label for="system.extra.{{key}}.value" class="rollable resource-label flexlarge align-left" data-roll-attribute="{{key}}" data-label="{{attribute.label}}">{{attribute.label}}</label>
+              <label for="system.extra.{{key}}.value" class="rollable resource-label flexlarge align-left"
+                data-roll-attribute="{{key}}" data-label="{{attribute.label}}">{{attribute.label}}</label>
 
               {{#if attribute.custom}}
               <a class="delete-value-button" title="Delete attribute" data-attribute-key="{{key}}">
@@ -114,13 +127,16 @@
               </a>
               {{/if}}
 
-              <input type="text" class="value-input" name="system.extra.{{key}}.value" value="{{attribute.value}}" data-dtype="Number"/>
+              <input type="text" class="value-input {{#if attribute.overridden}}overridden{{/if}}"
+                name="system.extra.{{key}}.value" value="{{attribute.value}}" data-dtype="Number" {{disabled
+                attribute.overridden}} />
               <span> / </span>
-              <input type="text" class="value-input" name="system.extra.{{key}}.max" value="{{attribute.max}}" data-dtype="Number"/>
+              <input type="text" class="value-input" name="system.extra.{{key}}.max" value="{{attribute.max}}"
+                data-dtype="Number" />
             </div>
             {{/each}}
             <div class="add-custom-value custom-attribute">
-              <input type="text" class="add-value-input" placeholder="Add attribute..." data-dtype="Number"/>
+              <input type="text" class="add-value-input" placeholder="Add attribute..." data-dtype="Number" />
               <a class="add-value-button" title="Create attribute"><i class="fas fa-plus"></i></a>
             </div>
           </div>
@@ -130,7 +146,8 @@
           <div class="skills">
             {{#each system.skills as |skill key|}}
             <div class="attribute">
-              <label for="system.skills.{{key}}.value" class="rollable resource-label flexlarge align-left" data-roll-skill="{{key}}">{{skill.label}}</label>
+              <label for="system.skills.{{key}}.value" class="rollable resource-label flexlarge align-left"
+                data-roll-skill="{{key}}">{{skill.label}}</label>
 
               {{#if skill.custom}}
               <a class="delete-value-button" title="Delete skill" data-skill-key="{{key}}">
@@ -138,13 +155,16 @@
               </a>
               {{/if}}
 
-              <input type="text" class="value-input" name="system.skills.{{key}}.value" value="{{skill.value}}" data-dtype="Number"/>
+              <input type="text" class="value-input {{#if skill.overridden}}overridden{{/if}}"
+                name="system.skills.{{key}}.value" value="{{skill.value}}" data-dtype="Number" {{disabled
+                skill.overridden}} />
               <span> / </span>
-              <input type="text" class="value-input" name="system.skills.{{key}}.max" value="{{skill.max}}" data-dtype="Number" readonly/>
+              <input type="text" class="value-input" name="system.skills.{{key}}.max" value="{{skill.max}}"
+                data-dtype="Number" readonly />
             </div>
             {{/each}}
             <div class="add-custom-value custom-skill">
-              <input type="text" class="add-value-input" placeholder="Add skill..." data-dtype="Number"/>
+              <input type="text" class="add-value-input" placeholder="Add skill..." data-dtype="Number" />
               <a class="add-value-button" title="Create skill"><i class="fas fa-plus"></i></a>
             </div>
           </div>
@@ -188,33 +208,35 @@
             <div class="attribute">
               <label for="system.personality" class="resource-label flexlarge align-left">Nature</label>
               <select name="system.personality" value="{{system.personality}}" data-dtype="String" class="large">
-                  {{selectOptions natures selected=system.personality}}
+                {{selectOptions natures selected=system.personality}}
               </select>
             </div>
             <div class="attribute">
               <label for="system.confidence" class="resource-label flexlarge align-left">Confidence</label>
-              <input type="text" name="system.confidence" value="{{system.confidence}}" data-dtype="Number"/>
+              <input type="text" name="system.confidence" value="{{system.confidence}}" data-dtype="Number" />
             </div>
           </div>
 
           <div class="battles-box">
             <div class="attribute">
               <label for="system.battles" class="resource-label flexlarge align-left">No. of Battles</label>
-              <input type="text" name="system.battles" value="{{system.battles}}" data-dtype="Number"/>
+              <input type="text" name="system.battles" value="{{system.battles}}" data-dtype="Number" />
             </div>
             <div class="attribute">
               <label for="system.victories" class="resource-label flexlarge align-left">Victories</label>
-              <input type="text" name="system.victories" value="{{system.victories}}" data-dtype="Number"/>
+              <input type="text" name="system.victories" value="{{system.victories}}" data-dtype="Number" />
             </div>
           </div>
-            
+
           <div class="derived">
-            <h3 class="section-header">Quick References</h3>
+            <h3 class="section-header centered">Quick References</h3>
             <div class="derived-attributes">
               {{#each system.derived as |attribute key|}}
               <div class="attribute">
-                <label for="system.derived.{{key}}.value" class="rollable resource-label flexlarge align-left" data-roll-attribute="{{key}}" data-roll-label="{{attribute.label}}">{{attribute.label}}</label>
-                <input type="text" value="{{attribute.value}}" data-dtype="Number" disabled/>
+                <label for="system.derived.{{key}}.value" class="rollable resource-label flexlarge align-left"
+                  data-roll-attribute="{{key}}" data-roll-label="{{attribute.label}}">{{attribute.label}}</label>
+                <input type="text" class="{{#if attribute.overridden}}overridden{{/if}}" value="{{attribute.value}}"
+                  data-dtype="Number" disabled />
               </div>
               {{/each}}
             </div>
@@ -238,17 +260,20 @@
           </li>
           <li>
             <h4>Description</h4>
-            <textarea class="pokedex-description" name="system.pokedexDescription">{{ system.pokedexDescription }}</textarea>
+            <textarea class="pokedex-description"
+              name="system.pokedexDescription">{{ system.pokedexDescription }}</textarea>
           </li>
           <li class="inner-list">
             <ul>
               <li>
                 <h4>Height</h4>
-                <span><input class="small" name="system.height" value="{{system.height}}"> m / {{heightImperial}} ft</span>
+                <span><input class="small" name="system.height" value="{{system.height}}"> m / {{heightImperial}}
+                  ft</span>
               </li>
               <li>
                 <h4>Weight</h4>
-                <span><input class="small" name="system.weight" value="{{system.weight}}"> kg / {{weightImperial}} lbs</span>
+                <span><input class="small" name="system.weight" value="{{system.weight}}"> kg / {{weightImperial}}
+                  lbs</span>
               </li>
             </ul>
           </li>
@@ -257,7 +282,8 @@
         <div class="abilities">
           <h4>
             Abilities
-            <a class="item-control item-create" title="Create ability" data-type="ability"><i class="fas fa-plus"></i></a>
+            <a class="item-control item-create" title="Create ability" data-type="ability"><i
+                class="fas fa-plus"></i></a>
           </h4>
           <ul>
             {{#each abilities as |item index|}}
@@ -279,7 +305,7 @@
 
     {{!-- Owned Items Tab --}}
     <div class="tab items" data-group="primary" data-tab="items">
-       {{> "systems/pokerole/templates/actor/parts/actor-items.html"}}
+      {{> "systems/pokerole/templates/actor/parts/actor-items.html"}}
     </div>
 
     {{!-- Owned Moves Tab --}}
@@ -294,4 +320,3 @@
 
   </section>
 </form>
-

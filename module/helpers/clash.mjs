@@ -1,5 +1,6 @@
 import { calcDualTypeMatchupScore, getLocalizedPainPenaltiesForSelect, POKEROLE } from "./config.mjs";
 import { getEffectivenessText, createSuccessRollMessageData } from "./roll.mjs";
+import { PokeroleActor } from "../documents/actor.mjs";
 
 const CLASH_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/clash.html";
 
@@ -20,7 +21,7 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
 
   // Only physical and special moves can be used to clash
   let moveList = actor.getLearnedMoves()
-    .filter(move => move.system.category !== 'support');
+    .filter(move => move.system.category !== 'support' && !move.system.attributes.maneuver);
 
   if (moveList.length === 0) {
     throw new Error("No moves to clash with. At least one physical or special move must be learned to clash.");
@@ -37,8 +38,11 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
     moves[move.id] = move.name;
   }
 
+  let defaultPainPenalty = actor.system.painPenalty ?? 'none';
+
   const content = await renderTemplate(CLASH_DIALOGUE_TEMPLATE, {
     moves,
+    painPenalty: defaultPainPenalty,
     painPenalties: getLocalizedPainPenaltiesForSelect()
   });
 

@@ -100,38 +100,70 @@ POKEROLE.typeMatchups = {
 
 POKEROLE.types = Object.keys(POKEROLE.typeMatchups);
 
-POKEROLE.getStatusEffects = () => [{
-  id: 'paralysis',
-  label: game.i18n.localize('POKEROLE.StatusParalysis'),
-  icon: 'icons/svg/paralysis.svg',
-  changes: [{ key: 'system.attributes.dexterity.value', mode: 2 /* Add */, value: "-2" }]
-}, {
-  id: 'frozen', label: game.i18n.localize('POKEROLE.StatusFrozen'), icon: 'icons/svg/frozen.svg', tint: '#96CFD0'
-}, {
-  id: 'poison', label: game.i18n.localize('POKEROLE.StatusPoison'), icon: 'icons/svg/poison.svg', tint: '#8F6995'
-}, {
-  id: 'badlyPoisoned', label: game.i18n.localize('POKEROLE.StatusBadlyPoisoned'), icon: 'icons/svg/radiation.svg', tint: '#714783'
-}, {
-  id: 'sleep', label: game.i18n.localize('POKEROLE.StatusSleep'), icon: 'icons/svg/sleep.svg', tint: '#B5B590'
-}, {
-  id: 'burn1', label: game.i18n.localize('POKEROLE.StatusBurn1'), icon: 'icons/svg/fire.svg', tint: '#E16436'
-}, {
-  id: 'burn2', label: game.i18n.localize('POKEROLE.StatusBurn2'), icon: 'icons/svg/fire.svg', tint: '#B84129'
-}, {
-  id: 'burn3', label: game.i18n.localize('POKEROLE.StatusBurn3'), icon: 'icons/svg/fire.svg', tint: '#93291B'
-}, {
-  id: 'flinch', label: game.i18n.localize('POKEROLE.StatusFlinch'), icon: 'icons/svg/silenced.svg', tint: '#575D69'
-}, {
-  id: 'confused', label: game.i18n.localize('POKEROLE.StatusConfused'), icon: 'icons/svg/daze.svg', tint: '#4DAF81'
-}, {
-  id: 'infatuated', label: game.i18n.localize('POKEROLE.StatusInfatuated'), icon: 'icons/svg/daze.svg', tint: '#E1657F'
-}, {
-  id: 'fainted', label: game.i18n.localize('POKEROLE.StatusFainted'), icon: 'icons/svg/unconscious.svg'
-}, {
-  id: 'invisible', label: game.i18n.localize('POKEROLE.StatusInvisible'), icon: 'icons/svg/invisible.svg'
-}, {
-  id: 'blind', label: game.i18n.localize('POKEROLE.StatusBlind'), icon: 'icons/svg/blind.svg'
-}];
+POKEROLE.getAilments = () => ({
+  fainted: {
+    label: game.i18n.localize('POKEROLE.StatusFainted'),
+    icon: 'systems/pokerole/images/ailments/fainted.svg'
+  },
+  paralysis: {
+    label: game.i18n.localize('POKEROLE.StatusParalysis'),
+    icon: 'systems/pokerole/images/ailments/paralyzed.svg',
+  },
+  frozen: {
+    label: game.i18n.localize('POKEROLE.StatusFrozen'),
+    icon: 'systems/pokerole/images/ailments/frozen.svg',
+    tint: '#96CFD0'
+  },
+  poison: {
+    label: game.i18n.localize('POKEROLE.StatusPoison'),
+    icon: 'systems/pokerole/images/ailments/poisoned.svg',
+    tint: '#8F6995'
+  },
+  badlyPoisoned: {
+    label: game.i18n.localize('POKEROLE.StatusBadlyPoisoned'),
+    icon: 'systems/pokerole/images/ailments/poisoned.svg#badlyPoisoned.svg',
+    tint: '#714783'
+  },
+  sleep: {
+    label: game.i18n.localize('POKEROLE.StatusSleep'),
+    icon: 'systems/pokerole/images/ailments/asleep.svg',
+    tint: '#B5B590'
+  },
+  burn1: {
+    label: game.i18n.localize('POKEROLE.StatusBurn1'),
+    icon: 'systems/pokerole/images/ailments/burn.svg',
+    tint: '#E16436'
+  },
+  burn2: {
+    label: game.i18n.localize('POKEROLE.StatusBurn2'),
+    icon: 'systems/pokerole/images/ailments/burn.svg#burn2.svg',
+    tint: '#B84129'
+  },
+  burn3: {
+    label: game.i18n.localize('POKEROLE.StatusBurn3'),
+    icon: 'systems/pokerole/images/ailments/burn.svg#burn3.svg',
+    tint: '#93291B'
+  },
+  flinch: {
+    label: game.i18n.localize('POKEROLE.StatusFlinch'),
+    icon: 'icons/svg/cancel.svg',
+    tint: '#575D69'
+  },
+  confused: {
+    label: game.i18n.localize('POKEROLE.StatusConfused'),
+    icon: 'icons/svg/daze.svg',
+    tint: '#4DAF81'
+  },
+  infatuated: {
+    label: game.i18n.localize('POKEROLE.StatusInfatuated'),
+    icon: 'icons/svg/heal.svg',
+    tint: '#E1657F'
+  },
+});
+
+export function getAilmentList() {
+  return Object.entries(POKEROLE.getAilments()).map(([id, ailment]) => ({ id, ...ailment }));
+}
 
 POKEROLE.specialStatusEffects = {
   BLIND: 'blind',
@@ -245,6 +277,9 @@ POKEROLE.natureConfidence = {
   "careful": 0,
   "quirky": 0,
 };
+
+/// Attributes that should not have a pain penalty applied by default
+POKEROLE.painPenaltyExcludedAttributes = ['vitality', 'will'];
 
 export function getAllAttributesAndSkills() {
   return [...getAllAttributes(), ...POKEROLE.skills];
@@ -500,7 +535,13 @@ POKEROLE.i18n = {
     "none": "POKEROLE.PainPenaltyNone",
     "minus1": "POKEROLE.PainPenaltyMinus1",
     "minus2": "POKEROLE.PainPenaltyMinus2",
-  }
+  },
+
+  painPenaltiesShort: {
+    "none": "POKEROLE.PainPenaltyNoneShort",
+    "minus1": "POKEROLE.PainPenaltyMinus1Short",
+    "minus2": "POKEROLE.PainPenaltyMinus2Short",
+  },
 };
 
 /**
@@ -544,7 +585,7 @@ export function getLocalizedTypesForSelect() {
 /**
  * Get an object with key-value pairs of pain penalty keys and their translations
  * @returns {Object}
- */ 
+ */
 export function getLocalizedPainPenaltiesForSelect() {
   return getLocalizedEntriesForSelect('painPenalties');
 }

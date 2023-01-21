@@ -1,4 +1,4 @@
-import { getDualTypeMatchups, getLocalizedType, getLocalizedTypesForSelect, POKEROLE } from "../helpers/config.mjs";
+import { getDualTypeMatchups, getLocalizedEntriesForSelect, getLocalizedType, getLocalizedTypesForSelect, POKEROLE } from "../helpers/config.mjs";
 import { onManageActiveEffect, prepareActiveEffectCategories } from "../helpers/effects.mjs";
 import { successRollAttribute, successRollAttributeDialog, successRollSkillDialog } from "../helpers/roll.mjs";
 
@@ -48,7 +48,7 @@ export class PokeroleActorSheet extends ActorSheet {
 
     // Prepare character data and items.
     this._prepareItems(context);
-    this._prepareLocalizationData(context);
+    this._prepareAttributes(context, this.actor.overrides);
 
     // Add roll data for TinyMCE editors.
     context.rollData = context.actor.getRollData();
@@ -101,32 +101,44 @@ export class PokeroleActorSheet extends ActorSheet {
     context.weightImperial = Math.round(weightImperial);
 
     context.hasAvailableActions = this.actor.hasAvailableActions();
+    context.painPenalties = getLocalizedEntriesForSelect('painPenaltiesShort');
+
+    this._prepareStatChanges(context);
 
     return context;
   }
 
   /**
-   * @param {Object} actorData The actor to prepare.
-   *
-   * @return {undefined}
+   * Add localized labels to attributes and mark if they're overridden
    */
-   _prepareLocalizationData(context) {
+  _prepareAttributes(context, overrides) {
     // Apply localization
     for (let [k, v] of Object.entries(context.system.attributes)) {
       v.label = game.i18n.localize(CONFIG.POKEROLE.i18n.attributes[k]) ?? k;
+      v.overridden = foundry.utils.hasProperty(overrides, `system.attributes.${k}.value`);
     }
     for (let [k, v] of Object.entries(context.system.social)) {
       v.label = game.i18n.localize(CONFIG.POKEROLE.i18n.social[k]) ?? k;
+      v.overridden = foundry.utils.hasProperty(overrides, `system.social.${k}.value`);
     }
     for (let [k, v] of Object.entries(context.system.skills)) {
       v.label = game.i18n.localize(CONFIG.POKEROLE.i18n.skills[k]) ?? k;
+      v.overridden = foundry.utils.hasProperty(overrides, `system.skills.${k}.value`);
     }
     for (let [k, v] of Object.entries(context.system.extra)) {
       v.label = game.i18n.localize(CONFIG.POKEROLE.i18n.extra[k]) ?? k;
+      v.overridden = foundry.utils.hasProperty(overrides, `system.extra.${k}.value`);
     }
     for (let [k, v] of Object.entries(context.system.derived)) {
       v.label = game.i18n.localize(CONFIG.POKEROLE.i18n.derived[k]) ?? k;
+      v.overridden = foundry.utils.hasProperty(overrides, `system.derived.${k}.value`);
     }
+
+    context.system.statChanges.strength.label = game.i18n.localize(POKEROLE.i18n.attributes.strength);
+    context.system.statChanges.dexterity.label = game.i18n.localize(POKEROLE.i18n.attributes.dexterity);
+    context.system.statChanges.special.label = game.i18n.localize(POKEROLE.i18n.attributes.special);
+    context.system.statChanges.def.label = game.i18n.localize(POKEROLE.i18n.derived.def);
+    context.system.statChanges.spDef.label = game.i18n.localize(POKEROLE.i18n.derived.spDef);
   }
 
   /**
@@ -148,7 +160,7 @@ export class PokeroleActorSheet extends ActorSheet {
         moveList: []
       };
     }
-    
+
     let learnedMoveNum = 0;
 
     // Iterate through items, allocating to containers
@@ -165,15 +177,18 @@ export class PokeroleActorSheet extends ActorSheet {
       // Append to moves.
       else if (i.type === 'move') {
         if (i.system.rank == undefined) {
-          i.system.rank = 'starter';
-          i.system.learned = true;
+          this.actor.updateEmbeddedDocuments('Item', [{
+            _id: i._id,
+            'system.rank': 'starter',
+            'system.learned': true,
+          }]);
         }
 
         let group = i.system.rank;
         if (i.system.learned) {
           group = 'learned';
           learnedMoveNum++;
-        } 
+        }
         if (i.system.attributes.maneuver) {
           group = 'maneuver';
         }
@@ -209,6 +224,20 @@ export class PokeroleActorSheet extends ActorSheet {
     }
   }
 
+  /** Add whether stat changes are positive or negative */
+  _prepareStatChanges(context) {
+    for (const change of Object.values(context.system.statChanges)) {
+      // Omit the "-" sign
+      change.displayValue = Math.abs(change.value);
+      change.isPositive = change.value > 0;
+      change.isNegative = change.value < 0;
+    }
+
+    context.system.accuracyMod.displayValue = Math.abs(context.system.accuracyMod.value);
+    context.system.accuracyMod.isNegative = context.system.accuracyMod.value < 0;
+    context.system.accuracyMod.isPositive = context.system.accuracyMod.value > 0;
+  }
+
   /* -------------------------------------------- */
 
   /** @override */
@@ -225,7 +254,7 @@ export class PokeroleActorSheet extends ActorSheet {
     // Toggle move groups in the UI
     html.find(".toggle-group").click(event => {
       const group = event.currentTarget.dataset.group;
-      $(event.currentTarget.closest('li')).toggleClass('hidden-header');
+      $(event.currentTarget.closest('li')).toggleClass('translucent');
       html.find(`.list-${group}`).toggleClass('items-hidden');
 
       const hiddenGroups = (this.constructor.HIDDEN_GROUPS ?? []);
@@ -323,6 +352,44 @@ export class PokeroleActorSheet extends ActorSheet {
     html.find('.toggle-can-evade').click(() => {
       this.actor.update({ 'system.canEvade': !this.actor.system.canEvade });
     });
+
+    this._registerStatChangeListeners(html);
+  }
+
+  /** 
+   * Register listeners for state change inputs.
+   * Special handling is required here since the input `value`
+   * usually shows an absolute value without a leading "-" sign,
+   * which would result in a wrong value when the form saves.
+   */
+  _registerStatChangeListeners(html) {
+    html.find('.stat-change-input').focusin(ev => {
+      const input = ev.target;
+      const { actualValue } = input.dataset;
+      input.value = actualValue;
+
+      input.closest('.stat-change-item').classList.add('editing');
+    });
+    html.find('.stat-change-input').focusout(ev => {
+      const input = ev.target;
+      const { displayValue } = input.dataset;
+      input.value = displayValue;
+
+      input.closest('.stat-change-item').classList.remove('editing');
+    });
+    html.find('.stat-change-input').change(ev => {
+      const input = ev.target;
+      const { key } = input.dataset;
+      
+      let val = parseInt(input.value, 10);
+      if (isNaN(val)) {
+        val = 0;
+      }
+      input.dataset.displayValue = Math.abs(val);
+      this._updateObject(ev, { [key]: val });
+      ev.preventDefault();
+      ev.stopPropagation();
+    });
   }
 
   /**
@@ -358,7 +425,7 @@ export class PokeroleActorSheet extends ActorSheet {
       }
     };
 
-    return await Item.create(itemData, {parent: this.actor});
+    return await Item.create(itemData, { parent: this.actor });
   }
 
   /**
@@ -394,13 +461,23 @@ export class PokeroleActorSheet extends ActorSheet {
         await roll.toMessage(chatData, { create: true });
       } else {
         let value = this.actor.getAnyAttribute(dataset.rollAttribute).value;
-        successRollAttributeDialog({ name: dataset.rollAttribute, value }, chatData, !event.shiftKey);
+        successRollAttributeDialog({
+          name: dataset.rollAttribute,
+          value
+        }, {
+          painPenalty: this.actor.system.painPenalty
+        }, chatData, !event.shiftKey);
       }
     }
 
     if (dataset.rollSkill) {
       let value = this.actor.getSkill(dataset.rollSkill).value;
-      successRollSkillDialog({ name: dataset.rollSkill, value }, this.actor.getIntrinsicOrSocialAttributes(), chatData);
+      successRollSkillDialog(
+        { name: dataset.rollSkill, value },
+        this.actor.getIntrinsicOrSocialAttributes(),
+        { painPenalty: this.actor.system.painPenalty },
+        chatData
+      );
     }
   }
 
@@ -413,37 +490,37 @@ export class PokeroleActorSheet extends ActorSheet {
 
   _addCustomAttributeFromInput(html) {
     const name = html.find('.custom-attribute .add-value-input').val();
-      // Remove non-alphanumeric characters
-      const sanitizedName = this.constructor._sanitizeName(name ?? '');
-      if (sanitizedName) {
-        if (this._checkDuplicateAttributeOrSkill(sanitizedName)) return;
+    // Remove non-alphanumeric characters
+    const sanitizedName = this.constructor._sanitizeName(name ?? '');
+    if (sanitizedName) {
+      if (this._checkDuplicateAttributeOrSkill(sanitizedName)) return;
 
-        const obj = {}; 
-        obj[`system.extra.${sanitizedName}`] = {
-          value: 0,
-          min: 0,
-          max: 5,
-          custom: true,
-        };
-        this.actor.update(obj);
-      }
+      const obj = {};
+      obj[`system.extra.${sanitizedName}`] = {
+        value: 0,
+        min: 0,
+        max: 5,
+        custom: true,
+      };
+      this.actor.update(obj);
+    }
   }
 
   _addCustomSkillFromInput(html) {
     const name = html.find('.custom-skill .add-value-input').val();
-      // Remove non-alphanumeric characters
-      const sanitizedName = this.constructor._sanitizeName(name ?? '');
-      if (sanitizedName) {
-        if (this._checkDuplicateAttributeOrSkill(sanitizedName)) return;
+    // Remove non-alphanumeric characters
+    const sanitizedName = this.constructor._sanitizeName(name ?? '');
+    if (sanitizedName) {
+      if (this._checkDuplicateAttributeOrSkill(sanitizedName)) return;
 
-        const obj = {}; 
-        obj[`system.skills.${sanitizedName}`] = {
-          value: 0,
-          min: 0,
-          custom: true,
-        };
-        this.actor.update(obj);
-      }
+      const obj = {};
+      obj[`system.skills.${sanitizedName}`] = {
+        value: 0,
+        min: 0,
+        custom: true,
+      };
+      this.actor.update(obj);
+    }
   }
 
   /** Shows an error message if an attribute or skill with the given name already exists */
@@ -458,7 +535,7 @@ export class PokeroleActorSheet extends ActorSheet {
 
   static ADVANCEMENT_DIALOGUE_TEMPLATE = "systems/pokerole/templates/actor/advancement.html";
 
-  async _advanceRank(oldRank, newRank) {    
+  async _advanceRank(oldRank, newRank) {
     const oldRankIndex = POKEROLE.ranks.indexOf(oldRank);
     const newRankIndex = POKEROLE.ranks.indexOf(newRank);
 
@@ -501,7 +578,7 @@ export class PokeroleActorSheet extends ActorSheet {
       oldMaxHp,
       oldMaxWill,
     };
-  
+
     // Create the Dialog window and await submission of the form
     const result = await new Promise(resolve => {
       new Dialog({
@@ -529,7 +606,7 @@ export class PokeroleActorSheet extends ActorSheet {
         close: () => resolve(undefined),
       }, { popOutModuleDisable: true }).render(true);
     });
-  
+
     if (result) {
       const formElement = result[0].querySelector('form');
       const updateData = new FormDataExtended(formElement).object;
@@ -571,7 +648,7 @@ export class PokeroleActorSheet extends ActorSheet {
         html.find('.max-will-box').show();
       }
     };
-    
+
 
     html.on('click', '.increase, .decrease', (event) => {
       const { target: targetName, kind } = event.target.dataset;
