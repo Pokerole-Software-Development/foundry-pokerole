@@ -18,7 +18,29 @@ export class PokeroleActor extends Actor {
   /** @override */
   prepareBaseData() {
     // Data modifications in this step occur before processing embedded
-    // documents or derived data.
+    // documents or derived data
+
+    this.system.statChanges = foundry.utils.mergeObject(this.system.statChanges ?? {}, {
+      strength: {
+        stat: 'system.attributes.strength.value',
+      },
+      dexterity: {
+        stat: 'system.attributes.dexterity.value',
+      },
+      special: {
+        stat: 'system.attributes.special.value',
+      },
+      def: {
+        stat: 'system.derived.def.value',
+      },
+      spDef: {
+        stat: 'system.derived.spDef.value',
+      }
+    });
+
+    for (const statChange of Object.values(this.system.statChanges)) {
+      statChange.value ??= 0;
+    }
   }
 
   /**
@@ -31,53 +53,71 @@ export class PokeroleActor extends Actor {
    * is queried and has a roll executed directly from it).
    */
   prepareDerivedData() {
-    const actorData = this;
-    const flags = actorData.flags.pokerole || {};
+    this._prepareCharacterData(this);
+    this._applyEffects();
 
-    // Make separate methods for each Actor type (character, npc, etc.) to keep
-    // things organized.
-    this._prepareCharacterData(actorData);
+    super.prepareDerivedData();
   }
 
   /**
    * Prepare Character type specific data
    */
   _prepareCharacterData(actorData) {
-    const systemData = actorData.system;
+    const system = actorData.system;
 
-    const { totalPassiveIncrease, skillLimit } = POKEROLE.rankProgression[systemData.rank ?? 'none'];
+    const { totalPassiveIncrease, skillLimit } = POKEROLE.rankProgression[system.rank ?? 'none'];
 
-    systemData.hp.max = systemData.baseHp + systemData.attributes.vitality.value;
-    systemData.will.max = systemData.attributes.insight.value + 2;
-
-    systemData.derived ??= {};
-    systemData.derived.initiative = {
-      value: systemData.attributes.dexterity.value
-        + systemData.skills.alert.value
-        + systemData.customInitiativeMod
-        + totalPassiveIncrease
-    };
-    systemData.derived.evade = { value: systemData.attributes.dexterity.value + systemData.skills.evasion.value };
-    systemData.derived.clashPhysical = { value: systemData.attributes.strength.value + systemData.skills.clash.value };
-    systemData.derived.clashSpecial = { value: systemData.attributes.special.value + systemData.skills.clash.value };
-
-    if (systemData.skills?.medicine?.value !== undefined) { // Pokémon don't have Medicine
-      systemData.derived.useItem = { value: systemData.social.clever.value + systemData.skills.medicine.value };
-    }
-    systemData.derived.searchForCover = { value: systemData.attributes.insight.value + systemData.skills.alert.value };
-    systemData.derived.runAway = { value: systemData.attributes.dexterity.value + systemData.skills.athletic.value };
-    
-    systemData.derived.def = { value: systemData.attributes.vitality.value + totalPassiveIncrease };
-
-    if (game.settings.get('pokerole', 'specialDefenseStat') === 'insight') {
-      systemData.derived.spDef = { value: systemData.attributes.insight.value + totalPassiveIncrease };
-    } else {
-      systemData.derived.spDef = { value: systemData.attributes.vitality.value + totalPassiveIncrease };
-    }
-
-    for (const skill of Object.values(systemData.skills)) {
+    for (const skill of Object.values(system.skills)) {
       skill.max = skillLimit;
     }
+
+    system.hp.max = system.baseHp + system.attributes.vitality.value;
+    system.will.max = system.attributes.insight.value + 2;
+
+    system.derived ??= {};
+    system.derived.initiative = {
+      value: system.attributes.dexterity.value
+        + system.skills.alert.value
+        + system.customInitiativeMod
+        + totalPassiveIncrease
+    };
+    system.derived.evade = { value: system.attributes.dexterity.value + system.skills.evasion.value };
+    system.derived.clashPhysical = { value: system.attributes.strength.value + system.skills.clash.value };
+    system.derived.clashSpecial = { value: system.attributes.special.value + system.skills.clash.value };
+
+    if (system.skills?.medicine?.value !== undefined) { // Pokémon don't have Medicine
+      system.derived.useItem = { value: system.social.clever.value + system.skills.medicine.value };
+    }
+    system.derived.searchForCover = { value: system.attributes.insight.value + system.skills.alert.value };
+    system.derived.runAway = { value: system.attributes.dexterity.value + system.skills.athletic.value };
+
+    system.derived.def = { value: system.attributes.vitality.value + totalPassiveIncrease };
+
+    if (game.settings.get('pokerole', 'specialDefenseStat') === 'insight') {
+      system.derived.spDef = { value: system.attributes.insight.value + totalPassiveIncrease };
+    } else {
+      system.derived.spDef = { value: system.attributes.vitality.value + totalPassiveIncrease };
+    }
+  }
+
+  /**
+   * Apply attribute changes and effects
+   */
+  _applyEffects() {
+    const overrides = {};
+    for (const statChange of Object.values(this.system.statChanges)) {
+      const currentValue = foundry.utils.getProperty(this, statChange.stat) ?? 0;
+      if (statChange.value !== 0) {
+        // Stat changes can only reduce stats down to 1
+        const newValue = Math.max(currentValue + statChange.value, 1);
+        overrides[statChange.stat] = newValue;
+      }
+    }
+
+    this.overrides = foundry.utils.expandObject(overrides);
+
+    // Apply the changes.
+    foundry.utils.mergeObject(this, this.overrides);
   }
 
   /**
@@ -99,7 +139,7 @@ export class PokeroleActor extends Actor {
     // Copy the attribute scores to the top level, so that rolls can use
     // formulas like `@str.mod + 4`.
     for (let [k, v] of Object.entries({
-        ...data.attributes, ...data.skills, ...data.social, ...data.extra, ...data.derived
+      ...data.attributes, ...data.skills, ...data.social, ...data.extra, ...data.derived
     })) {
       data[k] = foundry.utils.deepClone(v);
     }
@@ -167,10 +207,10 @@ export class PokeroleActor extends Actor {
 
     let diceCount = 0;
     if (move.system.accMod1) {
-      diceCount += this.getAnyAttribute(move.system.accMod1)?.value ?? 0;
+      diceCount += this.getAnyAttribute(move.system.accMod1.trim())?.value ?? 0;
     }
     if (move.system.accMod2) {
-      diceCount += this.getSkill(move.system.accMod2)?.value ?? 0;
+      diceCount += this.getSkill(move.system.accMod2.trim())?.value ?? 0;
     }
     return diceCount;
   }
@@ -219,7 +259,7 @@ export class PokeroleActor extends Actor {
 
     const moveUpdates = [];
     for (const move of this.items.filter(i => i.type === 'move' && i.system.usedInRound)) {
-      moveUpdates.push({'_id': move.id, 'system.usedInRound': false});
+      moveUpdates.push({ '_id': move.id, 'system.usedInRound': false });
     }
     const embeddedUpdate = this.updateEmbeddedDocuments('Item', moveUpdates);
     await Promise.all([actorUpdate, embeddedUpdate]);

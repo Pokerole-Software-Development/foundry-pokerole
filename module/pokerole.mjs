@@ -4,7 +4,7 @@ import { PokeroleCombat } from "./documents/combat.mjs";
 import { PokeroleActorSheet } from "./sheets/actor-sheet.mjs";
 import { PokeroleItemSheet } from "./sheets/item-sheet.mjs";
 import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
-import { POKEROLE } from "./helpers/config.mjs";
+import { getAilmentList, POKEROLE } from "./helpers/config.mjs";
 import { rollRecoil, successRollAttributeDialog, successRollFromExpression } from "./helpers/roll.mjs";
 import { showClashDialog } from "./helpers/clash.mjs";
 import { bulkApplyDamageValidated } from "./helpers/damage.mjs";
@@ -32,6 +32,7 @@ Hooks.once('init', async () => {
   CONFIG.Actor.documentClass = PokeroleActor;
   CONFIG.Item.documentClass = PokeroleItem;
   CONFIG.Combat.documentClass = PokeroleCombat;
+  CONFIG.ActiveEffect.documentClass = PokeroleActiveEffect;
 
   // Register sheet application classes
   Actors.unregisterSheet("core", ActorSheet);
@@ -44,17 +45,17 @@ Hooks.once('init', async () => {
     enricher: successRollEnricher,
   });
 
-  CONFIG.statusEffects = POKEROLE.getStatusEffects();
+  CONFIG.statusEffects = getAilmentList();
   CONFIG.specialStatusEffects = POKEROLE.specialStatusEffects;
 
   await preloadHandlebarsTemplates();
   registerSettings();
 });
 
-Hooks.once("ready", async function() {
+Hooks.once("ready", async function () {
   // Wait to register hotbar drop hook on ready so that modules could register earlier if they want to
   Hooks.on("hotbarDrop", (bar, data, slot) => {
-    if (["Item"/*, "ActiveEffect"*/].includes(data.type) ) {
+    if (["Item"/*, "ActiveEffect"*/].includes(data.type)) {
       createItemMacro(data, slot);
       return false;
     }
@@ -75,7 +76,7 @@ registerIntegrationHooks();
 /* -------------------------------------------- */
 
 // If you need to add Handlebars helpers, here are a few useful examples:
-Handlebars.registerHelper('concat', function() {
+Handlebars.registerHelper('concat', function () {
   var outStr = '';
   for (var arg in arguments) {
     if (typeof arguments[arg] != 'object') {
@@ -86,15 +87,15 @@ Handlebars.registerHelper('concat', function() {
 });
 
 // greater than
-Handlebars.registerHelper('gt', function( a, b ){
-	var next =  arguments[arguments.length-1];
-	return (a > b) ? next.fn(this) : next.inverse(this);
+Handlebars.registerHelper('gt', function (a, b) {
+  var next = arguments[arguments.length - 1];
+  return (a > b) ? next.fn(this) : next.inverse(this);
 });
 
 // less than
-Handlebars.registerHelper('lt', function( a, b ){
-	var next =  arguments[arguments.length-1];
-	return (a < b) ? next.fn(this) : next.inverse(this);
+Handlebars.registerHelper('lt', function (a, b) {
+  var next = arguments[arguments.length - 1];
+  return (a < b) ? next.fn(this) : next.inverse(this);
 });
 
 /* -------------------------------------------- */
@@ -148,7 +149,7 @@ async function createItemMacro(dropData, slot) {
         name: itemData.name,
         img: itemData.img,
         command: `game.pokerole.useItemMacro("${itemData.uuid}")`,
-        flags: {"pokerole.itemMacro": true}
+        flags: { "pokerole.itemMacro": true }
       });
       break;
     default:
@@ -194,7 +195,7 @@ async function onChatActionClick(event) {
   const message = game.messages.get(messageId);
 
   const token = canvas.tokens.controlled.length > 0 ? canvas.tokens.controlled[0] : null;
-  const actor = token?.actor ?? game.user?.character;
+  const actor = token?.document?.actor ?? game.user?.character;
   const chatData = { speaker: ChatMessage.implementation.getSpeaker({ token: token?.document, actor }) };
 
   const action = event.target.dataset.action;
@@ -207,14 +208,14 @@ async function onChatActionClick(event) {
       return ui.notifications.error("You can't take any more actions this round.");
     }
   }
-  
+
   try {
     switch (action) {
       case 'clash': {
         if (!actor.system.canClash) {
           return ui.notifications.error("You can only clash once per round.");
         }
-        
+
         const { attackerId, moveId, expectedSuccesses } = event.target.dataset;
         const attacker = await fromUuid(attackerId);
         if (!attacker) {
@@ -243,7 +244,10 @@ async function onChatActionClick(event) {
         const hasEvaded = await successRollAttributeDialog({
           name: 'Evade',
           value: actor.system.derived.evade.value
-        }, chatData, !event.shiftKey);
+        }, {
+          painPenalty: actor.system.painPenalty
+        },
+        chatData, !event.shiftKey);
 
         if (hasEvaded && game.settings.get('pokerole', 'combatResourceAutomation')) {
           actor.increaseActionCount({ 'system.canEvade': false });
@@ -259,7 +263,7 @@ async function onChatActionClick(event) {
         }
         if (!(game.user.isGM || message.isAuthor)) {
           return ui.notifications.error("You can't use this item.");
-        }    
+        }
         await rollRecoil(attacker, token, damage);
         break;
       }
@@ -338,4 +342,18 @@ function successRollEnricher(match, options) {
   const roll = match[1];
   const flavor = match[2];
   return createButton('sc', roll, flavor);
+}
+
+/** Disable Active Effects (from https://github.com/foundryvtt/pf2e/blob/c1089180064fcfb64069ad323b2d7d522a768c06/src/module/active-effect.ts) */
+export class PokeroleActiveEffect extends ActiveEffect {
+  constructor(data, context) {
+    data.disabled = true;
+    data.transfer = false;
+    super(data, context);
+  }
+
+  /** @override */
+  static async createDocuments() {
+    return [];
+  }
 }

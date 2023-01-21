@@ -59,22 +59,32 @@ const ATTRIBUTE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/attrib
 /**
  * Roll an attribute for successes with an optional dialog.
  * @param {{name: string, value: string}} attribute 
+ * @param {{painPenalty: string}} options
  * @param {boolean} showPopup If `false`, the popup is skipped and default values are assumed
  * @param {Object} chatData
  * @returns {boolean} `true` if the user has rolled, `false` if cancelled
  */
-export async function successRollAttributeDialog(attribute, chatData, showPopup = true) {
-  const content = await renderTemplate(ATTRIBUTE_ROLL_DIALOGUE_TEMPLATE, {
-    attribute: `${attribute.name} (${attribute.value})`,
-    painPenalties: getLocalizedPainPenaltiesForSelect(),
-  });
-
+export async function successRollAttributeDialog(attribute, options, chatData, showPopup = true) {
   let poolBonus = 0;
   let constantBonus = 0;
+
+  // Pain penalties aren't applied to certain attributes
+  const enablePainPenalty = !POKEROLE.painPenaltyExcludedAttributes
+    .includes(attribute.name);
   let painPenalty = 'none';
+  if (enablePainPenalty && options?.painPenalty) {
+    painPenalty = options?.painPenalty;
+  }
 
   if (showPopup) {
-  // Create the Dialog window and await submission of the form
+    const content = await renderTemplate(ATTRIBUTE_ROLL_DIALOGUE_TEMPLATE, {
+      attribute: `${attribute.name} (${attribute.value})`,
+      enablePainPenalty,
+      painPenalty,
+      painPenalties: getLocalizedPainPenaltiesForSelect(),
+    });
+
+    // Create the Dialog window and await submission of the form
     const result = await new Promise(resolve => {
       new Dialog({
         title: `Attribute roll: ${attribute.name}`,
@@ -112,16 +122,18 @@ const SKILL_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/skill-roll
  * Show a dialog for rolling successes based on a skill.
  * @param {{name: string, value: string}} skill 
  * @param {Object} attributes The list of attributes to choose from
+ * @param {{painPenalty: string}} options
  * @param {Object} chatData
  * @returns {boolean} `true` if accuracy was rolled, `false` if cancelled
  */
-export async function successRollSkillDialog(skill, attributes, chatData) {
+export async function successRollSkillDialog(skill, attributes, options, chatData) {
   const content = await renderTemplate(SKILL_ROLL_DIALOGUE_TEMPLATE, {
     skill: `${skill.name} (${skill.value})`,
     attributes: Object.keys(attributes).reduce((curr, name) => {
       curr[name] = name;
       return curr;
     }, {}),
+    painPenalty: options?.painPenalty ?? 'none',
     painPenalties: getLocalizedPainPenaltiesForSelect(),
   });
 
@@ -138,6 +150,17 @@ export async function successRollSkillDialog(skill, attributes, chatData) {
       },
       default: 'roll',
       close: () => resolve(undefined),
+      render: html => {
+        // Hide pain penalty `select` on certain attributes
+        const formGroup = html.find('select[name=painPenalty]').closest('.form-group');
+        html.find('select[name=attribute]').change(evt => {
+          if (POKEROLE.painPenaltyExcludedAttributes.includes(evt.target.value)) {
+            $(formGroup).slideUp({ duration: 200 });
+          } else {
+            $(formGroup).slideDown({ duration: 200 });
+          }
+        });
+      },
     }, { popOutModuleDisable: true }).render(true);
   });
 
@@ -150,8 +173,20 @@ export async function successRollSkillDialog(skill, attributes, chatData) {
   let poolBonus = formData.poolBonus ?? 0;
   let constantBonus = formData.constantBonus ?? 0;
 
-  const constantBonusWithPainPenalty = constantBonus - POKEROLE.painPenalties[formData.painPenalty];
-  await successRollAttributeSkill({ name: attributeName, value: attributes[attributeName].value }, skill, chatData, poolBonus, constantBonusWithPainPenalty);
+  let painPenalty = formData.painPenalty;
+  // Certain attributes are exempt from pain penalties  
+  if (POKEROLE.painPenaltyExcludedAttributes.includes(attributeName)) {
+    painPenalty = 'none';
+  }
+
+  const constantBonusWithPainPenalty = constantBonus - POKEROLE.painPenalties[painPenalty];
+  await successRollAttributeSkill(
+    { name: attributeName, value: attributes[attributeName].value },
+    skill,
+    chatData,
+    poolBonus,
+    constantBonusWithPainPenalty
+  );
 }
 
 const ACCURACY_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/accuracy-roll.html";
@@ -167,6 +202,8 @@ const ACCURACY_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/accurac
  */
 export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeEvaded, showPopup = true) {
   let { accMod1, accMod2 } = item.system;
+  accMod1 = accMod1.trim();
+  accMod2 = accMod2.trim();
   if (accMod2 == !accMod1) {
     accMod1 = accMod2;
     accMod2 = undefined;
@@ -185,14 +222,21 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
 
   let poolBonus = 0;
   let constantBonus = 0;
-  let painPenalty = 'none';
+  let enablePainPenalty = !POKEROLE.painPenaltyExcludedAttributes.includes(accMod1);
+  let painPenalty = actor.system.painPenalty ?? 'none';
+  if (!enablePainPenalty) {
+    painPenalty = 'none';
+  }
   let requiredSuccesses = Math.max(actor.system.actionCount.value, 0);
 
   if (showPopup) {
     const content = await renderTemplate(ACCURACY_ROLL_DIALOGUE_TEMPLATE, {
       baseFormula,
+      accuracyMod: actor.system.accuracyMod.value,
       accuracyReduction: item.system.attributes.accuracyReduction,
       requiredSuccesses,
+      enablePainPenalty,
+      painPenalty,
       painPenalties: getLocalizedPainPenaltiesForSelect(),
     });
 
@@ -218,7 +262,7 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
     const formData = new FormDataExtended(formElement).object;
     poolBonus = formData.poolBonus ?? 0;
     constantBonus = formData.constantBonus ?? 0;
-    painPenalty = formData.painPenalty ?? 0;
+    painPenalty = formData.painPenalty ?? 'none';
 
     if (formData.requiredSuccesses !== undefined) {
       requiredSuccesses = formData.requiredSuccesses;
@@ -228,6 +272,9 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
   dicePool += poolBonus;
   if (item.system.attributes.accuracyReduction) {
     constantBonus -= item.system.attributes.accuracyReduction;
+  }
+  if (actor.system.accuracyMod.value) {
+    constantBonus += actor.system.accuracyMod.value;
   }
 
   const constantBonusWithPainPenalty = constantBonus - POKEROLE.painPenalties[painPenalty];
@@ -296,6 +343,7 @@ export async function rollDamage(item, actor, token) {
   }
 
   const targetNames = selectedTokens.map(token => token.actor.name).join(', ');
+  const defaultPainPenalty = actor.system.painPenalty ?? 'none';
 
   const content = await renderTemplate(DAMAGE_ROLL_DIALOGUE_TEMPLATE, {
     baseFormula,
@@ -312,6 +360,7 @@ export async function rollDamage(item, actor, token) {
     },
     targetNames,
     hasLeechHeal: shouldApplyLeechHeal,
+    painPenalty: defaultPainPenalty,
     painPenalties: getLocalizedPainPenaltiesForSelect(),
   });
 

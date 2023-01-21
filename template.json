@@ -1,6 +1,8 @@
 {
   "Actor": {
-    "types": ["pokemon"],
+    "types": [
+      "pokemon"
+    ],
     "templates": {
       "base": {
         "hp": {
@@ -72,52 +74,67 @@
         "skills": {
           "brawl": {
             "value": 0,
-            "min": 0
+            "min": 0,
+            "max": 5
           },
           "evasion": {
             "value": 0,
-            "min": 0
+            "min": 0,
+            "max": 5
           },
           "alert": {
             "value": 0,
-            "min": 0
+            "min": 0,
+            "max": 5
           },
           "athletic": {
             "value": 0,
-            "min": 0
+            "min": 0,
+            "max": 5
           },
           "nature": {
             "value": 0,
-            "min": 0
+            "min": 0,
+            "max": 5
           },
           "stealth": {
             "value": 0,
-            "min": 0
+            "min": 0,
+            "max": 5
           },
           "allure": {
             "value": 0,
-            "min": 0
+            "min": 0,
+            "max": 5
           },
           "etiquette": {
             "value": 0,
-            "min": 0
+            "min": 0,
+            "max": 5
           },
           "intimidate": {
             "value": 0,
-            "min": 0
+            "min": 0,
+            "max": 5
           },
           "perform": {
             "value": 0,
-            "min": 0
+            "min": 0,
+            "max": 5
           }
         },
+        "accuracyMod": {
+          "value": 0
+        },
+        "customInitiativeMod": 0,
         "biography": "",
-        "source": "Homebrew",
-        "customInitiativeMod": 0
+        "source": "Homebrew"
       }
     },
     "pokemon": {
-      "templates": ["base"],
+      "templates": [
+        "base"
+      ],
       "battles": 0,
       "victories": 0,
       "pokedexId": 0,
@@ -129,6 +146,7 @@
       "height": 0,
       "weight": 0,
       "recommendedRank": "none",
+      "painPenalty": "none",
       "attributes": {
         "special": {
           "value": 0,
@@ -166,7 +184,11 @@
     }
   },
   "Item": {
-    "types": ["item", "move", "ability"],
+    "types": [
+      "item",
+      "move",
+      "ability"
+    ],
     "templates": {
       "base": {
         "description": "",
@@ -174,16 +196,22 @@
       }
     },
     "item": {
-      "templates": ["base"],
+      "templates": [
+        "base"
+      ],
       "quantity": 1,
       "weight": 0,
       "price": 0
     },
     "ability": {
-      "templates": ["base"]
+      "templates": [
+        "base"
+      ]
     },
     "move": {
-      "templates": ["base"],
+      "templates": [
+        "base"
+      ],
       "type": "none",
       "category": "physical",
       "target": "Foe",

@@ -161,6 +161,10 @@
   "POKEROLE.PainPenaltyMinus1": "-1 success (Half HP rounded down)",
   "POKEROLE.PainPenaltyMinus2": "-2 successes (1 HP remaining)",
 
+  "POKEROLE.PainPenaltyNoneShort": "None",
+  "POKEROLE.PainPenaltyMinus1Short": "Half HP (-1)",
+  "POKEROLE.PainPenaltyMinus2Short": "1 HP (-2)",
+
   "POKEROLE.Add": "Add",
   "POKEROLE.ActionWarningNoItem": "The item doesn't exist.",
 

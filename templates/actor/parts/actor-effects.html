@@ -1,38 +1,87 @@
+<h3 class="section-header">Attribute increases/reductions</h3>
+
+<ul class="stat-changes">
+  <li class="stat-change-item pain">
+    <label for="system.painPenalty">Pain Penalization</label>
+    <div class="icon-and-value">
+      <select name="system.painPenalty">
+        {{selectOptions painPenalties selected=system.painPenalty}}
+      </select>
+    </div>
+  </li>
+
+  {{#each system.statChanges as |change key|}}
+  <li class="stat-change-item {{#if change.isPositive}}positive{{/if}}{{#if change.isNegative}}negative{{/if}}">
+    <label for="system.statChanges.{{key}}.value">{{change.label}}</label>
+    <div class="icon-and-value">
+      {{#if change.isPositive}}
+      <i class="fas fa-arrow-up-long"></i>
+      {{/if}}
+      {{#if change.isNegative}}
+      <i class="fas fa-arrow-down-long"></i>
+      {{/if}}
+      <input type="text" maxlength="2" class="stat-change-input" value="{{change.displayValue}}"
+        data-display-value="{{change.displayValue}}" data-actual-value="{{change.value}}"
+        data-key="system.statChanges.{{key}}.value" name="system.statChanges.{{key}}.displayValue"
+        data-dtype="Number" />
+    </div>
+  </li>
+  {{/each}}
+
+  <li class="stat-change-item {{#if system.accuracyMod.isPositive}}positive{{/if}}{{#if system.accuracyMod.isNegative}}negative{{/if}}">
+    <label for="system.accuracyMod.value">Accuracy</label>
+    <div class="icon-and-value">
+      {{#if system.accuracyMod.isPositive}}
+      <i class="fas fa-arrow-up-long"></i>
+      {{/if}}
+      {{#if system.accuracyMod.isNegative}}
+      <i class="fas fa-arrow-down-long"></i>
+      {{/if}}
+      <input type="text" maxlength="2" class="stat-change-input" value="{{system.accuracyMod.displayValue}}"
+        data-display-value="{{system.accuracyMod.displayValue}}" data-actual-value="{{system.accuracyMod.value}}"
+        data-key="system.accuracyMod.value" name="system.accuracyMod.displayValue"
+        data-dtype="Number" />
+    </div>
+  </li>
+</ul>
+
+<h3 class="section-header">Ailments</h3>
+
 <ol class="items-list effects-list">
   {{#each effects as |section sid|}}
-    <li class="items-header flexrow" data-effect-type="{{section.type}}">
-      <h3 class="item-name effect-name flexrow">{{localize section.label}}</h3>
-      <div class="effect-source">Source</div>
-      <div class="effect-source">Duration</div>
+  <li class="items-header flexrow" data-effect-type="{{section.type}}">
+    <h3 class="item-name effect-name flexrow">{{localize section.label}}</h3>
+    <div class="effect-source">Source</div>
+    <div class="effect-source">Duration</div>
+    <div class="item-controls effect-controls flexrow">
+      <a class="effect-control" data-action="create" title="{{localize 'POKEROLE.EffectCreate'}}">
+        <i class="fas fa-plus"></i> {{localize "POKEROLE.Add"}}
+      </a>
+    </div>
+  </li>
+
+  <ol class="item-list">
+    {{#each section.effects as |effect|}}
+    <li class="item effect flexrow" data-effect-id="{{effect.id}}">
+      <div class="item-name effect-name flexrow">
+        <img class="item-image" src="{{effect.icon}}" />
+        <h4>{{effect.label}}</h4>
+      </div>
+      <div class="effect-source">{{effect.sourceName}}</div>
+      <div class="effect-duration">{{effect.duration.label}}</div>
       <div class="item-controls effect-controls flexrow">
-        <a class="effect-control" data-action="create" title="{{localize 'POKEROLE.EffectCreate'}}">
-          <i class="fas fa-plus"></i> {{localize "POKEROLE.Add"}}
+        <a class="effect-control" data-action="toggle" title="{{localize 'POKEROLE.EffectToggle'}}">
+          <i class="fas {{#if effect.disabled}}fa-check{{else}}fa-times{{/if}}"></i>
+        </a>
+        <a class="effect-control" data-action="edit" title="{{localize 'POKEROLE.EffectEdit'}}">
+          <i class="fas fa-edit"></i>
+        </a>
+        <a class="effect-control" data-action="delete" title="{{localize 'POKEROLE.EffectDelete'}}">
+          <i class="fas fa-trash"></i>
         </a>
       </div>
     </li>
-
-    <ol class="item-list">
-    {{#each section.effects as |effect|}}
-      <li class="item effect flexrow" data-effect-id="{{effect.id}}">
-        <div class="item-name effect-name flexrow">
-          <img class="item-image" src="{{effect.icon}}"/>
-          <h4>{{effect.label}}</h4>
-        </div>
-        <div class="effect-source">{{effect.sourceName}}</div>
-        <div class="effect-duration">{{effect.duration.label}}</div>
-        <div class="item-controls effect-controls flexrow">
-          <a class="effect-control" data-action="toggle" title="{{localize 'POKEROLE.EffectToggle'}}">
-            <i class="fas {{#if effect.disabled}}fa-check{{else}}fa-times{{/if}}"></i>
-          </a>
-          <a class="effect-control" data-action="edit" title="{{localize 'POKEROLE.EffectEdit'}}">
-            <i class="fas fa-edit"></i>
-          </a>
-          <a class="effect-control" data-action="delete" title="{{localize 'POKEROLE.EffectDelete'}}">
-            <i class="fas fa-trash"></i>
-          </a>
-        </div>
-      </li>
     {{/each}}
-    </ol>
+  </ol>
   {{/each}}
 </ol>
