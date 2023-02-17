@@ -73,7 +73,6 @@ export class PokeroleCombat extends Combat {
     const updateOptions = {advanceTime: CONFIG.time.turnTime, direction: 1};
     Hooks.callAll("combatTurn", this, updateData, updateOptions);
     await this.update(updateData, updateOptions);
-    
   }
 
   /** Reset action counters at the start of a new round */
@@ -170,7 +169,8 @@ export class PokeroleCombatTracker extends CombatTracker {
         elem.find('#combat-controls').append(resetRoundButton);
 
         resetRoundButton.addEventListener('click', () => {
-          game.combat.resetRound();
+          game.combat.turn = -1;
+          game.combat.nextTurn();
         });
       }
     });
