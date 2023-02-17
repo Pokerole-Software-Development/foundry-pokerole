@@ -123,6 +123,7 @@
             "max": 5
           }
         },
+        "ailments": [],
         "accuracyMod": {
           "value": 0
         },

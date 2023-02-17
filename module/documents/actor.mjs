@@ -1,4 +1,5 @@
 import { POKEROLE } from "../helpers/config.mjs";
+import { TokenEffect } from "../helpers/effects.mjs";
 
 /**
  * Extend the base Actor document by defining a custom roll data structure which is ideal for the Simple system.
@@ -112,6 +113,13 @@ export class PokeroleActor extends Actor {
         const newValue = Math.max(currentValue + statChange.value, 1);
         overrides[statChange.stat] = newValue;
       }
+    }
+
+    if (this.hasAilment('paralysis')) {
+      // Paralysis reduces Dexterity by 2 (capped to 0 instead of 1)
+      const path = 'system.attributes.dexterity.value';
+      const currentValue = overrides[path] ?? foundry.utils.getProperty(this, path) ?? 0;
+      overrides[path] = Math.max(currentValue - POKEROLE.CONST.PARALYSIS_DEXTERITY_DECREASE, 0);
     }
 
     this.overrides = foundry.utils.expandObject(overrides);
@@ -245,6 +253,126 @@ export class PokeroleActor extends Actor {
       'system.actionCount.value': (this.system.actionCount?.value ?? 1) + 1,
       ...update
     });
+  }
+
+  /**
+   * Apply a status ailment to the Pokémon.
+   * @param {string} type The type of the ailment (e.g. 'paralysis')
+   * @param {Object | undefined} options Ailment-specific options
+   */
+  async applyAilment(type, options = undefined) {
+    const ailment = { type, ...options };
+
+    // Check if options are missing
+    switch (type) {
+      case 'infatuated':
+        if (!ailment.inflictedByUuid) {
+          throw new Error('Infatuation target missing');
+        }
+        break;
+      case 'disabled':
+        if (!ailment.moveUuid) {
+          throw new Error('Disabled move missing');
+        }
+        break;
+    }
+
+    const ailments = this.system.ailments.filter(a => {
+      // Filter duplicate ailments
+      const burnLevels = ['burn1', 'burn2', 'burn3'];
+      if (burnLevels.includes(ailment) && burnLevels.includes(a)) {
+        return false;
+      }
+
+      const poisonLevels = ['poison', 'badlyPoisoned'];
+      if (poisonLevels.includes(ailment) && poisonLevels.includes(a)) {
+        return false;
+      }
+
+      return a.type !== ailment.type;
+    }) ?? [];
+
+    ailments.push(ailment);
+
+    if (type === 'fainted') {
+      // Also update the combatant if the Pokémon fainted
+      const combatant = this.token
+        ? game.combat?.getCombatantByToken(this.token.id)
+        : game.combat?.getCombatantByActor(this.id);
+      await combatant?.update({ defeated: true });
+    }
+
+    return this.update({
+      'system.ailments': ailments
+    });
+  }
+
+  /**
+   * Remove the given status ailment
+   * @param {string} type The type of the ailment (e.g. 'paralysis')
+   */
+  async removeAilment(type) {
+    const ailments = this.system.ailments.filter(a => a.type !== type);
+
+    if (type === 'fainted') {
+      // Also update the combatant if the Pokémon fainted
+      const combatant = this.token
+        ? game.combat?.getCombatantByToken(this.token.id)
+        : game.combat?.getCombatantByActor(this.id);
+      await combatant?.update({ defeated: false });
+    }
+
+    return this.update({
+      'system.ailments': ailments
+    });
+  }
+
+  /**
+   * Whether this actor has the given ailment applied
+   * @param {string} type The type of the ailment (e.g. 'paralysis')
+   * @returns {boolean}
+   */
+  hasAilment(type) {
+    return this.system.ailments.some(a => a.type === type);
+  }
+
+  /**
+   * Whether this actor has the 'burn1', 'burn2' or 'burn2' status
+   * @returns {boolean}
+   */
+  isBurned() {
+    return this.system.ailments.some(a => ['burn1', 'burn2', 'burn3'].includes(a.type));
+  }
+
+  /**
+   * Whether this actor has the 'poison' or 'badlyPoisoned' status
+   * @returns {boolean}
+   */
+  isPoisoned() {
+    return this.system.ailments.some(a => ['poison', 'badlyPoisoned'].includes(a.type));
+  }
+
+  /**
+   * Whether the given move is disabled by the 'disabled' status
+   * @param {PokeroleItem} move
+   * @returns {boolean}
+   */
+  isMoveDisabled(move) {
+    return this.system.ailments.some(a => a.type === 'disabled' && a.moveUuid === move.uuid);
+  }
+
+  /**
+   * @override
+   * Add effect icons to the combat tracker
+   */
+  get temporaryEffects() {
+    const ailments = POKEROLE.getAilments();
+    return this.system.ailments.map(ailment => new TokenEffect(
+      ailment.type,
+      ailments[ailment.type].icon,
+      ailments[ailment.type].tint,
+      ailments[ailment.type].overlay ?? false,
+    ));
   }
 
   /** Reset resources depleted during a round */

@@ -1,6 +1,6 @@
 import { PokeroleActor } from "./documents/actor.mjs";
 import { PokeroleItem } from "./documents/item.mjs";
-import { PokeroleCombat } from "./documents/combat.mjs";
+import { PokeroleCombat, PokeroleCombatTracker } from "./documents/combat.mjs";
 import { PokeroleActorSheet } from "./sheets/actor-sheet.mjs";
 import { PokeroleItemSheet } from "./sheets/item-sheet.mjs";
 import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
@@ -9,6 +9,7 @@ import { rollRecoil, successRollAttributeDialog, successRollFromExpression } fro
 import { showClashDialog } from "./helpers/clash.mjs";
 import { bulkApplyDamageValidated } from "./helpers/damage.mjs";
 import { registerIntegrationHooks } from "./helpers/integrations.mjs";
+import { registerEffectHooks } from "./helpers/effects.mjs";
 
 /* -------------------------------------------- */
 /*  Init Hook                                   */
@@ -33,6 +34,7 @@ Hooks.once('init', async () => {
   CONFIG.Item.documentClass = PokeroleItem;
   CONFIG.Combat.documentClass = PokeroleCombat;
   CONFIG.ActiveEffect.documentClass = PokeroleActiveEffect;
+  CONFIG.ui.combat = PokeroleCombatTracker;
 
   // Register sheet application classes
   Actors.unregisterSheet("core", ActorSheet);
@@ -68,8 +70,9 @@ Hooks.once("ready", async function () {
 Hooks.on('renderChatLog', (app, html, data) => PokeroleItem.chatListeners(html));
 Hooks.on('renderChatPopout', (app, html, data) => PokeroleItem.chatListeners(html));
 
-PokeroleCombat.registerHooks();
+PokeroleCombatTracker.registerHooks();
 registerIntegrationHooks();
+registerEffectHooks();
 
 /* -------------------------------------------- */
 /*  Handlebars Helpers                          */
@@ -245,7 +248,8 @@ async function onChatActionClick(event) {
           name: 'Evade',
           value: actor.system.derived.evade.value
         }, {
-          painPenalty: actor.system.painPenalty
+          painPenalty: actor.system.painPenalty,
+          confusionPenalty: actor.hasAilment('confused')
         },
         chatData, !event.shiftKey);
 

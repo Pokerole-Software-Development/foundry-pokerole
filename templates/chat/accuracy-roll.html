@@ -27,6 +27,13 @@
   </div>
   {{/if}}
 
+  {{#if confusionPenalty}}
+  <div class="form-group">
+    <label>Confusion (-1 success)</label>
+    <input type="checkbox" name="confusionPenalty" checked/>
+  </div>
+  {{/if}}
+
   <div class="form-group">
     <label for="requiredSuccesses">Required Successes</label>
     <input type="number" name="requiredSuccesses" value="{{requiredSuccesses}}"/>

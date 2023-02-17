@@ -5,6 +5,8 @@
   "ITEM.TypeAbility": "Ability",
   "ITEM.TypeItem": "Item",
 
+  "POKEROLE.Apply": "Apply",
+
   "POKEROLE.AttributeStrength": "Strength",
   "POKEROLE.AttributeDexterity": "Dexterity",
   "POKEROLE.AttributeVitality": "Vitality",
@@ -102,10 +104,12 @@
   "POKEROLE.StatusPoison": "Poisoned",
   "POKEROLE.StatusBadlyPoisoned": "Badly Poisoned",
   "POKEROLE.StatusSleep": "Asleep",
+  "POKEROLE.StatusBurn": "Burn",
   "POKEROLE.StatusBurn1": "Burn 1",
   "POKEROLE.StatusBurn2": "Burn 2",
   "POKEROLE.StatusBurn3": "Burn 3",
   "POKEROLE.StatusFlinch": "Flinched",
+  "POKEROLE.StatusDisabled": "Disabled",
   "POKEROLE.StatusConfused": "Confused",
   "POKEROLE.StatusInfatuated": "Infatuated",
   "POKEROLE.StatusFainted": "Fainted",
@@ -167,6 +171,9 @@
 
   "POKEROLE.Add": "Add",
   "POKEROLE.ActionWarningNoItem": "The item doesn't exist.",
+
+  "POKEROLE.BlockedMove": "Move: {move}",
+  "POKEROLE.InflictedBy": "Inflicted by: {actor}",
 
   "POKEROLE.SettingNameSpecialDefenseStat": "Special Defense Stat",
   "POKEROLE.SettingHintSpecialDefenseStat": "Insight can be used for Special Defense instead of Vitality (optional rule).",

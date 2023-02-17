@@ -1,100 +1,128 @@
 export const POKEROLE = {};
 
+POKEROLE.CONST = {
+  PARALYSIS_DEXTERITY_DECREASE: 2,
+  BURN1_DAMAGE: 1,
+  BURN2_DAMAGE: 2, // TODO: Lethal Damage (https://github.com/Pokerole-Software-Development/foundry-pokerole/issues/32)
+  BURN3_DAMAGE: 3, // TODO: Lethal Damage (https://github.com/Pokerole-Software-Development/foundry-pokerole/issues/32)
+  POISON_DAMAGE: 1,
+  BADLY_POISONED_DAMAGE: 1, // TODO: Lethal Damage (https://github.com/Pokerole-Software-Development/foundry-pokerole/issues/32)
+};
+
 POKEROLE.typeMatchups = {
   'none': {
     weak: [],
     resist: [],
     immune: [],
+    ailmentImmunities: [],
   },
   'normal': {
     weak: ['fighting'],
     resist: [],
     immune: ['ghost'],
+    ailmentImmunities: [],
   },
   'bug': {
     weak: ['fire', 'flying', 'rock'],
     resist: ['fighting', 'grass', 'ground'],
     immune: [],
+    ailmentImmunities: [],
   },
   'dark': {
     weak: ['bug', 'fairy', 'fighting'],
     resist: ['dark', 'ghost'],
     immune: ['psychic'],
+    ailmentImmunities: [],
   },
   'dragon': {
     weak: ['dragon', 'fairy', 'ice'],
     resist: ['electric', 'fire', 'grass', 'water'],
     immune: [],
+    ailmentImmunities: [],
   },
   'electric': {
     weak: ['ground'],
     resist: ['flying', 'steel', 'electric'],
     immune: [],
+    ailmentImmunities: ['paralysis'],
   },
   'fairy': {
     weak: ['poison', 'steel'],
     resist: ['bug', 'dark', 'fighting'],
     immune: ['dragon'],
+    ailmentImmunities: [],
   },
   'fighting': {
     weak: ['fairy', 'flying', 'psychic'],
     resist: ['bug', 'dark', 'rock'],
     immune: [],
+    ailmentImmunities: [],
   },
   'fire': {
     weak: ['ground', 'rock', 'water'],
     resist: ['bug', 'fairy', 'fire', 'grass', 'ice', 'steel'],
     immune: [],
+    ailmentImmunities: ['burn1', 'burn2', 'burn3'],
   },
   'flying': {
     weak: ['electric', 'ice', 'rock'],
     resist: ['bug', 'fighting', 'grass'],
     immune: ['ground'],
+    ailmentImmunities: [],
   },
   'ghost': {
     weak: ['dark', 'ghost'],
     resist: ['bug', 'poison'],
     immune: ['fighting', 'normal'],
+    ailmentImmunities: [],
   },
   'grass': {
     weak: ['bug', 'fire', 'flying', 'ice', 'poison'],
     resist: ['electric', 'grass', 'ground', 'water'],
     immune: [],
+    ailmentImmunities: [],
   },
   'ground': {
     weak: ['grass', 'ice', 'water'],
     resist: ['poison', 'rock'],
     immune: ['electric'],
+    ailmentImmunities: [],
   },
   'ice': {
     weak: ['fighting', 'fire', 'rock', 'steel'],
     resist: ['ice'],
     immune: [],
+    ailmentImmunities: ['frozen'],
   },
   'poison': {
     weak: ['ground', 'psychic'],
     resist: ['bug', 'fairy', 'fighting', 'grass', 'poison'],
     immune: [],
+    ailmentImmunities: ['poison', 'badlyPoisoned'],
   },
   'psychic': {
     weak: ['bug', 'dark', 'ghost'],
     resist: ['fighting', 'psychic'],
     immune: [],
+    ailmentImmunities: [],
   },
   'rock': {
     weak: ['grass', 'ground', 'fighting', 'steel', 'water'],
     resist: ['fire', 'flying', 'normal', 'poison'],
     immune: [],
+    ailmentImmunities: [],
   },
   'steel': {
     weak: ['fighting', 'fire', 'ground'],
     resist: ['bug', 'dragon', 'flying', 'fairy', 'grass', 'ice', 'normal', 'psychic', 'rock', 'steel'],
     immune: ['poison'],
+    ailmentImmunities: ['poison', 'badlyPoisoned'],
   },
   'water': {
     weak: ['electric', 'grass'],
     resist: ['fire', 'ice', 'steel', 'water'],
     immune: [],
+    ailmentImmunities: [],
   },
 };
 
@@ -103,11 +131,14 @@ POKEROLE.types = Object.keys(POKEROLE.typeMatchups);
 POKEROLE.getAilments = () => ({
   fainted: {
     label: game.i18n.localize('POKEROLE.StatusFainted'),
-    icon: 'systems/pokerole/images/ailments/fainted.svg'
+    icon: 'systems/pokerole/images/ailments/fainted.svg',
+    tint: '#000000',
+    overlay: true
   },
   paralysis: {
     label: game.i18n.localize('POKEROLE.StatusParalysis'),
     icon: 'systems/pokerole/images/ailments/paralyzed.svg',
+    tint: '#ECD82F'
   },
   frozen: {
     label: game.i18n.localize('POKEROLE.StatusFrozen'),
@@ -153,6 +184,16 @@ POKEROLE.getAilments = () => ({
     label: game.i18n.localize('POKEROLE.StatusConfused'),
     icon: 'icons/svg/daze.svg',
     tint: '#4DAF81'
+  },
+  disabled: {
+    label: game.i18n.localize('POKEROLE.StatusDisabled'),
+    icon: 'icons/svg/cancel.svg',
+    tint: '#4DAF81'
+  },
+  flinch: {
+    label: game.i18n.localize('POKEROLE.StatusFlinch'),
+    icon: 'icons/svg/explosion.svg',
+    tint: '#575D69'
   },
   infatuated: {
     label: game.i18n.localize('POKEROLE.StatusInfatuated'),
@@ -542,6 +583,22 @@ POKEROLE.i18n = {
     "minus1": "POKEROLE.PainPenaltyMinus1Short",
     "minus2": "POKEROLE.PainPenaltyMinus2Short",
   },
+
+  ailments: {
+    "fainted": "POKEROLE.StatusFainted",
+    "paralysis": "POKEROLE.StatusParalysis",
+    "frozen": "POKEROLE.StatusFrozen",
+    "poison": "POKEROLE.StatusPoison",
+    "badlyPoisoned": "POKEROLE.StatusBadlyPoisoned",
+    "sleep": "POKEROLE.StatusSleep",
+    "burn1": "POKEROLE.StatusBurn1",
+    "burn2": "POKEROLE.StatusBurn2",
+    "burn3": "POKEROLE.StatusBurn3",
+    "confused": "POKEROLE.StatusConfused",
+    "disabled": "POKEROLE.StatusDisabled",
+    "flinch": "POKEROLE.StatusFlinch",
+    "infatuated": "POKEROLE.StatusInfatuated",
+  }
 };
 
 /**

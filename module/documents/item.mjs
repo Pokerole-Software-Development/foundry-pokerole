@@ -40,14 +40,6 @@ export class PokeroleItem extends Item {
    * @param {Event} event The originating click event
    */
   async use() {
-    if (this.actor && !this.actor.hasAvailableActions()) {
-      return ui.notifications.error("You can't take any more actions this round.");
-    }
-
-    if (this.system.usedInRound) {
-      return ui.notifications.error("You have already used this move in the current round.");
-    }
-
     const token = this.actor.token;
 
     let properties = [];
@@ -56,6 +48,22 @@ export class PokeroleItem extends Item {
     let healText = undefined;
 
     if (this.type === 'move') {
+      if (!this.system.learned && !this.system.attributes?.maneuver) {
+        return ui.notifications.error("You haven't learned this move.");
+      }
+  
+      if (this.actor && !this.actor.hasAvailableActions()) {
+        return ui.notifications.error("You can't take any more actions this round.");
+      }
+  
+      if (this.system.usedInRound) {
+        return ui.notifications.error("You have already used this move in the current round.");
+      }
+  
+      if (this.actor?.isMoveDisabled(this)) {
+        return ui.notifications.error("You can't use a disabled move!");
+      }
+
       const locType = game.i18n.localize(POKEROLE.i18n.types[this.system.type]);
       const locCategory = game.i18n.localize(POKEROLE.i18n.moveCategories[this.system.category]);
       const locTarget = game.i18n.localize(POKEROLE.i18n.targets[this.system.target]);
@@ -289,6 +297,11 @@ export class PokeroleItem extends Item {
         if (item.system.usedInRound) {
           button.disabled = false;
           return ui.notifications.error("You have already used this move in the current round.");
+        }
+
+        if (actor.isMoveDisabled(item)) {
+          button.disabled = false;
+          return ui.notifications.error("You can't use a disabled move!");
         }
 
         if (await rollAccuracy(item, actor, token, canBeClashed, canBeEvaded, !event.shiftKey)

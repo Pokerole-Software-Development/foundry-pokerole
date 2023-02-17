@@ -43,7 +43,8 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
   const content = await renderTemplate(CLASH_DIALOGUE_TEMPLATE, {
     moves,
     painPenalty: defaultPainPenalty,
-    painPenalties: getLocalizedPainPenaltiesForSelect()
+    painPenalties: getLocalizedPainPenaltiesForSelect(),
+    confusionPenalty: actor.hasAilment('confused')
   });
 
   const result = await new Promise(resolve => {
@@ -64,7 +65,12 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
   if (!result) return undefined;
 
   const formElement = result[0].querySelector('form');
-  const { moveId, painPenalty, poolBonus, constantBonus } = new FormDataExtended(formElement).object;
+  let { moveId, painPenalty, poolBonus, constantBonus, confusionPenalty } = new FormDataExtended(formElement).object;
+  constantBonus ??= 0;
+  if (confusionPenalty) {
+    constantBonus--;
+  }
+
   const move = moveList.find(move => move.id === moveId);
   if (!move) {
     throw new Error('Failed to resolve move');
