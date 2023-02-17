@@ -59,7 +59,7 @@ const ATTRIBUTE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/attrib
 /**
  * Roll an attribute for successes with an optional dialog.
  * @param {{name: string, value: string}} attribute 
- * @param {{painPenalty: string}} options
+ * @param {{painPenalty: string, confusionPenalty: bool}} options
  * @param {boolean} showPopup If `false`, the popup is skipped and default values are assumed
  * @param {Object} chatData
  * @returns {boolean} `true` if the user has rolled, `false` if cancelled
@@ -72,6 +72,7 @@ export async function successRollAttributeDialog(attribute, options, chatData, s
   const enablePainPenalty = !POKEROLE.painPenaltyExcludedAttributes
     .includes(attribute.name);
   let painPenalty = 'none';
+  let confusionPenalty = options.confusionPenalty ?? false;
   if (enablePainPenalty && options?.painPenalty) {
     painPenalty = options?.painPenalty;
   }
@@ -82,6 +83,7 @@ export async function successRollAttributeDialog(attribute, options, chatData, s
       enablePainPenalty,
       painPenalty,
       painPenalties: getLocalizedPainPenaltiesForSelect(),
+      confusionPenalty,
     });
 
     // Create the Dialog window and await submission of the form
@@ -108,6 +110,11 @@ export async function successRollAttributeDialog(attribute, options, chatData, s
     poolBonus = formData.poolBonus ?? 0;
     constantBonus = formData.constantBonus ?? 0;
     painPenalty = formData.painPenalty ?? 'none';
+    confusionPenalty = formData.confusionPenalty ?? false;
+  }
+
+  if (confusionPenalty) {
+    constantBonus--;
   }
 
   const constantBonusWithPainPenalty = constantBonus - POKEROLE.painPenalties[painPenalty];
@@ -122,7 +129,7 @@ const SKILL_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/skill-roll
  * Show a dialog for rolling successes based on a skill.
  * @param {{name: string, value: string}} skill 
  * @param {Object} attributes The list of attributes to choose from
- * @param {{painPenalty: string}} options
+ * @param {{painPenalty: string, confusionPenalty: bool}} options
  * @param {Object} chatData
  * @returns {boolean} `true` if accuracy was rolled, `false` if cancelled
  */
@@ -135,6 +142,7 @@ export async function successRollSkillDialog(skill, attributes, options, chatDat
     }, {}),
     painPenalty: options?.painPenalty ?? 'none',
     painPenalties: getLocalizedPainPenaltiesForSelect(),
+    confusionPenalty: options.confusionPenalty
   });
 
   // Create the Dialog window and await submission of the form
@@ -172,6 +180,10 @@ export async function successRollSkillDialog(skill, attributes, options, chatDat
   let attributeName = formData.attribute;
   let poolBonus = formData.poolBonus ?? 0;
   let constantBonus = formData.constantBonus ?? 0;
+
+  if (formData.confusionPenalty) {
+    constantBonus--;
+  }
 
   let painPenalty = formData.painPenalty;
   // Certain attributes are exempt from pain penalties  
@@ -238,6 +250,7 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
       enablePainPenalty,
       painPenalty,
       painPenalties: getLocalizedPainPenaltiesForSelect(),
+      confusionPenalty: actor.hasAilment('confused')
     });
 
     // Create the Dialog window and await submission of the form
@@ -266,6 +279,10 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
 
     if (formData.requiredSuccesses !== undefined) {
       requiredSuccesses = formData.requiredSuccesses;
+    }
+
+    if (formData.confusionPenalty) {
+      constantBonus--;
     }
   }
 

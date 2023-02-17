@@ -89,6 +89,15 @@ export async function bulkApplyDamageValidated(damageUpdates) {
     html += `<p>Applied ${update.damage} damage to ${name}.</p>`;
     if (newHp === 0 && oldHp > 0) {
       html += `<p><b>${name} fainted!</b></p>`;
+      await (token?.actor ?? actor).applyAilment('fainted');
+
+      // Refresh token overlay effects
+      token?.object?.drawEffects();
+
+      // Refresh status effect HUD
+      if (canvas.hud?.token._statusEffects) {
+        canvas.tokens?.hud?.refreshStatusIcons();
+      }
     }
   }
 

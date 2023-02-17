@@ -18,6 +18,13 @@
      </select>
   </div>
 
+  {{#if confusionPenalty}}
+  <div class="form-group">
+    <label>Confusion (-1 success)</label>
+    <input type="checkbox" name="confusionPenalty" checked/>
+  </div>
+  {{/if}}
+
   <hr>
 
   <div class="form-group" title="Increases the number of rolled dice">

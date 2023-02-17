@@ -39,7 +39,7 @@
     <li>
       <ul class="inner{{#if moves.hidden}} items-hidden{{/if}} list-{{key}}">
         {{#each moves.moveList as |item id|}}
-        <li class="item flexrow {{#if item.data.system.usedInRound}}translucent{{/if}}" data-item-id="{{item.data._id}}">
+        <li class="item flexrow {{#unless item.usable}}translucent{{/unless}}" data-item-id="{{item.data._id}}">
           <div class="item-name flexrow">
             <div class="item-image move-image">
               <a class="rollable" data-roll-type="item"><img src="{{item.data.img}}" title="{{itemdata.data.name}}" width="30" height="30"/></a>
@@ -50,7 +50,8 @@
               <i class="{{#if item.data.system.usedInRound}}fas fa-circle-xmark{{else}}fa-regular fa-circle{{/if}}"></i>
             </a>
             {{/if}}
-            <h4 {{#if item.data.system.effect}}data-tooltip="{{item.data.system.effect}}"{{/if}}>{{item.data.name}}</h4>
+            <h4 {{#if item.data.system.effect}}data-tooltip="{{item.data.system.effect}}"{{/if}}
+              {{#if item.disabled}}class="strikethrough"{{/if}}>{{item.data.name}}</h4>
             </div>
             <div class="item-prop">{{item.locType}} ({{item.locCategory}})</div>
             <div class="item-prop">{{item.data.system.accMod1}}{{#if item.data.system.accMod2}}+{{item.data.system.accMod2}}{{/if}} ({{item.accuracyPool}})</div>

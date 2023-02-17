@@ -1,6 +1,6 @@
 import { getDualTypeMatchups, getLocalizedEntriesForSelect, getLocalizedType, getLocalizedTypesForSelect, POKEROLE } from "../helpers/config.mjs";
-import { onManageActiveEffect, prepareActiveEffectCategories } from "../helpers/effects.mjs";
-import { successRollAttribute, successRollAttributeDialog, successRollSkillDialog } from "../helpers/roll.mjs";
+import { successRollAttributeDialog, successRollSkillDialog } from "../helpers/roll.mjs";
+import { addAilmentWithDialog } from "../helpers/effects.mjs";
 
 /**
  * Extend the basic ActorSheet with some very simple modifications
@@ -48,13 +48,10 @@ export class PokeroleActorSheet extends ActorSheet {
 
     // Prepare character data and items.
     this._prepareItems(context);
-    this._prepareAttributes(context, this.actor.overrides);
+    await this._prepareAttributes(context, this.actor.overrides);
 
     // Add roll data for TinyMCE editors.
     context.rollData = context.actor.getRollData();
-
-    // Prepare active effects
-    context.effects = prepareActiveEffectCategories(this.actor.effects);
 
     context.natures = {};
     for (let nature of Object.keys(POKEROLE.natureConfidence)) {
@@ -104,6 +101,7 @@ export class PokeroleActorSheet extends ActorSheet {
     context.painPenalties = getLocalizedEntriesForSelect('painPenaltiesShort');
 
     this._prepareStatChanges(context);
+    this._populateAilmentList(context);
 
     return context;
   }
@@ -111,34 +109,55 @@ export class PokeroleActorSheet extends ActorSheet {
   /**
    * Add localized labels to attributes and mark if they're overridden
    */
-  _prepareAttributes(context, overrides) {
+  async _prepareAttributes(context, overrides) {
     // Apply localization
     for (let [k, v] of Object.entries(context.system.attributes)) {
-      v.label = game.i18n.localize(CONFIG.POKEROLE.i18n.attributes[k]) ?? k;
+      v.label = game.i18n.localize(POKEROLE.i18n.attributes[k]) ?? k;
       v.overridden = foundry.utils.hasProperty(overrides, `system.attributes.${k}.value`);
     }
     for (let [k, v] of Object.entries(context.system.social)) {
-      v.label = game.i18n.localize(CONFIG.POKEROLE.i18n.social[k]) ?? k;
+      v.label = game.i18n.localize(POKEROLE.i18n.social[k]) ?? k;
       v.overridden = foundry.utils.hasProperty(overrides, `system.social.${k}.value`);
     }
     for (let [k, v] of Object.entries(context.system.skills)) {
-      v.label = game.i18n.localize(CONFIG.POKEROLE.i18n.skills[k]) ?? k;
+      v.label = game.i18n.localize(POKEROLE.i18n.skills[k]) ?? k;
       v.overridden = foundry.utils.hasProperty(overrides, `system.skills.${k}.value`);
     }
     for (let [k, v] of Object.entries(context.system.extra)) {
-      v.label = game.i18n.localize(CONFIG.POKEROLE.i18n.extra[k]) ?? k;
+      v.label = game.i18n.localize(POKEROLE.i18n.extra[k]) ?? k;
       v.overridden = foundry.utils.hasProperty(overrides, `system.extra.${k}.value`);
     }
     for (let [k, v] of Object.entries(context.system.derived)) {
-      v.label = game.i18n.localize(CONFIG.POKEROLE.i18n.derived[k]) ?? k;
+      v.label = game.i18n.localize(POKEROLE.i18n.derived[k]) ?? k;
       v.overridden = foundry.utils.hasProperty(overrides, `system.derived.${k}.value`);
     }
 
+    // Stat changes
     context.system.statChanges.strength.label = game.i18n.localize(POKEROLE.i18n.attributes.strength);
     context.system.statChanges.dexterity.label = game.i18n.localize(POKEROLE.i18n.attributes.dexterity);
     context.system.statChanges.special.label = game.i18n.localize(POKEROLE.i18n.attributes.special);
     context.system.statChanges.def.label = game.i18n.localize(POKEROLE.i18n.derived.def);
     context.system.statChanges.spDef.label = game.i18n.localize(POKEROLE.i18n.derived.spDef);
+
+    // Ailments
+    const ailments = POKEROLE.getAilments();
+    for (const ailment of context.system.ailments) {
+      ailment.label = game.i18n.localize(ailments[ailment.type].label) ?? ailment.type;
+      ailment.icon = ailments[ailment.type].icon;
+      ailment.tint = ailments[ailment.type].tint;
+
+      // Ailment-specific description
+      switch (ailment.type) {
+        case 'disabled':
+          const move = await fromUuid(ailment.moveUuid);
+          ailment.description = game.i18n.format('POKEROLE.BlockedMove', { move: move?.name });
+          break;
+        case 'infatuated':
+          const inflictedBy = await fromUuid(ailment.inflictedByUuid);
+          ailment.description = game.i18n.format('POKEROLE.InflictedBy', { actor: inflictedBy?.name });
+          break;
+      }
+    }
   }
 
   /**
@@ -192,13 +211,21 @@ export class PokeroleActorSheet extends ActorSheet {
         if (i.system.attributes.maneuver) {
           group = 'maneuver';
         }
+
+        // HACK: We're operating on a clone created by `toObject` here, but it doesn't
+        // include the UUID. PokeroleActor.isMoveDisabled operates on the UUID, so retrieve
+        // the actual move.
+        const actualMove = this.actor.items.find(item => item.id === i._id);
+        const disabled = actualMove ? this.actor.isMoveDisabled(actualMove) : false;
         moves[group].moveList.push({
           data: i,
           locType: game.i18n.localize(POKEROLE.i18n.types[i.system.type]) ?? i.system.type,
           locTarget: game.i18n.localize(POKEROLE.i18n.targets[i.system.target]) ?? i.system.target,
           locCategory: game.i18n.localize(POKEROLE.i18n.moveCategories[i.system.category]) ?? i.system.category,
           accuracyPool: this.actor.getAccuracyPoolForMove(i),
-          dmgPool: this.actor.getDamagePoolForMove(i)
+          dmgPool: this.actor.getDamagePoolForMove(i),
+          usable: !disabled && !i.system.usedInRound,
+          disabled
         });
       }
     }
@@ -236,6 +263,39 @@ export class PokeroleActorSheet extends ActorSheet {
     context.system.accuracyMod.displayValue = Math.abs(context.system.accuracyMod.value);
     context.system.accuracyMod.isNegative = context.system.accuracyMod.value < 0;
     context.system.accuracyMod.isPositive = context.system.accuracyMod.value > 0;
+  }
+
+  /** Populate the list of ailments that can be added via icons on the character sheet */
+  _populateAilmentList(context) {
+    const allAilments = POKEROLE.getAilments();
+    const ailmentFilter = [
+      'paralysis',
+      'frozen',
+      'poison',
+      'sleep',
+      'confused',
+      'disabled',
+      'flinch',
+      'infatuated',
+      'fainted'
+    ];
+    context.quickAilmentList = ailmentFilter
+      // Filter entries since someone might have modified the list
+      .filter(ailment => ailment in allAilments)
+      .map(ailment => {
+        let buttonDisabled = this.actor.hasAilment(ailment) || (ailment === 'poison' && this.actor.isPoisoned());
+        return { key: ailment, buttonDisabled, ...allAilments[ailment] };
+      });
+
+    // Special handling for Burn (one icon for all levels)
+    if (allAilments.burn1) {
+      context.quickAilmentList.unshift({
+        key: 'burn',
+        icon: allAilments.burn1.icon, 
+        label: game.i18n.localize('POKEROLE.StatusBurn'),
+        buttonDisabled: this.actor.isBurned()
+      })
+    }
   }
 
   /* -------------------------------------------- */
@@ -284,8 +344,15 @@ export class PokeroleActorSheet extends ActorSheet {
       li.slideUp(200, () => this.render(false));
     });
 
-    // Active Effect management
-    html.find(".effect-control").click(ev => onManageActiveEffect(ev, this.actor));
+    // Ailment management
+    html.find(".add-ailment").click(async ev => {
+      await addAilmentWithDialog(this.actor, ev.currentTarget.dataset.ailment);
+      this._refreshTokenAndHud();
+    });
+    html.find(".remove-ailment").click(async ev => {
+      await this.actor.removeAilment(ev.currentTarget.dataset.ailment);
+      this._refreshTokenAndHud();
+    });
 
     // Rollable attributes.
     html.find('.rollable').click(this._onRoll.bind(this));
@@ -294,7 +361,13 @@ export class PokeroleActorSheet extends ActorSheet {
     html.find(".move-toggle-learned").click(event => {
       const li = event.currentTarget.closest("li");
       const item = this.actor.items.get(li.dataset.itemId);
-      item.update({ 'system.learned': !item.system.learned });
+      item.update({
+        system: {
+          learned: !item.system.learned,
+          // Remove the "used in round" flag when a move is unlearned
+          usedInRound: item.system.learned ? false : item.system.usedInRound,
+        }
+      });
     });
 
     html.find(".move-toggle-used").click(event => {
@@ -450,6 +523,10 @@ export class PokeroleActorSheet extends ActorSheet {
     const chatData = {
       speaker: ChatMessage.implementation.getSpeaker({ actor: this.actor })
     };
+    const rollOptions = {
+      painPenalty: this.actor.system.painPenalty,
+      confusionPenalty: this.actor.hasAilment('confused'),
+    };
 
     if (dataset.rollAttribute) {
       if (dataset.rollAttribute === 'initiative') {
@@ -464,9 +541,7 @@ export class PokeroleActorSheet extends ActorSheet {
         successRollAttributeDialog({
           name: dataset.rollAttribute,
           value
-        }, {
-          painPenalty: this.actor.system.painPenalty
-        }, chatData, !event.shiftKey);
+        }, rollOptions, chatData, !event.shiftKey);
       }
     }
 
@@ -475,7 +550,7 @@ export class PokeroleActorSheet extends ActorSheet {
       successRollSkillDialog(
         { name: dataset.rollSkill, value },
         this.actor.getIntrinsicOrSocialAttributes(),
-        { painPenalty: this.actor.system.painPenalty },
+        rollOptions,
         chatData
       );
     }
@@ -718,6 +793,17 @@ export class PokeroleActorSheet extends ActorSheet {
     const formData = new FormDataExtended(formElement).object;
 
     this.actor.update(formData);
+  }
+
+  /** Refresh the token GUI after changing ailments */
+  _refreshTokenAndHud() {
+    // Refresh token overlay effects
+    this.token?.object?.drawEffects();
+
+    // Refresh status effect HUD
+    if (canvas.hud?.token._statusEffects) {
+      canvas.tokens?.hud?.refreshStatusIcons();
+    }
   }
 
   static _sanitizeName(name) {

@@ -1,18 +1,3 @@
-.effects .item {
-  .effect-source,
-  .effect-duration,
-  .effect-controls {
-    text-align: center;
-    border-left: 1px solid #c9c7b8;
-    border-right: 1px solid #c9c7b8;
-    font-size: 12px;
-  }
-
-  .effect-controls {
-    border: none;
-  }
-}
-
 .stat-changes {
   display: flex;
   gap: 5px;
@@ -112,5 +97,63 @@
     flex: 1;
     align-items: stretch;
     background-color: #A74D39;
+  }
+}
+
+.effects-list {
+  h3 {
+    border: none;
+  }
+
+  .item {
+    .ailment-duration,
+    .ailment-controls {
+      text-align: center;
+      border-left: 1px solid #c9c7b8;
+      border-right: 1px solid #c9c7b8;
+      font-size: 12px;
+    }
+  
+    .ailment-controls {
+      border: none;
+    }
+
+    .item-image {
+      border-radius: 6px;
+
+      img {
+        border: none;
+      }
+    }
+  }
+
+  .quick-ailment-list {
+    display: flex;
+    gap: 4px;
+    align-items: stretch;
+    justify-content: flex-end;
+    margin: 0 5px;
+    
+    .add-ailment, .disabled-elem {
+      width: 18px;
+      height: 18px;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      border: none;
+
+      filter: brightness(40%);
+    }
+
+    .add-ailment img {
+      // Make the icons dark to match the text
+      filter: brightness(10%);
+
+      &:hover {
+        filter: brightness(10%) drop-shadow(0 0 8px var(--color-shadow-primary));
+      }
+    }
   }
 }

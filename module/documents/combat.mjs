@@ -1,3 +1,5 @@
+import { POKEROLE } from "../helpers/config.mjs";
+
 /** Extensions to Foundry's combat systems */
 export class PokeroleCombat extends Combat {
   /** @override */
@@ -11,6 +13,7 @@ export class PokeroleCombat extends Combat {
   /** @override */
   async nextRound() {
     if (!game.settings.get('pokerole', 'combatResourceAutomation')) {
+      await this.handleAilmentDamage();
       return super.nextRound();
     }
 
@@ -22,6 +25,9 @@ export class PokeroleCombat extends Combat {
       yes: () => shouldContinue = true,
     });
 
+    // Apply ailment damage at the end of the round
+    await this.handleAilmentDamage();
+
     if (shouldContinue) {
       await super.nextRound();
       this.resetActionCounters();
@@ -30,42 +36,107 @@ export class PokeroleCombat extends Combat {
 
   /** @override */
   async nextTurn() {
-    // Copied from base class
+    // Mostly copied from base class
     let turn = this.turn ?? -1;
-    let skip = this.settings.skipDefeated;
 
     // Determine the next turn number
-    let next = null;
-    if ( skip ) {
-      for ( let [i, t] of this.turns.entries() ) {
-        if ( i <= turn ) continue;
-        if ( t.isDefeated ) continue;
-        next = i;
-        break;
-      }
-    }
-    else next = turn + 1;
+    let next = turn;
 
-    // Maybe reset to the beginning of the round
-    let round = this.round;
-    if (this.round === 0) {
-      return super.nextRound();
-    }
-    if ( (next === null) || (next >= this.turns.length) ) {
-      // The original implementation starts the next round here.
-      // In Pokérole, players can use up to five actions per round where the
-      // initiative order resets in each sub-round, so wrapping around to the
-      // beginning feels more natural.
-      return this.resetRound();
+    // The original implementation starts the next round on a wrap-around.
+    // In Pokérole, players can use up to five actions per round where the
+    // initiative order resets in each sub-round, so wrapping around to the
+    // beginning feels more natural.
+    for (let i = 0; i < this.turns.length; i++) { // Only skip until `turns.length` to avoid endless loops
+      next += 1;
+      next %= this.turns.length;
+
+      let nextCombatant = this.turns[next];
+      if (nextCombatant.isDefeated && this.settings.skipDefeated) {
+        continue;
+      }
+
+      let actor = nextCombatant.token?.actor ?? nextCombatant.actor;
+      if (actor?.hasAilment('flinch')) {
+        let speaker = ChatMessage.implementation.getSpeaker({ actor });
+        await Promise.all([
+          actor.removeAilment('flinch'),
+          actor.increaseActionCount(),
+          ChatMessage.implementation.create({ speaker, content: `${actor.name} flinched!` }),
+        ]);
+        continue;
+      }
+      break;
     }
 
     // Update the document, passing data through a hook first
-    const updateData = {round, turn: next};
+    const updateData = {round: this.round ?? 0, turn: next};
     const updateOptions = {advanceTime: CONFIG.time.turnTime, direction: 1};
     Hooks.callAll("combatTurn", this, updateData, updateOptions);
-    return this.update(updateData, updateOptions);
+    await this.update(updateData, updateOptions);
+    
   }
 
+  /** Reset action counters at the start of a new round */
+  resetActionCounters() {
+    for (const combatant of this.combatants) {
+      if (combatant.actor?.isOwner) {
+        combatant.actor.resetRoundBasedResources();
+      }
+    }
+  }
+
+  /**
+   * Apply ailment damage to all actors at the end of the round
+   */
+  async handleAilmentDamage() {
+    for (const combatant of this.turns) {
+      // TODO: Defeated actors are not ignored here since they might still obtain Lethal Damage.
+      // Revisit this again once Lethal Damage is implemented.
+      const actor = combatant.token?.actor ?? combatant.actor;
+      let speaker = ChatMessage.implementation.getSpeaker({ actor });
+
+      let totalDamage = 0;
+      const textLines = [];
+
+      if (actor?.isBurned()) {
+        let damage = POKEROLE.CONST.BURN1_DAMAGE;
+        if (actor.hasAilment('burn3')) {
+          damage = POKEROLE.CONST.BURN3_DAMAGE;
+        } else if (actor.hasAilment('burn2')) {
+          damage = POKEROLE.CONST.BURN2_DAMAGE;
+        }
+
+        totalDamage += damage;
+        textLines.push(`${actor.name} took ${damage} damage from the burn.`);
+      }
+
+      if (actor?.isPoisoned()) {
+        let damage = POKEROLE.CONST.POISON_DAMAGE;
+        if (actor.hasAilment('badlyPoisoned')) {
+          damage = POKEROLE.CONST.BADLY_POISONED_DAMAGE;
+        }
+        totalDamage += damage;
+        textLines.push(`${actor.name} took ${damage} damage from the poison.`);
+      }
+      
+      if (totalDamage > 0) {
+        const damageUpdates = [{ tokenUuid: combatant.token?.uuid, actorId: actor.id, damage: totalDamage }];
+        const html = `<div class="pokerole">
+  <p>${textLines.join('</p><p>')}</p>
+
+  <div class="action-buttons">
+    <button class="chat-action" data-action="applyDamage" data-damage-updates='${JSON.stringify(damageUpdates)}'>
+        Apply Damage
+    </button>
+  </div>
+</div>`;
+        await ChatMessage.implementation.create({ speaker, content: html });
+      }
+    }
+  }
+}
+
+export class PokeroleCombatTracker extends CombatTracker {
   static registerHooks() {
     Hooks.on('renderCombatTracker', (tracker, elem) => {
       // Show the number of actions each combatant has taken
@@ -114,21 +185,19 @@ export class PokeroleCombat extends Combat {
     });
   }
 
-  /** Go back to the start of a round */
-  async resetRound() {
-    const updateData = { round: this.round, turn: 0 };
-    const updateOptions = { advanceTime: CONFIG.time.turnTime, direction: 1 };
-    Hooks.callAll("POKEROLE.combatResetRound", this, updateData, updateOptions);
-    return this.update(updateData, updateOptions);
-  }
-
-  /** Reset action counters at the start of a new round */
-  resetActionCounters() {
-    for (const combatant of this.combatants) {
-      if (combatant.actor?.isOwner) {
-        combatant.actor.resetRoundBasedResources();
-      }
+  async _onToggleDefeatedStatus(combatant) {
+    // We don't need to update the combatant since this happens in `applyAilment` or `removeAilment`
+    const token = combatant.token;
+    if (!token) return;
+    if (!token.actor) return;
+    
+    // Apply the fainted status to the actor
+    if (combatant.isDefeated) {
+      await token.actor.removeAilment('fainted');
+    } else {
+      await token.actor.applyAilment('fainted');
     }
+    
+    token.object?.drawEffects();
   }
 }
-
