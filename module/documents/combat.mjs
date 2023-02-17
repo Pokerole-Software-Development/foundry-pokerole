@@ -151,6 +151,22 @@ export class PokeroleCombatTracker extends CombatTracker {
         const actionCounterElem = document.createElement('span');
         actionCounterElem.classList.add('combat-action-counter');
         actionCounterElem.textContent = `${actionCount}/${actionMax}`;
+
+        const clashedElem = document.createElement('span');
+        clashedElem.classList.add('combat-clash');
+        clashedElem.textContent = 'C';
+        if (actor.system.canClash) {
+          clashedElem.classList.add('active');
+        }
+
+        const evadedElem = document.createElement('span');
+        evadedElem.classList.add('combat-evade');
+        evadedElem.textContent = 'E';
+        if (actor.system.canEvade) {
+          evadedElem.classList.add('active');
+        }
+        controls.prepend(evadedElem);
+        controls.prepend(clashedElem);
         controls.prepend(actionCounterElem);
       }
 

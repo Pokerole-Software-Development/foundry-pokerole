@@ -7,7 +7,7 @@ import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { getAilmentList, POKEROLE } from "./helpers/config.mjs";
 import { rollRecoil, successRollAttributeDialog, successRollFromExpression } from "./helpers/roll.mjs";
 import { showClashDialog } from "./helpers/clash.mjs";
-import { bulkApplyDamageValidated } from "./helpers/damage.mjs";
+import { bulkApplyDamageValidated, canModifyTokenOrActor } from "./helpers/damage.mjs";
 import { registerIntegrationHooks } from "./helpers/integrations.mjs";
 import { registerEffectHooks } from "./helpers/effects.mjs";
 
@@ -274,6 +274,44 @@ async function onChatActionClick(event) {
       case 'applyDamage': {
         const updates = JSON.parse(event.target.dataset.damageUpdates);
         await bulkApplyDamageValidated(updates);
+        break;
+      }
+      case 'painPenalty': {
+        const { actorId, tokenUuid, painPenalty } = event.target.dataset;
+        const token = tokenUuid ? await fromUuid(tokenUuid) : undefined;
+        const actor = token ? token?.actor : await Actor.get(actorId);
+        if (!actor) {
+          return ui.notifications.error("The actor doesn't exist anymore");
+        }
+
+        if (canModifyTokenOrActor(token, actor)) {
+          await actor.update({ 'system.painPenalty': painPenalty });
+          await ChatMessage.implementation.create({
+            content: 'Applied the pain penalization.',
+            speaker: ChatMessage.implementation.getSpeaker({ token, actor })
+          });
+        }
+        break;
+      }
+      case 'ignorePainPenalty': {
+        const { actorId, tokenUuid } = event.target.dataset;
+        const token = tokenUuid ? await fromUuid(tokenUuid) : undefined;
+        const actor = token ? token?.actor : await Actor.get(actorId);
+        if (!actor) {
+          return ui.notifications.error("The actor doesn't exist anymore");
+        }
+
+        if (canModifyTokenOrActor(token, actor)) {
+          if (actor.system.will.value < 1) {
+            return ui.notifications.error("You don't have any Will left.");
+          }
+
+          await actor.update({ 'system.will.value': actor.system.will.value - 1 });
+          await ChatMessage.implementation.create({
+            content: 'It toughed through the pain with its Will power!',
+            speaker: ChatMessage.implementation.getSpeaker({ token, actor })
+          });
+        }
         break;
       }
     }
