@@ -554,7 +554,7 @@ export async function rollDamage(item, actor, token) {
         data-damage-updates='${JSON.stringify(damageUpdates)}'>Apply Damage</button>`;
     }
     if (item.system.attributes.recoil) {
-      const dataTokenUuid = token ? `data-token-uuid="${token.uuid}"` : undefined;
+      const dataTokenUuid = token ? `data-token-uuid="${token.uuid}"` : '';
       html += `<button class="chat-action" data-action="recoil" data-actor-id="${actor.id}"
           ${dataTokenUuid} data-damage="${damage}">Roll Recoil Damage</button>`;
     }
