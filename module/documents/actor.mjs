@@ -139,7 +139,7 @@ export class PokeroleActor extends Actor {
         foundry.utils.deepClone(this.system.extra)
       )
     );
-    obj.will = foundry.utils.deepClone(this.system.will);
+    obj.will = { value: this.system.will.max };
     return obj;
   }
 
