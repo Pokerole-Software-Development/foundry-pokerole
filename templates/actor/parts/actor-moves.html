@@ -55,7 +55,7 @@
             </div>
             <div class="item-prop">{{item.locType}} ({{item.locCategory}})</div>
             <div class="item-prop">{{item.data.system.accMod1}}{{#if item.data.system.accMod2}}+{{item.data.system.accMod2}}{{/if}} ({{item.accuracyPool}})</div>
-            <div class="item-prop flex-small">{{item.data.system.power}}</div>
+            <div class="item-prop flex-small">{{item.data.system.dmgMod}}+{{item.data.system.power}} ({{item.dmgPool}})</div>
             {{#if item.data.system.stab}}
             <div class="item-prop flex-small" title="yes">✓</div>
             {{else}}
