@@ -181,9 +181,12 @@ export class PokeroleActor extends Actor {
     }
 
     let diceCount = 0;
-    if (move.system.category !== 'Support') {
-      diceCount += this.getAnyAttribute(move.system.dmgMod)?.value ?? 0;
-      diceCount += move.system.power;
+    if (move.system.category !== 'support') {
+        diceCount += this.getAnyAttribute(move.system.dmgMod)?.value ?? 0;
+        diceCount += move.system.power;
+        if (move.system.stab) {
+            diceCount += 1;
+        }
     }
     return diceCount;
   }
