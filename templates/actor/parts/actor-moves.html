@@ -30,8 +30,7 @@
       <a class="item-name toggle-group" data-group="{{key}}">{{moves.groupName}}</a>
       <div>Type/Category</div>
       <div>Accuracy Pool</div>
-      <div class="flex-small">Power</div>
-      <div class="flex-small">STAB?</div>
+      <div>Damage Pool</div>
       <div>Target</div>
       <div class="item-controls">
         <a class="item-control item-create" title="Create move" data-type="move" data-rank="{{key}}"><i class="fas fa-plus"></i>Add</a>
@@ -55,12 +54,13 @@
             </div>
             <div class="item-prop">{{item.locType}} ({{item.locCategory}})</div>
             <div class="item-prop">{{item.data.system.accMod1}}{{#if item.data.system.accMod2}}+{{item.data.system.accMod2}}{{/if}} ({{item.accuracyPool}})</div>
-            <div class="item-prop flex-small">{{item.data.system.power}}</div>
-            {{#if item.data.system.stab}}
-            <div class="item-prop flex-small" title="yes">✓</div>
-            {{else}}
-            <div class="item-prop flex-small" title="no">-</div>
-            {{/if}}
+            
+            <div class="item-prop">
+                {{#if item.dmgPool}}{{item.data.system.dmgMod}}{{/if}}
+                {{#if item.data.system.power}}+{{item.data.system.power}}{{/if}}
+                {{#if item.dmgPool}}({{item.dmgPool}}){{/if}}
+                {{#unless item.dmgPool}}-{{/unless}}
+            </div>
             <div class="item-prop">{{item.locTarget}}</div>
           </div>
           <div class="item-controls">

@@ -175,6 +175,22 @@ export class PokeroleActor extends Actor {
     return diceCount;
   }
 
+  getDamagePoolForMove(move) {
+    if (move.type !== 'move') {
+      return undefined;
+    }
+
+    let diceCount = 0;
+    if (move.system.category !== 'support') {
+        diceCount += this.getAnyAttribute(move.system.dmgMod)?.value ?? 0;
+        diceCount += move.system.power;
+        if (move.system.stab) {
+            diceCount += 1;
+        }
+    }
+    return diceCount;
+  }
+
   /** Whether this actor can still use an action in this round */
   hasAvailableActions() {
     return this.system.actionCount.value <= this.system.actionCount.max;

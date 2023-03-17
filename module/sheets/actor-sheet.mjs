@@ -182,7 +182,8 @@ export class PokeroleActorSheet extends ActorSheet {
           locType: game.i18n.localize(POKEROLE.i18n.types[i.system.type]) ?? i.system.type,
           locTarget: game.i18n.localize(POKEROLE.i18n.targets[i.system.target]) ?? i.system.target,
           locCategory: game.i18n.localize(POKEROLE.i18n.moveCategories[i.system.category]) ?? i.system.category,
-          accuracyPool: this.actor.getAccuracyPoolForMove(i)
+          accuracyPool: this.actor.getAccuracyPoolForMove(i),
+          dmgPool: this.actor.getDamagePoolForMove(i)
         });
       }
     }
