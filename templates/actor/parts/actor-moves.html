@@ -57,8 +57,7 @@
             <div class="item-prop">{{item.data.system.accMod1}}{{#if item.data.system.accMod2}}+{{item.data.system.accMod2}}{{/if}} ({{item.accuracyPool}})</div>
             
             <div class="item-prop">
-                {{#if item.dmgPool}}{{item.data.system.dmgMod}}{{/if}}
-                {{#if item.data.system.power}}+{{item.data.system.power}}{{/if}}
+                {{#if item.dmgPool}}{{item.data.system.dmgMod}}{{/if}}{{#if item.data.system.power}}+{{item.data.system.power}}{{/if}}
                 {{#if item.dmgPool}}({{item.dmgPool}}){{/if}}
                 {{#unless item.dmgPool}}-{{/unless}}
             </div>
