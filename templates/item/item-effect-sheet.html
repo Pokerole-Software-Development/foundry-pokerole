@@ -1,0 +1,67 @@
+<form class="{{cssClass}}" autocomplete="off">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+    <div class="header-fields">
+      <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+    </div>
+  </header>
+
+  {{!-- Sheet Tab Navigation --}}
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="description">Description</a>
+    <a class="item" data-tab="rules">Rules</a>
+  </nav>
+
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
+
+    {{!-- Description Tab --}}
+    <div class="tab description" data-group="primary" data-tab="description">
+      {{editor descriptionHtml target="system.description" button=true owner=owner editable=editable engine="prosemirror"}}
+    </div>
+
+    {{!-- Rules Tab --}}
+    <div class="tab rules" data-group="primary" data-tab="rules">
+
+      <div class="form-group">
+        <label class="resource-label">Enable effect?</label>
+        <input type="checkbox" name="system.enabled" {{checked system.enabled}} data-dtype="Boolean">
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="resource-label">Source</label>
+        <input type="text" name="system.source" value="{{system.source}}" data-dtype="String"/>
+      </div>
+
+      <hr>
+
+      <h3>Custom rules (experimental)</h3>
+      <p>Please note that broken rules might cause issues with the system.</p>
+
+      <ol class="items-list effects-list">
+        <li class="item flexrow items-header">
+          <div>Attribute Key</div>
+          <div>Change Mode</div>
+          <div>Effect Value</div>
+          <div class="item-controls">
+            <a class="item-control add-rule" title="Add rule" data-type="rule"><i class="fas fa-plus"></i>Add</a>
+          </div>
+        </li>
+        {{#each system.rules as |rule i|}}
+        <li class="flexrow">
+          <input class="rule-attribute" data-index="{{i}}" type="text" value="{{rule.attribute}}" placeholder="system.attributes.strength.value" data-dtype="String"/>
+          <select class="rule-operator" data-index="{{i}}" value="{{rule.operator}}" data-dtype="String">
+            {{selectOptions ../operators selected=rule.operator}}
+          </select>
+          <input type="number" class="rule-value" value="{{rule.value}}" data-index="{{i}}" data-dtype="Number"/>
+          <div class="item-controls">
+            <a class="item-control delete-rule" title="Delete Rule" data-index="{{i}}"><i class="fas fa-trash" data-index="{{i}}"></i></a>
+          </div>
+        </li>
+        {{/each}}
+      </ol>
+
+    </div>
+
+  </section>
+</form>

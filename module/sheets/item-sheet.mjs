@@ -66,6 +66,11 @@ export class PokeroleItemSheet extends ItemSheet {
     context.isCustomHeal = context.system.heal?.type === 'custom';
     context.isLeechHeal = context.system.heal?.type === 'leech';
 
+    context.operators = {
+      "add": "Add",
+      "replace": "Replace"
+    };
+
     return context;
   }
 
@@ -78,6 +83,40 @@ export class PokeroleItemSheet extends ItemSheet {
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
 
-    // Roll handlers, click handlers, etc. would go here.
+    // Effects
+    html.find(".add-rule").click(async ev => {
+      let rules = this.object.system.rules;
+      rules.push({
+        attribute: '',
+        operator: 'add',
+        value: 0
+      });
+      await this.object.update({ "system.rules": rules });
+    });
+    html.find(".delete-rule").click(async ev => {
+      let index = ev.target.dataset.index;
+      let rules = this.object.system.rules;
+      rules.splice(index, 1);
+      await this.object.update({ "system.rules": rules });
+    });
+
+    html.find(".rule-attribute").change(async ev => {
+      let index = ev.target.dataset.index;
+      if (!ev.target.value) {
+        return;
+      }
+      this.object.system.rules[index].attribute = ev.target.value;
+      await this.object.update({ "system.rules": this.object.system.rules });
+    });
+    html.find(".rule-operator").change(async ev => {
+      let index = ev.target.dataset.index;
+      this.object.system.rules[index].operator = ev.target.value;
+      await this.object.update({ "system.rules": this.object.system.rules });
+    });
+    html.find(".rule-value").change(async ev => {
+      let index = ev.target.dataset.index;
+      this.object.system.rules[index].value = ev.target.value;
+      await this.object.update({ "system.rules": this.object.system.rules });
+    });
   }
 }

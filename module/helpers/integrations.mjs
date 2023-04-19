@@ -9,7 +9,7 @@ export function registerIntegrationHooks() {
       game.itempiles.API.setCurrencyDecimalDigits(1),
       game.itempiles.API.setItemFilters([{
         path: "type",
-        filters: "move,ability"
+        filters: "move,ability,effect"
       }]),
       game.itempiles.API.setItemSimilarities(['type', 'name'])
     ];

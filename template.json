@@ -188,7 +188,8 @@
     "types": [
       "item",
       "move",
-      "ability"
+      "ability",
+      "effect"
     ],
     "templates": {
       "base": {
@@ -252,6 +253,13 @@
         "willPointCost": 1,
         "target": "targets"
       }
+    },
+    "effect": {
+      "templates": [
+        "base"
+      ],
+      "enabled": true,
+      "rules": []
     }
   }
 }

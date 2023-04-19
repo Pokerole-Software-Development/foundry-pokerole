@@ -129,6 +129,19 @@ function registerSettings() {
     type: Boolean,
     default: true,
   });
+
+  game.settings.register('pokerole', 'rulesetVersion', {
+    name: 'POKEROLE.SettingNameRulesetVersion',
+    hint: 'POKEROLE.SettingHintRulesetVersion',
+    scope: 'world',
+    config: false,
+    type: String,
+    choices: {
+      '2.0': 'POKEROLE.Version20',
+    },
+    default: '2.0',
+    requiresReload: true
+  });
 }
 
 /* -------------------------------------------- */

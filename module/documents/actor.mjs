@@ -122,6 +122,26 @@ export class PokeroleActor extends Actor {
       overrides[path] = Math.max(currentValue - POKEROLE.CONST.PARALYSIS_DEXTERITY_DECREASE, 0);
     }
 
+    // Apply custom effects
+    for (const effect of this.items.filter(item => item.type === 'effect' && item.system.enabled)) {
+      for (const rule of effect.system.rules) {
+        let value = parseInt(rule.value);
+        if (Number.isNaN(value)) {
+          continue;
+        }
+
+        switch (rule.operator) {
+          case 'add':
+            const currentValue = foundry.utils.getProperty(this, rule.attribute) ?? 0;
+            overrides[rule.attribute] = (overrides[rule.attribute] ?? 0) + currentValue + value;
+            break;
+          case 'replace':
+            overrides[rule.attribute] = value;
+            break;
+        }
+      }
+    }
+
     this.overrides = foundry.utils.expandObject(overrides);
 
     // Apply the changes.
@@ -367,12 +387,20 @@ export class PokeroleActor extends Actor {
    */
   get temporaryEffects() {
     const ailments = POKEROLE.getAilments();
-    return this.system.ailments.map(ailment => new TokenEffect(
+    const ailmentTokenEffects = this.system.ailments.map(ailment => new TokenEffect(
       ailment.type,
       ailments[ailment.type].icon,
       ailments[ailment.type].tint,
       ailments[ailment.type].overlay ?? false,
     ));
+    const customTokenEffects = this.items.filter(i => i.type === 'effect' && i.system.enabled)
+      .map(i => new TokenEffect(
+        i.name,
+        i.img,
+        '#ffffff',
+        false,
+      ));
+    return [ ...ailmentTokenEffects, ...customTokenEffects ];
   }
 
   /** Reset resources depleted during a round */

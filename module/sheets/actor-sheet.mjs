@@ -170,6 +170,7 @@ export class PokeroleActorSheet extends ActorSheet {
   _prepareItems(context) {
     const gear = [];
     const abilities = [];
+    const effects = [];
     const moves = {};
 
     for (const group of POKEROLE.moveGroups) {
@@ -192,6 +193,10 @@ export class PokeroleActorSheet extends ActorSheet {
       // Append to abilities.
       else if (i.type === 'ability') {
         abilities.push({ data: i });
+      }
+      // Append to effects.
+      else if (i.type === 'effect') {
+        effects.push({ data: i });
       }
       // Append to moves.
       else if (i.type === 'move') {
@@ -233,6 +238,7 @@ export class PokeroleActorSheet extends ActorSheet {
     context.gear = gear;
     context.abilities = abilities;
     context.moves = moves;
+    context.customEffects = effects;
 
     // Show number of learned moves and max number of learnable moves
     const maxLearnedMoves = (context.system.attributes.insight?.value ?? 0) + POKEROLE.CONST.LEARNED_MOVES_BONUS;
@@ -427,6 +433,14 @@ export class PokeroleActorSheet extends ActorSheet {
     });
 
     this._registerStatChangeListeners(html);
+
+    html.find(".effect-toggle-enabled").click(event => {
+      const li = event.currentTarget.closest("li");
+      const item = this.actor.items.get(li.dataset.itemId);
+      item.update({
+        'system.enabled': !item.system.enabled,
+      });
+    });
   }
 
   /** 
