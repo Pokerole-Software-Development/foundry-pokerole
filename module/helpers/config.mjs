@@ -1,6 +1,15 @@
 export const POKEROLE = {};
 
 POKEROLE.CONST = {
+  // Attributes
+  MAX_WILL_BONUS: 2, // Max Will is calculated from the Insight stat + this value
+  LEARNED_MOVES_BONUS: 2, // Max Moves is calculated from the Insight stat + this value
+
+  // Damage
+  STAB_BONUS: 1, // Added to the damage pool if the move's type matches the Pokémon's type
+  CRIT_BONUS: 2, // Added to the damage pool if the move is a critical hit
+
+  // Effects
   PARALYSIS_DEXTERITY_DECREASE: 2,
   BURN1_DAMAGE: 1,
   BURN2_DAMAGE: 2, // TODO: Lethal Damage (https://github.com/Pokerole-Software-Development/foundry-pokerole/issues/32)

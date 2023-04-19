@@ -418,10 +418,10 @@ export async function rollDamage(item, actor, token) {
   }
 
   if (stab) {
-    poolBonus += 1;
+    poolBonus += POKEROLE.CONST.STAB_BONUS;
   }
   if (damageType === 'crit') {
-    poolBonus += 2;
+    poolBonus += POKEROLE.CONST.CRIT_BONUS;
   }
 
   let rollCountBeforeDef = (item.system.power ?? 0) + poolBonus;
