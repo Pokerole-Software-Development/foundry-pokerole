@@ -13,7 +13,7 @@ export class PokeroleActorSheet extends ActorSheet {
     return mergeObject(super.defaultOptions, {
       classes: ["pokerole", "sheet", "actor"],
       template: "systems/pokerole/templates/actor/actor-pokemon-sheet.html",
-      width: 700,
+      width: 720,
       height: 600,
       tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "attributes" }]
     });
