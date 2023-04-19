@@ -73,7 +73,7 @@ export class PokeroleActor extends Actor {
     }
 
     system.hp.max = system.baseHp + system.attributes.vitality.value;
-    system.will.max = system.attributes.insight.value + 2;
+    system.will.max = system.attributes.insight.value + POKEROLE.CONST.MAX_WILL_BONUS;
 
     system.derived ??= {};
     system.derived.initiative = {
@@ -230,11 +230,11 @@ export class PokeroleActor extends Actor {
 
     let diceCount = 0;
     if (move.system.category !== 'support') {
-        diceCount += this.getAnyAttribute(move.system.dmgMod)?.value ?? 0;
-        diceCount += move.system.power;
-        if (move.system.stab) {
-            diceCount += 1;
-        }
+      diceCount += this.getAnyAttribute(move.system.dmgMod)?.value ?? 0;
+      diceCount += move.system.power;
+      if (move.system.stab) {
+        diceCount += POKEROLE.CONST.STAB_BONUS;
+      }
     }
     return diceCount;
   }

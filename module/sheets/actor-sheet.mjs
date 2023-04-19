@@ -235,7 +235,7 @@ export class PokeroleActorSheet extends ActorSheet {
     context.moves = moves;
 
     // Show number of learned moves and max number of learnable moves
-    const maxLearnedMoves = (context.system.attributes.insight?.value ?? 0) + 2;
+    const maxLearnedMoves = (context.system.attributes.insight?.value ?? 0) + POKEROLE.CONST.LEARNED_MOVES_BONUS;
     const learnedGroup = context.moves['learned'];
     if (learnedGroup) {
       learnedGroup.groupName += ` (${learnedMoveNum}/${maxLearnedMoves})`;
