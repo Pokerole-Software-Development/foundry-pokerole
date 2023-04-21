@@ -75,16 +75,28 @@ export class PokeroleActor extends Actor {
     system.hp.max = system.baseHp + system.attributes.vitality.value;
     system.will.max = system.attributes.insight.value + POKEROLE.CONST.MAX_WILL_BONUS;
 
+    // Stat changes need to be applied manually here because derived stats are created
+    // before `applyEffects` is called
+    const strength = system.attributes.strength.value + system.statChanges.strength.value;
+    const dexterity = system.attributes.dexterity.value + system.statChanges.dexterity.value;
+    const special = system.attributes.special.value + system.statChanges.special.value;
+
     system.derived ??= {};
     system.derived.initiative = {
-      value: system.attributes.dexterity.value
+      value: dexterity
         + system.skills.alert.value
         + system.customInitiativeMod
         + totalPassiveIncrease
     };
-    system.derived.evade = { value: system.attributes.dexterity.value + system.skills.evasion.value };
-    system.derived.clashPhysical = { value: system.attributes.strength.value + system.skills.clash.value };
-    system.derived.clashSpecial = { value: system.attributes.special.value + system.skills.clash.value };
+    system.derived.evade = {
+      value: dexterity + system.skills.evasion.value
+    };
+    system.derived.clashPhysical = {
+      value: strength + system.skills.clash.value
+    };
+    system.derived.clashSpecial = {
+      value: special + system.skills.clash.value
+    };
 
     if (system.skills?.medicine?.value !== undefined) { // Pokémon don't have Medicine
       system.derived.useItem = { value: system.social.clever.value + system.skills.medicine.value };
