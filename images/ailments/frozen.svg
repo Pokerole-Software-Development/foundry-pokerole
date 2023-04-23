@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 45 45">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 45 45" width="200" height="200">
 <path fill="white" fill-opacity="1.000" d="M 32.35 3.68 L 32.46 12.68 A 2.47 2.06 -17.6 0 1 31.20 14.65 L 24.12 18.66 Q 22.98 19.31 23.00 18.07 L 23.16 8.94 A 0.91 0.87 75.9 0 1 23.60 8.16 L 31.87 3.40 A 0.33 0.32 74.8 0 1 32.35 3.68 Z"/>
 <path fill="white" fill-opacity="1.000" d="M 12.15 3.34 L 20.19 7.73 A 1.55 1.45 15.2 0 1 21.00 9.04 L 21.00 18.28 A 0.55 0.54 -75.4 0 1 20.19 18.76 L 12.44 14.31 A 1.92 1.87 -75.5 0 1 11.50 12.66 L 11.50 3.71 A 0.44 0.43 14.8 0 1 12.15 3.34 Z"/>
 <path fill="white" fill-opacity="1.000" d="M 10.43 16.76 L 18.97 21.67 Q 19.53 21.98 18.97 22.30 L 10.43 27.24 A 0.86 0.86 0.0 0 1 9.57 27.24 L 1.43 22.56 Q 0.46 22.00 1.43 21.44 L 9.57 16.76 A 0.86 0.86 0.0 0 1 10.43 16.76 Z"/>
