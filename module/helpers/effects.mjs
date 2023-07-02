@@ -18,6 +18,7 @@ export class TokenEffect {
         overlay
       }
     };
+    this.statuses = new Set(statusId);
   }
 
   getFlag(scope, flag) {

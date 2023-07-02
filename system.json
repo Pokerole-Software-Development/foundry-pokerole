@@ -1,12 +1,12 @@
 {
   "id": "pokerole",
   "title": "Pokérole",
-  "description": "FoundryVTT system for playing Pokérole",
+  "description": "FoundryVTT system for Pokérole, the Pokémon Roleplaying Game",
   "version": "0.2.0",
   "compatibility": {
     "minimum": 10,
-    "verified": "10.291",
-    "maximum": 10
+    "verified": "11.304",
+    "maximum": 11
   },
   "authors": [{
     "name": "techticks"

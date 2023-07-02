@@ -199,6 +199,10 @@ export class PokeroleActor extends Actor {
 
   /** Get an attribute of any kind (attribute, social, extra, derived) */
   getAnyAttribute(name) {
+    if (!name) {
+      return undefined;
+    }
+
     const lcName = name.toLowerCase();
     const system = this.system;
     const allAttrs = mergeObject(
