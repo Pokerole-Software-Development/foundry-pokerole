@@ -10,6 +10,12 @@ npm-debug.log
 *.lock
 jsconfig.json
 foundry
+packs/abilities/
+packs/moves/
+packs/pokedex/
 
 css/
 images/pokemon/
+
+# Other
+.DS_Store
