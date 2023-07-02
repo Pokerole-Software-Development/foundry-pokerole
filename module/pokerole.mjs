@@ -92,13 +92,14 @@ Handlebars.registerHelper('concat', function () {
 // greater than
 Handlebars.registerHelper('gt', function (a, b) {
   var next = arguments[arguments.length - 1];
-  return (a > b) ? next.fn(this) : next.inverse(this);
+  // HACK: `next.inverse` is not defined when using Simple Calender for some reason
+  return (a > b) ? next.fn(this) : (next.inverse && next.inverse(this));
 });
 
 // less than
 Handlebars.registerHelper('lt', function (a, b) {
   var next = arguments[arguments.length - 1];
-  return (a < b) ? next.fn(this) : next.inverse(this);
+  return (a < b) ? next.fn(this) : (next.inverse && next.inverse(this));
 });
 
 /* -------------------------------------------- */
