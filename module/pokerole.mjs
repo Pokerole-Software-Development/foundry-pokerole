@@ -93,13 +93,13 @@ Handlebars.registerHelper('concat', function () {
 Handlebars.registerHelper('gt', function (a, b) {
   var next = arguments[arguments.length - 1];
   // HACK: `next.inverse` is not defined when using Simple Calender for some reason
-  return (a > b) ? next.fn(this) : (next.inverse && next.inverse(this));
+  return (a > b) ? (next.fn && next.fn(this)) : (next.inverse && next.inverse(this));
 });
 
 // less than
 Handlebars.registerHelper('lt', function (a, b) {
   var next = arguments[arguments.length - 1];
-  return (a < b) ? next.fn(this) : (next.inverse && next.inverse(this));
+  return (a < b) ? (next.fn && next.fn(this)) : (next.inverse && next.inverse(this));
 });
 
 /* -------------------------------------------- */
@@ -265,7 +265,7 @@ async function onChatActionClick(event) {
           painPenalty: actor.system.painPenalty,
           confusionPenalty: actor.hasAilment('confused')
         },
-        chatData, !event.shiftKey);
+          chatData, !event.shiftKey);
 
         if (hasEvaded && game.settings.get('pokerole', 'combatResourceAutomation')) {
           actor.increaseActionCount({ 'system.canEvade': false });
