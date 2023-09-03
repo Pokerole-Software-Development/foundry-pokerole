@@ -5,34 +5,44 @@
   "version": "0.3.0",
   "compatibility": {
     "minimum": 10,
-    "verified": "11.304",
+    "verified": "11.308",
     "maximum": 11
   },
-  "authors": [{
-    "name": "techticks"
-  }],
-  "esmodules": ["module/pokerole.mjs"],
-  "styles": ["css/pokerole.css"],
+  "authors": [
+    {
+      "name": "techticks"
+    }
+  ],
+  "esmodules": [
+    "module/pokerole.mjs"
+  ],
+  "styles": [
+    "css/pokerole.css"
+  ],
   "scripts": [],
-  "packs": [{
-    "name": "pokemon",
-    "label": "Pokémon (Core 2.0)",
-    "system": "pokerole",
-    "path": "./packs/pokedex.db",
-    "type": "Actor"
-  }, {
-    "name": "moves",
-    "label": "Moves (Core 2.0)",
-    "system": "pokerole",
-    "path": "./packs/moves.db",
-    "type": "Item"
-  }, {
-    "name": "abilities",
-    "label": "Abilities (Core 2.0)",
-    "system": "pokerole",
-    "path": "./packs/abilities.db",
-    "type": "Item"
-  }],
+  "packs": [
+    {
+      "name": "pokemon",
+      "label": "Pokémon (Core 2.0)",
+      "system": "pokerole",
+      "path": "./packs/pokedex.db",
+      "type": "Actor"
+    },
+    {
+      "name": "moves",
+      "label": "Moves (Core 2.0)",
+      "system": "pokerole",
+      "path": "./packs/moves.db",
+      "type": "Item"
+    },
+    {
+      "name": "abilities",
+      "label": "Abilities (Core 2.0)",
+      "system": "pokerole",
+      "path": "./packs/abilities.db",
+      "type": "Item"
+    }
+  ],
   "languages": [
     {
       "lang": "en",
@@ -51,7 +61,7 @@
   "secondaryTokenAttribute": "will",
   "url": "https://github.com/Pokerole-Software-Development/foundry-pokerole",
   "manifest": "https://raw.githubusercontent.com/Pokerole-Software-Development/foundry-pokerole/main/system.json",
-  "download": "https://github.com/Pokerole-Software-Development/foundry-pokerole/releases/download/v0.3.0/foundry-pokerole-v0.3.0.zip",
+  "download": "https://github.com/Pokerole-Software-Development/foundry-pokerole/releases/download/v0.3.1/foundry-pokerole-v0.3.1.zip",
   "license": "LICENSE.txt",
   "changelog": "CHANGELOG.md"
 }
