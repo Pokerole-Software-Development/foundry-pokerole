@@ -34,10 +34,9 @@ export async function bulkApplyHp(healthUpdates) {
         });
       } else {
         // Otherwise, update the override data in the token
-        tokenUpdates.push({
-          _id: token.id,
-          'actorData.system.hp.value': hp
-        });
+        tokenUpdates.push(token.actor.update({
+          'system.hp.value': hp,
+        }));
       }
     } else if (actor) {
       actorUpdates.push({
@@ -52,7 +51,7 @@ export async function bulkApplyHp(healthUpdates) {
     promises.push(Actor.updateDocuments(actorUpdates));
   }
   if (tokenUpdates.length > 0) {
-    promises.push(canvas.scene.updateEmbeddedDocuments('Token', tokenUpdates));
+    promises.concat(tokenUpdates);
   }
   await Promise.all(promises);
 }
@@ -80,12 +79,12 @@ export async function bulkApplyDamageValidated(damageUpdates) {
       return;
     }
 
-    const maxHp = token?.actorData?.system?.hp?.max ?? actor.system.hp.max;
-    const oldHp = token?.actorData?.system?.hp?.value ?? actor.system.hp.value;
+    const maxHp = token?.delta?.system?.hp?.max ?? actor.system.hp.max;
+    const oldHp = token?.delta?.system?.hp?.value ?? actor.system.hp.value;
     const newHp = Math.max(oldHp - update.damage, 0);
     hpUpdates.push({ token, actor, hp: newHp });
 
-    const painPenalty = token?.actorData?.system?.painPenalty ?? actor.system.painPenalty;
+    const painPenalty = token?.delta?.system?.painPenalty ?? actor.system.painPenalty;
     const dataTokenUuid = token ? `data-token-uuid="${token.uuid}"` : '';
 
     html += `<p>Applied ${update.damage} damage to ${name}.</p>`;
