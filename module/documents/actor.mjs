@@ -135,21 +135,23 @@ export class PokeroleActor extends Actor {
     }
 
     // Apply custom effects
-    for (const effect of this.items.filter(item => item.type === 'effect' && item.system.enabled)) {
-      for (const rule of effect.system.rules) {
-        let value = parseInt(rule.value);
-        if (Number.isNaN(value)) {
-          continue;
-        }
+    if (!game.settings.get('pokerole', 'recoveryMode')) { // Custom effects are disabled in recovery mode
+      for (const effect of this.items.filter(item => item.type === 'effect' && item.system.enabled)) {
+        for (const rule of effect.system.rules) {
+          let value = parseInt(rule.value);
+          if (Number.isNaN(value)) {
+            continue;
+          }
 
-        switch (rule.operator) {
-          case 'add':
-            const currentValue = foundry.utils.getProperty(this, rule.attribute) ?? 0;
-            overrides[rule.attribute] = (overrides[rule.attribute] ?? 0) + currentValue + value;
-            break;
-          case 'replace':
-            overrides[rule.attribute] = value;
-            break;
+          switch (rule.operator) {
+            case 'add':
+              const currentValue = foundry.utils.getProperty(this, rule.attribute) ?? 0;
+              overrides[rule.attribute] = (overrides[rule.attribute] ?? 0) + currentValue + value;
+              break;
+            case 'replace':
+              overrides[rule.attribute] = value;
+              break;
+          }
         }
       }
     }
@@ -416,7 +418,7 @@ export class PokeroleActor extends Actor {
         '#ffffff',
         false,
       ));
-    return [ ...ailmentTokenEffects, ...customTokenEffects ];
+    return [...ailmentTokenEffects, ...customTokenEffects];
   }
 
   /** Reset resources depleted during a round */

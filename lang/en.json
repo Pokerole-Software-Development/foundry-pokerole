@@ -182,6 +182,9 @@
   "POKEROLE.SettingHintCombatResourceAutomation": "Automatically deplete resources used during combat, such as actions per round.",
   "POKEROLE.SettingNameRulesetVersion": "Pokérole rule set version",
   "POKEROLE.SettingHintRulesetVersion": "The Pokérole core version to reference for game rules where applicable. This doesn't have any effect on the contents of the compendium.",
+  "POKEROLE.SettingNameRecoveryMode": "Recovery Mode",
+  "POKEROLE.SettingHintRecoveryMode": "Disables custom effects that might prevent character sheets from opening.",
+
   "POKEROLE.Version20": "Pokérole 2.0",
 
   "POKEROLE.CombatResetRound": "Reset Round",

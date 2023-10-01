@@ -143,6 +143,16 @@ function registerSettings() {
     default: '2.0',
     requiresReload: true
   });
+
+  game.settings.register('pokerole', 'recoveryMode', {
+    name: 'POKEROLE.SettingNameRecoveryMode',
+    hint: 'POKEROLE.SettingHintRecoveryMode',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false,
+    requiresReload: true
+  });
 }
 
 /* -------------------------------------------- */

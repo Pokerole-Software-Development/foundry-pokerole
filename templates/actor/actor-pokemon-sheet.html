@@ -79,6 +79,13 @@
 
   {{!-- Sheet Body --}}
   <section class="sheet-body">
+    {{#if recoveryMode}}
+    <div style="color: red;">
+      <strong>RECOVERY MODE</strong>
+      <p>Custom effects are disabled. Please fix potential errors and disable recovery mode in settings.</p>
+      <hr>
+    </div>
+    {{/if}}
 
     {{!-- Stats Tab --}}
     <div class="tab attributes" data-group="primary" data-tab="attributes">

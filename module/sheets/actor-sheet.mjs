@@ -103,6 +103,9 @@ export class PokeroleActorSheet extends ActorSheet {
     this._prepareStatChanges(context);
     this._populateAilmentList(context);
 
+    // Propagate settings
+    context.recoveryMode = game.settings.get('pokerole', 'recoveryMode');
+
     return context;
   }
 
