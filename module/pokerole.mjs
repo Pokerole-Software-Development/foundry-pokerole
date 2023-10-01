@@ -283,7 +283,7 @@ async function onChatActionClick(event) {
         break;
       }
       case 'recoil': {
-        const { actorId, tokenUuid, damage } = event.target.dataset;
+        const { actorId, tokenUuid, damageBeforeEffectiveness } = event.target.dataset;
         const token = tokenUuid ? await fromUuid(tokenUuid) : undefined;
         const attacker = token ? token?.actor : await Actor.get(actorId);
         if (!attacker) {
@@ -292,7 +292,7 @@ async function onChatActionClick(event) {
         if (!(game.user.isGM || message.isAuthor)) {
           return ui.notifications.error("You can't use this item.");
         }
-        await rollRecoil(attacker, token, damage);
+        await rollRecoil(attacker, token, damageBeforeEffectiveness);
         break;
       }
       case 'applyDamage': {

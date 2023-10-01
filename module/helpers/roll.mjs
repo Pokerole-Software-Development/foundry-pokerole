@@ -28,7 +28,7 @@ export async function successRollFromExpression(expr, actor, chatData) {
       throw new Error('No actor selected');
     }
 
-    for (let [key, value] of Object.entries({...actor.getIntrinsicOrSocialAttributes(), ...actor.system.skills})) {
+    for (let [key, value] of Object.entries({ ...actor.getIntrinsicOrSocialAttributes(), ...actor.system.skills })) {
       if (key.toLowerCase() == statName) {
         console.log(`${key}=${value.value}`);
         rollCount += value.value;
@@ -447,6 +447,7 @@ export async function rollDamage(item, actor, token) {
 
   let damageUpdates = [];
   let damage;
+  let damageBeforeEffectiveness;
   if (selectedTokens.length === 0) {
     let rollCount = rollCountBeforeDef - enemyDef;
 
@@ -454,39 +455,40 @@ export async function rollDamage(item, actor, token) {
     html += '<hr>' + messageDataPart.content;
 
     damage = 1;
-    
+
     if (rollResult > 0) {
       damage = rollResult;
       damage = Math.max(Math.floor(damage * damageFactor), 1);
-
-      let effectivenessLevel = 0;
-
-      switch (effectiveness) {
-        case 'superEffective':
-          effectivenessLevel = 1;
-          break;
-        case 'doubleSuperEffective':
-          effectivenessLevel = 2;
-          break;
-        case 'notVeryEffective':
-          effectivenessLevel = -1;
-          break;
-        case 'doubleNotVeryEffective':
-          effectivenessLevel = -2;
-          break;
-        case 'immune':
-          effectivenessLevel = -Infinity;
-          break;
-        default:
-          effectivenessLevel = 0;
-          break;
-      }
-
-      if (effectivenessLevel !== 0) {
-        html += `<p><b>${getEffectivenessText(effectivenessLevel)}</b></p>`;
-      }
-      damage += effectivenessLevel;
     }
+
+    damageBeforeEffectiveness = damage;
+    let effectivenessLevel = 0;
+
+    switch (effectiveness) {
+      case 'superEffective':
+        effectivenessLevel = 1;
+        break;
+      case 'doubleSuperEffective':
+        effectivenessLevel = 2;
+        break;
+      case 'notVeryEffective':
+        effectivenessLevel = -1;
+        break;
+      case 'doubleNotVeryEffective':
+        effectivenessLevel = -2;
+        break;
+      case 'immune':
+        effectivenessLevel = -Infinity;
+        break;
+      default:
+        effectivenessLevel = 0;
+        break;
+    }
+
+    if (effectivenessLevel !== 0) {
+      html += `<p><b>${getEffectivenessText(effectivenessLevel)}</b></p>`;
+    }
+    damage += effectivenessLevel;
     damage = Math.max(damage, 0); // Dealt damage is always at least 0
 
     html += `<p>${damageTypeText}The attack deals ${damage} damage!</p>`;
@@ -509,6 +511,7 @@ export async function rollDamage(item, actor, token) {
 
       damage = rollResult;
       damage = Math.max(Math.floor(damage * damageFactor), 1);
+      damageBeforeEffectiveness = damage;
       let effectiveness = calcDualTypeMatchupScore(
         item.system.type,
         defender.system.type1,
@@ -521,7 +524,7 @@ export async function rollDamage(item, actor, token) {
           html += `<p><b>${getEffectivenessText(effectiveness)}</b></p>`;
         }
       }
-      
+
       // Damage is always at least 0
       damage = Math.max(damage, 0);
       if (damage > 0) {
@@ -542,7 +545,7 @@ export async function rollDamage(item, actor, token) {
       const oldHp = actor.system.hp.value;
       const newHp = Math.min(oldHp + leechHealHp, actor.system.hp.max);
       await bulkApplyHp([{ actor, token, hp: newHp }]);
-  
+
       html += createHealMessage(token?.name ?? actor.name, oldHp, newHp, actor.system.hp.max);
     }
   }
@@ -556,7 +559,7 @@ export async function rollDamage(item, actor, token) {
     if (item.system.attributes.recoil) {
       const dataTokenUuid = token ? `data-token-uuid="${token.uuid}"` : '';
       html += `<button class="chat-action" data-action="recoil" data-actor-id="${actor.id}"
-          ${dataTokenUuid} data-damage="${damage}">Roll Recoil Damage</button>`;
+          ${dataTokenUuid} data-damage-before-effectiveness="${damageBeforeEffectiveness}">Roll Recoil Damage</button>`;
     }
     html += `</div></div>`;
   }
@@ -573,13 +576,13 @@ export async function rollDamage(item, actor, token) {
  * Roll for recoil damage
  * @param {Actor} actor The actor receiving recoil
  * @param {TokenDocument | undefined} token The token of the actor receiving recoil 
- * @param {number} damage The damage dealt by the attack (serves as the dice pool for recoil)
+ * @param {number} damageBeforeEffectiveness The damage dealt by the attack before effectiveness is calculated (serves as the dice pool for recoil)
  */
-export async function rollRecoil(actor, token, damage) {
+export async function rollRecoil(actor, token, damageBeforeEffectiveness) {
   const chatData = {
     speaker: ChatMessage.implementation.getSpeaker({ token, actor })
   };
-  const [result, newChatData] = await createSuccessRollMessageData(damage, 'Recoil', chatData); 
+  const [result, newChatData] = await createSuccessRollMessageData(damageBeforeEffectiveness, 'Recoil', chatData);
 
   if (result > 0) {
     const oldHp = actor.system.hp.value;
@@ -588,7 +591,7 @@ export async function rollRecoil(actor, token, damage) {
     await bulkApplyHp([{
       token, actor, hp: newHp
     }]);
-  
+
     newChatData.content += `<p>${actor.name} took ${result} damage from recoil.</p>`;
 
     if (newHp === 0 && oldHp > 0) {
