@@ -47,7 +47,7 @@ export class PokeroleActorSheet extends ActorSheet {
     context.flags = actorData.flags;
 
     // Prepare character data and items.
-    this._prepareItems(context);
+    await this._prepareItems(context);
     await this._prepareAttributes(context, this.actor.overrides);
 
     // Add roll data for TinyMCE editors.
@@ -160,14 +160,8 @@ export class PokeroleActorSheet extends ActorSheet {
     }
   }
 
-  /**
-   * Organize and classify Items for Character sheets.
-   *
-   * @param {Object} actorData The actor to prepare.
-   *
-   * @return {undefined}
-   */
-  _prepareItems(context) {
+  /** Sort items by name and move rank */
+  async _prepareItems(context) {
     const gear = [];
     const abilities = [];
     const effects = [];
@@ -201,11 +195,15 @@ export class PokeroleActorSheet extends ActorSheet {
       // Append to moves.
       else if (i.type === 'move') {
         if (i.system.rank == undefined) {
-          this.actor.updateEmbeddedDocuments('Item', [{
+          await this.actor.updateEmbeddedDocuments('Item', [{
             _id: i._id,
             'system.rank': 'starter',
             'system.learned': true,
           }]);
+          // The changes above also have to be applied manually because the object
+          // doesn't update automatically.
+          i.system.rank = 'starter';
+          i.system.learned = true;
         }
 
         let group = i.system.rank;
@@ -297,7 +295,7 @@ export class PokeroleActorSheet extends ActorSheet {
     if (allAilments.burn1) {
       context.quickAilmentList.unshift({
         key: 'burn',
-        icon: allAilments.burn1.icon, 
+        icon: allAilments.burn1.icon,
         label: game.i18n.localize('POKEROLE.StatusBurn'),
         buttonDisabled: this.actor.isBurned()
       })
@@ -467,7 +465,7 @@ export class PokeroleActorSheet extends ActorSheet {
     html.find('.stat-change-input').change(ev => {
       const input = ev.target;
       const { key } = input.dataset;
-      
+
       let val = parseInt(input.value, 10);
       if (isNaN(val)) {
         val = 0;
