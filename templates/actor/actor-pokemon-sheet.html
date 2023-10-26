@@ -32,6 +32,13 @@
                 {{selectOptions types selected=system.type2}}
               </select>
             </div>
+
+            <div class="type">
+              <select name="system.type3" value="{{system.type3}}" data-dtype="String" class="type-select">
+                {{selectOptions types selected=system.type3}}
+              </select>
+            </div>
+
           </div>
         </div>
       </div>
@@ -189,6 +196,12 @@
               <span>{{ matchups.doubleWeak }}</span>
             </li>
             {{/if}}
+            {{#if matchups.tripleWeak}}
+              <li>
+                <h4>Triple weaknesses</h4>
+                <span>{{ matchups.tripleWeak }}</span>
+              </li>
+            {{/if}}
             {{#if matchups.resist}}
             <li>
               <h4>Resistances</h4>
@@ -200,6 +213,12 @@
               <h4>Double resistances</h4>
               <span>{{ matchups.doubleResist }}</span>
             </li>
+            {{/if}}
+            {{#if matchups.tripleResist}}
+              <li>
+                <h4>Triple resistances</h4>
+                <span>{{ matchups.tripleResist }}</span>
+              </li>
             {{/if}}
             {{#if matchups.immune}}
             <li>

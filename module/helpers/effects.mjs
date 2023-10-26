@@ -281,6 +281,8 @@ export async function addAilmentWithDialog(actor, category) {
 function isActorResistantAgainstAilment(actor, ailment) {
   const type1 = POKEROLE.typeMatchups[actor.system.type1] ?? POKEROLE.typeMatchups.none;
   const type2 = POKEROLE.typeMatchups[actor.system.type2] ?? POKEROLE.typeMatchups.none;
+  const type3 = POKEROLE.typeMatchups[actor.system.type3] ?? POKEROLE.typeMatchups.none;
 
-  return type1.ailmentImmunities.includes(ailment) || type2.ailmentImmunities.includes(ailment);
+
+  return type1.ailmentImmunities.includes(ailment) || type2.ailmentImmunities.includes(ailment) || type3.ailmentImmunities.includes(ailment);
 }

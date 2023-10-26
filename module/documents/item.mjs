@@ -17,7 +17,7 @@ export class PokeroleItem extends Item {
 
     if (this.actor) {
       this.system.stab = this.system.type !== 'none' 
-          && [this.actor.system.type1, this.actor.system.type2].includes(this.system.type);
+          && [this.actor.system.type1, this.actor.system.type2, this.actor.system.type3].includes(this.system.type);
     }
   }
 

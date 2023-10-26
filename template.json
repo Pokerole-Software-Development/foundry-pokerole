@@ -144,6 +144,8 @@
       "pokedexDescription": "",
       "type1": "none",
       "type2": "none",
+      "hasThirdType": false,
+      "type3": "none",
       "height": 0,
       "weight": 0,
       "recommendedRank": "none",
