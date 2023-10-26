@@ -1,4 +1,4 @@
-import { getDualTypeMatchups, getLocalizedEntriesForSelect, getLocalizedType, getLocalizedTypesForSelect, POKEROLE } from "../helpers/config.mjs";
+import { getTripleTypeMatchups, getLocalizedEntriesForSelect, getLocalizedType, getLocalizedTypesForSelect, POKEROLE } from "../helpers/config.mjs";
 import { successRollAttributeDialog, successRollSkillDialog } from "../helpers/roll.mjs";
 import { addAilmentWithDialog } from "../helpers/effects.mjs";
 
@@ -61,18 +61,24 @@ export class PokeroleActorSheet extends ActorSheet {
     context.types = getLocalizedTypesForSelect();
 
     context.matchups = {};
-    const matchups = getDualTypeMatchups(context.system.type1, context.system.type2);
+    const matchups = getTripleTypeMatchups(context.system.type1, context.system.type2, context.system.type3);
     if (matchups.resist) {
       context.matchups.resist = matchups.resist.map(getLocalizedType).join(', ');
     }
     if (matchups.doubleResist) {
       context.matchups.doubleResist = matchups.doubleResist.map(getLocalizedType).join(', ');
     }
+    if (matchups.tripleResist) {
+      context.matchups.tripleResist = matchups.tripleResist.map(getLocalizedType).join(', ');
+    }
     if (matchups.weak) {
       context.matchups.weak = matchups.weak.map(getLocalizedType).join(', ');
     }
     if (matchups.doubleWeak) {
       context.matchups.doubleWeak = matchups.doubleWeak.map(getLocalizedType).join(', ');
+    }
+    if (matchups.tripleWeak) {
+      context.matchups.tripleWeak = matchups.tripleWeak.map(getLocalizedType).join(', ');
     }
     if (matchups.immune) {
       context.matchups.immune = matchups.immune.map(getLocalizedType).join(', ');

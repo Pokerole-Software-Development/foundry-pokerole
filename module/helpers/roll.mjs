@@ -1,4 +1,4 @@
-import { calcDualTypeMatchupScore, getLocalizedPainPenaltiesForSelect, POKEROLE } from "./config.mjs";
+import { calcTripleTypeMatchupScore, getLocalizedPainPenaltiesForSelect, POKEROLE } from "./config.mjs";
 import { bulkApplyHp, createHealMessage } from "./damage.mjs";
 
 /**
@@ -6,7 +6,7 @@ import { bulkApplyHp, createHealMessage } from "./damage.mjs";
  * @param {String} expr Expression such as `Dexterity+Alert+2`
  * @param {Actor | undefined} actor The actor to roll as.
  * @param {Object} chatData Settings passed to `ChatMessage.create`
- * @returns 
+ * @returns
  */
 export async function successRollFromExpression(expr, actor, chatData) {
   expr = expr.trim();
@@ -58,7 +58,7 @@ const ATTRIBUTE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/attrib
 
 /**
  * Roll an attribute for successes with an optional dialog.
- * @param {{name: string, value: string}} attribute 
+ * @param {{name: string, value: string}} attribute
  * @param {{painPenalty: string, confusionPenalty: bool}} options
  * @param {boolean} showPopup If `false`, the popup is skipped and default values are assumed
  * @param {Object} chatData
@@ -127,7 +127,7 @@ const SKILL_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/skill-roll
 
 /**
  * Show a dialog for rolling successes based on a skill.
- * @param {{name: string, value: string}} skill 
+ * @param {{name: string, value: string}} skill
  * @param {Object} attributes The list of attributes to choose from
  * @param {{painPenalty: string, confusionPenalty: bool}} options
  * @param {Object} chatData
@@ -186,7 +186,7 @@ export async function successRollSkillDialog(skill, attributes, options, chatDat
   }
 
   let painPenalty = formData.painPenalty;
-  // Certain attributes are exempt from pain penalties  
+  // Certain attributes are exempt from pain penalties
   if (POKEROLE.painPenaltyExcludedAttributes.includes(attributeName)) {
     painPenalty = 'none';
   }
@@ -329,7 +329,7 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
 const DAMAGE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/damage-roll.html";
 
 /**
- * 
+ *
  * @param {Item} item The move to roll damage for
  * @param {Actor} actor The actor using the move
  * @param {TokenDocument} token The token using the move
@@ -369,11 +369,13 @@ export async function rollDamage(item, actor, token) {
     stab: item.system.stab,
     effectiveness: 'neutral',
     effectivenessList: {
+      tripleNotVeryEffective: 'Triple Not Very Effective (-3)',
       doubleNotVeryEffective: 'Double Not Very Effective (-2)',
       notVeryEffective: 'Not Very Effective (-1)',
       neutral: 'Neutral',
       superEffective: 'Super Effective (+1)',
       doubleSuperEffective: 'Double Super Effective (+2)',
+      tripleSuperEffective: 'Triple Super Effective (+3)',
     },
     targetNames,
     hasLeechHeal: shouldApplyLeechHeal,
@@ -471,11 +473,17 @@ export async function rollDamage(item, actor, token) {
       case 'doubleSuperEffective':
         effectivenessLevel = 2;
         break;
+      case 'tripleSuperEffective':
+        effectivenessLevel = 3;
+        break;
       case 'notVeryEffective':
         effectivenessLevel = -1;
         break;
       case 'doubleNotVeryEffective':
         effectivenessLevel = -2;
+        break;
+      case 'tripleNotVeryEffective':
+        effectivenessLevel = -3;
         break;
       case 'immune':
         effectivenessLevel = -Infinity;
@@ -512,10 +520,11 @@ export async function rollDamage(item, actor, token) {
       damage = rollResult;
       damage = Math.max(Math.floor(damage * damageFactor), 1);
       damageBeforeEffectiveness = damage;
-      let effectiveness = calcDualTypeMatchupScore(
+      let effectiveness = calcTripleTypeMatchupScore(
         item.system.type,
         defender.system.type1,
-        defender.system.type2
+        defender.system.type2,
+          defender.system.type3
       );
 
       if (rollResult > 0) {
@@ -575,7 +584,7 @@ export async function rollDamage(item, actor, token) {
 /**
  * Roll for recoil damage
  * @param {Actor} actor The actor receiving recoil
- * @param {TokenDocument | undefined} token The token of the actor receiving recoil 
+ * @param {TokenDocument | undefined} token The token of the actor receiving recoil
  * @param {number} damageBeforeEffectiveness The damage dealt by the attack before effectiveness is calculated (serves as the dice pool for recoil)
  */
 export async function rollRecoil(actor, token, damageBeforeEffectiveness) {
@@ -607,7 +616,7 @@ export async function rollRecoil(actor, token, damageBeforeEffectiveness) {
 /**
  * Roll for successes. Each of the rolled d6 count as a success if they show up as 4 or higher.
  * Also creates a chat message with the results.
- * 
+ *
  * @param {number} rollCount The number of dice to roll
  * @param {string} flavor Displayed flavor text
  * @param {Object} chatData Settings passed to `ChatMessage.create`
@@ -693,10 +702,14 @@ export function getEffectivenessText(effectiveness) {
       return "It's super effective! (+1)";
     case 2:
       return "It's super effective! (+2)";
+    case 3:
+      return "It's super effective! (+3)";
     case -1:
       return "It's not very effective... (-1)";
     case -2:
       return "It's not very effective... (-2)";
+    case -3:
+      return "It's not very effective... (-3)";
     case -Infinity:
       return "It doesn't affect the target...";
     default:

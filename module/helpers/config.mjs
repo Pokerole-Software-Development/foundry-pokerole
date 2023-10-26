@@ -362,6 +362,10 @@ export function calcDualTypeMatchupScore(attacking, defending1, defending2) {
   return calcTypeMatchupScore(attacking, defending1) + calcTypeMatchupScore(attacking, defending2);
 }
 
+export function calcTripleTypeMatchupScore(attacking, defending1, defending2, defending3) {
+  return calcTypeMatchupScore(attacking, defending1) + calcTypeMatchupScore(attacking, defending2) + calcTypeMatchupScore(attacking, defending3);
+}
+
 export function getTypeMatchups(defending) {
   return POKEROLE.typeMatchups[defending];
 }
@@ -394,6 +398,52 @@ export function getDualTypeMatchups(defending1, defending2) {
         break;
       case -2:
         matchups.doubleResist.push(attacking);
+        break;
+      case Number.NEGATIVE_INFINITY:
+        matchups.immune.push(attacking);
+        break;
+    }
+  }
+
+  return matchups;
+}
+/**
+ *
+ * @param {string} defending1 First type of the defender
+ * @param {string} defending2 Second type of the defender
+ * @param {string} defending3 Third type of the defender
+ * @returns {{weak: string[], doubleWeak: string[], tripleWeak: string[], resist: string[], doubleResist: string[], tripleResist: string[], immune: string[]}}
+ */
+export function getTripleTypeMatchups(defending1, defending2, defending3) {
+  let matchups = {
+    weak: [],
+    doubleWeak: [],
+    tripleWeak: [],
+    resist: [],
+    doubleResist: [],
+    tripleResist: [],
+    immune: []
+  };
+
+  for (const attacking of Object.keys(POKEROLE.typeMatchups)) {
+    switch (calcTripleTypeMatchupScore(attacking, defending1, defending2, defending3)) {
+      case 1:
+        matchups.weak.push(attacking);
+        break;
+      case 2:
+        matchups.doubleWeak.push(attacking);
+        break;
+      case 3:
+        matchups.tripleWeak.push(attacking);
+        break;
+      case -1:
+        matchups.resist.push(attacking);
+        break;
+      case -2:
+        matchups.doubleResist.push(attacking);
+        break;
+      case -3:
+        matchups.tripleResist.push(attacking);
         break;
       case Number.NEGATIVE_INFINITY:
         matchups.immune.push(attacking);

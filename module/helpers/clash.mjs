@@ -1,4 +1,4 @@
-import { calcDualTypeMatchupScore, getLocalizedPainPenaltiesForSelect, POKEROLE } from "./config.mjs";
+import { calcTripleTypeMatchupScore, getLocalizedPainPenaltiesForSelect, POKEROLE } from "./config.mjs";
 import { getEffectivenessText, createSuccessRollMessageData } from "./roll.mjs";
 import { PokeroleActor } from "../documents/actor.mjs";
 
@@ -126,8 +126,8 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
 }
 
 function calculateClashDamage(move, defender) {
-  let matchup = calcDualTypeMatchupScore(move.system.type,
-    defender.system.type1, defender.system.type2);
+  let matchup = calcTripleTypeMatchupScore(move.system.type,
+    defender.system.type1, defender.system.type2, defender.system.type3);
   let damage = Math.max(1 + matchup, 0);
   let html = '';
   let text = getEffectivenessText(matchup);
