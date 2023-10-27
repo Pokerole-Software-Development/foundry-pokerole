@@ -1,4 +1,4 @@
-import { getTripleTypeMatchups, getLocalizedEntriesForSelect, getLocalizedType, getLocalizedTypesForSelect, POKEROLE } from "../helpers/config.mjs";
+import { getTripleTypeMatchups, getDualTypeMatchups, getLocalizedEntriesForSelect, getLocalizedType, getLocalizedTypesForSelect, POKEROLE } from "../helpers/config.mjs";
 import { successRollAttributeDialog, successRollSkillDialog } from "../helpers/roll.mjs";
 import { addAilmentWithDialog } from "../helpers/effects.mjs";
 
@@ -61,7 +61,9 @@ export class PokeroleActorSheet extends ActorSheet {
     context.types = getLocalizedTypesForSelect();
 
     context.matchups = {};
-    const matchups = getTripleTypeMatchups(context.system.type1, context.system.type2, context.system.type3);
+    const matchups = context.system.hasThirdType
+        ? getTripleTypeMatchups(context.system.type1, context.system.type2, context.system.type3)
+        : getDualTypeMatchups(context.system.type1, context.system.type2);
     if (matchups.resist) {
       context.matchups.resist = matchups.resist.map(getLocalizedType).join(', ');
     }
@@ -785,10 +787,11 @@ export class PokeroleActorSheet extends ActorSheet {
   }
 
   async _showSettings() {
-    const { baseHp, customInitiativeMod, recommendedRank, source } = this.actor.system;
+    const { baseHp, customInitiativeMod, hasThirdType, recommendedRank, source } = this.actor.system;
     const content = await renderTemplate(this.constructor.SETTINGS_TEMPLATE_PATH, {
       baseHp,
       customInitiativeMod,
+      hasThirdType,
       recommendedRank,
       source,
       ranks: this.constructor.getLocalizedRanks(),
@@ -812,6 +815,8 @@ export class PokeroleActorSheet extends ActorSheet {
     if (!result) return;
     const formElement = result[0].querySelector('form');
     const formData = new FormDataExtended(formElement).object;
+    if(!formData.hasThirdType) this.actor.system.type3 = "none"
+    console.log(this.actor.system.type3);
 
     this.actor.update(formData);
   }

@@ -1,4 +1,9 @@
-import { calcTripleTypeMatchupScore, getLocalizedPainPenaltiesForSelect, POKEROLE } from "./config.mjs";
+import {
+  calcDualTypeMatchupScore,
+  calcTripleTypeMatchupScore,
+  getLocalizedPainPenaltiesForSelect,
+  POKEROLE
+} from "./config.mjs";
 import { bulkApplyHp, createHealMessage } from "./damage.mjs";
 
 /**
@@ -520,11 +525,15 @@ export async function rollDamage(item, actor, token) {
       damage = rollResult;
       damage = Math.max(Math.floor(damage * damageFactor), 1);
       damageBeforeEffectiveness = damage;
-      let effectiveness = calcTripleTypeMatchupScore(
+      let effectiveness = defender.system.hasThirdType ? calcTripleTypeMatchupScore(
         item.system.type,
         defender.system.type1,
         defender.system.type2,
           defender.system.type3
+      ) : calcDualTypeMatchupScore(
+          item.system.type,
+          defender.system.type1,
+          defender.system.type2
       );
 
       if (rollResult > 0) {

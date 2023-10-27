@@ -66,11 +66,19 @@
   }
 
   .sidedata {
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    input, select {
+      height: 22px;
+    }
+  }
+  .sidedata-thirdtype {
     width: 300px;
     display: flex;
     flex-direction: column;
     gap: 2px;
-
     input, select {
       height: 22px;
     }
