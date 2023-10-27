@@ -10,7 +10,8 @@
         <h1 class="charname">
           <input name="name" type="text" value="{{actor.name}}" placeholder="Name" />
         </h1>
-        <div class="sidedata">
+
+        <div {{#if system.hasThirdType}}class="sidedata-thirdtype"{{else}}class="sidedata"{{/if}}>
           <div class="species">
             <label for="system.pokedexId" class="resource-label">Pokédex</label>
             <input type="text" class="pokedex-num" name="system.pokedexId" value="{{system.pokedexId}}" placeholder="0"
@@ -33,12 +34,13 @@
               </select>
             </div>
 
+            {{#if system.hasThirdType}}
             <div class="type">
               <select name="system.type3" value="{{system.type3}}" data-dtype="String" class="type-select">
                 {{selectOptions types selected=system.type3}}
               </select>
             </div>
-
+            {{/if}}
           </div>
         </div>
       </div>

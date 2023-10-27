@@ -4,6 +4,12 @@
     <input type="number" name="system.baseHp" value="{{baseHp}}" min="0" max="99" data-dtype="Number"/>
   </div>
   <div class="form-group">
+    <label for="system.hasThirdType">Triple Typing</label>
+      <input type="checkbox" name="system.hasThirdType" value="{{hasThirdType}}" data-dtype="Boolean"
+        {{#if hasThirdType}}checked{{/if}}
+      />
+  </div>
+  <div class="form-group">
     <label for="system.customInitiativeMod">Custom Initiative Bonus</label>
     <input type="number" name="system.customInitiativeMod" value="{{customInitiativeMod}}" data-dtype="Number"/>
   </div>
