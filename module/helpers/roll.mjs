@@ -501,6 +501,13 @@ export async function rollDamage(item, actor, token) {
     if (effectivenessLevel !== 0) {
       html += `<p><b>${getEffectivenessText(effectivenessLevel)}</b></p>`;
     }
+
+    if (rollResult <= 0 && effectivenessLevel > 0) {
+      // Type advantages are only applied if one or more successes are rolled,
+      // but disadvantage is always applied
+      effectiveness = 0;
+    }
+
     damage += effectivenessLevel;
     damage = Math.max(damage, 0); // Dealt damage is always at least 0
 
@@ -529,11 +536,11 @@ export async function rollDamage(item, actor, token) {
         item.system.type,
         defender.system.type1,
         defender.system.type2,
-          defender.system.type3
+        defender.system.type3
       ) : calcDualTypeMatchupScore(
-          item.system.type,
-          defender.system.type1,
-          defender.system.type2
+        item.system.type,
+        defender.system.type1,
+        defender.system.type2
       );
 
       if (rollResult > 0) {

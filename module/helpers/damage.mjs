@@ -79,12 +79,12 @@ export async function bulkApplyDamageValidated(damageUpdates) {
       return;
     }
 
-    const maxHp = token?.delta?.system?.hp?.max ?? actor.system.hp.max;
-    const oldHp = token?.delta?.system?.hp?.value ?? actor.system.hp.value;
+    const maxHp = token?.actorData?.system?.hp?.max ?? actor.system.hp.max;
+    const oldHp = token?.actorData?.system?.hp?.value ?? actor.system.hp.value;
     const newHp = Math.max(oldHp - update.damage, 0);
     hpUpdates.push({ token, actor, hp: newHp });
 
-    const painPenalty = token?.delta?.system?.painPenalty ?? actor.system.painPenalty;
+    const painPenalty = token?.actorData?.system?.painPenalty ?? actor.system.painPenalty;
     const dataTokenUuid = token ? `data-token-uuid="${token.uuid}"` : '';
 
     html += `<p>Applied ${update.damage} damage to ${name}.</p>`;
