@@ -72,8 +72,8 @@ export class PokeroleActor extends Actor {
       skill.max = skillLimit;
     }
 
-    system.hp.max = system.baseHp + system.attributes.vitality.value;
-    system.will.max = system.attributes.insight.value + POKEROLE.CONST.MAX_WILL_BONUS;
+    system.hp.max = system.baseHp + system.attributes.vitality.value + totalPassiveIncrease;
+    system.will.max = system.attributes.insight.value + POKEROLE.CONST.MAX_WILL_BONUS + totalPassiveIncrease;
 
     // Stat changes need to be applied manually here because derived stats are created
     // before `applyEffects` is called
