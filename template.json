@@ -71,58 +71,7 @@
             "max": 5
           }
         },
-        "skills": {
-          "brawl": {
-            "value": 0,
-            "min": 0,
-            "max": 5
-          },
-          "evasion": {
-            "value": 0,
-            "min": 0,
-            "max": 5
-          },
-          "alert": {
-            "value": 0,
-            "min": 0,
-            "max": 5
-          },
-          "athletic": {
-            "value": 0,
-            "min": 0,
-            "max": 5
-          },
-          "nature": {
-            "value": 0,
-            "min": 0,
-            "max": 5
-          },
-          "stealth": {
-            "value": 0,
-            "min": 0,
-            "max": 5
-          },
-          "allure": {
-            "value": 0,
-            "min": 0,
-            "max": 5
-          },
-          "etiquette": {
-            "value": 0,
-            "min": 0,
-            "max": 5
-          },
-          "intimidate": {
-            "value": 0,
-            "min": 0,
-            "max": 5
-          },
-          "perform": {
-            "value": 0,
-            "min": 0,
-            "max": 5
-          }
-        },
+        "skills": {},
         "ailments": [],
         "accuracyMod": {
           "value": 0
@@ -144,8 +93,8 @@
       "pokedexDescription": "",
       "type1": "none",
       "type2": "none",
-      "hasThirdType": false,
       "type3": "none",
+      "hasThirdType": false,
       "height": 0,
       "weight": 0,
       "recommendedRank": "none",
@@ -163,6 +112,11 @@
         }
       },
       "skills": {
+        "brawl": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
         "channel": {
           "value": 0,
           "min": 0
@@ -170,6 +124,51 @@
         "clash": {
           "value": 0,
           "min": 0
+        },
+        "evasion": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "alert": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "athletic": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "nature": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "stealth": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "allure": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "etiquette": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "intimidate": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "perform": {
+          "value": 0,
+          "min": 0,
+          "max": 5
         }
       },
       "extra": {
