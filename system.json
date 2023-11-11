@@ -41,6 +41,13 @@
       "system": "pokerole",
       "path": "./packs/abilities.db",
       "type": "Item"
+    },
+    {
+      "name": "items",
+      "label": "Items (Core 2.0)",
+      "system": "pokerole",
+      "path": "./packs/items.db",
+      "type": "Item"
     }
   ],
   "languages": [
