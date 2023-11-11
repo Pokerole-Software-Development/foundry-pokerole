@@ -13,9 +13,11 @@ foundry
 packs/abilities/
 packs/moves/
 packs/pokedex/
+packs/items/
 
 css/
 images/pokemon/
+images/items/
 
 # Other
 .DS_Store
