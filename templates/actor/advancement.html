@@ -7,8 +7,8 @@
   {{#each attributes as |attribute key|}}
     <div class="form-group">
       <label for="attributes.{{key}}.value">{{key}} (Maximum: {{attribute.max}})</label>
-      <button class="decrease" data-target="attributes.{{key}}.value" data-kind="attributes">-</button>
-      <button class="increase" data-target="attributes.{{key}}.value" data-kind="attributes">+</button>
+      <button type="button" class="decrease" data-target="attributes.{{key}}.value" data-kind="attributes">-</button>
+      <button type="button" class="increase" data-target="attributes.{{key}}.value" data-kind="attributes">+</button>
       <input type="text" name="attributes.{{key}}.value" value="{{attribute.value}}" data-min="{{attribute.value}}" data-max="{{attribute.max}}" data-dtype="Number" disabled/>
       <span class="delta" data-delta-target="attributes.{{key}}.value">(+0)</span>
     </div>
@@ -24,8 +24,8 @@
   {{#each skills as |skill key|}}
     <div class="form-group">
       <label for="skills.{{key}}.value">{{key}} (Maximum: {{@root.skillLimit}})</label>
-      <button class="decrease" data-target="skills.{{key}}.value" data-kind="skills">-</button>
-      <button class="increase" data-target="skills.{{key}}.value" data-kind="skills">+</button>
+      <button type="button" class="decrease" data-target="skills.{{key}}.value" data-kind="skills">-</button>
+      <button type="button" class="increase" data-target="skills.{{key}}.value" data-kind="skills">+</button>
       <input type="text" name="skills.{{key}}.value" value="{{skill.value}}" data-min="{{skill.value}}" data-max="{{@root.skillLimit}}" data-dtype="Number" disabled/>
       <span class="delta" data-delta-target="skills.{{key}}.value">(+0)</span>
     </div>
@@ -41,8 +41,8 @@
   {{#each social as |attribute key|}}
     <div class="form-group">
       <label for="social.{{key}}.value">{{key}} (Maximum: {{attribute.max}})</label>
-      <button class="decrease" data-target="social.{{key}}.value" data-kind="social">-</button>
-      <button class="increase" data-target="social.{{key}}.value" data-kind="social">+</button>
+      <button type="button" class="decrease" data-target="social.{{key}}.value" data-kind="social">-</button>
+      <button type="button" class="increase" data-target="social.{{key}}.value" data-kind="social">+</button>
       <input type="text" name="social.{{key}}.value" value="{{attribute.value}}" data-min="{{attribute.value}}" data-max="{{attribute.max}}" data-dtype="Number" disabled/>
       <span class="delta" data-delta-target="social.{{key}}.value">(+0)</span>
     </div>

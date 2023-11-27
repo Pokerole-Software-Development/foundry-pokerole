@@ -5,7 +5,7 @@
       <input type="text" name="system.actionCount.value" value="{{system.actionCount.value}}" data-dtype="Number">
       <span> / {{system.actionCount.max}}</span>
     </div>
-    <button title="Increment action count" class="increment-action-num" {{#unless hasAvailableActions}}disabled{{/unless}}>
+    <button type="button" title="Increment action count" class="increment-action-num" {{#unless hasAvailableActions}}disabled{{/unless}}>
       <i class="fas fa-plus"></i><label>Increase</label>
     </button>
   </div>
@@ -21,7 +21,7 @@
     </button>
   </div>
 
-  <button title="Reset resources" class="reset-round-based-resources">Reset</button>
+  <button type="button" title="Reset resources" class="reset-round-based-resources">Reset</button>
 </div>
 
 <ol class="items-list">
