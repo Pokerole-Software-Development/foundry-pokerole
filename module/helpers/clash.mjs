@@ -18,6 +18,9 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
     attackerTokenDoc = attacker;
     attacker = attackerTokenDoc.actor;
   }
+  if (attacker.token) {
+    attackerTokenDoc = attacker.token;
+  }
 
   // Only physical and special moves can be used to clash
   let moveList = actor.getLearnedMoves()
@@ -105,7 +108,7 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
     html += damageAndHtml.html;
     let damageToDefender = damageAndHtml.damage;
     if (damageToDefender > 0) {
-      damageUpdates.push({ tokenUuid: actorToken?.uuid, actorId: actor?.id, damage: damageToDefender });
+      damageUpdates.push({ tokenUuid: actorToken?.document?.uuid, actorId: actor?.id, damage: damageToDefender });
     }
 
     html += `<div class="pokerole"><div class="action-buttons"><button class="chat-action" data-action="applyDamage"
