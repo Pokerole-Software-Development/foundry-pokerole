@@ -19,7 +19,9 @@ Open the compendium in the second tab from the right and go to the "Pokémon" ta
 ### Success-based rolls
 Pokérole is a d6-based role-playing system, where most rolls are based on successes. Whether action rolls are successful is determined by how many of the rolled dice (also referred to as the "dice pool") come up as 4 or higher.
 
-This system adds a custom chat command for convenient success-based rolls: Enter `/sc` followed by a space and the number of dice you want to roll in the chat. While a token is selected, you can also enter a formula based on your attributes and skills, such as `/sc dexterity+channel+2`.
+This system adds a custom chat command for convenient success-based rolls: Enter `/sc` (or `/successroll`) followed by a space and the number of dice you want to roll in the chat. While a token is selected, you can also enter a formula based on your attributes and skills, such as `/sc dexterity+channel+2`.
+
+Some effects require chance dice rolls instead of success-based rolls. These rolls succeed when any of the rolled dice come up as a 6. You can use the command `/cd` (or `/chancedice`) followed by a number or formula to roll with this behavior.
 
 ## Tips
 - Click the icon on a move on the character sheet to automatically roll for accuracy and damage.
