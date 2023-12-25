@@ -48,6 +48,8 @@
   "POKEROLE.DerivedDef": "Defense",
   "POKEROLE.DerivedSpDef": "Sp. Def.",
 
+  "POKEROLE.AccuracyMod": "Accuracy",
+
   "POKEROLE.EffectCreate": "Create Effect",
   "POKEROLE.EffectToggle": "Toggle Effect",
   "POKEROLE.EffectEdit": "Edit Effect",

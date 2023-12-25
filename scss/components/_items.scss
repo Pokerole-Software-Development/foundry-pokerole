@@ -131,3 +131,73 @@
 .items-list .flex-small {
   flex: 0.35;
 }
+
+// Move effects
+.effect-group-list {
+  margin: 0;
+  padding: 0;
+  min-width: 470px;
+
+  input, select {
+    font-size: 0.76rem;
+    height: 23px;
+  }
+
+  .effect-list {
+    margin: 0;
+    padding: 0 0 0 5px;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      height: 27px;
+    }
+
+    .items-header {
+      margin-bottom: 0;
+      height: 28px;
+
+      .item-prop * {
+        flex-grow: 0;
+      }
+    }
+
+    .label-wrapper {
+      display: flex;
+      align-items: center;
+      flex-grow: 0;
+      gap: 2px;
+
+      label {
+        font-size: 0.75rem;
+        color: black;
+      }
+    }
+  }
+
+  .item-controls {
+    display: flex;
+    flex: 0;
+    gap: 4px;
+  }
+
+  .effect-group-create {
+    flex-grow: 0;
+    flex-basis: 100px;
+  }
+
+  .effect-group-add-effect {
+    display: flex;
+  }
+
+  .small-input {
+    width: 45px;
+    flex-basis: 45px;
+    flex-grow: 0;
+  }
+
+  .condition-wrapper {
+    gap: 2px;
+  }
+}

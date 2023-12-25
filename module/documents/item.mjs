@@ -239,6 +239,48 @@ export class PokeroleItem extends Item {
     return true;
   }
 
+  /**
+   * Get a list of all effects applied by this move that don't require a chance roll
+   * @return {object[]} List of effects
+   */
+  getUnconditionalEffects() {
+    return this.system.effectGroups
+      .filter(group => group.condition.type === 'none')
+      .flatMap(group => group.effects);
+  }
+
+  /**
+   * Whether this move might target the user.
+   * @return {boolean}
+   */
+  get mightTargetUser() {
+    return ['User', 'User and Allies', 'Area', 'Battlefield', 'Battlefield and Area'].includes(this.system.target);
+  }
+
+  /**
+   * Returns a pretty-printed string of the effect
+   * @param {object} effect The effect to convert
+   */
+  static formatEffect(effect) {
+    let str = '';
+    switch (effect.type) {
+      case 'ailment':
+        str += 'Inflict Condition: ';
+        str += game.i18n.localize(POKEROLE.i18n.ailments[effect.ailment]);
+        break;
+      case 'statChange':
+        str += effect.amount > 0 ? 'Raise ' : 'Lower ';
+        str += game.i18n.localize(POKEROLE.i18n.effectStats[effect.stat]);
+        if (effect.amount !== 1 && effect.amount !== -1) {
+          str += ` by ${Math.abs(effect.amount)}`;
+        }
+        break;
+    }
+
+    str += effect.affects === 'user' ? ' (Self)' : ' (Targets)';
+    return str;
+  }
+
    /**
    * Apply listeners to chat messages.
    * @param {HTML} html  Rendered chat message.
