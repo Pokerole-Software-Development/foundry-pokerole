@@ -71,11 +71,22 @@ export class PokeroleItemSheet extends ItemSheet {
       "replace": "Replace"
     };
 
+    context.effectGroupConditions = {
+      "none": "No condition",
+      "chanceDice": "Chance Dice"
+    };
+    context.moveEffects = {
+      "ailment": "Ailment",
+      "statChange": "Stat Change",
+    };
+    context.effectAilments = getLocalizedEntriesForSelect('ailments');
+    context.effectStats = getLocalizedEntriesForSelect('effectStats');
+    context.effectAffects = getLocalizedEntriesForSelect('effectTargets');
+
     return context;
   }
 
   /* -------------------------------------------- */
-
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
@@ -84,8 +95,28 @@ export class PokeroleItemSheet extends ItemSheet {
     if (!this.isEditable) return;
 
     // Effects
+    this.addRuleListener(html);
+    this.deleteRuleListener(html);
+    this.ruleAttributeListener(html);
+    this.ruleOperatorListener(html);
+    this.ruleValueListener(html);
+
+    // Move effects
+    this.effectGroupCreateListener(html);
+    this.effectGroupDeleteListener(html);
+    this.effectGroupConditionListener(html);
+    this.effectGroupAddEffectListener(html);
+    this.deleteEffectListener(html);
+    this.effectTypeListener(html);
+    this.effectAilmentListener(html);
+    this.effectStatListener(html);
+    this.effectAmountListener(html);
+    this.effectAffectsListener(html);
+  }
+
+  addRuleListener(html) {
     html.find(".add-rule").click(async ev => {
-      let rules = this.object.system.rules;
+      const rules = [...this.object.system.rules];
       rules.push({
         attribute: '',
         operator: 'add',
@@ -93,30 +124,164 @@ export class PokeroleItemSheet extends ItemSheet {
       });
       await this.object.update({ "system.rules": rules });
     });
+  }
+
+  deleteRuleListener(html) {
     html.find(".delete-rule").click(async ev => {
-      let index = ev.target.dataset.index;
-      let rules = this.object.system.rules;
+      const index = ev.target.dataset.index;
+      const rules = [...this.object.system.rules];
       rules.splice(index, 1);
       await this.object.update({ "system.rules": rules });
     });
+  }
 
+  ruleAttributeListener(html) {
     html.find(".rule-attribute").change(async ev => {
-      let index = ev.target.dataset.index;
+      const index = ev.target.dataset.index;
       if (!ev.target.value) {
         return;
       }
       this.object.system.rules[index].attribute = ev.target.value;
       await this.object.update({ "system.rules": this.object.system.rules });
     });
+  }
+
+  ruleOperatorListener(html) {
     html.find(".rule-operator").change(async ev => {
-      let index = ev.target.dataset.index;
+      const index = ev.target.dataset.index;
       this.object.system.rules[index].operator = ev.target.value;
       await this.object.update({ "system.rules": this.object.system.rules });
     });
+  }
+
+  ruleValueListener(html) {
     html.find(".rule-value").change(async ev => {
-      let index = ev.target.dataset.index;
+      const index = ev.target.dataset.index;
       this.object.system.rules[index].value = ev.target.value;
       await this.object.update({ "system.rules": this.object.system.rules });
+    });
+  }
+
+  effectGroupCreateListener(html) {
+    html.find('.effect-group-create').click(async ev => {
+      const groups = [...this.object.system.effectGroups];
+      groups.push({
+        condition: {
+          type: 'none',
+        },
+        effects: [{
+          type: 'ailment',
+          ailment: 'poison',
+          affects: 'user'
+        }]
+      });
+      await this.object.update({ "system.effectGroups": groups });
+    });
+  }
+
+  effectGroupDeleteListener(html) {
+    html.find('.effect-group-delete').click(async ev => {
+      const index = ev.currentTarget.dataset.index;
+      const groups = [...this.object.system.effectGroups];
+      groups.splice(index, 1);
+      await this.object.update({ "system.effectGroups": groups });
+    });
+  }
+
+  effectGroupConditionListener(html) {
+    html.find('.effect-group-condition').change(async ev => {
+      const index = ev.currentTarget.dataset.index;
+      const groups = [...this.object.system.effectGroups];
+      const type = ev.currentTarget.value;
+      groups[index].condition.type = type;
+      if (type === 'chanceDice') {
+        groups[index].condition.amount = 1;
+      } else {
+        delete groups[index].condition.amount;
+      }
+
+      await this.object.update({ "system.effectGroups": groups });
+    });
+  }
+
+  effectGroupAddEffectListener(html) {
+    html.find('.effect-group-add-effect').click(async ev => {
+      const index = ev.currentTarget.dataset.index;
+      const groups = [...this.object.system.effectGroups];
+      groups[index].effects.push({
+        type: 'ailment',
+        ailment: 'poison',
+        affects: 'user'
+      });
+      await this.object.update({ "system.effectGroups": groups });
+    });
+  }
+
+  deleteEffectListener(html) {
+    html.find('.delete-effect').click(async ev => {
+      const { groupIndex, effectIndex } = ev.currentTarget.dataset;
+      const groups = [...this.object.system.effectGroups];
+      groups[groupIndex].effects.splice(effectIndex, 1);
+      await this.object.update({ "system.effectGroups": groups });
+    });
+  }
+
+  effectTypeListener(html) {
+    html.find('.effect-type').change(async ev => {
+      const { groupIndex, effectIndex } = ev.currentTarget.dataset;
+      const groups = [...this.object.system.effectGroups];
+
+      const type = ev.currentTarget.value;
+      const item = groups[groupIndex].effects[effectIndex];
+      item.type = type;
+      if (type === 'ailment') {
+        item.ailment = 'poison';
+        delete item.stat;
+        delete item.amount;
+      } else {
+        item.stat = 'strength';
+        item.amount = 1;
+        delete item.ailment;
+      }
+      groups[groupIndex].effects[effectIndex] = item;
+
+      await this.object.update({ "system.effectGroups": groups });
+    });
+  }
+
+  effectAilmentListener(html) {
+    html.find('.effect-ailment').change(async ev => {
+      const { groupIndex, effectIndex } = ev.currentTarget.dataset;
+      const groups = [...this.object.system.effectGroups];
+      groups[groupIndex].effects[effectIndex].ailment = ev.currentTarget.value;
+      await this.object.update({ "system.effectGroups": groups });
+    });
+  }
+
+  effectStatListener(html) {
+    html.find('.effect-stat').change(async ev => {
+      const { groupIndex, effectIndex } = ev.currentTarget.dataset;
+      const groups = [...this.object.system.effectGroups];
+      groups[groupIndex].effects[effectIndex].stat = ev.currentTarget.value;
+      await this.object.update({ "system.effectGroups": groups });
+    });
+  }
+
+  effectAmountListener(html) {
+    html.find('.effect-amount').change(async ev => {
+      const { groupIndex, effectIndex } = ev.currentTarget.dataset;
+      const groups = [...this.object.system.effectGroups];
+      groups[groupIndex].effects[effectIndex].amount = parseInt(ev.currentTarget.value);
+      await this.object.update({ "system.effectGroups": groups });
+    });
+  }
+
+  effectAffectsListener(html) {
+    html.find('.effect-affects').change(async ev => {
+      const { groupIndex, effectIndex } = ev.currentTarget.dataset;
+      const groups = [...this.object.system.effectGroups];
+      groups[groupIndex].effects[effectIndex].affects = ev.currentTarget.value;
+      await this.object.update({ "system.effectGroups": groups });
     });
   }
 }

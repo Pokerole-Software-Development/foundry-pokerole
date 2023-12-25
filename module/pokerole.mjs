@@ -5,11 +5,11 @@ import { PokeroleActorSheet } from "./sheets/actor-sheet.mjs";
 import { PokeroleItemSheet } from "./sheets/item-sheet.mjs";
 import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { getAilmentList, POKEROLE } from "./helpers/config.mjs";
-import { rollRecoil, successRollAttributeDialog, successRollFromExpression } from "./helpers/roll.mjs";
+import { rollRecoil, successRollAttributeDialog, successRollFromExpression, chanceDiceRollFromExpression } from "./helpers/roll.mjs";
 import { showClashDialog } from "./helpers/clash.mjs";
 import { bulkApplyDamageValidated, canModifyTokenOrActor } from "./helpers/damage.mjs";
 import { registerIntegrationHooks } from "./helpers/integrations.mjs";
-import { registerEffectHooks } from "./helpers/effects.mjs";
+import { addAilmentWithDialog, isActorResistantAgainstAilment, registerEffectHooks } from "./helpers/effects.mjs";
 
 /* -------------------------------------------- */
 /*  Init Hook                                   */
@@ -221,8 +221,14 @@ async function onChatActionClick(event) {
   const messageId = event.currentTarget.closest(".message").dataset.messageId;
   const message = game.messages.get(messageId);
 
-  const token = canvas.tokens.controlled.length > 0 ? canvas.tokens.controlled[0] : null;
-  const actor = token?.document?.actor ?? game.user?.character;
+  const tokens = canvas.tokens.controlled;
+  const actors = tokens.map(t => t.document.actor);
+  if (actors.length == 0 && game.user?.character) {
+    actors.push(game.user.character);
+  }
+
+  const token = tokens.length > 0 ? tokens[0] : null;
+  const actor = actors.length > 0 ? actors[0] : null;
   const chatData = { speaker: ChatMessage.implementation.getSpeaker({ token: token?.document, actor }) };
 
   const action = event.target.dataset.action;
@@ -283,12 +289,8 @@ async function onChatActionClick(event) {
         break;
       }
       case 'recoil': {
-        const { actorId, tokenUuid, damageBeforeEffectiveness } = event.target.dataset;
-        const token = tokenUuid ? await fromUuid(tokenUuid) : undefined;
-        const attacker = token ? token?.actor : await Actor.get(actorId);
-        if (!attacker) {
-          return ui.notifications.error("The attacking actor doesn't exist anymore");
-        }
+        const { damageBeforeEffectiveness } = event.target.dataset;
+        const { actor: attacker, token } = await getActorAndTokenFromEvent(event);
         if (!(game.user.isGM || message.isAuthor)) {
           return ui.notifications.error("You can't use this item.");
         }
@@ -301,13 +303,8 @@ async function onChatActionClick(event) {
         break;
       }
       case 'painPenalty': {
-        const { actorId, tokenUuid, painPenalty } = event.target.dataset;
-        const token = tokenUuid ? await fromUuid(tokenUuid) : undefined;
-        const actor = token ? token?.actor : await Actor.get(actorId);
-        if (!actor) {
-          return ui.notifications.error("The actor doesn't exist anymore");
-        }
-
+        const { painPenalty } = event.target.dataset;
+        const { actor, token } = await getActorAndTokenFromEvent(event);
         if (canModifyTokenOrActor(token, actor)) {
           await actor.update({ 'system.painPenalty': painPenalty });
           await ChatMessage.implementation.create({
@@ -318,18 +315,11 @@ async function onChatActionClick(event) {
         break;
       }
       case 'ignorePainPenalty': {
-        const { actorId, tokenUuid } = event.target.dataset;
-        const token = tokenUuid ? await fromUuid(tokenUuid) : undefined;
-        const actor = token ? token?.actor : await Actor.get(actorId);
-        if (!actor) {
-          return ui.notifications.error("The actor doesn't exist anymore");
-        }
-
+        const { actor, token } = await getActorAndTokenFromEvent(event);
         if (canModifyTokenOrActor(token, actor)) {
           if (actor.system.will.value < 1) {
             return ui.notifications.error("You don't have any Will left.");
           }
-
           await actor.update({ 'system.will.value': actor.system.will.value - 1 });
           await ChatMessage.implementation.create({
             content: 'It toughed through the pain with its Will power!',
@@ -338,11 +328,105 @@ async function onChatActionClick(event) {
         }
         break;
       }
+      case 'applyEffect': {
+        const effect = JSON.parse(event.target.dataset.effect);
+        const { actor: attackerActor, token: attackerToken } = await getActorAndTokenFromEvent(event);
+        await applyEffectToActors(effect, attackerActor, attackerToken, actors);
+        break;
+      }
     }
   } catch (e) {
     ui.notifications.error(e.message);
   }
 }
+
+async function getActorAndTokenFromEvent(event) {
+  const { actorId, tokenUuid } = event.target.dataset;
+  const token = tokenUuid ? await fromUuid(tokenUuid) : undefined;
+  const actor = token ? token?.actor : await Actor.get(actorId);
+  if (!actor) {
+    throw new Error("The actor doesn't exist anymore");
+  }
+  return { actor, token };
+}
+
+/**
+ * Applies an effect to a list of actors.
+ * @param {object} effect The effect data
+ * @param {object} attackerActor The actor that inflicts the effect
+ * @param {object} attackerToken The token that inflicts the effect
+ * @param {Array<object>} actors The list of target actors.
+ * @returns {Promise<void>} A promise that resolves when the effect is applied.
+ */
+async function applyEffectToActors(effect, attackerActor, attackerToken, actors) {
+  if (actors.length === 0) {
+    return ui.notifications.warn("Choose an actor to apply the effect to.");
+  }
+
+  for (const actor of actors) {
+    // Check if the target is correct
+    if (effect.affects === 'user' && actor !== attackerActor) {
+      ui.notifications.error(`You can't apply this effect to ${actor.name}: it only affects the user.`);
+      continue;
+    }
+
+    if (isActorResistantAgainstAilment(actor, effect.ailment)) {
+      ui.notifications.warn(`${actor.name} is immune against this status condition.`);
+      continue;
+    }
+
+    switch (effect.type) {
+      case 'ailment':
+        if (actor.hasAilment(effect.ailment)) {
+          ui.notifications.warn(`${actor.name} already has this status condition.`);
+          continue;
+        }
+
+        switch (effect.ailment) {
+          case 'disabled':
+            if (!await addAilmentWithDialog(actor, effect.ailment)) {
+              return;
+            }
+            break;
+          case 'infatuated':
+            await actor.applyAilment(effect.ailment, { inflictedByUuid: attackerActor.uuid });
+            break;
+          default:
+            await actor.applyAilment(effect.ailment);
+            break;
+        }
+
+        const ailmentName = game.i18n.localize(POKEROLE.i18n.ailments[effect.ailment]);
+        await ChatMessage.implementation.create({
+          content: `Applied status condition ${ailmentName} to ${actor.name}.`,
+          speaker: ChatMessage.implementation.getSpeaker({ attackerToken, attackerActor })
+        });
+        break;
+
+      case 'statChange':
+        if (!await actor.applyStatChange(effect.stat, effect.amount)) {
+          ui.notifications.warn(`The effect was not applied because the targeted stat is already at the level the effect would have altered it to.`);
+          continue;
+        }
+
+        const statName = game.i18n.localize(POKEROLE.i18n.effectStats[effect.stat]);
+        const change = effect.amount > 0 ? 'rose' : 'fell';
+
+        let message = `${actor.name}'s ${statName} ${change}`;
+        if (Math.abs(effect.amount) > 1) {
+          message += ` by ${Math.abs(effect.amount)}`;
+        }
+        message += '!';
+
+        await ChatMessage.implementation.create({
+          content: `${actor.name}'s ${statName} ${change} by ${Math.abs(effect.amount)}!`,
+          speaker: ChatMessage.implementation.getSpeaker({ attackerToken, attackerActor })
+        });
+        break;
+    }
+  }
+}
+
 
 function createButton(mode, roll, flavor) {
   const a = document.createElement('a');
@@ -382,7 +466,6 @@ async function onInlineRollClick(event) {
   }
 }
 
-
 let originalProcessMessage = ChatLog.prototype.processMessage;
 ChatLog.prototype.processMessage = async function (message) {
   const speaker = ChatMessage.implementation.getSpeaker();
@@ -390,15 +473,27 @@ ChatLog.prototype.processMessage = async function (message) {
     user: game.user.id,
     speaker
   };
+  
+  const actor = canvas?.tokens.get(speaker?.token)?.actor ?? game.user?.character;
+  const split = message.split(' ');
+  if (split.length < 1) {
+    return originalProcessMessage.call(this, message);
+  }
 
-  if (message.startsWith('/sc')) {
-    let split = message.split(' ');
+  const command = split[0].toLowerCase();
+  if (command === '/sc' || command === '/successroll') {
     if (split.length < 2) {
       throw new Error('This command requires 2 or more parameters');
     }
 
-    let actor = canvas?.tokens.get(speaker?.token)?.actor ?? game.user?.character;
     return successRollFromExpression(split.slice(1).join(' '), actor, chatData);
+  } else if (command === '/cd' || command === '/chancedice') {
+    const split = message.split(' ');
+    if (split.length < 2) {
+      throw new Error('This command requires 2 or more parameters');
+    }
+
+    return chanceDiceRollFromExpression(split.slice(1).join());
   }
 
   return originalProcessMessage.call(this, message);

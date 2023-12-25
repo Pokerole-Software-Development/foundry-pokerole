@@ -10,6 +10,7 @@
   <nav class="sheet-tabs tabs" data-group="primary">
     <a class="item" data-tab="attributes">Attributes</a>
     <a class="item" data-tab="description">Description</a>
+    <a class="item" data-tab="effects">Effects</a>
   </nav>
 
   {{!-- Sheet Body --}}
@@ -162,6 +163,68 @@
     {{!-- Description Tab --}}
     <div class="tab description" data-group="primary" data-tab="description">
       {{editor descriptionHtml target="system.description" button=true owner=owner editable=editable engine="prosemirror"}}
+    </div>
+
+    {{!-- Effects Tab --}}
+    <div class="tab effects" data-group="primary" data-tab="effects">
+      <ol class="items-list effect-group-list">
+        <li class="item flexrow items-header">
+          <div class="item-name">Condition</div>
+          <a class="effect-group-control effect-group-create" title="Create group" data-type="item"><i class="fas fa-plus"></i> Add Group</a>
+        </li>
+        {{#each system.effectGroups as |group index|}}
+          <li class="item flexrow">
+
+            <ol class="items-list effect-list">
+              <li class="item flexrow items-header">
+                <div class="item-prop flexrow condition-wrapper">
+                  {{#if group.condition.amount}}
+                    <input title="Number of chance dice" type="text" class="small-input" value="{{group.condition.amount}}" data-dtype="Number" data-index="{{index}}"/>
+                  {{/if}}
+
+                  <select title="Condition type" class="effect-group-condition" value="{{group.condition.type}}" data-index="{{index}}">
+                    {{selectOptions ../effectGroupConditions selected=group.condition.type}}
+                  </select>
+                </div>
+                <div class="item-controls">
+                  <a class="item-control effect-group-add-effect" title="Add Effect to Group" data-index="{{index}}"><i class="fas fa-add"></i> Effect</a>
+                  <a class="item-control effect-group-delete" title="Delete Group" data-index="{{index}}"><i class="fas fa-trash"></i></a>
+                </div>
+              </li>
+
+              {{#each group.effects as |effect effectIndex|}}
+                <li class="item flexrow effect-item">
+                  <select title="Type" class="effect-type" value="{{effect.type}}" data-index="{{index}}" data-group-index="{{index}}" data-effect-index="{{effectIndex}}">
+                    {{selectOptions ../../moveEffects selected=effect.type}}
+                  </select>
+                  {{#if effect.ailment}}
+                  <select title="Inflicted ailment" class="effect-ailment" value="{{effect.ailment}}" data-index="{{index}}" data-group-index="{{index}}" data-effect-index="{{effectIndex}}">
+                    {{selectOptions ../../effectAilments selected=effect.ailment}}
+                  </select>
+                  {{/if}}
+                  {{#if effect.stat}}
+                  <select title="Affected stat" class="effect-stat" value="{{effect.type}}" data-index="{{index}}" data-group-index="{{index}}" data-effect-index="{{effectIndex}}">
+                    {{selectOptions ../../effectStats selected=effect.stat}}
+                  </select>
+                  <span title="Stat increase/decrease stages" class="label-wrapper">
+                    <label class="effect-amount-label">Stages:</label>
+                    <input type="text" class="effect-amount small-input" value="{{effect.amount}}" data-dtype="Number" data-index="{{index}}" data-group-index="{{index}}" data-effect-index="{{effectIndex}}"/>
+                  </span>
+                  {{/if}}
+                  <select title="Affected targets" class="effect-affects" value="{{effect.affects}}" data-index="{{index}}" data-group-index="{{index}}" data-effect-index="{{effectIndex}}">
+                    {{selectOptions ../../effectAffects selected=effect.affects}}
+                  </select>
+                  <div class="item-controls">
+                    <a class="item-control delete-effect" title="Delete Effect" data-group-index="{{index}}" data-effect-index="{{effectIndex}}"><i class="fas fa-trash"></i></a>
+                  </div>
+                </li>
+              {{/each}}
+
+            </ol>
+
+          </li>
+        {{/each}}
+      </ol>      
     </div>
 
   </section>

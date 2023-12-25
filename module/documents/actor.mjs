@@ -421,6 +421,38 @@ export class PokeroleActor extends Actor {
     return [...ailmentTokenEffects, ...customTokenEffects];
   }
 
+  /**
+   * Applies a stat change to the actor.
+   * 
+   * Note that stat changes do not stack, so the new value will replace the old one
+   * if its absolute value is higher.
+   * 
+   * @param {string} stat The stat to be changed.
+   * @param {number} amount The amount by which the stat should be changed.
+   * @throws {Error} If the stat is unknown.
+   * @returns {Promise<bool>} `true` if the stat was changed, `false` if the new value was lower than the old one.
+   */
+  async applyStatChange(stat, amount) {
+    let key;
+    if (['strength', 'dexterity', 'special', 'def', 'spDef'].includes(stat)) {
+      key = `system.statChanges.${stat}.value`;
+    } else if (stat === 'accuracyMod') {
+      key = `system.accuracyMod.value`;
+    } else {
+      throw new Error(`Unknown stat '${stat}'`);
+    }
+
+    const currentValue = getProperty(this, key);
+    if (Math.abs(amount) > Math.abs(currentValue)) {
+      await this.update({
+        [key]: amount
+      });
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   /** Reset resources depleted during a round */
   async resetRoundBasedResources() {
     const actorUpdate = this.update({

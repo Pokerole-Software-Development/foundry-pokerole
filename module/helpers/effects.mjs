@@ -267,10 +267,11 @@ export async function addAilmentWithDialog(actor, category) {
     }
   }
   if (isActorResistantAgainstAilment(actor, type)) {
-    return ui.notifications.error("The Pokémon is immune to this ailment!");
+    return ui.notifications.error("The Pokémon is immune to this status condition!");
   }
 
   await actor.applyAilment(type, options);
+  return type;
 }
 
 /**
@@ -278,11 +279,10 @@ export async function addAilmentWithDialog(actor, category) {
  * @param {PokeroleActor} actor The actor who would suffer from the ailment
  * @param {string} ailment The ailment type (e.g. "burn1")
  */
-function isActorResistantAgainstAilment(actor, ailment) {
+export function isActorResistantAgainstAilment(actor, ailment) {
   const type1 = POKEROLE.typeMatchups[actor.system.type1] ?? POKEROLE.typeMatchups.none;
   const type2 = POKEROLE.typeMatchups[actor.system.type2] ?? POKEROLE.typeMatchups.none;
   const type3 = POKEROLE.typeMatchups[actor.system.type3] ?? POKEROLE.typeMatchups.none;
-
 
   return type1.ailmentImmunities.includes(ailment)
       || type2.ailmentImmunities.includes(ailment)

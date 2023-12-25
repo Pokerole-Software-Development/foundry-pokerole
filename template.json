@@ -253,7 +253,15 @@
         "amount": 0,
         "willPointCost": 1,
         "target": "targets"
-      }
+      },
+      "effectGroups": [
+        {
+          "condition": {
+            "type": "none"
+          },
+          "effects": []
+        }
+      ]
     },
     "effect": {
       "templates": [

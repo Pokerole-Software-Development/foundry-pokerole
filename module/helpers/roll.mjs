@@ -1,3 +1,4 @@
+import { PokeroleItem } from "../documents/item.mjs";
 import {
   calcDualTypeMatchupScore,
   calcTripleTypeMatchupScore,
@@ -7,17 +8,16 @@ import {
 import { bulkApplyHp, createHealMessage } from "./damage.mjs";
 
 /**
- * Success roll from a chat expression
+ * Utility function to parse the expression, calculate the roll count, and extract the comment.
  * @param {String} expr Expression such as `Dexterity+Alert+2`
  * @param {Actor | undefined} actor The actor to roll as.
- * @param {Object} chatData Settings passed to `ChatMessage.create`
- * @returns
+ * @returns {Object} An object containing the calculated roll count and the comment
  */
-export async function successRollFromExpression(expr, actor, chatData) {
+async function parseExpressionForRollCountAndComment(expr, actor) {
   expr = expr.trim();
 
   let [exprWithoutComment, comment] = expr.split('#');
-  comment = comment?.trim() ?? undefined;
+  comment = comment?.trim();
 
   let exprSplit = exprWithoutComment.split('+');
   let rollCount = 0;
@@ -41,7 +41,31 @@ export async function successRollFromExpression(expr, actor, chatData) {
     }
   }
 
-  return successRoll(rollCount, comment ?? expr, chatData);
+  return { rollCount, comment: comment ?? exprWithoutComment };
+}
+
+/**
+ * Success roll from a chat expression
+ * @param {String} expr Expression such as `Dexterity+Alert+2`
+ * @param {Actor | undefined} actor The actor to roll as.
+ * @param {Object} chatData Settings passed to `ChatMessage.create`
+ * @returns
+ */
+export async function successRollFromExpression(expr, actor, chatData) {
+  const { rollCount, comment } = await parseExpressionForRollCountAndComment(expr, actor);
+  return successRoll(rollCount, comment, chatData);
+}
+
+/**
+ * Chance dice roll from a chat expression
+ * @param {String} expr Expression such as `Dexterity+Alert+2`
+ * @param {Actor | undefined} actor The actor to roll as.
+ * @param {Object} chatData Settings passed to `ChatMessage.create`
+ * @returns
+ */
+export async function chanceDiceRollFromExpression(expr, actor, chatData) {
+  const { rollCount, comment } = await parseExpressionForRollCountAndComment(expr, actor);
+  return chanceDiceRoll(rollCount, comment, chatData);
 }
 
 // attribute = { name: String, value: number };
@@ -322,6 +346,13 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
     if (canBeEvaded) {
       html += `<button class="chat-action" data-action="evade">Evade</button>`;
     }
+  }
+
+  const dataTokenUuid = actorToken ? `data-token-uuid="${actorToken.uuid}"` : '';
+  for (let effect of item.getUnconditionalEffects()) {
+    html += `<button class="chat-action" data-action="applyEffect" data-actor-id="${actor.id}" ${dataTokenUuid} data-effect='${JSON.stringify(effect)}'>
+  ${PokeroleItem.formatEffect(effect)}
+</button>`;
   }
   html += '</div></div>';
 
@@ -630,6 +661,69 @@ export async function rollRecoil(actor, token, damageBeforeEffectiveness) {
 }
 
 /**
+ * Utility function to roll a number of d6 dice.
+ * @param {number} rollCount The number of dice to roll
+ * @returns {Promise<Array<number>>} Array of dice roll results
+ */
+async function rollDice(rollCount) {
+  let rolls = [];
+  for (let i = 0; i < rollCount; i++) {
+    let roll = await new Roll('d6').evaluate({ async: true });
+    rolls.push(roll.total);
+  }
+  return rolls;
+}
+
+/**
+ * Utility function to create a chat message for dice rolls with specific styling.
+ * @param {Array<number>} rolls Array of dice roll results
+ * @param {string} content Content to display in the chat message
+ * @param {string} flavor Displayed flavor text
+ * @param {Object} chatData Chat message settings
+ * @param {Function} stylingFunction Function to apply specific styling to each roll
+ * @returns {Object} Formatted chat message data
+ */
+async function createDiceRollChatMessage(rolls, content, flavor, chatData, stylingFunction) {
+  let text = '<div class="dice-tooltip"><div class="dice"><ol class="dice-rolls">';
+  rolls.forEach(roll => {
+    let classes = stylingFunction(roll);
+    text += `<li class="roll die d6 ${classes}">${roll}</li>`;
+  });
+  text += '</ol></div></div>';
+
+  let messageData = {
+    content: content + text,
+    flavor,
+    ...chatData
+  };
+
+  const rollMode = game.settings.get('core', 'rollMode');
+  messageData = ChatMessage.implementation.applyRollMode(messageData, rollMode);
+
+  // 3D Dice Animation
+  if (game.dice3d?.show && rolls.length <= 50) {
+    const data = {
+      throws: [{
+        dice: rolls.map(roll => ({
+          result: roll,
+          resultLabel: roll,
+          type: 'd6',
+          vectors: [],
+          options: {}
+        }))
+      }]
+    };
+    await game.dice3d.show(
+      data,
+      game.user,
+      true,
+      messageData.whisper?.length > 0 ? messageData.whisper : undefined);
+  }
+
+  return messageData;
+}
+
+/**
  * Roll for successes. Each of the rolled d6 count as a success if they show up as 4 or higher.
  * Also creates a chat message with the results.
  *
@@ -640,10 +734,46 @@ export async function rollRecoil(actor, token, damageBeforeEffectiveness) {
  * @returns {Promise<number>} The number of successes
  */
 export async function successRoll(rollCount, flavor, chatData, modifier = 0) {
-  const [result, messageData] = await createSuccessRollMessageData(rollCount, flavor, chatData, modifier);
+  if (rollCount > 999) {
+    throw new Error('You cannot roll more than 999 dice');
+  }
+
+  const rolls = await rollDice(rollCount);
+  const successCount = rolls.filter(roll => roll > 3).length + modifier;
+  const content = `<b>${successCount} successes</b>`;
+
+  const stylingFunction = roll => roll > 3 ? 'max' : '';
+  const messageData = await createDiceRollChatMessage(rolls, content, flavor, chatData, stylingFunction);
+
   await ChatMessage.implementation.create(messageData);
-  return result;
+  return successCount;
 }
+
+/**
+ * Roll for chance dice success. It's considered a success if at least one die comes out as a 6.
+ * Also creates a chat message with the results.
+ *
+ * @param {number} rollCount The number of dice to roll
+ * @param {string} flavor Displayed flavor text
+ * @param {Object} chatData Settings passed to `ChatMessage.create`
+ * @returns {Promise<boolean>} True if at least one die is a 6, otherwise false
+ */
+export async function chanceDiceRoll(rollCount, flavor, chatData) {
+  if (rollCount > 999) {
+    throw new Error('You cannot roll more than 999 dice');
+  }
+
+  const rolls = await rollDice(rollCount);
+  const hasSix = rolls.some(roll => roll === 6);
+  const content = hasSix ? `<b>Success!</b>` : `<b>Failure</b>`;
+
+  const stylingFunction = roll => roll === 6 ? 'max' : '';
+  const messageData = await createDiceRollChatMessage(rolls, content, flavor, chatData, stylingFunction);
+
+  await ChatMessage.implementation.create(messageData);
+  return hasSix;
+}
+
 
 /**
  * Rolls for successes and returns the formatted chat message data.

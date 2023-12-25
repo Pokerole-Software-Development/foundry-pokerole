@@ -184,11 +184,6 @@ POKEROLE.getAilments = () => ({
     icon: 'systems/pokerole/images/ailments/burn.svg#burn3.svg',
     tint: '#93291B'
   },
-  flinch: {
-    label: game.i18n.localize('POKEROLE.StatusFlinch'),
-    icon: 'icons/svg/cancel.svg',
-    tint: '#575D69'
-  },
   confused: {
     label: game.i18n.localize('POKEROLE.StatusConfused'),
     icon: 'icons/svg/daze.svg',
@@ -657,6 +652,15 @@ POKEROLE.i18n = {
     "disabled": "POKEROLE.StatusDisabled",
     "flinch": "POKEROLE.StatusFlinch",
     "infatuated": "POKEROLE.StatusInfatuated",
+  },
+
+  effectStats: {
+    "strength": "POKEROLE.AttributeStrength",
+    "dexterity": "POKEROLE.AttributeDexterity",
+    "special": "POKEROLE.AttributeSpecial",
+    "def": "POKEROLE.DerivedDef",
+    "spDef": "POKEROLE.DerivedSpDef",
+    "accuracyMod": "POKEROLE.AccuracyMod",
   }
 };
 
