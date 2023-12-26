@@ -5,11 +5,11 @@ import { PokeroleActorSheet } from "./sheets/actor-sheet.mjs";
 import { PokeroleItemSheet } from "./sheets/item-sheet.mjs";
 import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { getAilmentList, POKEROLE } from "./helpers/config.mjs";
-import { rollRecoil, successRollAttributeDialog, successRollFromExpression, chanceDiceRollFromExpression } from "./helpers/roll.mjs";
+import { rollRecoil, successRollAttributeDialog, successRollFromExpression, chanceDiceRollFromExpression, chanceDiceRoll, createChanceDiceRollMessageData } from "./helpers/roll.mjs";
 import { showClashDialog } from "./helpers/clash.mjs";
 import { bulkApplyDamageValidated, canModifyTokenOrActor } from "./helpers/damage.mjs";
 import { registerIntegrationHooks } from "./helpers/integrations.mjs";
-import { addAilmentWithDialog, isActorResistantAgainstAilment, registerEffectHooks } from "./helpers/effects.mjs";
+import { applyEffectToActors, registerEffectHooks } from "./helpers/effects.mjs";
 
 /* -------------------------------------------- */
 /*  Init Hook                                   */
@@ -329,10 +329,32 @@ async function onChatActionClick(event) {
         break;
       }
       case 'applyEffect': {
-        const effect = JSON.parse(event.target.dataset.effect);
+        const { effect: effectJson, mightTargetUser } = event.target.dataset;
+        const effect = JSON.parse(effectJson);
         const { actor: attackerActor, token: attackerToken } = await getActorAndTokenFromEvent(event);
-        await applyEffectToActors(effect, attackerActor, attackerToken, actors);
+        await applyEffectToActors(effect, attackerActor, attackerToken, actors, mightTargetUser === 'true');
         break;
+      }
+      case 'chanceDiceRollEffect': {
+        const { effectGroup: effectGroupJson, mightTargetUser } = event.target.dataset;
+        const effectGroup = JSON.parse(effectGroupJson);
+        const { actor: attackerActor, token: attackerToken } = await getActorAndTokenFromEvent(event);
+
+        const flavorText = PokeroleItem.formatChanceDiceGroup(effectGroup);
+        let [success, messageData] = await createChanceDiceRollMessageData(effectGroup.condition.amount, flavorText);
+
+        if (success) {
+        const dataTokenUuid = attackerToken ? `data-token-uuid="${attackerToken.uuid}"` : '';
+        messageData.content += `<div class="pokerole"><div class="action-buttons">`;
+        for (let effect of effectGroup.effects) {
+          messageData.content += `<button class="chat-action" data-action="applyEffect" data-actor-id="${attackerActor.id}" ${dataTokenUuid} data-effect='${JSON.stringify(effect)}' data-might-target-user="${mightTargetUser}">
+  ${PokeroleItem.formatEffect(effect)}
+</button>`;
+          }
+          messageData.content += `</div></div>`;
+        }
+
+        await ChatMessage.implementation.create(messageData);
       }
     }
   } catch (e) {
@@ -349,84 +371,6 @@ async function getActorAndTokenFromEvent(event) {
   }
   return { actor, token };
 }
-
-/**
- * Applies an effect to a list of actors.
- * @param {object} effect The effect data
- * @param {object} attackerActor The actor that inflicts the effect
- * @param {object} attackerToken The token that inflicts the effect
- * @param {Array<object>} actors The list of target actors.
- * @returns {Promise<void>} A promise that resolves when the effect is applied.
- */
-async function applyEffectToActors(effect, attackerActor, attackerToken, actors) {
-  if (actors.length === 0) {
-    return ui.notifications.warn("Choose an actor to apply the effect to.");
-  }
-
-  for (const actor of actors) {
-    // Check if the target is correct
-    if (effect.affects === 'user' && actor !== attackerActor) {
-      ui.notifications.error(`You can't apply this effect to ${actor.name}: it only affects the user.`);
-      continue;
-    }
-
-    if (isActorResistantAgainstAilment(actor, effect.ailment)) {
-      ui.notifications.warn(`${actor.name} is immune against this status condition.`);
-      continue;
-    }
-
-    switch (effect.type) {
-      case 'ailment':
-        if (actor.hasAilment(effect.ailment)) {
-          ui.notifications.warn(`${actor.name} already has this status condition.`);
-          continue;
-        }
-
-        switch (effect.ailment) {
-          case 'disabled':
-            if (!await addAilmentWithDialog(actor, effect.ailment)) {
-              return;
-            }
-            break;
-          case 'infatuated':
-            await actor.applyAilment(effect.ailment, { inflictedByUuid: attackerActor.uuid });
-            break;
-          default:
-            await actor.applyAilment(effect.ailment);
-            break;
-        }
-
-        const ailmentName = game.i18n.localize(POKEROLE.i18n.ailments[effect.ailment]);
-        await ChatMessage.implementation.create({
-          content: `Applied status condition ${ailmentName} to ${actor.name}.`,
-          speaker: ChatMessage.implementation.getSpeaker({ attackerToken, attackerActor })
-        });
-        break;
-
-      case 'statChange':
-        if (!await actor.applyStatChange(effect.stat, effect.amount)) {
-          ui.notifications.warn(`The effect was not applied because the targeted stat is already at the level the effect would have altered it to.`);
-          continue;
-        }
-
-        const statName = game.i18n.localize(POKEROLE.i18n.effectStats[effect.stat]);
-        const change = effect.amount > 0 ? 'rose' : 'fell';
-
-        let message = `${actor.name}'s ${statName} ${change}`;
-        if (Math.abs(effect.amount) > 1) {
-          message += ` by ${Math.abs(effect.amount)}`;
-        }
-        message += '!';
-
-        await ChatMessage.implementation.create({
-          content: `${actor.name}'s ${statName} ${change} by ${Math.abs(effect.amount)}!`,
-          speaker: ChatMessage.implementation.getSpeaker({ attackerToken, attackerActor })
-        });
-        break;
-    }
-  }
-}
-
 
 function createButton(mode, roll, flavor) {
   const a = document.createElement('a');

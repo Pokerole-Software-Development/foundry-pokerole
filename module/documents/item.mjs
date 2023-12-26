@@ -250,6 +250,14 @@ export class PokeroleItem extends Item {
   }
 
   /**
+   * Retrieves the effect groups with a condition of type 'chanceDice'.
+   * @returns {EffectGroup[]} An array of effect groups with a condition of type 'chanceDice'.
+   */
+  getEffectGroupsWithChanceDice() {
+    return this.system.effectGroups.filter(group => group.condition.type === 'chanceDice');
+  }
+
+  /**
    * Whether this move might target the user.
    * @return {boolean}
    */
@@ -278,6 +286,65 @@ export class PokeroleItem extends Item {
     }
 
     str += effect.affects === 'user' ? ' (Self)' : ' (Targets)';
+    return str;
+  }
+
+  /**
+   * Formats the chance dice group into a descriptive string.
+   * @param {object} group The chance dice group object.
+   * @returns {string} The formatted descriptive string.
+   */
+  static formatChanceDiceGroup(group) {
+    if (group.condition.type !== 'chanceDice') {
+      return '';
+    }
+
+    let str = group.condition.amount === 1 ? 'Roll 1 chance die to ' : `Roll ${group.condition.amount} chance dice to `;
+    const statIncreases = [];
+    const statDecreases = [];
+    const ailments = [];
+
+    for (const effect of group.effects) {
+      const localizedStat = game.i18n.localize(POKEROLE.i18n.effectStats[effect.stat]);
+      const amount = Math.abs(effect.amount);
+      let changeStr = localizedStat;
+      if (amount !== 1) { // Only add "by amount" if amount is not 1
+          changeStr += ` by ${amount}`;
+      }
+
+      if (effect.type === 'statChange') {
+          if (effect.amount > 0) {
+              statIncreases.push(changeStr);
+          } else if (effect.amount < 0) {
+              statDecreases.push(changeStr);
+          }
+      } else if (effect.type === 'ailment') {
+          ailments.push(game.i18n.localize(POKEROLE.i18n.ailments[effect.ailment]));
+      }
+    }
+
+    function listToString(list) {
+      if (list.length === 1) {
+        return list[0];
+      }
+      const last = list.pop();
+      return list.join(', ') + ', and ' + last;
+    }
+
+    if (statIncreases.length > 0) {
+        str += 'raise ' + listToString(statIncreases);
+    }
+
+    if (statDecreases.length > 0) {
+        if (statIncreases.length > 0) str += ', and ';
+        str += 'lower ' + listToString(statDecreases);
+    }
+
+    if (ailments.length > 0) {
+        if (statIncreases.length > 0 || statDecreases.length > 0) str += ', and ';
+        str += `inflict condition${ailments.length > 1 ? 's' : ''}: ` + listToString(ailments);
+    }
+
     return str;
   }
 

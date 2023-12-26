@@ -76,7 +76,7 @@ export class PokeroleItemSheet extends ItemSheet {
       "chanceDice": "Chance Dice"
     };
     context.moveEffects = {
-      "ailment": "Ailment",
+      "ailment": "Status Condition",
       "statChange": "Stat Change",
     };
     context.effectAilments = getLocalizedEntriesForSelect('ailments');
@@ -105,6 +105,7 @@ export class PokeroleItemSheet extends ItemSheet {
     this.effectGroupCreateListener(html);
     this.effectGroupDeleteListener(html);
     this.effectGroupConditionListener(html);
+    this.effectGroupConditionAmountListener(html);
     this.effectGroupAddEffectListener(html);
     this.deleteEffectListener(html);
     this.effectTypeListener(html);
@@ -204,6 +205,17 @@ export class PokeroleItemSheet extends ItemSheet {
     });
   }
 
+  effectGroupConditionAmountListener(html) {
+    html.find('.effect-group-condition-amount').change(async ev => {
+      const index = ev.currentTarget.dataset.index;
+      const groups = [...this.object.system.effectGroups];
+      const amount = parseInt(ev.currentTarget.value);
+      groups[index].condition.amount = !isNaN(amount) && amount > 0 ? amount : 1;
+      await this.object.update({ "system.effectGroups": groups });
+      ev.currentTarget.value = groups[index].condition.amount;
+    });
+  }
+  
   effectGroupAddEffectListener(html) {
     html.find('.effect-group-add-effect').click(async ev => {
       const index = ev.currentTarget.dataset.index;
@@ -271,8 +283,17 @@ export class PokeroleItemSheet extends ItemSheet {
     html.find('.effect-amount').change(async ev => {
       const { groupIndex, effectIndex } = ev.currentTarget.dataset;
       const groups = [...this.object.system.effectGroups];
-      groups[groupIndex].effects[effectIndex].amount = parseInt(ev.currentTarget.value);
+      const amount = parseInt(ev.currentTarget.value);
+
+      if (!isNaN(amount) && amount !== 0) {
+        groups[groupIndex].effects[effectIndex].amount = amount;
+      } else {
+        groups[groupIndex].effects[effectIndex].amount = 1;
+      }
+
       await this.object.update({ "system.effectGroups": groups });
+
+      ev.currentTarget.value = groups[groupIndex].effects[effectIndex].amount;
     });
   }
 

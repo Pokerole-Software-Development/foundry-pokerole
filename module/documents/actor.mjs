@@ -425,7 +425,8 @@ export class PokeroleActor extends Actor {
    * Applies a stat change to the actor.
    * 
    * Note that stat changes do not stack, so the new value will replace the old one
-   * if its absolute value is higher.
+   * if its absolute value is higher. If the signs of the current and new values differ,
+   * the new value is added to the current value.
    * 
    * @param {string} stat The stat to be changed.
    * @param {number} amount The amount by which the stat should be changed.
@@ -442,16 +443,24 @@ export class PokeroleActor extends Actor {
       throw new Error(`Unknown stat '${stat}'`);
     }
 
-    const currentValue = getProperty(this, key);
+    const currentValue = getProperty(this, key) ?? 0;
+
+    // Check if the signs of current value and amount are different
+    if ((currentValue < 0 && amount > 0) || (currentValue > 0 && amount < 0)) {
+      const newValue = currentValue + amount;
+      await this.update({ [key]: newValue });
+      return true;
+    }
+
+    // Replace the old value if the new value's absolute value is higher
     if (Math.abs(amount) > Math.abs(currentValue)) {
-      await this.update({
-        [key]: amount
-      });
+      await this.update({ [key]: amount });
       return true;
     } else {
       return false;
     }
   }
+
 
   /** Reset resources depleted during a round */
   async resetRoundBasedResources() {
