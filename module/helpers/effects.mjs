@@ -288,3 +288,86 @@ export function isActorResistantAgainstAilment(actor, ailment) {
       || type2.ailmentImmunities.includes(ailment)
       || (type3.ailmentImmunities.includes(ailment) && actor.system.hasThirdType);
 }
+
+/**
+ * Applies an effect to a list of actors.
+ * @param {object} effect The effect data
+ * @param {object} attackerActor The actor that inflicts the effect
+ * @param {object} attackerToken The token that inflicts the effect
+ * @param {boolean} mightTargetUser Whether the user is a valid target for the effect
+ * @param {Array<object>} actors The list of target actors.
+ * @returns {Promise<void>} A promise that resolves when the effect is applied.
+ */
+export async function applyEffectToActors(effect, attackerActor, attackerToken, actors, mightTargetUser) {
+  if (actors.length === 0) {
+    return ui.notifications.warn("Choose an actor to apply the effect to.");
+  }
+
+  for (const actor of actors) {
+    // Check if the target is correct
+    if (effect.affects === 'user' && actor !== attackerActor) {
+      ui.notifications.error(`You can't apply this effect to ${actor.name}: it only affects the user.`);
+      continue;
+    }
+
+    if (effect.affects === 'targets' && actor === attackerActor && !mightTargetUser) {
+      ui.notifications.error(`You can't apply this effect to ${actor.name}: it doesn't affect the user.`);
+      continue;
+    }
+
+    if (isActorResistantAgainstAilment(actor, effect.ailment)) {
+      ui.notifications.warn(`${actor.name} is immune against this status condition.`);
+      continue;
+    }
+
+    switch (effect.type) {
+      case 'ailment':
+        if (actor.hasAilment(effect.ailment)) {
+          ui.notifications.warn(`${actor.name} already has this status condition.`);
+          continue;
+        }
+
+        switch (effect.ailment) {
+          case 'disabled':
+            if (!await addAilmentWithDialog(actor, effect.ailment)) {
+              return;
+            }
+            break;
+          case 'infatuated':
+            await actor.applyAilment(effect.ailment, { inflictedByUuid: attackerActor.uuid });
+            break;
+          default:
+            await actor.applyAilment(effect.ailment);
+            break;
+        }
+
+        const ailmentName = game.i18n.localize(POKEROLE.i18n.ailments[effect.ailment]);
+        await ChatMessage.implementation.create({
+          content: `Applied status condition ${ailmentName} to ${actor.name}.`,
+          speaker: ChatMessage.implementation.getSpeaker({ attackerToken, attackerActor })
+        });
+        break;
+
+      case 'statChange':
+        if (!await actor.applyStatChange(effect.stat, effect.amount)) {
+          ui.notifications.warn(`The effect was not applied because the targeted stat is already at the level the effect would have altered it to.`);
+          continue;
+        }
+
+        const statName = game.i18n.localize(POKEROLE.i18n.effectStats[effect.stat]);
+        const change = effect.amount > 0 ? 'rose' : 'fell';
+
+        let message = `${actor.name}'s ${statName} ${change}`;
+        if (Math.abs(effect.amount) > 1) {
+          message += ` by ${Math.abs(effect.amount)}`;
+        }
+        message += '!';
+
+        await ChatMessage.implementation.create({
+          content: `${actor.name}'s ${statName} ${change} by ${Math.abs(effect.amount)}!`,
+          speaker: ChatMessage.implementation.getSpeaker({ attackerToken, attackerActor })
+        });
+        break;
+    }
+  }
+}

@@ -96,6 +96,11 @@
     height: 24px;
     line-height: 20px;
     margin: 2px 0;
+
+    white-space: normal;
+    width: fit-content;
+    min-width: 100%;
+    height: auto;
   }
 }
 

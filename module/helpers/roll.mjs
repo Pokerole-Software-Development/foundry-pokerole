@@ -349,11 +349,21 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
   }
 
   const dataTokenUuid = actorToken ? `data-token-uuid="${actorToken.uuid}"` : '';
+
+  // Unconditional effects
   for (let effect of item.getUnconditionalEffects()) {
-    html += `<button class="chat-action" data-action="applyEffect" data-actor-id="${actor.id}" ${dataTokenUuid} data-effect='${JSON.stringify(effect)}'>
+    html += `<button class="chat-action" data-action="applyEffect" data-actor-id="${actor.id}" ${dataTokenUuid} data-effect='${JSON.stringify(effect)}' data-might-target-user="${item.mightTargetUser}">
   ${PokeroleItem.formatEffect(effect)}
 </button>`;
   }
+
+  // Chance dice rolls
+  for (let group of item.getEffectGroupsWithChanceDice()) {
+    html += `<button class="chat-action" data-action="chanceDiceRollEffect" data-actor-id="${actor.id}" ${dataTokenUuid} data-effect-group='${JSON.stringify(group)}' data-might-target-user="${item.mightTargetUser}">
+  ${PokeroleItem.formatChanceDiceGroup(group)}
+</button>`;
+  }
+
   html += '</div></div>';
 
   newChatData.content += html;
@@ -738,12 +748,7 @@ export async function successRoll(rollCount, flavor, chatData, modifier = 0) {
     throw new Error('You cannot roll more than 999 dice');
   }
 
-  const rolls = await rollDice(rollCount);
-  const successCount = rolls.filter(roll => roll > 3).length + modifier;
-  const content = `<b>${successCount} successes</b>`;
-
-  const stylingFunction = roll => roll > 3 ? 'max' : '';
-  const messageData = await createDiceRollChatMessage(rolls, content, flavor, chatData, stylingFunction);
+  const [successCount, messageData] = await createSuccessRollMessageData(rollCount, flavor, chatData, modifier);
 
   await ChatMessage.implementation.create(messageData);
   return successCount;
@@ -763,12 +768,7 @@ export async function chanceDiceRoll(rollCount, flavor, chatData) {
     throw new Error('You cannot roll more than 999 dice');
   }
 
-  const rolls = await rollDice(rollCount);
-  const hasSix = rolls.some(roll => roll === 6);
-  const content = hasSix ? `<b>Success!</b>` : `<b>Failure</b>`;
-
-  const stylingFunction = roll => roll === 6 ? 'max' : '';
-  const messageData = await createDiceRollChatMessage(rolls, content, flavor, chatData, stylingFunction);
+  const [hasSix, messageData] = await createChanceDiceRollMessageData(rollCount, flavor, chatData);
 
   await ChatMessage.implementation.create(messageData);
   return hasSix;
@@ -788,55 +788,51 @@ export async function createSuccessRollMessageData(rollCount, flavor, chatData, 
     throw new Error('You cannot roll for successes with more than 999 dice');
   }
 
-  let text = '<div class="dice-tooltip"><div class="dice"><ol class="dice-rolls">';
+  const rolls = await rollDice(rollCount);
 
-  let rolls = [];
-  let successCount = 0;
-  for (let i = 0; i < rollCount; i++) {
-    let roll = await new Roll('d6').evaluate({ async: true });
-    let classes = roll.total > 3 ? 'max' : '';
-    text += `<li class="roll die d6 ${classes}">${roll.total}</li>`;
-    rolls.push(roll.total);
-    if (roll.total > 3) {
-      successCount++;
-    }
-  }
-
-  text += '</ol></div></div>';
-
-  const result = successCount + modifier;
-
-  let messageData = {
-    content: `<b>${result} successes</b>${text}`,
+  const successCount = rolls.filter(roll => roll > 3).length + modifier;
+  const stylingFunction = roll => roll > 3 ? 'max' : '';
+  const messageData = await createDiceRollChatMessage(
+    rolls,
+    `<b>${successCount} successes</b>`,
     flavor,
+    chatData,
+    stylingFunction
+  );
 
-    ...chatData
-  };
-  const rollMode = game.settings.get('core', 'rollMode');
-  messageData = ChatMessage.implementation.applyRollMode(messageData, rollMode);
+  return [successCount, messageData];
+}
 
-  // 3D dice are capped at 50 to keep things from getting to crazy
-  if (game.dice3d?.show && rolls.length <= 50) {
-    const data = {
-      throws: [{
-        dice: rolls.map(roll => ({
-          result: roll,
-          resultLabel: roll,
-          type: 'd6',
-          vectors: [],
-          options: {}
-        }))
-      }]
-    }
-    await game.dice3d.show(
-      data,
-      game.user,
-      true,
-      messageData.whisper?.length > 0 ? messageData.whisper : undefined);
+/**
+ * Rolls for a chance dice success and returns the formatted chat message data.
+ * A success is considered if at least one die rolls a 6.
+ * @param {number} rollCount The number of dice to roll
+ * @param {string} flavor Displayed flavor text
+ * @param {Object} chatData Chat message settings that will be merged with the resulting HTML
+ * @returns {Promise<[result: boolean, chatMessageData: object]>}
+ */
+export async function createChanceDiceRollMessageData(rollCount, flavor, chatData) {
+  if (rollCount > 999) {
+    throw new Error('You cannot roll more than 999 dice');
   }
 
-  return [result, messageData];
+  const rolls = await rollDice(rollCount);
+
+  const hasSix = rolls.some(roll => roll === 6);
+  const content = hasSix ? `<b>Success!</b>` : `<b>Failure</b>`;
+  const stylingFunction = roll => roll === 6 ? 'max' : '';
+
+  const messageData = await createDiceRollChatMessage(
+    rolls,
+    content,
+    flavor,
+    chatData,
+    stylingFunction
+  );
+
+  return [hasSix, messageData];
 }
+
 
 /**
  * @param {number} effectiveness Effectiveness as a number: -Infinity or -2 to +2
