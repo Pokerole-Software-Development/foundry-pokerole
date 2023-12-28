@@ -5,7 +5,7 @@ import {
   getLocalizedPainPenaltiesForSelect,
   POKEROLE
 } from "./config.mjs";
-import { bulkApplyHp, createHealMessage } from "./damage.mjs";
+import { bulkApplyDamageValidated, bulkApplyHp, createHealMessage } from "./damage.mjs";
 
 /**
  * Utility function to parse the expression, calculate the roll count, and extract the comment.
@@ -651,23 +651,18 @@ export async function rollRecoil(actor, token, damageBeforeEffectiveness) {
   const [result, newChatData] = await createSuccessRollMessageData(damageBeforeEffectiveness, 'Recoil', chatData);
 
   if (result > 0) {
-    const oldHp = actor.system.hp.value;
-    const newHp = Math.max(oldHp - result, 0);
-
-    await bulkApplyHp([{
-      token, actor, hp: newHp
-    }]);
-
     newChatData.content += `<p>${actor.name} took ${result} damage from recoil.</p>`;
-
-    if (newHp === 0 && oldHp > 0) {
-      newChatData.content += `<p><b>${actor.name} fainted!</b></p>`;
-    }
   } else {
     newChatData.content += `<p>${actor.name} didn't take any recoil damage.</p>`;
   }
 
   await ChatMessage.implementation.create(newChatData);
+
+  if (result > 0) {
+    await bulkApplyDamageValidated([{
+      tokenUuid: token.uuid, actorId: actor.id, damage: result
+    }]);
+  }
 }
 
 /**
