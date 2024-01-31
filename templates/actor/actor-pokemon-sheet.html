@@ -2,7 +2,9 @@
 
   {{!-- Sheet Header --}}
   <header class="sheet-header">
+    {{#unless limitedPermissions}}
     <div class="horizontal-line"></div>
+    {{/unless}}
 
     <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100" />
     <div class="header-fields">
@@ -45,7 +47,7 @@
         </div>
       </div>
 
-
+      {{#unless limitedPermissions}}
       <div class="resources flexrow">
         <div class="resource">
           <label for="system.hp.value" class="resource-label">HP</label>
@@ -73,16 +75,18 @@
         </div>
 
       </div>
+      {{/unless}}
     </div>
   </header>
 
   {{!-- Sheet Tab Navigation --}}
   <nav class="sheet-tabs tabs" data-group="primary">
-    {{!-- Default tab is specified in actor-sheet.mjs --}}
+    {{#unless limitedPermissions}}
     <a class="item" data-tab="attributes">Attributes</a>
     <a class="item" data-tab="items">Inventory</a>
     <a class="item" data-tab="moves">Moves</a>
     <a class="item" data-tab="effects">Effects</a>
+    {{/unless}}
     <a class="item" data-tab="biography">Biography</a>
   </nav>
 
@@ -279,7 +283,9 @@
       <aside class="species-data">
         <h3 class="section-header">
           #{{system.pokedexId}} {{system.species}}
+          {{#unless limitedPermissions}}
           <a class="settings-button"><i class="fas fa-cogs"></i></a>
+          {{/unless}}
         </h3>
         <ul class="pokedex">
           <li>
@@ -307,6 +313,7 @@
           </li>
         </ul>
 
+        {{#unless limitedPermissions}}
         <div class="abilities">
           <h4>
             Abilities
@@ -326,9 +333,13 @@
             {{/each}}
           </ul>
         </div>
+        {{/unless}}
+
       </aside>
 
+      {{#unless limitedPermissions}}
       {{editor biographyHtml target="system.biography" button=true owner=owner editable=editable engine="prosemirror"}}
+      {{/unless}}
     </div>
 
     {{!-- Owned Items Tab --}}
