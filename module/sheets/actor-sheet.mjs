@@ -113,6 +113,7 @@ export class PokeroleActorSheet extends ActorSheet {
 
     // Propagate settings
     context.recoveryMode = game.settings.get('pokerole', 'recoveryMode');
+    context.limitedPermissions = this.actor.testUserPermission(game.user, CONST.DOCUMENT_OWNERSHIP_LEVELS.LIMITED, { exact: true });
 
     return context;
   }
