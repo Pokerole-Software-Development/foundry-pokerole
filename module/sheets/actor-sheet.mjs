@@ -97,20 +97,20 @@ export class PokeroleActorSheet extends ActorSheet {
       heightImperial = 0;
     }
     context.heightImperial = Math.round(heightImperial * 100) / 100;
-
+    
     // kg -> lbs 
     let weightImperial = (context.system.weight ?? 0) * 2.20462262185;
     if (weightImperial < 0 || Number.isNaN(weightImperial)) {
       weightImperial = 0;
     }
     context.weightImperial = Math.round(weightImperial);
-
+    
     context.hasAvailableActions = this.actor.hasAvailableActions();
     context.painPenalties = getLocalizedEntriesForSelect('painPenaltiesShort');
-
+    
     this._prepareStatChanges(context);
     this._populateAilmentList(context);
-
+    
     // Propagate settings
     context.recoveryMode = game.settings.get('pokerole', 'recoveryMode');
     context.limitedPermissions = this.actor.testUserPermission(game.user, CONST.DOCUMENT_OWNERSHIP_LEVELS.LIMITED, { exact: true });
@@ -232,6 +232,15 @@ export class PokeroleActorSheet extends ActorSheet {
         // the actual move.
         const actualMove = this.actor.items.find(item => item.id === i._id);
         const disabled = actualMove ? this.actor.isMoveDisabled(actualMove) : false;
+
+        if (!moves[group]) {
+          moves[group] = {
+            groupName: game.i18n.localize(POKEROLE.i18n.moveGroups[group]) ?? group,
+            hidden: true,
+            moveList: []
+          };
+        }
+
         moves[group].moveList.push({
           data: i,
           locType: game.i18n.localize(POKEROLE.i18n.types[i.system.type]) ?? i.system.type,
