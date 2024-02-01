@@ -259,6 +259,21 @@ export class PokeroleActorSheet extends ActorSheet {
     context.moves = moves;
     context.customEffects = effects;
 
+    context.abilitiesSelect = {};
+    for (let ability of abilities) {
+      context.abilitiesSelect[ability.data._id] = ability.data.name;
+    }
+
+    // Add active ability description to display it on hover
+    let activeAbility = abilities.find(ability => ability.data._id === context.system.activeAbility);
+    if (!activeAbility && abilities.length > 0) {
+      // If the active ability is not set, use the first one
+      activeAbility = abilities[0];
+    }
+    if (activeAbility) {
+      context.activeAbilityDescription = activeAbility.data.system.description;
+    }
+
     // Show number of learned moves and max number of learnable moves
     const maxLearnedMoves = (context.system.attributes.insight?.value ?? 0) + POKEROLE.CONST.LEARNED_MOVES_BONUS;
     const learnedGroup = context.moves['learned'];

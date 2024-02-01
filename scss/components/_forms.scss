@@ -84,26 +84,26 @@
     }
   }
 
-  .species, .types {
+  .active-ability, .types {
     display: flex;
     gap: 4px;
     align-items: center;
+    justify-content: flex-end;
+
+    select {
+      border: none;
+      background-color: white;
+      border-radius: 20px;
+    }
+  
+    label {
+      width: 100px;
+      text-align: right;
+    }
   }
 
-  .types select {
-    border: none;
-    background-color: white;
-    border-radius: 20px;
-  }
-
-  .species label, .types label {
-    width: 100px;
-    text-align: right;
-  }
-
-  .pokedex-num {
-    width: 70px;
-    text-align: right;
+  .active-ability select {
+    width: 157px;
   }
 }
 

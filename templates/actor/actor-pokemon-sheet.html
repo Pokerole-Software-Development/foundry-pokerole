@@ -13,14 +13,15 @@
           <input name="name" type="text" value="{{actor.name}}" placeholder="Name" />
         </h1>
 
+        {{#unless limitedPermissions}}
         <div {{#if system.hasThirdType}}class="sidedata-thirdtype"{{else}}class="sidedata"{{/if}}>
-          <div class="species">
-            <label for="system.pokedexId" class="resource-label">Pokédex</label>
-            <input type="text" class="pokedex-num" name="system.pokedexId" value="{{system.pokedexId}}" placeholder="0"
-              data-dtype="Number" />
-            <input type="text" name="system.species" value="{{system.species}}" placeholder="Species"
-              data-dtype="String" />
+          <div class="active-ability">
+            <label for="system.activeAbility" class="resource-label">Ability</label>
+            <select name="system.activeAbility" value="{{system.activeAbility}}" data-dtype="String" class="active-ability" data-tooltip="{{activeAbilityDescription}}">
+              {{selectOptions abilitiesSelect selected=system.activeAbility}}
+            </select>
           </div>
+          {{/unless}}
 
           <div class="types">
             <label for="system.type1" class="resource-label">Type</label>
@@ -281,12 +282,16 @@
     {{!-- Biography Tab --}}
     <div class="tab biography flexrow" data-group="primary" data-tab="biography">
       <aside class="species-data">
-        <h3 class="section-header">
-          #{{system.pokedexId}} {{system.species}}
+        <div class="pokedex-number-name">
+            <span class="number-sign">#</span>
+            <input type="text" class="pokedex-num" name="system.pokedexId" value="{{system.pokedexId}}" placeholder="0"
+              data-dtype="Number" />
+            <input type="text" name="system.species" value="{{system.species}}" placeholder="Species"
+              data-dtype="String" />
           {{#unless limitedPermissions}}
           <a class="settings-button"><i class="fas fa-cogs"></i></a>
           {{/unless}}
-        </h3>
+        </div>
         <ul class="pokedex">
           <li>
             <h4>Category</h4>
