@@ -67,7 +67,7 @@
   "primaryTokenAttribute": "hp",
   "secondaryTokenAttribute": "will",
   "url": "https://github.com/Pokerole-Software-Development/foundry-pokerole",
-  "manifest": "https://raw.githubusercontent.com/Pokerole-Software-Development/foundry-pokerole/main/system.json",
+  "manifest": "https://raw.githubusercontent.com/EternalMood/foundry-pokerole/fvtt-v12-experimental/system.json",
   "download": "https://github.com/Pokerole-Software-Development/foundry-pokerole/releases/download/v0.4.0/foundry-pokerole-v0.4.0.zip",
   "license": "LICENSE.txt",
   "changelog": "CHANGELOG.md"
