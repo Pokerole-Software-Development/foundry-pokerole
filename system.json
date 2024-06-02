@@ -2,11 +2,11 @@
   "id": "pokerole",
   "title": "Pokérole",
   "description": "FoundryVTT system for Pokérole, the Pokémon role-playing game",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "compatibility": {
     "minimum": 10,
-    "verified": "11.315",
-    "maximum": 11
+    "verified": "12.325",
+    "maximum": 12
   },
   "authors": [
     {
