@@ -5,8 +5,8 @@
   "version": "0.4.0",
   "compatibility": {
     "minimum": 10,
-    "verified": "11.315",
-    "maximum": 11
+    "verified": "12.331",
+    "maximum": 12
   },
   "authors": [
     {
