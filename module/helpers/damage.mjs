@@ -112,7 +112,7 @@ export async function bulkApplyDamageValidated(damageUpdates) {
     </button>
     <button class="chat-action" data-action="ignorePainPenalty"
         data-actor-id="${actor.id}" ${dataTokenUuid}>
-        Spend 1 Will to Tough It Out
+        Spend 1 Will to Avoid Penalization
     </button>
   </div>`;
         }
@@ -126,7 +126,7 @@ export async function bulkApplyDamageValidated(damageUpdates) {
     </button>
     <button class="chat-action" data-action="ignorePainPenalty"
         data-actor-id="${actor.id}" ${dataTokenUuid}>
-      Spend 1 Will to Tough It Out
+      Spend 1 Will to Avoid Penalization
     </button>
   </div>`;
         }

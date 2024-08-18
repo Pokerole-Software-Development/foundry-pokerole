@@ -570,8 +570,13 @@ export async function rollDamage(item, actor, token) {
       const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus);
       html += '<hr>' + messageDataPart.content;
 
-      damage = rollResult;
-      damage = Math.max(Math.floor(damage * damageFactor), 1);
+      damage = 1;
+
+      if (rollResult > 0) {
+        damage = rollResult;
+        damage = Math.max(Math.floor(damage * damageFactor), 1);
+      }
+
       damageBeforeEffectiveness = damage;
       let effectiveness = defender.system.hasThirdType ? calcTripleTypeMatchupScore(
         item.system.type,
@@ -584,11 +589,15 @@ export async function rollDamage(item, actor, token) {
         defender.system.type2
       );
 
-      if (rollResult > 0) {
-        damage += effectiveness;
-        if (effectiveness !== 0) {
-          html += `<p><b>${getEffectivenessText(effectiveness)}</b></p>`;
-        }
+      if (rollResult <= 0 && effectiveness > 0) {
+        // Type advantages are only applied if one or more successes are rolled,
+        // but disadvantage is always applied
+        effectiveness = 0;
+      }
+
+      damage += effectiveness;
+      if (effectiveness !== 0) {
+        html += `<p><b>${getEffectivenessText(effectiveness)}</b></p>`;
       }
 
       // Damage is always at least 0
