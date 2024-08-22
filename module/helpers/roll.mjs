@@ -669,7 +669,7 @@ export async function rollRecoil(actor, token, damageBeforeEffectiveness) {
 
   if (result > 0) {
     await bulkApplyDamageValidated([{
-      tokenUuid: token.uuid, actorId: actor.id, damage: result
+      tokenUuid: token?.uuid, actorId: actor.id, damage: result
     }]);
   }
 }

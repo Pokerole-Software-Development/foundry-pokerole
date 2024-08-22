@@ -54,11 +54,11 @@
               {{#if item.disabled}}class="strikethrough"{{/if}}>{{item.data.name}}</h4>
             </div>
             <div class="item-prop">{{item.locType}} ({{item.locCategory}})</div>
-            <div class="item-prop">{{item.data.system.accMod1}}{{#if item.data.system.accMod2}}+{{item.data.system.accMod2}}{{/if}} ({{item.accuracyPool}})</div>
+            <div class="item-prop">{{item.data.system.accMod1}}{{#if item.data.system.accMod2}}+{{item.data.system.accMod2}}{{/if}} (<b>{{item.accuracyPool}}</b>)</div>
             
             <div class="item-prop">
                 {{#if item.dmgPool}}{{item.data.system.dmgMod}}{{/if}}{{#if item.data.system.power}}+{{item.data.system.power}}{{/if}}
-                {{#if item.dmgPool}}({{item.dmgPool}}){{/if}}
+                {{#if item.dmgPool}}(<b>{{item.dmgPool}}</b>){{/if}}
                 {{#unless item.dmgPool}}-{{/unless}}
             </div>
             <div class="item-prop">{{item.locTarget}}</div>
