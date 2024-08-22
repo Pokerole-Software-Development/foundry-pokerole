@@ -4,12 +4,12 @@ export class TokenEffect {
   /**
    * 
    * @param {String} statusId The status ID
-   * @param {String} icon Path to the effect's icon
+   * @param {String} img Path to the effect's icon
    * @param {String} tint The tint color applied to the effect
    * @param {boolean} overlay Whether this effect should be displayed as an overlay
    */
-  constructor(statusId, icon, tint, overlay = false) {
-    this.icon = icon;
+  constructor(statusId, img, tint, overlay = false) {
+    this.img = img;
     this.tint = tint;
     this.disabled = false;
     this.flags = {
@@ -23,6 +23,11 @@ export class TokenEffect {
 
   getFlag(scope, flag) {
     return this.flags[scope]?.[flag];
+  }
+
+  // Backwards compatibility with FoundryVTT v11
+  get icon() {
+    return this.img;
   }
 }
 
