@@ -62,8 +62,10 @@
       "path": "lang/zh-tw.json"
     }
   ],
-  "gridDistance": 2.5,
-  "gridUnits": "ft",
+  "grid": {
+    "distance": 2.5,
+    "units": "ft"
+  },
   "primaryTokenAttribute": "hp",
   "secondaryTokenAttribute": "will",
   "url": "https://github.com/Pokerole-Software-Development/foundry-pokerole",
