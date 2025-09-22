@@ -5,7 +5,7 @@ Work-in-progress [FoundryVTT](https://foundryvtt.com/) system for [Pokérole](ht
 Partially based on [Boilerplate](https://gitlab.com/asacolips-projects/foundry-mods/boilerplate) and [dnd5e](https://github.com/foundryvtt/dnd5e). Powered by [Pokerole-Data](https://github.com/Willowlark/Pokerole-Data).
 
 ## Installation
-Open the *Game Systems* tab and click *Install System*, then enter `https://raw.githubusercontent.com/Pokerole-Software-Development/foundry-pokerole/main/system.json` as the manifest URL and click *Install*.
+Open the *Game Systems* tab and click *Install System*, then enter `https://raw.githubusercontent.com/Axorum/foundry-pokerole/refs/heads/main/system.json` as the manifest URL and click *Install*.
 
 ## Usage
 
