@@ -1,16 +1,19 @@
 {
   "id": "pokerole",
   "title": "Pokérole",
-  "description": "FoundryVTT system for Pokérole, the Pokémon role-playing game",
-  "version": "0.4.2",
+  "description": "FoundryVTT system for Pokérole, the Pokémon role-playing game.",
+  "version": "0.4.3",
   "compatibility": {
-    "minimum": 10,
+    "minimum": 11,
     "verified": "12.331",
-    "maximum": 12
+    "maximum": 13
   },
   "authors": [
     {
       "name": "techticks"
+    },
+    {
+	"name": "Axorum"
     }
   ],
   "esmodules": [
@@ -55,22 +58,17 @@
       "lang": "en",
       "name": "English",
       "path": "lang/en.json"
-    },
-    {
-      "lang": "zh-tw",
-      "name": "正體中文",
-      "path": "lang/zh-tw.json"
     }
   ],
-  "grid": {
+"grid": {
     "distance": 2.5,
     "units": "ft"
   },
   "primaryTokenAttribute": "hp",
   "secondaryTokenAttribute": "will",
-  "url": "https://github.com/Pokerole-Software-Development/foundry-pokerole",
-  "manifest": "https://raw.githubusercontent.com/Pokerole-Software-Development/foundry-pokerole/main/system.json",
-  "download": "https://github.com/Pokerole-Software-Development/foundry-pokerole/releases/download/v0.4.2/foundry-pokerole-v0.4.2.zip",
+  "url": "https://github.com/Axorum/foundry-pokerole",
+  "manifest": "https://raw.githubusercontent.com/Axorum/foundry-pokerole/refs/heads/main/system.json",
+  "download": "",
   "license": "LICENSE.txt",
   "changelog": "CHANGELOG.md"
 }
