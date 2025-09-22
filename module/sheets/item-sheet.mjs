@@ -4,11 +4,11 @@ import { getLocalizedEntriesForSelect, getLocalizedTypesForSelect, POKEROLE } fr
  * Extend the basic ItemSheet with some very simple modifications
  * @extends {ItemSheet}
  */
-export class PokeroleItemSheet extends ItemSheet {
+export class PokeroleItemSheet extends foundry.appv1.sheets.ItemSheet {
 
   /** @override */
   static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["pokerole", "sheet", "item"],
       width: 520,
       height: 480,
@@ -44,6 +44,8 @@ export class PokeroleItemSheet extends ItemSheet {
     context.system = itemData.system;
     context.flags = itemData.flags;
 
+    context.pockets = POKEROLE.itemCategory
+
     context.types = getLocalizedTypesForSelect();
     context.categories = getLocalizedEntriesForSelect('moveCategories');
 
@@ -54,7 +56,7 @@ export class PokeroleItemSheet extends ItemSheet {
       context.ranks[rank] = game.i18n.localize(POKEROLE.i18n.ranks[rank]) ?? rank;
     }
 
-    context.descriptionHtml = await TextEditor.enrichHTML(context.system.description, {
+    context.descriptionHtml = await foundry.applications.ux.TextEditor.implementation.enrichHTML(context.system.description, {
       secrets: this.document.isOwner,
       async: true
     });

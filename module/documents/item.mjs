@@ -76,10 +76,10 @@ export class PokeroleItem extends Item {
       if (this.system.stab) {
         properties.push('STAB');
       }
-      if (this.system.accMod1 || this.system.accMod2) {
+      if (this.system.accMod1 || this.system.accMod2 || this.system.accMod1var || this.system.accMod2var) {
         hasAccuracy = true;
       }
-      if (this.system.power || this.system.dmgMod) {
+      if (this.system.power || this.system.dmgMod || this.system.dmgModvar) {
         hasDamage = true;
       }
 
@@ -123,12 +123,12 @@ export class PokeroleItem extends Item {
       canBeEvaded: this.canBeEvaded(),
     };
 
-    const html = await renderTemplate("systems/pokerole/templates/chat/item-card.html", templateData);
+    const html = await foundry.applications.handlebars.renderTemplate ("systems/pokerole/templates/chat/item-card.html", templateData);
 
     // Create the ChatMessage data object
     let chatData = {
       user: game.user.id,
-      type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+      type: CONST.CHAT_MESSAGE_STYLES.OTHER,
       content: html,
       flavor,
       speaker: ChatMessage.getSpeaker({actor: this.actor, token}),
@@ -173,7 +173,7 @@ export class PokeroleItem extends Item {
   /** Cannot be clashed/evaded if true */
   _hasSocialAttributeAccuracyRoll() {
     // accMod1 is always an attribute
-    return POKEROLE.socialAttributes.includes(this.system.accMod1);
+    return (POKEROLE.socialAttributes.includes(this.system.accMod1) || POKEROLE.socialAttributes.includes(this.system.accMod1var));
   }
 
   /**
@@ -353,8 +353,8 @@ export class PokeroleItem extends Item {
    * @param {HTML} html  Rendered chat message.
    */
   static chatListeners(html) {
-    html.on("click", ".card-buttons button", this._onChatCardAction.bind(this));
-    html.on("click", ".item-name", this._onChatCardToggleContent.bind(this));
+    $(html).on("click", ".card-buttons button", this._onChatCardAction.bind(this));
+    $(html).on("click", ".item-name", this._onChatCardToggleContent.bind(this));
   }
 
     /* -------------------------------------------- */

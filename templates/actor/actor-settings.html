@@ -1,7 +1,17 @@
 <form class="pokerole actor-settings">
+
+  <div class="form-group">
+    <label for="system.varicolor">Is Shiny?</label>
+    <input type="checkbox" name="system.varicolor" value="{{system.varicolor}}" data-dtype="Boolean" {{#if varicolor}}checked{{/if}} />
+    
+  </div>
   <div class="form-group">
     <label for="system.baseHp">Base HP</label>
     <input type="number" name="system.baseHp" value="{{baseHp}}" min="0" max="99" data-dtype="Number"/>
+  </div>
+  <div class="form-group">
+    <label for="system.willbonus">Will Bonus</label>
+    <input type="number" name="system.willbonus" value="{{willbonus}}" min="0" max="99" data-dtype="Number"/>
   </div>
   <div class="form-group">
     <label for="system.hasThirdType">Triple Typing</label>
@@ -22,5 +32,13 @@
   <div class="form-group">
     <label for="system.source">Source</label>
     <input type="text" name="system.source" value="{{source}}" data-dtype="String"/>
+  </div>
+  <div class="form-group">
+    <label for="system.source">Sheet Skin</label>
+    <select name="system.sheetskin" value="{{system.sheetskin}}" data-dtype="String">
+        <option selected value="skinOld">Old Style</option>
+        <option value="skinClean">Clean</option>
+        <option value="secret">TEST</option>
+    </select>
   </div>
 </form>

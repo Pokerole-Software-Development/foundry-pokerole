@@ -135,11 +135,11 @@ export class PokeroleCombat extends Combat {
   }
 }
 
-export class PokeroleCombatTracker extends CombatTracker {
+export class PokeroleCombatTracker extends foundry.applications.sidebar.tabs.CombatTracker {
   static registerHooks() {
     Hooks.on('renderCombatTracker', (tracker, elem) => {
       // Show the number of actions each combatant has taken
-      for (const combatantElem of elem.find('.combatant')) {
+      for (const combatantElem of elem.getElementsByClassName("combatant")) {
         const combatantId = combatantElem.dataset.combatantId;
         const actor = game.combat?.combatants?.get(combatantId)?.actor;
         if (!actor) return;
@@ -182,7 +182,7 @@ export class PokeroleCombatTracker extends CombatTracker {
 
         resetRoundButton.appendChild(icon);
 
-        elem.find('#combat-controls').append(resetRoundButton);
+        elem.getElementsByClassName("combat-controls")[0].append(resetRoundButton);
 
         resetRoundButton.addEventListener('click', () => {
           game.combat.turn = -1;

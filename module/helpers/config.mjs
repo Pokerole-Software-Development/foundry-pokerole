@@ -2,8 +2,8 @@ export const POKEROLE = {};
 
 POKEROLE.CONST = {
   // Attributes
-  MAX_WILL_BONUS: 2, // Max Will is calculated from the Insight stat + this value
-  LEARNED_MOVES_BONUS: 2, // Max Moves is calculated from the Insight stat + this value
+  MAX_WILL_BONUS: 3, // Max Will is calculated from the Insight stat + this value (MOD 3.0)
+  LEARNED_MOVES_BONUS: 3, // Max Moves is calculated from the Insight stat + this value (MOD 3.0)
 
   // Damage
   STAB_BONUS: 1, // Added to the damage pool if the move's type matches the Pokémon's type
@@ -11,9 +11,40 @@ POKEROLE.CONST = {
 
   // Effects
   PARALYSIS_DEXTERITY_DECREASE: 2,
+  BURN_STRENGTH_DECREASE: 0,
+  FROZEN_SPECIAL_DECREASE: 0,
   BURN1_DAMAGE: 1,
   BURN2_DAMAGE: 2, // TODO: Lethal Damage (https://github.com/Pokerole-Software-Development/foundry-pokerole/issues/32)
   BURN3_DAMAGE: 3, // TODO: Lethal Damage (https://github.com/Pokerole-Software-Development/foundry-pokerole/issues/32)
+  CONFUSION_STANDARD_DECREASE: 1,
+  CONFUSION_ACE_DECREASE: 2,
+  CONFUSION_CHAMPION_DECREASE: 3,
+  POISON_DAMAGE: 2,
+  BADLY_POISONED_DAMAGE: 2, // TODO: Lethal Damage (https://github.com/Pokerole-Software-Development/foundry-pokerole/issues/32)
+};
+
+POKEROLE.LOSCONST = {
+  // Attributes
+  MAX_WILL_BONUS: 3, // Max Will is calculated from the Insight stat + this value (MOD 3.0)
+  LEARNED_MOVES_BONUS: 3, // Max Moves is calculated from the Insight stat + this value (MOD 3.0)
+
+  // Damage
+  STAB_BONUS: 1, // Added to the damage pool if the move's type matches the Pokémon's type
+  CRIT_BONUS: 2, // Added to the damage pool if the move is a critical hit
+
+  // Scaling
+  INITIATIVE_DEX_BONUS: 1,
+
+  // Effects
+  PARALYSIS_DEXTERITY_DECREASE: 2,
+  BURN_STRENGTH_DECREASE: 1,
+  FROZEN_SPECIAL_DECREASE: 1,
+  BURN1_DAMAGE: 1,
+  BURN2_DAMAGE: 1, // TODO: Lethal Damage (https://github.com/Pokerole-Software-Development/foundry-pokerole/issues/32)
+  BURN3_DAMAGE: 1, // TODO: Lethal Damage (https://github.com/Pokerole-Software-Development/foundry-pokerole/issues/32)
+  CONFUSION_STANDARD_DECREASE: 1,
+  CONFUSION_ACE_DECREASE: 1,
+  CONFUSION_CHAMPION_DECREASE: 1,
   POISON_DAMAGE: 1,
   BADLY_POISONED_DAMAGE: 1, // TODO: Lethal Damage (https://github.com/Pokerole-Software-Development/foundry-pokerole/issues/32)
 };
@@ -142,67 +173,80 @@ POKEROLE.getAilments = () => ({
     label: game.i18n.localize('POKEROLE.StatusFainted'),
     icon: 'systems/pokerole/images/ailments/fainted.svg',
     tint: '#000000',
-    overlay: true
+    overlay: true,
+    tooltip: ''
   },
   paralysis: {
     label: game.i18n.localize('POKEROLE.StatusParalysis'),
     icon: 'systems/pokerole/images/ailments/paralyzed.svg',
-    tint: '#ECD82F'
+    tint: '#ECD82F',
+    tooltip: 'Paralysis'
   },
   frozen: {
     label: game.i18n.localize('POKEROLE.StatusFrozen'),
     icon: 'systems/pokerole/images/ailments/frozen.svg',
-    tint: '#96CFD0'
+    tint: '#96CFD0',
+    tooltip: 'Frosbite'
   },
   poison: {
     label: game.i18n.localize('POKEROLE.StatusPoison'),
     icon: 'systems/pokerole/images/ailments/poisoned.svg',
-    tint: '#8F6995'
+    tint: '#8F6995',
+    tooltip: 'Poison'
   },
   badlyPoisoned: {
     label: game.i18n.localize('POKEROLE.StatusBadlyPoisoned'),
     icon: 'systems/pokerole/images/ailments/poisoned.svg#badlyPoisoned.svg',
-    tint: '#714783'
+    tint: '#714783',
+    tooltip: 'Poison+'
   },
   sleep: {
     label: game.i18n.localize('POKEROLE.StatusSleep'),
     icon: 'systems/pokerole/images/ailments/asleep.svg',
-    tint: '#B5B590'
+    tint: '#B5B590',
+    tooltip: 'Asleep'
   },
   burn1: {
     label: game.i18n.localize('POKEROLE.StatusBurn1'),
     icon: 'systems/pokerole/images/ailments/burn.svg',
-    tint: '#E16436'
+    tint: '#E16436',
+    tooltip: 'Burned'
   },
   burn2: {
     label: game.i18n.localize('POKEROLE.StatusBurn2'),
     icon: 'systems/pokerole/images/ailments/burn.svg#burn2.svg',
-    tint: '#B84129'
+    tint: '#B84129',
+    tooltip: 'Burned 2'
   },
   burn3: {
     label: game.i18n.localize('POKEROLE.StatusBurn3'),
     icon: 'systems/pokerole/images/ailments/burn.svg#burn3.svg',
-    tint: '#93291B'
+    tint: '#93291B',
+    tooltip: 'Burned 3'
   },
   confused: {
     label: game.i18n.localize('POKEROLE.StatusConfused'),
     icon: 'icons/svg/daze.svg',
-    tint: '#4DAF81'
+    tint: '#4DAF81',
+    tooltip: 'Confused'
   },
   disabled: {
     label: game.i18n.localize('POKEROLE.StatusDisabled'),
     icon: 'icons/svg/cancel.svg',
-    tint: '#4DAF81'
+    tint: '#4DAF81',
+    tooltip: 'Disabled'
   },
   flinch: {
     label: game.i18n.localize('POKEROLE.StatusFlinch'),
     icon: 'icons/svg/explosion.svg',
-    tint: '#575D69'
+    tint: '#575D69',
+    tooltip: 'Flinch'
   },
   infatuated: {
     label: game.i18n.localize('POKEROLE.StatusInfatuated'),
     icon: 'icons/svg/heal.svg',
-    tint: '#E1657F'
+    tint: '#E1657F',
+    tooltip: 'Infatuated'
   },
 });
 
@@ -216,8 +260,167 @@ POKEROLE.specialStatusEffects = {
   INVISIBLE: 'invisible',
 }
 
-POKEROLE.ranks = ['none', 'starter', 'beginner', 'amateur', 'ace', 'pro', 'master', 'champion'];
+POKEROLE.ranks = ['none', 'starter', 'rookie', 'standard', 'advance', 'expert', 'ace', 'master', 'champion'];
 POKEROLE.moveGroups = ['learned', ...POKEROLE.ranks.slice(1), 'maneuver'];
+
+POKEROLE.itemCategory = {
+  item: "Item", 
+  medicine: "Medicine", 
+  pokeball: "Pokeball", 
+  ingredient: "Ingredient", 
+  pokedex: "Pokedex", 
+  battle: "Battle Item", 
+  keyItem: "Key Item",
+  miscItem: "Misc Item"
+};
+
+POKEROLE.stylePokerole = {
+  // Types
+  normal : {
+    image:'systems/pokerole/images/types/normal.svg',
+    color1: '#828282'
+  },
+  bug : {
+    image:'systems/pokerole/images/types/bug.svg',
+    color1: '#9f9f28'
+  },
+  dragon : {
+    image:'systems/pokerole/images/types/dragon.svg',
+    color1: '#576fbc'
+  },
+  dark : {
+    image:'systems/pokerole/images/types/dark.svg',
+    color1: '#4f4747'
+  },
+  fairy : {
+    image:'systems/pokerole/images/types/fairy.svg',
+    color1: '#e291e2'
+  },
+  fighting : {
+    image:'systems/pokerole/images/types/fighting.svg',
+    color1: '#e49021'
+  },
+  fire : {
+    image:'systems/pokerole/images/types/fire.svg',
+    color1: '#e4613e'
+  },
+  flying : {
+    image:'systems/pokerole/images/types/flying.svg',
+    color1: '#74aad0'
+  },
+  ghost : {
+    image:'systems/pokerole/images/types/ghost.svg',
+    color1: '#6f4570'
+  },
+  grass : {
+    image:'systems/pokerole/images/types/grass.svg',
+    color1: '#439837'
+  },
+  ground : {
+    image:'systems/pokerole/images/types/ground.svg',
+    color1: '#a4733c'
+  },
+  ice : {
+    image:'systems/pokerole/images/types/ice.svg',
+    color1: '#47c8c8'
+  },
+  psychic : {
+    image:'systems/pokerole/images/types/psychic.svg',
+    color1: '#e96c8d'
+  },
+  poison : {
+    image:'systems/pokerole/images/types/poison.svg',
+    color1: '#9354cb'
+  },
+  rock : {
+    image:'systems/pokerole/images/types/rock.svg',
+    color1: '#a9a481'
+  },
+  steel : {
+    image:'systems/pokerole/images/types/steel.svg',
+    color1: '#74b0cb'
+  },
+  water : {
+    image:'systems/pokerole/images/types/water.svg',
+    color1: '#3099e1'
+  },
+  electric : {
+    image:'systems/pokerole/images/types/electric.svg',
+    color1: '#dfbc28'
+  },
+  none : {
+    image:'systems/pokerole/images/icons/Ranks/none.svg',
+    color1: '#2D2718'
+  },
+  // Ranks
+  starter : {
+    image:'systems/pokerole/images/icons/Ranks/1.rank_starter.png',
+    color1: 'white'
+  },
+  rookie : {
+    image:'systems/pokerole/images/icons/Ranks/2.rank_rookie.png',
+    color1: 'red'
+  },
+  standard : {
+    image:'systems/pokerole/images/icons/Ranks/3.rank_standard.png',
+    color1: 'blue'
+  },
+  advance : {
+    image:'systems/pokerole/images/icons/Ranks/4.rank_advance.png',
+    color1: 'yellow'
+  },
+  expert : {
+    image:'systems/pokerole/images/icons/Ranks/5.rank_expert.png',
+    color1: 'green'
+  },
+  ace : {
+    image:'systems/pokerole/images/icons/Ranks/6.rank_ace.png',
+    color1: 'red'
+  },
+  master : {
+    image:'systems/pokerole/images/icons/Ranks/7.rank_master.png',
+    color1: 'purple'
+  },
+  champion : {
+    image:'systems/pokerole/images/icons/Ranks/8.rank_champion.png',
+    color1: 'gold'
+  },
+  // Genders
+  male : {
+    image:'systems/pokerole/images/icons/msymbol2.png',
+    color1: 'dodgerblue'
+  },
+  female : {
+    image:'systems/pokerole/images/icons/fsymbol2.png',
+    color1: 'pink',
+  },
+  neutral : {
+    image:'systems/pokerole/images/icons/none.svg',
+    color1: 'pink',
+  },
+  // Styles
+  skinClean : {
+    image:'systems/pokerole/images/icons/none.svg',
+    color1: '#2D2718',
+    color2: '#E73C2F',
+    color3: '#FFFFFF',
+    color4: '#E73C2F',
+  },
+  skinOld : {
+    image:'systems/pokerole/images/icons/none.svg',
+    color1: '#2D2718',
+    color2: '#C34231',
+    color3: '#FFFFFF',
+    color4: '#C34231',
+  },
+  secret : {
+    image:'systems/pokerole/images/icons/none.svg',
+    color1: 'red',
+    color2: 'green',
+    color3: 'blue',
+    color4: 'grey',
+  },
+}
 
 /** The maximum number of actions allowed per round */
 POKEROLE.maxActions = 5;
@@ -236,34 +439,42 @@ POKEROLE.rankProgression = {
     skillPoints: 5,
     socialPoints: 0,
     skillLimit: 1,
-    maxTargets: 2,
+    maxTargets: 1,
     totalPassiveIncrease: 0,
   },
-  'beginner': {
+  'rookie': {
     attributePoints: 2,
-    skillPoints: 4,
+    skillPoints: 5,
     socialPoints: 2,
     skillLimit: 2,
     maxTargets: 2,
     totalPassiveIncrease: 0,
   },
-  'amateur': {
+  'standard': {
     attributePoints: 2,
-    skillPoints: 3,
+    skillPoints: 4,
     socialPoints: 2,
     skillLimit: 3,
     maxTargets: 3,
     totalPassiveIncrease: 0,
   },
-  'ace': {
+  'advance': {
     attributePoints: 2,
-    skillPoints: 2,
+    skillPoints: 3,
     socialPoints: 2,
     skillLimit: 4,
     maxTargets: 5,
     totalPassiveIncrease: 0,
   },
-  'pro': {
+  'expert': {
+    attributePoints: 2,
+    skillPoints: 2,
+    socialPoints: 2,
+    skillLimit: 5,
+    maxTargets: 5,
+    totalPassiveIncrease: 0,
+  },
+  'ace': {
     attributePoints: 2,
     skillPoints: 1,
     socialPoints: 2,
@@ -273,24 +484,24 @@ POKEROLE.rankProgression = {
   },
   'master': {
     attributePoints: 0,
-    skillPoints: 0,
+    skillPoints: 2,
     socialPoints: 0,
     skillLimit: 5,
-    maxTargets: 6,
-    totalPassiveIncrease: 2,
+    maxTargets: 8,
+    totalPassiveIncrease: 3,
   },
   'champion': {
-    attributePoints: 0,
-    skillPoints: 0,
-    socialPoints: 0,
+    attributePoints: 4,
+    skillPoints: 3,
+    socialPoints: 4,
     skillLimit: 5,
-    maxTargets: 6,
-    totalPassiveIncrease: 2,
+    maxTargets: 10,
+    totalPassiveIncrease: 3,
   },
 };
 
 POKEROLE.attributes = ['strength', 'dexterity', 'vitality', 'special', 'insight'];
-POKEROLE.skills = ['brawl', 'channel', 'clash', 'evasion', 'alert', 'athletic', 'nature', 'stealth', 'allure', 'etiquette', 'intimidate', 'perform', 'crafts', 'lore', 'medicine', 'science'];
+POKEROLE.skills = ['brawl', 'channel', 'clash', 'evasion', 'alert', 'athletic', 'nature', 'stealth', 'charm', 'etiquette', 'intimidate', 'perform', 'crafts', 'lore', 'medicine', 'science'];
 POKEROLE.socialAttributes = ['tough', 'cool', 'beauty', 'cute', 'clever'];
 POKEROLE.extraAttributes = ['happiness', 'loyalty'];
 
@@ -448,6 +659,24 @@ export function getTripleTypeMatchups(defending1, defending2, defending3) {
 
   return matchups;
 }
+/**
+ *
+ * @param {string} rank Evaluated Rank
+ * @returns {integer} Accuracy reduction Modifier
+ */
+export function getConfusionModifier(rank) {
+  let confusionModifier = 0;
+  let rankNumber = POKEROLE.ranks.indexOf(rank) ?? 0;
+  if (rankNumber <= 3) {
+    return POKEROLE.CONST.CONFUSION_STANDARD_DECREASE;
+  } 
+  else if (rankNumber <= 6) {
+    return POKEROLE.CONST.CONFUSION_ACE_DECREASE;
+  }
+  else {
+    return POKEROLE.CONST.CONFUSION_CHAMPION_DECREASE;
+  }
+}
 
 /** How many regular and Lethal damage are healed from basic and complete heals */
 POKEROLE.healAmounts = {
@@ -465,7 +694,8 @@ POKEROLE.healAmounts = {
 POKEROLE.painPenalties = {
   'none': 0,
   'minus1': 1,
-  'minus2': 2
+  'minus2': 2,
+  'minus3': 3
 };
 
 POKEROLE.i18n = {
@@ -486,7 +716,7 @@ POKEROLE.i18n = {
     "athletic": "POKEROLE.SkillAthletic",
     "nature": "POKEROLE.SkillNature",
     "stealth": "POKEROLE.SkillStealth",
-    "allure": "POKEROLE.SkillAllure",
+    "charm": "POKEROLE.SkillCharm",
     "etiquette": "POKEROLE.SkillEtiquette",
     "intimidate": "POKEROLE.SkillIntimidate",
     "perform": "POKEROLE.SkillPerform",
@@ -591,10 +821,11 @@ POKEROLE.i18n = {
   ranks: {
     "none": "POKEROLE.RankNone",
     "starter": "POKEROLE.RankStarter",
-    "beginner": "POKEROLE.RankBeginner",
-    "amateur": "POKEROLE.RankAmateur",
+    "rookie": "POKEROLE.RankRookie",
+    "standard": "POKEROLE.RankStandard",
+    "advance": "POKEROLE.RankAdvance",
+    "expert": "POKEROLE.RankExpert",
     "ace": "POKEROLE.RankAce",
-    "pro": "POKEROLE.RankPro",
     "master": "POKEROLE.RankMaster",
     "champion": "POKEROLE.RankChampion",
   },
@@ -603,10 +834,11 @@ POKEROLE.i18n = {
     "learned": "POKEROLE.MoveGroupLearned",
 
     "starter": "POKEROLE.MoveGroupStarter",
-    "beginner": "POKEROLE.MoveGroupBeginner",
-    "amateur": "POKEROLE.MoveGroupAmateur",
+    "rookie": "POKEROLE.MoveGroupRookie",
+    "standard": "POKEROLE.MoveGroupStandard",
+    "advance": "POKEROLE.MoveGroupAdvance",
+    "expert": "POKEROLE.MoveGroupExpert",
     "ace": "POKEROLE.MoveGroupAce",
-    "pro": "POKEROLE.MoveGroupPro",
     "master": "POKEROLE.MoveGroupMaster",
     "champion": "POKEROLE.MoveGroupChampion",
 
@@ -630,12 +862,14 @@ POKEROLE.i18n = {
     "none": "POKEROLE.PainPenaltyNone",
     "minus1": "POKEROLE.PainPenaltyMinus1",
     "minus2": "POKEROLE.PainPenaltyMinus2",
+    "minus3": "POKEROLE.PainPenaltyMinus3",
   },
 
   painPenaltiesShort: {
     "none": "POKEROLE.PainPenaltyNoneShort",
     "minus1": "POKEROLE.PainPenaltyMinus1Short",
     "minus2": "POKEROLE.PainPenaltyMinus2Short",
+    "minus3": "POKEROLE.PainPenaltyMinus3Short",
   },
 
   ailments: {

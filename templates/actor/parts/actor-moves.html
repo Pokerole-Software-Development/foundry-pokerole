@@ -13,11 +13,11 @@
   <div class="clash-evade">
     <button type="button" class="toggle-can-clash {{#unless system.canClash}}translucent{{/unless}}">
       <i class="{{#unless system.canClash}}fas fa-circle-xmark{{else}}fa-regular fa-circle{{/unless}}"></i>
-      <label>Clash</label>
+      <label>Clash ( {{system.derived.clashPhysical.value}} /  {{system.derived.clashSpecial.value}} )</label>
     </button>
     <button type="button" class="toggle-can-evade {{#unless system.canEvade}}translucent{{/unless}}">
       <i class="{{#unless system.canEvade}}fas fa-circle-xmark{{else}}fa-regular fa-circle{{/unless}}"></i>
-      <label>Evade</label>
+      <label>Evade ({{system.derived.evade.value}})</label>
     </button>
   </div>
 
@@ -54,10 +54,10 @@
               {{#if item.disabled}}class="strikethrough"{{/if}}>{{item.data.name}}</h4>
             </div>
             <div class="item-prop">{{item.locType}} ({{item.locCategory}})</div>
-            <div class="item-prop">{{item.data.system.accMod1}}{{#if item.data.system.accMod2}}+{{item.data.system.accMod2}}{{/if}} (<b>{{item.accuracyPool}}</b>)</div>
+            <div class="item-prop">{{item.data.system.accMod1}}{{#if item.data.system.accMod1var}}{{#if item.data.system.accMod1}}/{{/if}}{{item.data.system.accMod1var}}{{/if}}{{#if item.data.system.accMod2}} + {{item.data.system.accMod2}}{{/if}}{{#if item.data.system.accMod2var}}{{#if item.data.system.accMod2}}/{{else}} + {{/if}}{{item.data.system.accMod2var}}{{/if}} (<b>{{item.accuracyPool}}</b>)</div>
             
             <div class="item-prop">
-                {{#if item.dmgPool}}{{item.data.system.dmgMod}}{{/if}}{{#if item.data.system.power}}+{{item.data.system.power}}{{/if}}
+                {{#if item.dmgPool}}{{item.data.system.dmgMod}}{{/if}}{{#if item.data.system.dmgModvar}}{{#if item.data.system.dmgMod}}/{{/if}}{{item.data.system.dmgModvar}}{{/if}}{{#if item.data.system.power}} +{{item.data.system.power}}{{/if}}
                 {{#if item.dmgPool}}(<b>{{item.dmgPool}}</b>){{/if}}
                 {{#unless item.dmgPool}}-{{/unless}}
             </div>

@@ -34,7 +34,13 @@
         </select>
       </div>
       {{/unless}}
-      
+
+      {{!-- 3.0 --}}
+      <div class="form-group">
+        <label class="resource-label">Overrank Move?</label>
+        <input type="checkbox" name="system.overrank" {{checked system.overrank}} data-dtype="Boolean">
+      </div>
+
       <hr>
       {{/unless}}
       {{/if}}
@@ -66,12 +72,24 @@
         <input type="text" name="system.accMod1" value="{{system.accMod1}}" data-dtype="String">
       </div>
       <div class="form-group">
+        <label class="resource-label">Alternate Accuracy Modifier 1</label>
+        <input type="text" name="system.accMod1var" value="{{system.accMod1var}}" data-dtype="String">
+      </div>
+      <div class="form-group">
         <label class="resource-label">Accuracy Modifier 2 (Skill)</label>
         <input type="text" name="system.accMod2" value="{{system.accMod2}}" data-dtype="String">
       </div>
       <div class="form-group">
+        <label class="resource-label">Alternate Accuracy Modifier 2</label>
+        <input type="text" name="system.accMod2var" value="{{system.accMod2var}}" data-dtype="String">
+      </div>
+      <div class="form-group">
         <label class="resource-label">Damage Modifier</label>
         <input type="text" name="system.dmgMod" value="{{system.dmgMod}}" data-dtype="String">
+      </div>
+      <div class="form-group">
+        <label class="resource-label">Alternate Damage Modifier</label>
+        <input type="text" name="system.dmgModvar" value="{{system.dmgModvar}}" data-dtype="String">
       </div>
       <div class="form-group">
         <label class="resource-label">Added Effect</label>
@@ -109,6 +127,7 @@
         <input type="checkbox" name="system.attributes.resistedWithDefense" {{checked system.attributes.resistedWithDefense}} data-dtype="Boolean">
         </select>
       </div>
+      
 
       <hr>
 

@@ -72,14 +72,20 @@ export class PokeroleActor extends Actor {
       skill.max = skillLimit;
     }
 
-    system.hp.max = system.baseHp + system.attributes.vitality.value + totalPassiveIncrease;
-    system.will.max = system.attributes.insight.value + POKEROLE.CONST.MAX_WILL_BONUS + totalPassiveIncrease;
+    if (game.settings.get('pokerole', 'specialDefenseStat') === 'insight') {
+      system.hp.max = system.baseHp + Math.max(system.attributes.vitality.value,system.attributes.insight.value) + totalPassiveIncrease;
+    } else {
+      system.hp.max = system.baseHp + system.attributes.vitality.value + totalPassiveIncrease;
+    };
+
+                      // TP Support Will+
+    system.will.max = (system.willbonus ?? 0 ) + system.attributes.insight.value + POKEROLE.CONST.MAX_WILL_BONUS + totalPassiveIncrease;
 
     // Stat changes need to be applied manually here because derived stats are created
     // before `applyEffects` is called
-    const strength = system.attributes.strength.value + system.statChanges.strength.value;
-    const dexterity = system.attributes.dexterity.value + system.statChanges.dexterity.value;
-    const special = system.attributes.special.value + system.statChanges.special.value;
+    const strength = Math.max(system.attributes.strength.value + system.statChanges.strength.value, 1);
+    const dexterity = Math.max(system.attributes.dexterity.value + system.statChanges.dexterity.value, 1);
+    const special = Math.max(system.attributes.special.value + system.statChanges.special.value, 1);
 
     system.derived ??= {};
     system.derived.initiative = {
@@ -132,6 +138,23 @@ export class PokeroleActor extends Actor {
       const path = 'system.attributes.dexterity.value';
       const currentValue = overrides[path] ?? foundry.utils.getProperty(this, path) ?? 0;
       overrides[path] = Math.max(currentValue - POKEROLE.CONST.PARALYSIS_DEXTERITY_DECREASE, 0);
+      overrides['system.derived.evade.value'] = (overrides[path] + this.system.skills.evasion.value);
+    }
+
+    if (this.hasAilment('burn1')||this.hasAilment('burn2')||this.hasAilment('burn3')) {
+      // Burn reduces Strength by 1 (capped to 0 instead of 1)
+      const path = 'system.attributes.strength.value';
+      const currentValue = overrides[path] ?? foundry.utils.getProperty(this, path) ?? 0;
+      overrides[path] = Math.max(currentValue - POKEROLE.CONST.BURN_STRENGTH_DECREASE, 0);
+      overrides['system.derived.clashPhysical.value'] = (overrides[path] + this.system.skills.clash.value);
+    }
+
+    if (this.hasAilment('frozen')) {
+      // Frozen reduces Special by 1 (capped to 0 instead of 1)
+      const path = 'system.attributes.special.value';
+      const currentValue = overrides[path] ?? foundry.utils.getProperty(this, path) ?? 0;
+      overrides[path] = Math.max(currentValue - POKEROLE.CONST.FROZEN_SPECIAL_DECREASE, 0);
+      overrides['system.derived.clashSpecial.value'] = (overrides[path] + this.system.skills.clash.value);
     }
 
     // Apply custom effects
@@ -207,7 +230,7 @@ export class PokeroleActor extends Actor {
 
     const lcName = name.toLowerCase();
     const system = this.system;
-    const allAttrs = mergeObject(
+    const allAttrs = foundry.utils.mergeObject(
       this.getIntrinsicOrSocialAttributes(),
       foundry.utils.deepClone(system.derived)
     );
@@ -219,8 +242,8 @@ export class PokeroleActor extends Actor {
   }
 
   getIntrinsicOrSocialAttributes() {
-    const obj = mergeObject(foundry.utils.deepClone(this.system.attributes),
-      mergeObject(
+    const obj = foundry.utils.mergeObject(foundry.utils.deepClone(this.system.attributes),
+      foundry.utils.mergeObject(
         foundry.utils.deepClone(this.system.social),
         foundry.utils.deepClone(this.system.extra)
       )
@@ -230,13 +253,16 @@ export class PokeroleActor extends Actor {
   }
 
   getAllSkillsAndAttributes() {
-    return mergeObject(
+    return foundry.utils.mergeObject(
       this.getIntrinsicOrSocialAttributes(),
       foundry.utils.deepClone(this.system.skills)
     );
   }
 
   getSkill(name) {
+    if (!name) {
+      return undefined;
+    };
     const lcName = name.toLowerCase();
     return foundry.utils.deepClone(this.system.skills[lcName]);
   }
@@ -252,11 +278,11 @@ export class PokeroleActor extends Actor {
     }
 
     let diceCount = 0;
-    if (move.system.accMod1) {
-      diceCount += this.getAnyAttribute(move.system.accMod1.trim())?.value ?? 0;
+    if (move.system.accMod1 || move.system.accMod1var) {
+      diceCount += Math.max((this.getAnyAttribute(move.system.accMod1?.trim())?.value ?? 0), (this.getAnyAttribute(move.system.accMod1var?.trim())?.value ?? 0));
     }
-    if (move.system.accMod2) {
-      diceCount += this.getSkill(move.system.accMod2.trim())?.value ?? 0;
+    if (move.system.accMod2 || move.system.accMod2var) {
+      diceCount += Math.max((this.getSkill(move.system.accMod2?.trim())?.value ?? 0), (this.getSkill(move.system.accMod2var?.trim())?.value ?? 0));
     }
     return diceCount;
   }
@@ -268,7 +294,7 @@ export class PokeroleActor extends Actor {
 
     let diceCount = 0;
     if (move.system.category !== 'support') {
-      diceCount += this.getAnyAttribute(move.system.dmgMod)?.value ?? 0;
+      diceCount += Math.max((this.getAnyAttribute(move.system.dmgMod)?.value ?? 0), (this.getAnyAttribute(move.system.dmgModvar)?.value ?? 0));
       diceCount += move.system.power;
       if (move.system.stab) {
         diceCount += POKEROLE.CONST.STAB_BONUS;
@@ -279,7 +305,7 @@ export class PokeroleActor extends Actor {
 
   /** Whether this actor can still use an action in this round */
   hasAvailableActions() {
-    return this.system.actionCount.value <= this.system.actionCount.max;
+    return this.system.actionCount.value < this.system.actionCount.max;
   }
 
   /**
@@ -288,7 +314,7 @@ export class PokeroleActor extends Actor {
    */
   increaseActionCount(update = {}) {
     this.update({
-      'system.actionCount.value': (this.system.actionCount?.value ?? 1) + 1,
+      'system.actionCount.value': (this.system.actionCount?.value ?? 0) + 1,
       ...update
     });
   }
@@ -466,7 +492,7 @@ export class PokeroleActor extends Actor {
   async resetRoundBasedResources() {
     const actorUpdate = this.update({
       system: {
-        'actionCount.value': 1,
+        'actionCount.value': 0,
         'canClash': true,
         'canEvade': true
       }

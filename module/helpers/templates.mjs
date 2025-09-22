@@ -4,10 +4,11 @@
  * @return {Promise}
  */
  export const preloadHandlebarsTemplates = async function() {
-  return loadTemplates([
+  return foundry.applications.handlebars.loadTemplates([
     // Actor partials.
     "systems/pokerole/templates/actor/parts/actor-items.html",
     "systems/pokerole/templates/actor/parts/actor-moves.html",
     "systems/pokerole/templates/actor/parts/actor-effects.html",
+    "systems/pokerole/templates/actor/parts/actor-test.html",
   ]);
 };

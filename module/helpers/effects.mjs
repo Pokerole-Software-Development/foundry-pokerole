@@ -33,7 +33,7 @@ export class TokenEffect {
 
 /** Register hooks and monkey-patches related to active effects */
 export function registerEffectHooks() {
-  TokenHUD.prototype._getStatusEffectChoices = function() {
+  foundry.applications.hud.TokenHUD.prototype._getStatusEffectChoices = function() {
     const token = this.object;
     const actor = token?.actor;
 
@@ -62,7 +62,8 @@ export function registerEffectHooks() {
       }
 
       const isOverlay = (e.overlay && isActive) ?? false;
-      obj[e.icon] = {
+
+      obj[e.id] = {
         id: e.id ?? '',
         title: e.label ? game.i18n.localize(e.label) : null,
         src: e.icon,
@@ -73,6 +74,7 @@ export function registerEffectHooks() {
           isOverlay ? 'overlay' : null
         ].filterJoin(' ')
       };
+
       return obj;
     }, {});
   };
@@ -80,8 +82,7 @@ export function registerEffectHooks() {
   Hooks.on('renderTokenHUD', (_, elem, data) => {
     const token = canvas.tokens.get(data._id);
     if (!token) return;
-
-    registerTokenHudListeners(elem[0], token);
+    registerTokenHudListeners(elem, token);
   });
 }
 

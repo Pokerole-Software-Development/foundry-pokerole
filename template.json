@@ -85,8 +85,7 @@
       "templates": [
         "base"
       ],
-      "battles": 0,
-      "victories": 0,
+      "trainingPoints": 0,
       "pokedexId": 0,
       "species": "",
       "pokedexCategory": "",
@@ -150,7 +149,7 @@
           "min": 0,
           "max": 5
         },
-        "allure": {
+        "charm": {
           "value": 0,
           "min": 0,
           "max": 5
@@ -204,7 +203,8 @@
       ],
       "quantity": 1,
       "weight": 0,
-      "price": 0
+      "price": 0,
+      "pocket": "item"
     },
     "ability": {
       "templates": [
@@ -222,6 +222,9 @@
       "accMod1": null,
       "accMod2": null,
       "dmgMod": null,
+      "accMod1var": null,
+      "accMod2var": null,
+      "dmgModvar": null,
       "effect": "",
       "attributes": {
         "accuracyReduction": 0,

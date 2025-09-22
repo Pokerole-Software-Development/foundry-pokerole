@@ -151,7 +151,9 @@ export async function bulkApplyDamageValidated(damageUpdates) {
  */
 export async function canModifyTokenOrActor(token, actor) {
   const name = token?.name ?? actor?.name;
-  const allowedToModify = (!token || token.canUserModify(game.user)) && (!actor || actor.canUserModify(game.user));
+
+  const allowedToModify = (!token || token.canUserModify(game.user,"update")) && (!actor || actor.canUserModify(game.user,"update"));
+
   if (!allowedToModify) {
     ui.notifications.error(`You don't have permission to modify ${name}, `
       + "ask the GM or the owning player to click this button instead.");

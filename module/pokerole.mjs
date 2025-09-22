@@ -10,6 +10,7 @@ import { showClashDialog } from "./helpers/clash.mjs";
 import { bulkApplyDamageValidated, canModifyTokenOrActor } from "./helpers/damage.mjs";
 import { registerIntegrationHooks } from "./helpers/integrations.mjs";
 import { applyEffectToActors, registerEffectHooks } from "./helpers/effects.mjs";
+import { APIdb } from "./API/API.mjs";
 
 /* -------------------------------------------- */
 /*  Init Hook                                   */
@@ -21,7 +22,8 @@ Hooks.once('init', async () => {
   game.pokerole = {
     PokeroleActor,
     PokeroleItem,
-    useItemMacro
+    useItemMacro,
+    APIdb
   };
 
   // Add custom constants for configuration.
@@ -37,10 +39,10 @@ Hooks.once('init', async () => {
   CONFIG.ui.combat = PokeroleCombatTracker;
 
   // Register sheet application classes
-  Actors.unregisterSheet("core", ActorSheet);
-  Actors.registerSheet("pokerole", PokeroleActorSheet, { makeDefault: true });
-  Items.unregisterSheet("core", ItemSheet);
-  Items.registerSheet("pokerole", PokeroleItemSheet, { makeDefault: true });
+  foundry.documents.collections.Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
+  foundry.documents.collections.Actors.registerSheet("pokerole", PokeroleActorSheet, { makeDefault: true });
+  foundry.documents.collections.Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
+  foundry.documents.collections.Items.registerSheet("pokerole", PokeroleItemSheet, { makeDefault: true });
 
   CONFIG.TextEditor.enrichers.push({
     pattern: /\[\[(?:\/|#)sc ([^\]]+)\]\](?:{([^}]+)})?/gi,
@@ -102,6 +104,69 @@ Handlebars.registerHelper('lt', function (a, b) {
   return (a < b) ? (next.fn && next.fn(this)) : (next.inverse && next.inverse(this));
 });
 
+// TP support (EQ)
+
+Handlebars.registerHelper('ifvitamin', function(v1, v2, test) {
+  if (v1==test || v2==test){
+    return true;
+  } else {
+    return false;
+  };
+});
+
+// TP filter EQ
+
+Handlebars.registerHelper('categoryfilter', function(v1, categ) {
+  if (v1==categ || categ=="all"){
+    return true;
+  } else {
+    return false;
+  };
+});
+// TP filter EQ
+Handlebars.registerHelper('eqpk', function(v1, v2) {
+  if (v1==v2){
+    return true;
+  } else {
+    return false;
+  };
+});
+
+Handlebars.registerHelper('gtexe', function(v1, v2) {
+  if (v1 >= v2){
+    return true;
+  } else {
+    return false;
+  };
+});
+
+Handlebars.registerHelper('pokecount', function(cvalue, cmax) {
+  var geo = [];
+  for (let i = 0; i < cmax; i++) {
+    if (cmax - i <= cvalue) {
+      geo[i] = false;
+    } else {
+      geo[i] = true;
+    }
+  }
+    return geo;
+});
+
+Handlebars.registerHelper('pkOptions', function(v1) {
+  if (v1=='genderOption'){
+    return game.settings.get('pokerole', 'genderOption') ?? false;
+  };
+  if (v1=='vitaminOption'){
+    return game.settings.get('pokerole', 'vitaminOption') ?? false;
+  };
+});
+
+Handlebars.registerHelper('stylePokerole', function(item='none', asset='image', tolowercase = false) {
+  if (tolowercase == true){item = item.toLowerCase()};
+  var varo = POKEROLE.stylePokerole[item][asset];
+  return varo;
+});
+
 /* -------------------------------------------- */
 /*  Settings                                    */
 /* -------------------------------------------- */
@@ -147,6 +212,36 @@ function registerSettings() {
   game.settings.register('pokerole', 'recoveryMode', {
     name: 'POKEROLE.SettingNameRecoveryMode',
     hint: 'POKEROLE.SettingHintRecoveryMode',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false,
+    requiresReload: true
+  });
+
+  game.settings.register('pokerole', 'legendsMode', {
+    name: 'Legends Status Mode',
+    hint: '',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false,
+    requiresReload: true
+  });
+
+  game.settings.register('pokerole', 'vitaminOption', {
+    name: 'Enable LoS Vitamin Rule',
+    hint: '',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false,
+    requiresReload: true
+  });
+
+  game.settings.register('pokerole', 'genderOption', {
+    name: 'Enable Pokemon Gender',
+    hint: '',
     scope: 'world',
     config: true,
     type: Boolean,
@@ -407,11 +502,20 @@ async function onInlineRollClick(event) {
       const actor = token?.actor ?? game.user?.character;
       await successRollFromExpression(a.dataset.roll, actor, { speaker: ChatMessage.implementation.getSpeaker({ token, actor }) });
       break;
+      /*
+    case "cd":
+      const roll = a.dataset.roll;
+
+      const token = canvas.tokens.controlled.length > 0 ? canvas.tokens.controlled[0] : null;
+      const actor = token?.actor ?? game.user?.character;
+      await chanceDiceRollFromExpression(a.dataset.roll, actor, { speaker: ChatMessage.implementation.getSpeaker({ token, actor }) });
+      break;
+      */
   }
 }
 
-let originalProcessMessage = ChatLog.prototype.processMessage;
-ChatLog.prototype.processMessage = async function (message) {
+let originalProcessMessage = foundry.applications.sidebar.tabs.ChatLog.prototype.processMessage;
+foundry.applications.sidebar.tabs.ChatLog.prototype.processMessage = async function (message) {
   const speaker = ChatMessage.implementation.getSpeaker();
   const chatData = {
     user: game.user.id,
@@ -437,7 +541,7 @@ ChatLog.prototype.processMessage = async function (message) {
       throw new Error('This command requires 2 or more parameters');
     }
 
-    return chanceDiceRollFromExpression(split.slice(1).join());
+    return chanceDiceRollFromExpression(split.slice(1).join(' '), actor, chatData);
   }
 
   return originalProcessMessage.call(this, message);
