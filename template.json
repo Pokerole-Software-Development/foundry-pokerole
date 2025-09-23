@@ -98,6 +98,7 @@
       "weight": 0,
       "recommendedRank": "none",
       "painPenalty": "none",
+      "sheetskin": "skinOld",
       "attributes": {
         "special": {
           "value": 0,
