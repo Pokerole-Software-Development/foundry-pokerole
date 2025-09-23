@@ -68,7 +68,7 @@
   "secondaryTokenAttribute": "will",
   "url": "https://github.com/Axorum/foundry-pokerole",
   "manifest": "https://raw.githubusercontent.com/Axorum/foundry-pokerole/refs/heads/main/system.json",
-  "download": "",
+  "download": "https://github.com/Axorum/foundry-pokerole/archive/refs/tags/Test.zip",
   "license": "LICENSE.txt",
   "changelog": "CHANGELOG.md"
 }
