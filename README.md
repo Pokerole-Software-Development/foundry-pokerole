@@ -1,5 +1,7 @@
 # Pokérole
 
+Fork made of the original VTT Module [https://github.com/Pokerole-Software-Development/foundry-pokerole](https://github.com/Pokerole-Software-Development/foundry-pokerole) for Foundry V12. This is an updated version for V13 and WIP for updating to the new rulebook 3.0
+
 Work-in-progress [FoundryVTT](https://foundryvtt.com/) system for [Pokérole](https://www.pokeroleproject.com/). **Note that this system is in early development, using it in actual games is not recommended as features are missing and non-backwards compatible changes to data will occur.**
 
 Partially based on [Boilerplate](https://gitlab.com/asacolips-projects/foundry-mods/boilerplate) and [dnd5e](https://github.com/foundryvtt/dnd5e). Powered by [Pokerole-Data](https://github.com/Willowlark/Pokerole-Data).
@@ -47,7 +49,7 @@ The following modules are known to work and provide useful functionality:
 
 ### Compiling the CSS
 
-This repository includes SCSS files that must be compiled to CSS. Run `npm install` followed by `npm run gulp` to automatically watch for changes in SCSS files.
+-This repository includes SCSS files that must be compiled to CSS. Run `npm install` followed by `npm run gulp` to automatically watch for changes in SCSS files.-
 
 ### Installation from source
 
