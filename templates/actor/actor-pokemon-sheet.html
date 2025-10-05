@@ -3,7 +3,7 @@
   {{!-- Sheet Header --}}
   <header class="sheet-header">
     {{!-- Sheet NEW Header --}}
-    <div class="new-sheet-header" style="background-image: url({{stylePokerole system.sheetskin 'image'}}); background-color: {{stylePokerole system.sheetskin 'color4'}};">
+    <div class="new-sheet-header" style="background-image: url({{stylePokerole system.sheetskin 'image'}}); background-color: {{stylePokerole system.sheetskin 'color4'}}; flex: 1;">
       <div class="main-header" style="display: flex;justify-content: center;">
         <div class="side-fill"></div>
         <div class="side-containers">
@@ -237,50 +237,46 @@
             <li>
               <h4>Triple weaknesses (+3)</h4>
               {{#each typematch.tripleWeak}}
-              <img src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
+              <img title="{{this}}" src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
                 style="border: 0px"></img>
               {{/each}}
             </li>
             {{/if}}
 
             {{#if matchups.doubleWeak}}
-            <li
-              style="background-image: url('systems/pokerole/images/icons/matchups/X4.svg'); background-repeat: no-repeat; background-size: 20px; background-position: top right;">
+            <li style="background-image: url('systems/pokerole/images/icons/matchups/X4.svg'); background-repeat: no-repeat; background-size: 20px; background-position: top right;">
               <h4>Double weaknesses (+2)</h4>
               {{#each typematch.doubleWeak}}
-              <img src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
+              <img title="{{this}}" src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
                 style="border: 0px"></img>
               {{/each}}
             </li>
             {{/if}}
 
             {{#if matchups.weak}}
-            <li
-              style="background-image: url('systems/pokerole/images/icons/matchups/X2.svg'); background-repeat: no-repeat; background-size: 20px; background-position: top right;">
+            <li style="background-image: url('systems/pokerole/images/icons/matchups/X2.svg'); background-repeat: no-repeat; background-size: 20px; background-position: top right;">
               <h4>Weaknesses (+1)</h4>
               {{#each typematch.weak}}
-              <img src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
+              <img title="{{this}}" src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
                 style="border: 0px"></img>
               {{/each}}
             </li>
             {{/if}}
 
             {{#if matchups.resist}}
-            <li
-              style="background-image: url('systems/pokerole/images/icons/matchups/1-2.svg'); background-repeat: no-repeat; background-size: 20px; background-position: top right;">
+            <li style="background-image: url('systems/pokerole/images/icons/matchups/1-2.svg'); background-repeat: no-repeat; background-size: 20px; background-position: top right;">
               <h4>Resistances (-1)</h4>
               {{#each typematch.resist}}
-              <img src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
+              <img title="{{this}}" src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
                 style="border: 0px"></img>
               {{/each}}
             </li>
             {{/if}}
             {{#if matchups.doubleResist}}
-            <li
-              style="background-image: url('systems/pokerole/images/icons/matchups/1-4.svg'); background-repeat: no-repeat; background-size: 20px; background-position: top right;">
+            <li style="background-image: url('systems/pokerole/images/icons/matchups/1-4.svg'); background-repeat: no-repeat; background-size: 20px; background-position: top right;">
               <h4>Double resistances (-2)</h4>
               {{#each typematch.doubleResist}}
-              <img src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
+              <img title="{{this}}" src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
                 style="border: 0px"></img>
               {{/each}}
             </li>
@@ -289,17 +285,16 @@
             <li>
               <h4>Triple resistances (-3)</h4>
               {{#each typematch.tripleResist}}
-              <img src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
+              <img title="{{this}}" src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
                 style="border: 0px"></img>
               {{/each}}
             </li>
             {{/if}}
             {{#if matchups.immune}}
-            <li
-              style="background-image: url('systems/pokerole/images/icons/matchups/X0.svg'); background-repeat: no-repeat; background-size: 20px; background-position: top right;">
+            <li style="background-image: url('systems/pokerole/images/icons/matchups/X0.svg'); background-repeat: no-repeat; background-size: 20px; background-position: top right;">
               <h4>Immunities (x0)</h4>
               {{#each typematch.immune}}
-              <img src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
+              <img title="{{this}}" src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
                 style="border: 0px"></img>
               {{/each}}
             </li>

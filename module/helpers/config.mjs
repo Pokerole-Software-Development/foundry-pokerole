@@ -394,6 +394,10 @@ POKEROLE.stylePokerole = {
     image:'systems/pokerole/images/icons/fsymbol2.png',
     color1: 'pink',
   },
+  genderless : {
+    image:'systems/pokerole/images/icons/osymbol2.png',
+    color1: 'grey',
+  },
   neutral : {
     image:'systems/pokerole/images/icons/none.svg',
     color1: 'pink',

@@ -17,6 +17,7 @@
         },
         "rank": "none",
         "personality": "hardy",
+        "gender": "neutral",
         "confidence": 0,
         "baseHp": 0,
         "actionCount": {

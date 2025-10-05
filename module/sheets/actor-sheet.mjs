@@ -60,7 +60,7 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
       context.natures[nature] = game.i18n.localize(POKEROLE.i18n.natures[nature]) ?? nature;
     }
     // TP support.
-    context.gender = {neutral: "None", male: "Male", female: "Female"};
+    context.gender = {neutral: "None", male: "Male", female: "Female", genderless: "Genderless"};
     context.addedvitamin = {None: "None", strength: "Strength", dexterity: "Dexterity", vitality: "Vitality", special: "Special", insight: "Insight", hp: "HP", willpower: "WP"};
 
     // TP Test Variable
