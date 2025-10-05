@@ -25,7 +25,7 @@
         class="mini-stats {{#if system.accuracyMod.isPositive}}positive{{/if}}{{#if system.accuracyMod.isNegative}}negative{{/if}}">
         ACC: + {{system.accuracyMod.value}} </div>
     </div>
-
+    <button type="button" title="Reset resources" class="reset-stat-changes">Clear</button>
   </div>
 
   <section class="" style="align-items: start; display: flex;">
@@ -81,7 +81,7 @@
         </div>
       </div>
 
-
+      <hr>
       <ul class="inner list-learned grid grid-3col" style="gap: 5px; margin: 0px; row-gap: 8px">
         {{#each moves.learned.moveList as |item id|}}
         <li class="item flexrow move-button {{#unless item.usable}}translucent{{/unless}}"
@@ -115,7 +115,7 @@
           </div>
           <div style="flex: none;">
             <img src="systems/pokerole/images/icons/combat/{{item.locCategory}}.png" title="{{itemdata.data.name}}"
-              width="45" height="20" style="border: none;text-align: center;" />
+              width="50" height="25" style="border: none;text-align: center;" />
           </div>
         </li>
         {{/each}}
@@ -218,4 +218,5 @@
     </li>
     {{/if}}
   </ul>
+  <hr>
 </div>

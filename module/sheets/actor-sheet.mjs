@@ -60,7 +60,7 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
       context.natures[nature] = game.i18n.localize(POKEROLE.i18n.natures[nature]) ?? nature;
     }
     // TP support.
-    context.gender = {neutral: "None", male: "Male", female: "Female"};
+    context.gender = {neutral: "None", male: "Male", female: "Female", genderless: "Genderless"};
     context.addedvitamin = {None: "None", strength: "Strength", dexterity: "Dexterity", vitality: "Vitality", special: "Special", insight: "Insight", hp: "HP", willpower: "WP"};
 
     // TP Test Variable
@@ -70,7 +70,7 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
     // TP support.
     context.ranks = this.constructor.getLocalizedRanks();
     context.types = getLocalizedTypesForSelect();
-
+   
     context.matchups = {};
     const matchups = context.system.hasThirdType
         ? getTripleTypeMatchups(context.system.type1, context.system.type2, context.system.type3)
@@ -206,15 +206,7 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
         moveList: []
       };
     }
-    /*
-    for (const key in POKEROLE.itemCategory) {
-      customitemdf[key] = {
-        catname: POKEROLE.itemCategory[key] ?? key,
-        hidden: (this.constructor.HIDDEN_POCKET ?? []).includes(key),
-        customitemlist: []
-      };
-    }
-    */
+    
     let learnedMoveNum = 0;
 
     // Iterate through items, allocating to containers
@@ -225,7 +217,7 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
         gear.push({ data: i });
 
         // TP Support 
-        let categorylist = (i.flags['item-piles']?.item.customCategory ?? i.system.pocket ?? 'Misc Item');
+        let categorylist = (i.system.pocket ?? 'Misc Item');
 
         if (!customitemdf[categorylist]) {
           customitemdf[categorylist] = {
@@ -445,7 +437,6 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     html.find(".toggle-pocket").click(event => {
       const group = event.currentTarget.dataset.group;
-      console.log(this.constructor.HIDDEN_POCKET);
       $(event.currentTarget.closest('li')).toggleClass('translucent');
       html.find(`.list-${group}`).toggleClass('items-hidden');
       const hiddenGroups = (this.constructor.HIDDEN_POCKET ?? []);
@@ -549,6 +540,8 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     html.find('.increment-action-num').click(ev => this.actor.increaseActionCount());
     html.find('.reset-round-based-resources').click(ev => this.actor.resetRoundBasedResources());
+    html.find('.reset-stat-changes').click(ev => this.actor.resetStatChange());
+
 
     html.find('.toggle-can-clash').click(() => {
       this.actor.update({ 'system.canClash': !this.actor.system.canClash });

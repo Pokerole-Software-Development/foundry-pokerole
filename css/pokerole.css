@@ -1371,6 +1371,39 @@
 .pokerole .stat-changes .stat-change-item.editing .icon-and-value i {
   display: none;
 }
+
+.pokerole .split.negative {
+  color: #e41b13;
+}
+
+.pokerole .split.positive {
+  color: #0095db;
+}
+
+.pokerole .split {
+  background-color: white; border-radius: 8px; 
+  font-weight: bold; 
+  color: grey; 
+  border: solid 2px; 
+  height: 30px;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0px 1px;
+  font-size: 17px;
+}
+
+.pokerole .split .changebox {
+  text-align: end; 
+  color: inherit; background-color: transparent; height: 24px;
+}
+
+.pokerole .split .changebox.editable {
+  box-shadow: inset 0 0 2px #000000;
+  border: 0px;
+}
+
 .pokerole .stat-changes .stat-change-item input, .pokerole .stat-changes .stat-change-item select {
   color: black;
   height: 30px;
@@ -1410,7 +1443,7 @@
 }
 .pokerole .stat-changes .stat-change-item.pain {
   width: 130px;
-  max-width: 220px;
+  max-width: 250px;
   -webkit-box-flex: 1;
   -ms-flex: 1;
   flex: 1;
@@ -1419,6 +1452,24 @@
   align-items: stretch;
   background-color: #A74D39;
 }
+.pokerole .stat-changes .statchange {
+  min-width: 180px;
+  max-width: 250px;
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  -webkit-box-align: stretch;
+  -ms-flex-align: stretch;
+  align-items: center;
+  display: flex; 
+  background-color: black; 
+  border-radius: 14px; 
+  padding: 5px; 
+  gap: 2px; 
+  font-family: Trebuchet MS, Arial, sans-serif;
+  justify-content: space-between;
+}
+
 .pokerole .effects-list h3 {
   border: none;
 }
@@ -1671,7 +1722,7 @@ background-size: cover;
   align-items: center; 
   height: 40px; 
   gap: 2px; 
-  padding: 0px 4px 0px 2px;
+  padding: 0px 5px 0px 5px;
   min-width: 195px;
   font-weight:bold;
   text-align: center;

@@ -17,10 +17,11 @@
         },
         "rank": "none",
         "personality": "hardy",
+        "gender": "neutral",
         "confidence": 0,
         "baseHp": 0,
         "actionCount": {
-          "value": 1,
+          "value": 0,
           "min": 0,
           "max": 5
         },
@@ -74,7 +75,9 @@
         "skills": {},
         "ailments": [],
         "accuracyMod": {
-          "value": 0
+          "value": 0,
+          "plus": 0,
+          "minus": 0	
         },
         "customInitiativeMod": 0,
         "biography": "",

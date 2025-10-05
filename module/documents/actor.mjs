@@ -39,9 +39,22 @@ export class PokeroleActor extends Actor {
       }
     });
 
+      //Backward Compatibility
+      if (this.system.skills.allure){
+       this.system.skills.charm = this.system.skills.allure
+       this.update({'system.skills.-=allure': null});
+      }
+     
     for (const statChange of Object.values(this.system.statChanges)) {
+      statChange.plus ??= 0;
+      statChange.minus ??= 0;
+      statChange.value = statChange.plus - statChange.minus;
       statChange.value ??= 0;
     }
+    this.system.accuracyMod = foundry.utils.mergeObject(this.system.accuracyMod ?? {})
+    this.system.accuracyMod.plus ??= 0;
+    this.system.accuracyMod.minus ??= 0;
+    this.system.accuracyMod.value = this.system.accuracyMod.plus - this.system.accuracyMod.minus;
   }
 
   /**
@@ -65,8 +78,7 @@ export class PokeroleActor extends Actor {
    */
   _prepareCharacterData(actorData) {
     const system = actorData.system;
-
-    const { totalPassiveIncrease, skillLimit } = POKEROLE.rankProgression[system.rank ?? 'none'];
+    const { totalPassiveIncrease, skillLimit } = POKEROLE.rankProgression[system.rank ?? 'none'] ?? [0,0];
 
     for (const skill of Object.values(system.skills)) {
       skill.max = skillLimit;
@@ -78,7 +90,7 @@ export class PokeroleActor extends Actor {
       system.hp.max = system.baseHp + system.attributes.vitality.value + totalPassiveIncrease;
     };
 
-                      // TP Support Will+
+    // TP Support Will+
     system.will.max = (system.willbonus ?? 0 ) + system.attributes.insight.value + POKEROLE.CONST.MAX_WILL_BONUS + totalPassiveIncrease;
 
     // Stat changes need to be applied manually here because derived stats are created
@@ -459,12 +471,22 @@ export class PokeroleActor extends Actor {
    * @throws {Error} If the stat is unknown.
    * @returns {Promise<bool>} `true` if the stat was changed, `false` if the new value was lower than the old one.
    */
-  async applyStatChange(stat, amount) {
+  async applyStatChange(stat, amount) { // key need to be selected between plus and minus
     let key;
     if (['strength', 'dexterity', 'special', 'def', 'spDef'].includes(stat)) {
-      key = `system.statChanges.${stat}.value`;
+      if (amount < 0){
+        key = `system.statChanges.${stat}.minus`;
+      } else if (amount > 0){
+        key = `system.statChanges.${stat}.plus`;
+      };
+      // key = `system.statChanges.${stat}.value`;
     } else if (stat === 'accuracyMod') {
-      key = `system.accuracyMod.value`;
+      if (amount < 0){
+        key = `system.accuracyMod.minus`;
+      } else if (amount > 0){
+        key = `system.accuracyMod.plus`;
+      };
+      // key = `system.accuracyMod.value`;
     } else {
       throw new Error(`Unknown stat '${stat}'`);
     }
@@ -480,7 +502,7 @@ export class PokeroleActor extends Actor {
 
     // Replace the old value if the new value's absolute value is higher
     if (Math.abs(amount) > Math.abs(currentValue)) {
-      await this.update({ [key]: amount });
+      await this.update({ [key]: Math.abs(amount) });
       return true;
     } else {
       return false;
@@ -498,11 +520,38 @@ export class PokeroleActor extends Actor {
       }
     });
 
+    
+
     const moveUpdates = [];
     for (const move of this.items.filter(i => i.type === 'move' && i.system.usedInRound)) {
       moveUpdates.push({ '_id': move.id, 'system.usedInRound': false });
     }
     const embeddedUpdate = this.updateEmbeddedDocuments('Item', moveUpdates);
     await Promise.all([actorUpdate, embeddedUpdate]);
+  }
+  
+  async resetStatChange() {
+    const actorUpdate = this.update({
+      system: {
+        statChanges: {
+          'strength.plus': 0,
+          'dexterity.plus': 0,
+          'special.plus': 0,
+          'strength.plus': 0,
+          'strength.minus': 0,
+          'dexterity.minus': 0,
+          'special.minus': 0,
+          'def.plus': 0,
+          'spDef.plus': 0,
+          'def.minus': 0,
+          'spDef.minus': 0
+        },
+        accuracyMod: {
+          'plus': 0,
+          'minus': 0
+        }
+      }
+    });
+    await Promise.all([actorUpdate]);
   }
 }

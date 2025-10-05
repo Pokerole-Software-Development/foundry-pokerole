@@ -249,8 +249,8 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
   let { accMod1, accMod2, accMod1var, accMod2var} = item.system;
   accMod1 = accMod1.trim();
   accMod2 = accMod2.trim();
-  accMod1var = accMod1var.trim();
-  accMod2var = accMod2var.trim();
+  accMod1var = accMod1var?.trim();
+  accMod2var = accMod2var?.trim();
 
   if (!accMod1 && accMod1var) {
     accMod1 = accMod1var;
