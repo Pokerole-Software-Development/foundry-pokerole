@@ -165,7 +165,7 @@ Handlebars.registerHelper('stylePokerole', function(item='none', asset='image', 
   if (tolowercase == true){item = item.toLowerCase()};
   if (item == ''){item = 'none'; asset = 'image';};
   var varo = POKEROLE.stylePokerole[item];
-  if (varo){varo = varo[asset]}; //Backward compatibility
+  if (varo){varo = varo[asset]};
   return varo ?? 'none';
 });
 

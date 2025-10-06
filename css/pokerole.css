@@ -1396,12 +1396,21 @@
 
 .pokerole .split .changebox {
   text-align: end; 
-  color: inherit; background-color: transparent; height: 24px;
+  color: inherit; 
+  background-color: transparent; 
+  height: 24px;
 }
 
 .pokerole .split .changebox.editable {
   box-shadow: inset 0 0 2px #000000;
   border: 0px;
+}
+
+.pokerole .split .changebox-icon {
+  position: relative; 
+  left: 4px; 
+  top: 1px;
+  width: 0px;
 }
 
 .pokerole .stat-changes .stat-change-item input, .pokerole .stat-changes .stat-change-item select {
