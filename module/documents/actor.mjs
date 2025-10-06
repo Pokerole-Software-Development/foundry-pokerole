@@ -38,12 +38,6 @@ export class PokeroleActor extends Actor {
         stat: 'system.derived.spDef.value',
       }
     });
-
-      //Backward Compatibility
-      if (this.system.skills.allure){
-       this.system.skills.charm = this.system.skills.allure
-       this.update({'system.skills.-=allure': null});
-      }
      
     for (const statChange of Object.values(this.system.statChanges)) {
       statChange.plus ??= 0;

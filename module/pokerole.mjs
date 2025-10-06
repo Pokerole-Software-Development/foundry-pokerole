@@ -163,6 +163,7 @@ Handlebars.registerHelper('pkOptions', function(v1) {
 
 Handlebars.registerHelper('stylePokerole', function(item='none', asset='image', tolowercase = false) {
   if (tolowercase == true){item = item.toLowerCase()};
+  if (item == ''){item = 'none'; asset = 'image';};
   var varo = POKEROLE.stylePokerole[item];
   if (varo){varo = varo[asset]}; //Backward compatibility
   return varo ?? 'none';
