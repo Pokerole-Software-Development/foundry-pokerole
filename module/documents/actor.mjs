@@ -39,12 +39,30 @@ export class PokeroleActor extends Actor {
       }
     });
 
-      /* //Backward Compatibility
+
+    if (this.system.source == "Core v2.0" && 
+      (this._stats.systemVersion.split('.')[0] <= 4 && 
+      this._stats.systemVersion.split('.')[1] <= 0 && 
+      this._stats.systemVersion.split('.')[2] <= 3 )
+    ){
+      console.log(this.name,this._stats.systemVersion, "Updating to 0.4.3 - v3.0")
       if (this.system.skills.allure){
        this.system.skills.charm = this.system.skills.allure;
        this.update({'system.skills.-=allure': null});
+       console.log("Allure updated");
       }
-     */
+      if (this.system.rank == 'beginner') {
+        this.update({'system.rank': 'rookie'});
+      } else if (this.system.rank == 'amateur') {
+        this.update({'system.rank': 'standard'});
+      } else if (this.system.rank == 'ace') {
+        this.update({'system.rank': 'advance'});
+      } else if (this.system.rank == 'pro') {
+        this.update({'system.rank': 'expert'});
+      };
+      this.update({'system.source': "Core v3.0"});
+    };
+
 
     for (const statChange of Object.values(this.system.statChanges)) {
       statChange.plus ??= 0;
