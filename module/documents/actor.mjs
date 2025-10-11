@@ -41,8 +41,8 @@ export class PokeroleActor extends Actor {
 
 
     if (this.system.source == "Core v2.0" && 
-      (this._stats.systemVersion.split('.')[0] <= 4 && 
-      this._stats.systemVersion.split('.')[1] <= 0 && 
+      (this._stats.systemVersion.split('.')[0] <= 0 && 
+      this._stats.systemVersion.split('.')[1] <= 4 && 
       this._stats.systemVersion.split('.')[2] <= 3 )
     ){
       console.log(this.name,this._stats.systemVersion, "Updating to 0.4.3 - v3.0")
