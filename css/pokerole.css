@@ -1045,6 +1045,12 @@
 .pokerole .translucent {
   opacity: 60%;
 }
+
+.pokerole .deactivate-item {
+  opacity: 60%;
+  background-color: #00000052;
+}
+
 .pokerole .combat-resources, .pokerole .money {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -1385,12 +1391,11 @@
   font-weight: bold; 
   color: grey; 
   border: solid 2px; 
-  height: 30px;
-  width: 40px;
+  height: 28px;
+  width: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0px 1px;
   font-size: 17px;
 }
 
@@ -1462,7 +1467,7 @@
   background-color: #A74D39;
 }
 .pokerole .stat-changes .statchange {
-  min-width: 180px;
+  min-width: 210px;
   max-width: 250px;
   -webkit-box-flex: 1;
   -ms-flex: 1;
@@ -1473,10 +1478,18 @@
   display: flex; 
   background-color: black; 
   border-radius: 14px; 
-  padding: 5px; 
-  gap: 2px; 
+  padding: 4px 10px; 
+  gap: 12px; 
   font-family: Trebuchet MS, Arial, sans-serif;
   justify-content: space-between;
+}
+
+.pokerole .statchange label {
+  color: white; 
+  width: 60px; 
+  text-align: center; 
+  font-size: 1.1em;
+  flex: 1px
 }
 
 .pokerole .effects-list h3 {

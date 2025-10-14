@@ -559,6 +559,14 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
         'system.enabled': !item.system.enabled,
       });
     });
+
+    html.find(".visible-toggle-enabled").click(event => {
+      const li = event.currentTarget.closest("li");
+      const item = this.actor.items.get(li.dataset.itemId);
+      item.update({
+        'system.visible': !item.system.visible,
+      });
+    });
   }
 
   /** 
