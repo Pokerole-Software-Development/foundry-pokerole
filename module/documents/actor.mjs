@@ -39,12 +39,32 @@ export class PokeroleActor extends Actor {
       }
     });
 
-      //Backward Compatibility
+
+    if (this.system.source == "Core v2.0" && 
+      (this._stats.systemVersion.split('.')[0] <= 0 && 
+      this._stats.systemVersion.split('.')[1] <= 4 && 
+      this._stats.systemVersion.split('.')[2] <= 4 ) && 
+      this._stats.systemVersion != '0.3.1'
+    ){
+      console.log(this.name,this._stats.systemVersion, "Updating to 0.4.3 - v3.0")
       if (this.system.skills.allure){
-       this.system.skills.charm = this.system.skills.allure
+       this.system.skills.charm = this.system.skills.allure;
        this.update({'system.skills.-=allure': null});
+       console.log("Allure updated");
       }
-     
+      if (this.system.rank == 'beginner') {
+        this.update({'system.rank': 'rookie'});
+      } else if (this.system.rank == 'amateur') {
+        this.update({'system.rank': 'standard'});
+      } else if (this.system.rank == 'ace') {
+        this.update({'system.rank': 'advance'});
+      } else if (this.system.rank == 'pro') {
+        this.update({'system.rank': 'expert'});
+      };
+      this.update({'system.source': "Core v3.0"});
+    };
+
+
     for (const statChange of Object.values(this.system.statChanges)) {
       statChange.plus ??= 0;
       statChange.minus ??= 0;
@@ -97,6 +117,7 @@ export class PokeroleActor extends Actor {
     // before `applyEffects` is called
     const strength = Math.max(system.attributes.strength.value + system.statChanges.strength.value, 1);
     const dexterity = Math.max(system.attributes.dexterity.value + system.statChanges.dexterity.value, 1);
+ 
     const special = Math.max(system.attributes.special.value + system.statChanges.special.value, 1);
 
     system.derived ??= {};
@@ -109,12 +130,15 @@ export class PokeroleActor extends Actor {
     system.derived.evade = {
       value: dexterity + system.skills.evasion.value
     };
+
     system.derived.clashPhysical = {
-      value: strength + system.skills.clash.value
+      value: strength + (system.skills?.clash?.value ?? 0)
     };
     system.derived.clashSpecial = {
-      value: special + system.skills.clash.value
+      value: special + (system.skills?.clash?.value ?? 0)
     };
+
+    
 
     if (system.skills?.medicine?.value !== undefined) { // Pokémon don't have Medicine
       system.derived.useItem = { value: system.social.clever.value + system.skills.medicine.value };
@@ -145,28 +169,28 @@ export class PokeroleActor extends Actor {
       }
     }
 
-    if (this.hasAilment('paralysis')) {
+    if (this.hasAilment('paralysis') && game.settings.get('pokerole', 'paralysisConst') > 0) {
       // Paralysis reduces Dexterity by 2 (capped to 0 instead of 1)
       const path = 'system.attributes.dexterity.value';
       const currentValue = overrides[path] ?? foundry.utils.getProperty(this, path) ?? 0;
-      overrides[path] = Math.max(currentValue - POKEROLE.CONST.PARALYSIS_DEXTERITY_DECREASE, 0);
+      overrides[path] = Math.max(currentValue - game.settings.get('pokerole', 'paralysisConst'), 0);
       overrides['system.derived.evade.value'] = (overrides[path] + this.system.skills.evasion.value);
     }
 
-    if (this.hasAilment('burn1')||this.hasAilment('burn2')||this.hasAilment('burn3')) {
+    if ((this.hasAilment('burn1')||this.hasAilment('burn2')||this.hasAilment('burn3')) && game.settings.get('pokerole', 'burnConst') > 0) {
       // Burn reduces Strength by 1 (capped to 0 instead of 1)
       const path = 'system.attributes.strength.value';
       const currentValue = overrides[path] ?? foundry.utils.getProperty(this, path) ?? 0;
-      overrides[path] = Math.max(currentValue - POKEROLE.CONST.BURN_STRENGTH_DECREASE, 0);
-      overrides['system.derived.clashPhysical.value'] = (overrides[path] + this.system.skills.clash.value);
+      overrides[path] = Math.max(currentValue - game.settings.get('pokerole', 'burnConst'), 0);
+      overrides['system.derived.clashPhysical.value'] = (overrides[path] + this.system.skills?.clash?.value);
     }
 
-    if (this.hasAilment('frozen')) {
+    if (this.hasAilment('frozen') && game.settings.get('pokerole', 'frozenConst') > 0) {
       // Frozen reduces Special by 1 (capped to 0 instead of 1)
       const path = 'system.attributes.special.value';
       const currentValue = overrides[path] ?? foundry.utils.getProperty(this, path) ?? 0;
-      overrides[path] = Math.max(currentValue - POKEROLE.CONST.FROZEN_SPECIAL_DECREASE, 0);
-      overrides['system.derived.clashSpecial.value'] = (overrides[path] + this.system.skills.clash.value);
+      overrides[path] = Math.max(currentValue - game.settings.get('pokerole', 'frozenConst'), 0);
+      overrides['system.derived.clashSpecial.value'] = (overrides[path] + this.system.skills?.clash?.value);
     }
 
     // Apply custom effects
@@ -449,7 +473,7 @@ export class PokeroleActor extends Actor {
       ailments[ailment.type].tint,
       ailments[ailment.type].overlay ?? false,
     ));
-    const customTokenEffects = this.items.filter(i => i.type === 'effect' && i.system.enabled)
+    const customTokenEffects = this.items.filter(i => i.type === 'effect' && i.system.enabled && (i.system.visible ?? true))
       .map(i => new TokenEffect(
         i.name,
         i.img,

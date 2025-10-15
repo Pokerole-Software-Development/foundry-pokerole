@@ -1045,6 +1045,7 @@
 .pokerole .translucent {
   opacity: 60%;
 }
+
 .pokerole .combat-resources, .pokerole .money {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -1385,23 +1386,31 @@
   font-weight: bold; 
   color: grey; 
   border: solid 2px; 
-  height: 30px;
-  width: 40px;
+  height: 28px;
+  width: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0px 1px;
   font-size: 17px;
 }
 
 .pokerole .split .changebox {
   text-align: end; 
-  color: inherit; background-color: transparent; height: 24px;
+  color: inherit; 
+  background-color: transparent; 
+  height: 24px;
 }
 
 .pokerole .split .changebox.editable {
   box-shadow: inset 0 0 2px #000000;
   border: 0px;
+}
+
+.pokerole .split .changebox-icon {
+  position: relative; 
+  left: 4px; 
+  top: 1px;
+  width: 0px;
 }
 
 .pokerole .stat-changes .stat-change-item input, .pokerole .stat-changes .stat-change-item select {
@@ -1453,7 +1462,7 @@
   background-color: #A74D39;
 }
 .pokerole .stat-changes .statchange {
-  min-width: 180px;
+  min-width: 210px;
   max-width: 250px;
   -webkit-box-flex: 1;
   -ms-flex: 1;
@@ -1464,10 +1473,18 @@
   display: flex; 
   background-color: black; 
   border-radius: 14px; 
-  padding: 5px; 
-  gap: 2px; 
+  padding: 4px 10px; 
+  gap: 12px; 
   font-family: Trebuchet MS, Arial, sans-serif;
   justify-content: space-between;
+}
+
+.pokerole .statchange label {
+  color: white; 
+  width: 60px; 
+  text-align: center; 
+  font-size: 1.1em;
+  flex: 1px
 }
 
 .pokerole .effects-list h3 {

@@ -1,5 +1,9 @@
 {
   "TYPES.Actor.pokemon": "Pokémon",
+  "TYPES.Actor.trainer": "Trainer",
+
+  "pokerole.PokeroleActorSheet": "POKEROLE Base Sheet",
+  "pokerole.PokeroleItemSheet": "POKEROLE Item Sheet",
 
   "TYPES.Item.move": "Move",
   "TYPES.Item.ability": "Ability",

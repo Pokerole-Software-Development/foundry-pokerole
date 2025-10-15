@@ -1,7 +1,8 @@
 {
   "Actor": {
     "types": [
-      "pokemon"
+      "pokemon",
+      "trainer"
     ],
     "templates": {
       "base": {
@@ -13,12 +14,11 @@
         "will": {
           "value": 0,
           "min": 0,
-          "max": 2
+          "max": 3
         },
         "rank": "none",
         "personality": "hardy",
         "gender": "neutral",
-        "confidence": 0,
         "baseHp": 0,
         "actionCount": {
           "value": 0,
@@ -32,17 +32,17 @@
           "strength": {
             "value": 0,
             "min": 0,
-            "max": 12
+            "max": 10
           },
           "dexterity": {
             "value": 0,
             "min": 0,
-            "max": 12
+            "max": 10
           },
           "vitality": {
             "value": 0,
             "min": 0,
-            "max": 12
+            "max": 10
           }
         },
         "social": {
@@ -74,11 +74,6 @@
         },
         "skills": {},
         "ailments": [],
-        "accuracyMod": {
-          "value": 0,
-          "plus": 0,
-          "minus": 0	
-        },
         "customInitiativeMod": 0,
         "biography": "",
         "source": "Homebrew"
@@ -186,6 +181,193 @@
           "max": 5
         }
       }
+    },
+    "trainer": {
+      "templates": [
+      ],
+      "hp": {
+        "value": 0,
+        "min": 0,
+        "max": 0
+      },
+      "will": {
+        "value": 0,
+        "min": 0,
+        "max": 3
+      },
+      "rank": "none",
+      "personality": "hardy",
+      "gender": "neutral",
+      "baseHp": 4,
+      "actionCount": {
+        "value": 0,
+        "min": 0,
+        "max": 5
+      },
+      "canClash": true,
+      "canEvade": true,
+      "money": 0,
+      "social": {
+        "tough": {
+          "value": 1,
+          "min": 0,
+          "max": 5
+        },
+        "cool": {
+          "value": 1,
+          "min": 0,
+          "max": 5
+        },
+        "beauty": {
+          "value": 1,
+          "min": 0,
+          "max": 5
+        },
+        "cute": {
+          "value": 1,
+          "min": 0,
+          "max": 5
+        },
+        "clever": {
+          "value": 1,
+          "min": 0,
+          "max": 5
+        }
+      },
+      "ailments": [],
+      "accuracyMod": {
+        "value": 0,
+        "plus": 0,
+        "minus": 0	
+      },
+      "customInitiativeMod": 0,
+      "biography": "",
+      "source": "Homebrew",
+      "trainingPoints": 0,
+      "pokedexId": 0,
+      "species": "",
+      "pokedexCategory": "",
+      "pokedexDescription": "",
+      "type1": "none",
+      "type2": "none",
+      "type3": "none",
+      "hasThirdType": false,
+      "height": 0,
+      "weight": 0,
+      "recommendedRank": "none",
+      "painPenalty": "none",
+      "sheetskin": "skinOld",
+      "attributes": {
+        "strength": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "dexterity": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "vitality": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "special": {
+          "value": 0,
+          "min": 0,
+          "max": 0
+        },
+        "insight": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        }
+      },
+      "skills": {
+        "brawl": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "throw": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "weapon": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "evasion": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "alert": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "athletic": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "nature": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "stealth": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "emphaty": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "etiquette": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "intimidate": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "perform": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "crafts": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "lore": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "medicine": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        },
+        "science": {
+          "value": 0,
+          "min": 0,
+          "max": 5
+        }
+      },
+      "extra": {
+      }
     }
   },
   "Item": {
@@ -275,6 +457,7 @@
         "base"
       ],
       "enabled": true,
+      "visible": true,
       "rules": []
     }
   }

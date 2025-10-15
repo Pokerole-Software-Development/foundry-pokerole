@@ -488,6 +488,7 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
           learned: !item.system.learned,
           // Remove the "used in round" flag when a move is unlearned
           usedInRound: item.system.learned ? false : item.system.usedInRound,
+          overrank: false,
         }
       });
     });
@@ -496,6 +497,12 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
       const li = event.currentTarget.closest("li");
       const item = this.actor.items.get(li.dataset.itemId);
       item.update({ 'system.usedInRound': !item.system.usedInRound });
+    });
+
+    html.find(".move-toggle-overrank").click(event => {
+      const li = event.currentTarget.closest("li");
+      const item = this.actor.items.get(li.dataset.itemId);
+      item.update({ 'system.overrank': !item.system.overrank });
     });
 
     // Drag events for macros.
@@ -557,6 +564,14 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
       const item = this.actor.items.get(li.dataset.itemId);
       item.update({
         'system.enabled': !item.system.enabled,
+      });
+    });
+
+    html.find(".visible-toggle-enabled").click(event => {
+      const li = event.currentTarget.closest("li");
+      const item = this.actor.items.get(li.dataset.itemId);
+      item.update({
+        'system.visible': !item.system.visible,
       });
     });
   }

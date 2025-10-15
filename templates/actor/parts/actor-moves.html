@@ -65,6 +65,11 @@
           </div>
           <div class="item-controls">
             {{#unless item.data.system.attributes.maneuver}}
+              {{#if item.data.system.learned}}
+                <a class="move-toggle-overrank" title="Toggle Overranked Status">
+                  <i class="{{#if item.data.system.overrank}}fa-solid fa-star{{else}}fa-regular fa-star{{/if}}"></i>
+                </a>
+              {{/if}}
             <a class="move-toggle-learned" title="{{localize 'POKEROLE.MoveToggle'}}">
               <i class="fas {{#if item.data.system.learned}}fa-times{{else}}fa-check{{/if}}"></i>
             </a>

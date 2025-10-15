@@ -23,32 +23,6 @@ POKEROLE.CONST = {
   BADLY_POISONED_DAMAGE: 2, // TODO: Lethal Damage (https://github.com/Pokerole-Software-Development/foundry-pokerole/issues/32)
 };
 
-POKEROLE.LOSCONST = {
-  // Attributes
-  MAX_WILL_BONUS: 3, // Max Will is calculated from the Insight stat + this value (MOD 3.0)
-  LEARNED_MOVES_BONUS: 3, // Max Moves is calculated from the Insight stat + this value (MOD 3.0)
-
-  // Damage
-  STAB_BONUS: 1, // Added to the damage pool if the move's type matches the Pokémon's type
-  CRIT_BONUS: 2, // Added to the damage pool if the move is a critical hit
-
-  // Scaling
-  INITIATIVE_DEX_BONUS: 1,
-
-  // Effects
-  PARALYSIS_DEXTERITY_DECREASE: 2,
-  BURN_STRENGTH_DECREASE: 1,
-  FROZEN_SPECIAL_DECREASE: 1,
-  BURN1_DAMAGE: 1,
-  BURN2_DAMAGE: 1, // TODO: Lethal Damage (https://github.com/Pokerole-Software-Development/foundry-pokerole/issues/32)
-  BURN3_DAMAGE: 1, // TODO: Lethal Damage (https://github.com/Pokerole-Software-Development/foundry-pokerole/issues/32)
-  CONFUSION_STANDARD_DECREASE: 1,
-  CONFUSION_ACE_DECREASE: 1,
-  CONFUSION_CHAMPION_DECREASE: 1,
-  POISON_DAMAGE: 1,
-  BADLY_POISONED_DAMAGE: 1, // TODO: Lethal Damage (https://github.com/Pokerole-Software-Development/foundry-pokerole/issues/32)
-};
-
 POKEROLE.typeMatchups = {
   'none': {
     weak: [],

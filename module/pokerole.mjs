@@ -163,8 +163,9 @@ Handlebars.registerHelper('pkOptions', function(v1) {
 
 Handlebars.registerHelper('stylePokerole', function(item='none', asset='image', tolowercase = false) {
   if (tolowercase == true){item = item.toLowerCase()};
+  if (item == ''){item = 'none'; asset = 'image';};
   var varo = POKEROLE.stylePokerole[item];
-  if (varo){varo = varo[asset]}; //Backward compatibility
+  if (varo){varo = varo[asset]};
   return varo ?? 'none';
 });
 
@@ -220,19 +221,9 @@ function registerSettings() {
     requiresReload: true
   });
 
-  game.settings.register('pokerole', 'legendsMode', {
-    name: 'Legends Status Mode',
-    hint: '',
-    scope: 'world',
-    config: true,
-    type: Boolean,
-    default: false,
-    requiresReload: true
-  });
-
   game.settings.register('pokerole', 'vitaminOption', {
-    name: 'Enable LoS Vitamin Rule',
-    hint: '',
+    name: 'Enable Vitamin Tracker',
+    hint: 'Add a new section on the Biography tab to keeptrack of the vitamin you are giving to a pokemon and add a visual reminder on the attribute tab',
     scope: 'world',
     config: true,
     type: Boolean,
@@ -241,12 +232,54 @@ function registerSettings() {
   });
 
   game.settings.register('pokerole', 'genderOption', {
-    name: 'Enable Pokemon Gender',
-    hint: '',
+    name: 'Enable Pokemon Gender Selector',
+    hint: 'Add a new dropdown list to keep track of the Gender of Actors (Videogame genders)',
     scope: 'world',
     config: true,
     type: Boolean,
     default: false,
+    requiresReload: true
+  });
+ /*
+  game.settings.registerMenu('pokerole', 'battleConst', {
+      name: "Battle Constants",
+      hint: "Allows to change certain numbers of the core mechanics",
+      label: "meow",
+      icon: 'fas fa-wrench',
+      type: AutomationMenu, // Requires an FormApplication
+      restricted: true
+    })
+  */
+  game.settings.register('pokerole', 'burnConst', {
+    name: 'Burn Strength Reduction',
+    hint: 'Homebrew option to add Strength reduction to the Burn condition (Default: 0)',
+    scope: 'world',
+    config: true,
+    type: Number,
+    default: 0,
+    range: {min: 0, max: 3},
+    requiresReload: true
+  });
+
+  game.settings.register('pokerole', 'frozenConst', {
+    name: 'Frozen Special Reduction',
+    hint: 'Homebrew option to add Special reduction to the Frozen condition (Default: 0)',
+    scope: 'world',
+    config: true,
+    type: Number,
+    default: 0,
+    range: {min: 0, max: 3},
+    requiresReload: true
+  });
+
+  game.settings.register('pokerole', 'paralysisConst', {
+    name: 'Paralysis Dexterity Reduction',
+    hint: 'Homebrew option to change the Special reduction to the Paralysis condition (Default: 2)',
+    scope: 'world',
+    config: true,
+    type: Number,
+    default: 2,
+    range: {min: 0, max: 3},
     requiresReload: true
   });
 }
