@@ -35,11 +35,12 @@
       </div>
       {{/unless}}
 
-      {{!-- 3.0 --}}
+      {{#if system.learned}}
       <div class="form-group">
         <label class="resource-label">Overrank Move?</label>
         <input type="checkbox" name="system.overrank" {{checked system.overrank}} data-dtype="Boolean">
       </div>
+      {{/if}}
 
       <hr>
       {{/unless}}

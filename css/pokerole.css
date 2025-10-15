@@ -1046,11 +1046,6 @@
   opacity: 60%;
 }
 
-.pokerole .deactivate-item {
-  opacity: 60%;
-  background-color: #00000052;
-}
-
 .pokerole .combat-resources, .pokerole .money {
   display: -webkit-box;
   display: -ms-flexbox;

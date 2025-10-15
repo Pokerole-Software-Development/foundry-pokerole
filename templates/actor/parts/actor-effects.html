@@ -124,7 +124,7 @@
     </li>
 
     {{#each customEffects as |effect i|}}
-    <li class="item flexrow {{#unless effect.data.system.visible}} translucent {{/unless}}{{#unless effect.data.system.enabled}} deactivate-item {{/unless}}"
+    <li class="item flexrow {{#unless effect.data.system.enabled}} translucent {{/unless}}"
       data-item-id="{{effect.data._id}}">
       <div class="item-name">
         <div class="item-image">
