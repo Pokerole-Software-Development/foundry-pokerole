@@ -3,47 +3,53 @@
   {{!-- Sheet Header --}}
   <header class="sheet-header">
     {{!-- Sheet NEW Header --}}
-    <div class="new-sheet-header" style="background-image: url({{stylePokerole system.sheetskin 'image'}}); background-color: {{stylePokerole system.sheetskin 'color4'}}; flex: 1;">
+    <div class="new-sheet-header" style="background-color: {{styleColor system.sheetskin 'color4'}};">
       <div class="main-header" style="display: flex;justify-content: center;">
-        <div class="side-fill"></div>
         <div class="side-containers">
-          <div class="side-slot up-left" style="background: {{stylePokerole system.sheetskin 'color1'}};"> 
-            <div style="height: 100%;display:  flex;justify-content: flex-end;align-items: center;clip-path: polygon(0% 0%, calc(100% - 3px) 0%, calc(100% - 30px) 102%, 0% 102%);background: {{stylePokerole system.sheetskin 'color3'}};width: 250px;padding: 0px 30px 0px 0px;">
-              
-              <div style="background: {{stylePokerole system.sheetskin 'color1'}};height: 100%;width: 35px;clip-path: polygon(0px 0%, 102% 0%, calc( 100% - 30px) 102%, 0% 102%);display: flex;justify-content: flex-start;">
-                <div style="background: {{stylePokerole system.sheetskin 'color2'}};clip-path: polygon(0px 0%, 102% 0%, calc( 100% - 30px) 102%, 0% 102%);width: 30px;display: flex;justify-content: center;align-items: center;padding-left: 15px;color: white;font-size: 18px;">
-                  <label></label>
+          <div class="side-slot up-left" style="background: {{styleColor system.sheetskin 'color1'}};"> 
+            <div class="internal" style="background: {{styleColor system.sheetskin 'color3'}};">
+              <div style="background: {{styleColor system.sheetskin 'color1'}};height: 100%;width: 50px;clip-path: polygon(0px 0%, 102% 0%, calc( 100% - 30px) 102%, 0% 102%);display: flex;justify-content: flex-start;">
+                <div style="background: {{styleColor system.sheetskin 'color2'}};clip-path: polygon(0px 0%, 102% 0%, calc( 100% - 30px) 102%, 0% 102%);width: 45px;display: flex;justify-content: flex-start;align-items: center;padding-left: 5px;color: white;font-size: 20px;">
+                  <i class="fas fa-gear butonable settings-button"></i>
                 </div>
               </div>
-              <input name="name" type="text" value="{{actor.name}}" placeholder="Name" style="border: 0px;font-size: 22px;font-family: 'Signika';text-align: end;width: 185px;border-radius: 10px; text-overflow: ellipsis; white-space: nowrap; background: transparent;">
+              <input name="name" type="text" value="{{actor.name}}" placeholder="Name">
             </div>
           </div>
-          <div class="side-slot down-left" style="background: {{stylePokerole system.sheetskin 'color1'}};">
-            <div style="height: 100%;clip-path: polygon(0% 0%, calc(100% - 30px) 0%, calc(100% - 3px) 101%, 0% 101%);display: flex;flex-direction: column;min-width: 250px;align-items: flex-end;gap: 2px;">
-              <div style="height: 48%;width: 250px;background: {{stylePokerole system.sheetskin 'color2'}};padding: 0px 32px 0px 10px;display: flex;align-items: center;">
+          <div class="side-slot down-left" style="background: {{styleColor system.sheetskin 'color1'}};">
+            <div class="internal">
+              <div class="info-container" style="background: {{styleColor system.sheetskin 'color2'}};">
                  <div style="display: flex; align-items: center;gap: 1px;">
                   <label title="#{{system.pokedexId}} {{system.species}}" style="color: white; background: transparent; text-align: center; padding: 2px 0px;max-width: 185px; overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">#{{system.pokedexId}} {{system.species}}</label>
                   {{#if (pkOptions "genderOption")}}
-                  <img  src="{{stylePokerole system.gender 'image'}}" style="width: 22px;height: 22px;border: 0px;">
+                  <img  src="{{styleImage system.gender}}" style="width: 22px;height: 22px;border: 0px;">
                   {{/if}}
                   {{#if system.varicolor}}
                   <img title="Shinny" src="systems/pokerole/images/icons/varicolor.png" style="width: 22px;height: 22px;border: 0px;">
                   {{/if}}
                   </div>
               </div>
-              <div style="display: flex;height: 48%;width: 250px;">
-                <div style="background: {{stylePokerole system.type1 'color1'}};height: 100%;width: 50%;clip-path: polygon(0% 0%, calc(100% - 12.5px) 0%, 100% 101%, 12.5px 101%);display: flex;align-items: center;justify-content: space-between;padding: 0 12px 0 12px;">
-                  <img src="{{stylePokerole system.type1 'image'}}" style="height: 100%;border: 0px">
-                  <select name="system.type1" value="{{system.type1}}" data-dtype="String" style="align-self: center;color: white;background: transparent;border: 0px;width: -webkit-fill-available;">
+              <div class="type-container">
+                <div class="type-selector" style="background: {{styleType system.type1 'color1'}};">
+                  <img src="{{styleType system.type1 'image'}}" style="height: 100%;border: 0px">
+                  <select name="system.type1" value="{{system.type1}}" data-dtype="String">
                     {{selectOptions types selected=system.type1}}
                   </select>
                 </div>
-                <div style="background: {{stylePokerole system.type2 'color1'}};height: 100%;width: 50%;clip-path: polygon(0% 0%, 100% 0%, 100% 101%, 12.5px 101%);display: flex;align-items: center;padding: 0px 12px 0px 12px;justify-content: space-between;">
-                  <img src="{{stylePokerole system.type2 'image'}}" style="height: 100%;border: 0px">
-                  <select name="system.type2" value="{{system.type2}}" data-dtype="String" style="align-self: center;color: white;background: transparent;border: 0px;width: -webkit-fill-available;">
+                <div class="type-selector" style="background: {{styleType system.type2 'color1'}};">
+                  <img src="{{styleType system.type2 'image'}}" style="height: 100%;border: 0px">
+                  <select name="system.type2" value="{{system.type2}}" data-dtype="String">
                     {{selectOptions types selected=system.type2}}
                   </select>
                 </div>
+                {{#if system.hasThirdType}}
+                <div class="type-selector" style="background: {{styleType system.type3 'color1'}};">
+                  <img src="{{styleType system.type3 'image'}}" style="height: 100%;border: 0px">
+                  <select name="system.type3" value="{{system.type3}}" data-dtype="String">
+                    {{selectOptions types selected=system.type3}}
+                  </select>
+                </div>
+                {{/if}}
               </div>
             </div>
           </div>
@@ -52,60 +58,73 @@
           <img class="profile-img" data-edit="img" src="{{actor.img}}" title="{{actor.name}}" height="100" width="100">
         </div>
         <div class="side-containers">
-          <div class="side-slot up-right" style="background: {{stylePokerole system.sheetskin 'color1'}};">
-            <div style="height: 100%;display: flex;clip-path: polygon(3px 0%, 102% 0%, 102% 102%, calc(30px) 102%);align-items: center;background: {{stylePokerole system.sheetskin 'color3'}};width: 250px;padding: 0px 0px 0px 30px;justify-content: space-between">
-              <div style="display: flex;align-items: center;">
-                <select class="rank-select" name="system.rank" value="{{system.rank}}" data-dtype="String" style="align-self: center;color: black;border: 0px;width: 100%;background: transparent;height: 100%;font-size: 22px;">
+          <div class="side-slot up-right" style="background: {{styleColor system.sheetskin 'color1'}};">
+            <div class="internal" style="background: {{styleColor system.sheetskin 'color3'}};">
+              <div class="rank-container">
+                <select class="rank-select" name="system.rank" value="{{system.rank}}" data-dtype="String">
                   {{selectOptions ranks selected=system.rank}}
                 </select>
               </div>
-              <div style="background: {{stylePokerole system.sheetskin 'color1'}};height: 100%;width: 75px;clip-path: polygon(0px 0%, 102% 0%, 102% 102%, calc(30px) 102%);display: flex;justify-content: flex-end;">
-                <div style="background: {{stylePokerole system.sheetskin 'color2'}};clip-path: polygon(0px 0%, 102% 0%, 102% 102%, calc(30px) 102%);height: 100%;width: 70px;display: flex;justify-content: center;align-items: center;padding-left: 15px;color: white;font-size: 18px;">
+              <div style="background: {{styleColor system.sheetskin 'color1'}};height: 100%;width: 75px;clip-path: polygon(0px 0%, 102% 0%, 102% 102%, calc(30px) 102%);display: flex;justify-content: flex-end;">
+                <div style="background: {{styleColor system.sheetskin 'color2'}};clip-path: polygon(0px 0%, 102% 0%, 102% 102%, calc(30px) 102%);height: 100%;width: 70px;display: flex;justify-content: center;align-items: center;padding-left: 15px;color: white;font-size: 18px;">
                   <label>Rank</label>
                 </div>
               </div>
             </div>
             
           </div>
-          <div class="side-slot down-right" style="background: {{stylePokerole system.sheetskin 'color1'}};">
-            <div style="height: 100%;min-width: 250px;clip-path: polygon(30px 0%, 100% 0%, 100% 101%, 3px 101%);display: flex;flex-direction: column;width: 100%;gap: 2px;">
-              <div style="height: 48%;background: {{stylePokerole system.sheetskin 'color3'}};display: flex;justify-content: space-between;padding: 0px 6px 0px 6px;width: 250px;">
-                <label for="system.activeAbility" style="background: {{stylePokerole system.sheetskin 'color2'}};padding: 3px 10px 3px 17px; color: white; height: 100%; clip-path: polygon(0 0%, 100% 0%, calc(100% - 12.5px) 101%, 0% 101%); text-align: center; width: 84px;">Ability</label>
-                <select name="system.activeAbility" value="{{system.activeAbility}}" data-dtype="String" data-tooltip="{{activeAbilityDescription}}" style="align-self: center;color: black;background: transparent;border: 0px;width: 154px;height: 20px; ">
+          <div class="side-slot down-right" style="background: {{styleColor system.sheetskin 'color1'}};">
+            <div class="internal">
+              <div class="item-selector-container" style="background: {{styleColor system.sheetskin 'color3'}}; padding-left: 6px;">
+                <label for="system.activeAbility" style="background: {{styleColor system.sheetskin 'color2'}};padding: 3px 10px 3px 17px; color: white; height: 100%; clip-path: polygon(0 0%, 100% 0%, calc(100% - 12.5px) 101%, 0% 101%); text-align: center; width: 84px;">Ability</label>
+                <select name="system.activeAbility" value="{{system.activeAbility}}" data-dtype="String" data-tooltip="{{activeAbilityDescription}}">
                  {{selectOptions abilitiesSelect selected=system.activeAbility}}
                 </select>
               </div>
-              <div style="display: flex;height: 48%;width: 250px;background: {{stylePokerole system.sheetskin 'color3'}};justify-content: space-between;align-items: center;padding: 0px 6px 0px 0px;">
-                <label for="system.activeItem" style="background: {{stylePokerole system.sheetskin 'color2'}}; padding: 3px 8px 3px 12px;color: white;height: 100%;width: 77px;clip-path: polygon(0% 0%, 100% 0%, calc(100% - 12.5px) 101%, 0% 101%);text-align: center;">Item</label>
+              <div class= "item-selector-container" style="background: {{styleColor system.sheetskin 'color3'}}; padding-left: 0px;">
+                <label for="system.activeItem" style="background: {{styleColor system.sheetskin 'color2'}}; padding: 3px 8px 3px 12px;color: white;height: 100%;width: 77px;clip-path: polygon(0% 0%, 100% 0%, calc(100% - 12.5px) 101%, 0% 101%);text-align: center;">Item</label>
                 <select name="system.activeItem" value="{{system.activeItem}}" data-dtype="String"
-              data-tooltip="{{activeItemDescription}}" style="align-self: center;color: black;background: transparent;border: 0px;width: 154px;height: 20px;">
+              data-tooltip="{{activeItemDescription}}" style="margin-left: 12px;">
                   {{selectOptions heldItemSelect selected=system.activeItem}}
                 </select>
               </div>
             </div>
           </div>
         </div>
-        <div class="side-fill"></div>
       </div>
-      <div class="sub-header" style="display: flex;justify-content: center;align-items: flex-end;height: 50%;">
-        <div style="width: 60%;display: flex;justify-content: center;height: 35px;">
-          <div style="display: flex;align-items: center;clip-path: polygon(21px 0%, 102% 0%, 102% 102%, 0% 102%);background: {{stylePokerole system.sheetskin 'color1'}};width: 40%;padding: 3px 0px 0px 3px;">
-            <div style="display: flex;align-items: center;justify-content: flex-end;gap: 3px;clip-path: polygon(21px 0%, 102% 0%, 102% 102%, 2px 102%);background: {{stylePokerole system.sheetskin 'color2'}};width: 100%;padding: 0px 3px;height: 100%;">
+      <div class="sub-header">
+        <div class="sub-container">
+          <div class="sub-left" style="background-color: {{styleColor system.sheetskin 'color1'}};">
+            <div class="internal" style="display: flex;align-items: center;justify-content: flex-end;gap: 3px;clip-path: polygon(21px 0%, 102% 0%, 102% 102%, 2px 102%);background: {{styleColor system.sheetskin 'color2'}};width: 100%;padding: 0px 3px;height: 100%;">
+              {{#if (pkOptions "vitaminOption")}}
+                {{#if (ifvitamin ../system.avitamin ../system.bvitamin "hp")}}
+                <div class="fa-solid fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
+                {{else}}
+                <div class="fa-regular fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
+                {{/if}}
+              {{/if}}
               <label for="system.hp.value" style="color: white;text-align: center; font-weight: bold;"> HP </label>
-              <div style="display: flex;background: #2D2718;clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 101%, 0% 101%);width: 72px;align-items: center;font-family: 'Signika', sans-serif;">
-                <input type="text" name="system.hp.value" value="{{system.hp.value}}" data-dtype="Number" style="width: 42px;clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);text-align: center;">
-                <label style="color: white;text-align: center;font-weight: bold;width: 17px;">{{ system.hp.max }}</label>
+              <div class="pp-displayer">
+                <input type="number" min="0" name="system.hp.value" value="{{system.hp.value}}" data-dtype="Number">
+                <label>{{ system.hp.max }}</label>
               </div>
             </div>
           </div>
-          <div style="width: 45px;display: flex;justify-content: center;background: {{stylePokerole system.sheetskin 'color2'}};border-top: 3px {{stylePokerole system.sheetskin 'color1'}} solid;">
-            <img src="{{stylePokerole system.rank 'image'}}" style="width: 45px;height: 45px;border: 0px;top: -13px;position: relative;">
+          <div class="sub-center" style="background: {{styleColor system.sheetskin 'color2'}};  border-color: {{styleColor system.sheetskin 'color1'}};">
+            <img src="{{styleImage system.rank}}" style="width: 45px;height: 45px;border: 0px;top: -13px;position: relative;">
           </div>
-          <div style="display: flex;align-items: center;clip-path: polygon(-1% 0%, calc(100% - 21px) 0%, 100% 102%, -1% 102%);background: {{stylePokerole system.sheetskin 'color1'}};width: 40%;padding: 3px 3px 0px 0px;">
-            <div style="display: flex;align-items: center;justify-content: flex-start;gap: 3px;width: 100%;background: {{stylePokerole system.sheetskin 'color2'}};padding: 0px 5px;clip-path: polygon(-1% 0%, calc(100% - 21px) 0%, calc(100% - 2px) 102%, -1% 102%);height: 100%;">
+          <div class="sub-right" style="background: {{styleColor system.sheetskin 'color1'}};">
+            <div class="internal" style="display: flex;align-items: center;justify-content: flex-start;gap: 3px;width: 100%;background: {{styleColor system.sheetskin 'color2'}};padding: 0px 5px;clip-path: polygon(-1% 0%, calc(100% - 21px) 0%, calc(100% - 2px) 102%, -1% 102%);height: 100%;">
+              {{#if (pkOptions "vitaminOption")}}
+                {{#if (ifvitamin ../system.avitamin ../system.bvitamin "willpower")}}
+                <div class="fa-solid fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
+                {{else}}
+                <div class="fa-regular fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
+                {{/if}}
+              {{/if}}
               <label for="system.will.value" class="rollable" data-roll-attribute="will" data-label="Will" style="color: white;text-align: center; font-weight: bold;"> WP </label>
-              <div style="display: flex;background: #2D2718;clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 101%, 0% 101%);width: 72px;align-items: center;font-family: 'Signika';">
-                <input type="text" name="system.will.value" value="{{system.will.value}}" data-dtype="Number" style="width: 42px;clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);text-align: center;">
+              <div class="pp-displayer">
+                <input type="number" min="0" name="system.will.value" value="{{system.will.value}}" data-dtype="Number">
                 <label style="color: white;text-align: center;font-weight: bold;width: 18px;">{{ system.will.max }}</label>
               </div>
             </div>
@@ -124,7 +143,7 @@
     <a class="item" data-tab="effects">Effects</a>
     {{/unless}}
     <a class="item" data-tab="biography">Biography</a>
-    <a class="item" data-tab="battlesheet">Test</a>
+    <a class="item" data-tab="battlesheet" style="display: none">Test</a>
   </nav>
 
   {{!-- Sheet Body --}}
@@ -304,6 +323,7 @@
         </div>
         
         <aside>
+
           <div style="display: flex;
             justify-content: space-between;
             flex-direction: row;">
@@ -330,11 +350,21 @@
               </div>
             </div>
           </div>
+          <div class="button-container" style="margin-bottom: 6px; margin-top: 3px;">
+            <button type="button" title="Retrain" class="reseting-button set-button">Retrain</button>
+          </div>
           <div class="derived">
             <h3 class="section-header centered">Quick References</h3>
             <div class="derived-attributes">
               {{#each system.derived as |attribute key|}}
               <div class="attribute">
+                {{#if (pkOptions "vitaminOption")}}
+                {{#if (ifvitamin ../system.avitamin ../system.bvitamin key)}}
+                <div class="fa-solid fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
+                {{else}}
+                <div class="fa-regular fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
+                {{/if}}
+              {{/if}}
                 <label for="system.derived.{{key}}.value" class="rollable resource-label flexlarge align-left"
                   data-roll-attribute="{{key}}" data-roll-label="{{attribute.label}}">{{attribute.label}}</label>
                 <input type="text" class="{{#if attribute.overridden}}overridden{{/if}}" value="{{attribute.value}}"

@@ -32,6 +32,8 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
 
   static SETTINGS_TEMPLATE_PATH = `systems/pokerole/templates/actor/actor-settings.html`;
 
+  static STATS_TEMPLATE_PATH = `systems/pokerole/templates/actor/actor-stats.html`;
+
   /* -------------------------------------------- */
 
   /** @override */
@@ -61,7 +63,7 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
     }
     // TP support.
     context.gender = {neutral: "None", male: "Male", female: "Female", genderless: "Genderless"};
-    context.addedvitamin = {None: "None", strength: "Strength", dexterity: "Dexterity", vitality: "Vitality", special: "Special", insight: "Insight", hp: "HP", willpower: "WP"};
+    context.addedvitamin = {None: "None", strength: "Strength", dexterity: "Dexterity", def: "Defense", vitality: "Vitality", special: "Special", spDef: "Special Def.", insight: "Insight", hp: "HP", willpower: "WP"};
 
     // TP Test Variable
       context.testvarso = this._element?.find('.inventoryfilterclass')[0]?.value ?? "all";
@@ -70,6 +72,7 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
     // TP support.
     context.ranks = this.constructor.getLocalizedRanks();
     context.types = getLocalizedTypesForSelect();
+    context.styleSheets = this.constructor.getLocalizedStyle();
    
     context.matchups = {};
     const matchups = context.system.hasThirdType
@@ -545,9 +548,14 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
 
     html.find('.settings-button').click(ev => this._showSettings());
 
+    html.on('click', '.reseting-button', this.reTrain.bind(this));
+
     html.find('.increment-action-num').click(ev => this.actor.increaseActionCount());
     html.find('.reset-round-based-resources').click(ev => this.actor.resetRoundBasedResources());
+
     html.find('.reset-stat-changes').click(ev => this.actor.resetStatChange());
+    html.find('.reset-positive-changes').click(ev => this.actor.resetStatChangePositive());
+    html.find('.reset-negative-changes').click(ev => this.actor.resetStatChangeNegative());
 
 
     html.find('.toggle-can-clash').click(() => {
@@ -759,6 +767,9 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
   static ADVANCEMENT_DIALOGUE_TEMPLATE = "systems/pokerole/templates/actor/advancement.html";
 
   async _advanceRank(oldRank, newRank) {
+
+    foundry.utils.mergeObject(this.actor, this.actor.original); // setting Original Numbers
+
     const oldRankIndex = POKEROLE.ranks.indexOf(oldRank);
     const newRankIndex = POKEROLE.ranks.indexOf(newRank);
 
@@ -912,8 +923,17 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
   }
 
   async _showSettings() {
-    const {varicolor, baseHp, willbonus, customInitiativeMod, hasThirdType, recommendedRank, source } = this.actor.system;
+
+    const {attributes, varicolor, baseHp, willbonus, customInitiativeMod, hasThirdType, recommendedRank, source, sheetskin} = this.actor.system;
+
+    const labelito = {};
+    for (let [k, v] of Object.entries(attributes)) {
+      labelito[k] = game.i18n.localize(POKEROLE.i18n.attributes[k]) ?? k;
+    }
+
     const content = await foundry.applications.handlebars.renderTemplate(this.constructor.SETTINGS_TEMPLATE_PATH, {
+      attributes,
+      labelito,
       varicolor,
       baseHp,
       willbonus,
@@ -922,6 +942,8 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
       recommendedRank,
       source,
       ranks: this.constructor.getLocalizedRanks(),
+      styleSheets: this.constructor.getLocalizedStyle(),
+      sheetskin
     });
 
     const result = await new Promise(resolve => {
@@ -948,6 +970,78 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
     this.actor.update(formData);
   }
 
+  async _actorStats() {
+    const {attributes} = this.actor.system;
+    const labelito = {};
+    for (let [k, v] of Object.entries(attributes)) {
+      labelito[k] = game.i18n.localize(POKEROLE.i18n.attributes[k]) ?? k;
+    }
+
+    const content = await foundry.applications.handlebars.renderTemplate(this.constructor.STATS_TEMPLATE_PATH, {
+      attributes,
+      labelito,
+    });
+
+    const result = await new Promise(resolve => {
+      new Dialog({
+        title: `Actor Base Attributes`,
+        content,
+        buttons: {
+          save: {
+            label: 'Save',
+            callback: html => resolve(html),
+          },
+        },
+        default: 'save',
+        close: () => resolve(undefined),
+      }, { popOutModuleDisable: true }).render(true);
+    });
+
+    if (!result) return;
+    const formElement = result[0].querySelector('form');
+    const formData = new foundry.applications.ux.FormDataExtended(formElement).object;
+
+    this.actor.update(formData);
+  }
+
+  async reTrain() {
+
+    let question = await new Promise(question => {
+      new Dialog({
+        title: "Re Train",
+        content: "<p>The Attributes and skills will be set to initial ones and you will be able to assign points by your actual Rank</p> <br> <p>Other changes will be lost, Are you sure you want to Re-train?</p>",
+        buttons: {
+          yes: {
+            icon: '<i class="fa-solid fa-check"></i>',
+            label: "Yes",
+            callback: () => question(true)
+          },
+          no: {
+            icon: '<i class="fa-solid fa-xmark"></i>',
+            label: "No",
+            callback: () => question(false)
+          }
+        },
+        default: "no",
+          close: () => question(false),
+      }, { popOutModuleDisable: true }).render(true);
+    });
+
+    if (!question) return;
+
+    const newRank = this.actor.system.rank
+    if (newRank != 'none'){
+      await this.actor.resetAttributes();
+      this.actor.update({system: {rank: newRank}});
+      await this._advanceRank('none', newRank);
+      console.log("Re-Train performed")
+    } else {
+      console.warn("Actor doesn't have Rank")
+    }
+    
+  }
+
+
   /** Refresh the token GUI after changing ailments */
   _refreshTokenAndHud() {
     // Refresh token overlay effects
@@ -967,6 +1061,14 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
     const ranks = {};
     for (let rank of POKEROLE.ranks) {
       ranks[rank] = game.i18n.localize(POKEROLE.i18n.ranks[rank]) ?? rank;
+    }
+    return ranks;
+  }
+
+  static getLocalizedStyle() {
+    const ranks = {};
+    for (let rank of POKEROLE.styleSheet) {
+      ranks[rank] = rank;
     }
     return ranks;
   }

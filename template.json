@@ -30,19 +30,22 @@
         "money": 0,
         "attributes": {
           "strength": {
-            "value": 0,
+            "value": 1,
             "min": 0,
-            "max": 10
+            "max": 10,
+            "base": 1
           },
           "dexterity": {
-            "value": 0,
+            "value": 1,
             "min": 0,
-            "max": 10
+            "max": 10,
+            "base": 1
           },
           "vitality": {
-            "value": 0,
+            "value": 1,
             "min": 0,
-            "max": 10
+            "max": 10,
+            "base": 1
           }
         },
         "social": {
@@ -99,14 +102,16 @@
       "sheetskin": "skinOld",
       "attributes": {
         "special": {
-          "value": 0,
+          "value": 1,
           "min": 0,
-          "max": 12
+          "max": 10,
+          "base": 1
         },
         "insight": {
-          "value": 0,
+          "value": 1,
           "min": 0,
-          "max": 12
+          "max": 10,
+          "base": 1
         }
       },
       "skills": {
@@ -117,11 +122,13 @@
         },
         "channel": {
           "value": 0,
-          "min": 0
+          "min": 0,
+          "max": 5
         },
         "clash": {
           "value": 0,
-          "min": 0
+          "min": 0,
+          "max": 5
         },
         "evasion": {
           "value": 0,
@@ -259,29 +266,34 @@
       "sheetskin": "skinOld",
       "attributes": {
         "strength": {
-          "value": 0,
+          "value": 1,
           "min": 0,
-          "max": 5
+          "max": 5,
+          "base": 1
         },
         "dexterity": {
-          "value": 0,
+          "value": 1,
           "min": 0,
-          "max": 5
+          "max": 5,
+          "base": 1
         },
         "vitality": {
-          "value": 0,
+          "value": 1,
           "min": 0,
-          "max": 5
+          "max": 5,
+          "base": 1
         },
         "special": {
           "value": 0,
           "min": 0,
-          "max": 0
+          "max": 0,
+          "base": 1
         },
         "insight": {
-          "value": 0,
+          "value": 1,
           "min": 0,
-          "max": 5
+          "max": 5,
+          "base": 1
         }
       },
       "skills": {

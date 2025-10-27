@@ -160,12 +160,14 @@ export class PokeroleActor extends Actor {
    */
   _applyEffects() {
     const overrides = {};
+    const original = {};
     for (const statChange of Object.values(this.system.statChanges)) {
       const currentValue = foundry.utils.getProperty(this, statChange.stat) ?? 0;
       if (statChange.value !== 0) {
         // Stat changes can only reduce stats down to 1
         const newValue = Math.max(currentValue + statChange.value, 1);
         overrides[statChange.stat] = newValue;
+        original[statChange.stat] = currentValue;
       }
     }
 
@@ -175,6 +177,7 @@ export class PokeroleActor extends Actor {
       const currentValue = overrides[path] ?? foundry.utils.getProperty(this, path) ?? 0;
       overrides[path] = Math.max(currentValue - game.settings.get('pokerole', 'paralysisConst'), 0);
       overrides['system.derived.evade.value'] = (overrides[path] + this.system.skills.evasion.value);
+      original[path] = currentValue;
     }
 
     if ((this.hasAilment('burn1')||this.hasAilment('burn2')||this.hasAilment('burn3')) && game.settings.get('pokerole', 'burnConst') > 0) {
@@ -183,6 +186,7 @@ export class PokeroleActor extends Actor {
       const currentValue = overrides[path] ?? foundry.utils.getProperty(this, path) ?? 0;
       overrides[path] = Math.max(currentValue - game.settings.get('pokerole', 'burnConst'), 0);
       overrides['system.derived.clashPhysical.value'] = (overrides[path] + this.system.skills?.clash?.value);
+      original[path] = currentValue;
     }
 
     if (this.hasAilment('frozen') && game.settings.get('pokerole', 'frozenConst') > 0) {
@@ -191,6 +195,7 @@ export class PokeroleActor extends Actor {
       const currentValue = overrides[path] ?? foundry.utils.getProperty(this, path) ?? 0;
       overrides[path] = Math.max(currentValue - game.settings.get('pokerole', 'frozenConst'), 0);
       overrides['system.derived.clashSpecial.value'] = (overrides[path] + this.system.skills?.clash?.value);
+      original[path] = currentValue;
     }
 
     // Apply custom effects
@@ -198,17 +203,24 @@ export class PokeroleActor extends Actor {
       for (const effect of this.items.filter(item => item.type === 'effect' && item.system.enabled)) {
         for (const rule of effect.system.rules) {
           let value = parseInt(rule.value);
-          if (Number.isNaN(value)) {
+          let pathO = parseInt(foundry.utils.getProperty(this, rule.attribute));
+          
+          if ((Number.isNaN(value) || Number.isNaN(pathO)) && rule.attribute != '') {
+            console.warn("Custom Rule: Path or value is not a number")
             continue;
           }
 
+          const currentValue = foundry.utils.getProperty(this, rule.attribute) ?? 0;
+
           switch (rule.operator) {
             case 'add':
-              const currentValue = foundry.utils.getProperty(this, rule.attribute) ?? 0;
+              
               overrides[rule.attribute] = (overrides[rule.attribute] ?? 0) + currentValue + value;
+              original[rule.attribute] = currentValue;
               break;
             case 'replace':
               overrides[rule.attribute] = value;
+              original[rule.attribute] = currentValue;
               break;
           }
         }
@@ -216,6 +228,8 @@ export class PokeroleActor extends Actor {
     }
 
     this.overrides = foundry.utils.expandObject(overrides);
+
+    this.original = foundry.utils.expandObject(original);
 
     // Apply the changes.
     foundry.utils.mergeObject(this, this.overrides);
@@ -353,6 +367,32 @@ export class PokeroleActor extends Actor {
       'system.actionCount.value': (this.system.actionCount?.value ?? 0) + 1,
       ...update
     });
+  }
+
+  /**
+   * Reset the Attributes, Skills and Rank to base
+   * 
+   */
+  resetAttributes() {
+    let recovery = {system: {
+        attributes: {
+        },
+        skills: {
+        },
+        social: {
+        },
+        rank: 'none'
+    }};
+    for (let atb in this.system.attributes){
+      recovery.system.attributes[atb] = {value: this.system.attributes[atb].base ?? 1};
+    };
+    for (let skl in this.system.skills){
+      recovery.system.skills[skl] = {value: 0};
+    };
+    for (let scl in this.system.social){
+      recovery.system.social[scl] = {value: 1};
+    };
+    return this.update(recovery);
   }
 
   /**
@@ -555,27 +595,45 @@ export class PokeroleActor extends Actor {
   }
   
   async resetStatChange() {
+    this.resetStatChangeNegative();
+    this.resetStatChangePositive();
+  }
+
+  async resetStatChangePositive() {
     const actorUpdate = this.update({
       system: {
         statChanges: {
           'strength.plus': 0,
           'dexterity.plus': 0,
           'special.plus': 0,
-          'strength.plus': 0,
+          'def.plus': 0,
+          'spDef.plus': 0
+        },
+        accuracyMod: {
+          'plus': 0
+        }
+      }
+    });
+  }
+
+  async resetStatChangeNegative() {
+    const actorUpdate = this.update({
+      system: {
+        statChanges: {
           'strength.minus': 0,
           'dexterity.minus': 0,
           'special.minus': 0,
-          'def.plus': 0,
-          'spDef.plus': 0,
           'def.minus': 0,
           'spDef.minus': 0
         },
         accuracyMod: {
-          'plus': 0,
           'minus': 0
         }
       }
     });
-    await Promise.all([actorUpdate]);
+  }
+
+  async removeVolatileAilments() {
+    
   }
 }
