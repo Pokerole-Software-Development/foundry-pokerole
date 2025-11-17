@@ -4,7 +4,7 @@
   "description": "FoundryVTT system for Pokérole, the Pokémon role-playing game.",
   "version": "0.4.6",
   "compatibility": {
-    "minimum": 11,
+    "minimum": 13,
     "verified": "13.348",
     "maximum": 13
   },
@@ -26,28 +26,28 @@
   "packs": [
     {
       "name": "pokemon",
-      "label": "Pokémon (Core 2.0)",
+      "label": "Pokémon (Core 3.0)",
       "system": "pokerole",
       "path": "./packs/pokedex.db",
       "type": "Actor"
     },
     {
       "name": "moves",
-      "label": "Moves (Core 2.0)",
+      "label": "Moves (Core 3.0)",
       "system": "pokerole",
       "path": "./packs/moves.db",
       "type": "Item"
     },
     {
       "name": "abilities",
-      "label": "Abilities (Core 2.0)",
+      "label": "Abilities (Core 3.0)",
       "system": "pokerole",
       "path": "./packs/abilities.db",
       "type": "Item"
     },
     {
       "name": "items",
-      "label": "Items (Core 2.0)",
+      "label": "Items (Core 3.0)",
       "system": "pokerole",
       "path": "./packs/items.db",
       "type": "Item"

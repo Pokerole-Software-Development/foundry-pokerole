@@ -76,10 +76,10 @@ export class PokeroleItem extends Item {
       if (this.system.stab) {
         properties.push('STAB');
       }
-      if (this.system.accMod1 || this.system.accMod2 || this.system.accMod1var || this.system.accMod2var) {
+      if (this.system.accAttr1 || this.system.accSkill1 || this.system.accAttr1var || this.system.accSkill1var) {
         hasAccuracy = true;
       }
-      if (this.system.power || this.system.dmgMod || this.system.dmgModvar) {
+      if (this.system.power || this.system.dmgMod1 || this.system.dmgMod1var) {
         hasDamage = true;
       }
 
@@ -172,8 +172,8 @@ export class PokeroleItem extends Item {
 
   /** Cannot be clashed/evaded if true */
   _hasSocialAttributeAccuracyRoll() {
-    // accMod1 is always an attribute
-    return (POKEROLE.socialAttributes.includes(this.system.accMod1) || POKEROLE.socialAttributes.includes(this.system.accMod1var));
+    // accAttr1 is always an attribute
+    return (POKEROLE.socialAttributes.includes(this.system.accAttr1) || POKEROLE.socialAttributes.includes(this.system.accAttr1var));
   }
 
   /**

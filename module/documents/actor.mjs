@@ -57,7 +57,7 @@ export class PokeroleActor extends Actor {
       } else if (this.system.rank == 'amateur') {
         this.update({'system.rank': 'standard'});
       } else if (this.system.rank == 'ace') {
-        this.update({'system.rank': 'advance'});
+        this.update({'system.rank': 'advanced'});
       } else if (this.system.rank == 'pro') {
         this.update({'system.rank': 'expert'});
       };
@@ -214,8 +214,7 @@ export class PokeroleActor extends Actor {
 
           switch (rule.operator) {
             case 'add':
-              
-              overrides[rule.attribute] = (overrides[rule.attribute] ?? 0) + currentValue + value;
+              overrides[rule.attribute] = (overrides[rule.attribute] ?? currentValue) + value;
               original[rule.attribute] = currentValue;
               break;
             case 'replace':
@@ -328,11 +327,11 @@ export class PokeroleActor extends Actor {
     }
 
     let diceCount = 0;
-    if (move.system.accMod1 || move.system.accMod1var) {
-      diceCount += Math.max((this.getAnyAttribute(move.system.accMod1?.trim())?.value ?? 0), (this.getAnyAttribute(move.system.accMod1var?.trim())?.value ?? 0));
+    if (move.system.accAttr1 || move.system.accAttr1var) {
+      diceCount += Math.max((this.getAnyAttribute(move.system.accAttr1?.trim())?.value ?? 0), (this.getAnyAttribute(move.system.accAttr1var?.trim())?.value ?? 0));
     }
-    if (move.system.accMod2 || move.system.accMod2var) {
-      diceCount += Math.max((this.getSkill(move.system.accMod2?.trim())?.value ?? 0), (this.getSkill(move.system.accMod2var?.trim())?.value ?? 0));
+    if (move.system.accSkill1 || move.system.accSkill1var) {
+      diceCount += Math.max((this.getSkill(move.system.accSkill1?.trim())?.value ?? 0), (this.getSkill(move.system.accSkill1var?.trim())?.value ?? 0));
     }
     return diceCount;
   }
@@ -344,7 +343,7 @@ export class PokeroleActor extends Actor {
 
     let diceCount = 0;
     if (move.system.category !== 'support') {
-      diceCount += Math.max((this.getAnyAttribute(move.system.dmgMod)?.value ?? 0), (this.getAnyAttribute(move.system.dmgModvar)?.value ?? 0));
+      diceCount += Math.max((this.getAnyAttribute(move.system.dmgMod1)?.value ?? 0), (this.getAnyAttribute(move.system.dmgMod1var)?.value ?? 0));
       diceCount += move.system.power;
       if (move.system.stab) {
         diceCount += POKEROLE.CONST.STAB_BONUS;
@@ -364,7 +363,7 @@ export class PokeroleActor extends Actor {
    */
   increaseActionCount(update = {}) {
     this.update({
-      'system.actionCount.value': (this.system.actionCount?.value ?? 0) + 1,
+      'system.actionCount.value': (Math.min((this.system.actionCount?.value ?? 0) + 1, this.system.actionCount?.max ?? 5)),
       ...update
     });
   }
@@ -512,15 +511,75 @@ export class PokeroleActor extends Actor {
       ailments[ailment.type].icon,
       ailments[ailment.type].tint,
       ailments[ailment.type].overlay ?? false,
+      ailments[ailment.type].tooltip  ?? "null",
     ));
+
+    let negativeColor = ["#AAAAAA","#ffae00ff","#ff7b00ff","#ff0000ff"] // ["#AAAAAA","#EE3124","#b9160aff","#640e07ff"]
+    let positiveColor = ["#AAAAAA","#0099ffff","#02d2f7ff","#00ccffff"] // ["#AAAAAA","#085988ff","#1f80b8ff","#00A1E4"]
+
+    const effectspush = []
+
+    for (const [key, statChange] of Object.entries(this.system.statChanges)) {
+      if (statChange.value != 0) {
+        let statlabel = game.i18n.localize(POKEROLE.i18n.effectStats[key] ?? "Strange");
+        let statimage = `systems/pokerole/images/icons/combat/${key}_increase.svg`
+        let stattint = "#AAAAAA"
+        let stattooltip = `Character ${statlabel} `
+        let absolute = Math.abs(statChange.value)
+        if (statChange.value > 0) {
+          statlabel += " Buff"
+          stattint = positiveColor[Math.min(absolute, 3)]
+          stattooltip += `is increased by ${absolute}.`
+        } else {
+          statlabel += " Debuff"
+          statimage = `systems/pokerole/images/icons/combat/${key}_decrease.svg`
+          stattint = negativeColor[Math.min(absolute, 3)]
+          stattooltip += `is decreased by ${absolute}.`
+        }
+        effectspush.push(new TokenEffect(
+          statlabel,
+          statimage,
+          stattint,
+          false,
+          stattooltip
+        ))
+      }
+    }
+
+    if (this.system.accuracyMod.value != 0) {
+      let statlabel = game.i18n.localize(POKEROLE.i18n.effectStats["accuracyMod"] ?? "Accuracy")
+      let statimage = `systems/pokerole/images/icons/combat/accuracyMod_increase.svg`
+      let stattint = `systems/pokerole/images/icons/combat/accuracyMod_increase.svg`
+      let stattooltip = `Character ${statlabel} `
+      let absolute = Math.abs(this.system.accuracyMod.value)
+      if (this.system.accuracyMod.value > 0) {
+        statlabel += " Buff"
+        stattint = positiveColor[Math.min(absolute, 3)]
+        stattooltip += `is increased by ${absolute}.`
+      } else {
+        statlabel += " Debuff"
+        statimage = `systems/pokerole/images/icons/combat/accuracyMod_decrease.svg`
+        stattint = negativeColor[Math.min(absolute, 3)]
+        stattooltip += `is decreased by ${absolute}.`
+      }
+      effectspush.push(new TokenEffect(
+        statlabel,
+        statimage,
+        stattint,
+        false,
+        stattooltip
+      ))
+    }
+
     const customTokenEffects = this.items.filter(i => i.type === 'effect' && i.system.enabled && (i.system.visible ?? true))
       .map(i => new TokenEffect(
         i.name,
         i.img,
-        '#ffffff',
+        '#ffffff00',
         false,
+        i.system.description
       ));
-    return [...ailmentTokenEffects, ...customTokenEffects];
+    return [...ailmentTokenEffects, ...effectspush, ...customTokenEffects];
   }
 
   /**
@@ -584,9 +643,8 @@ export class PokeroleActor extends Actor {
       }
     });
 
-    
-
     const moveUpdates = [];
+
     for (const move of this.items.filter(i => i.type === 'move' && i.system.usedInRound)) {
       moveUpdates.push({ '_id': move.id, 'system.usedInRound': false });
     }

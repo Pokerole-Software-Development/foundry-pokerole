@@ -246,38 +246,38 @@ const ACCURACY_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/accurac
  * @returns {boolean} `true` if accuracy was rolled, `false` if cancelled
  */
 export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeEvaded, showPopup = true) {
-  let { accMod1, accMod2, accMod1var, accMod2var} = item.system;
-  accMod1 = accMod1.trim();
-  accMod2 = accMod2.trim();
-  accMod1var = accMod1var?.trim();
-  accMod2var = accMod2var?.trim();
+  let { accAttr1, accSkill1, accAttr1var, accSkill1var} = item.system;
+  accAttr1 = accAttr1.trim();
+  accSkill1 = accSkill1.trim();
+  accAttr1var = accAttr1var?.trim();
+  accSkill1var = accSkill1var?.trim();
 
-  if (!accMod1 && accMod1var) {
-    accMod1 = accMod1var;
-    accMod1var = undefined;
+  if (!accAttr1 && accAttr1var) {
+    accAttr1 = accAttr1var;
+    accAttr1var = undefined;
   }
 
-  if (!accMod2 && accMod2var) {
-    accMod2 = accMod2var;
-    accMod2var = undefined;
+  if (!accSkill1 && accSkill1var) {
+    accSkill1 = accSkill1var;
+    accSkill1var = undefined;
   }
 
-  if (accMod2 == !accMod1) {
-    accMod1 = accMod2;
-    accMod2 = undefined;
+  if (accSkill1 == !accAttr1) {
+    accAttr1 = accSkill1;
+    accSkill1 = undefined;
   }
 
   let baseFormula = '';
-  if (accMod1) {
-    baseFormula = accMod1;
-    if (accMod1var) {
-      baseFormula += `/${accMod1var}`
+  if (accAttr1) {
+    baseFormula = accAttr1;
+    if (accAttr1var) {
+      baseFormula += `/${accAttr1var}`
     }
 
-    if (accMod2) {
-      baseFormula += ` + ${accMod2}`;
-      if (accMod2var){
-        baseFormula += `/${accMod2var}`
+    if (accSkill1) {
+      baseFormula += ` + ${accSkill1}`;
+      if (accSkill1var){
+        baseFormula += `/${accSkill1var}`
       }
     }
   }
@@ -286,7 +286,7 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
 
   let poolBonus = 0;
   let constantBonus = 0;
-  let enablePainPenalty = !(POKEROLE.painPenaltyExcludedAttributes.includes(accMod1) || POKEROLE.painPenaltyExcludedAttributes.includes(accMod1var));
+  let enablePainPenalty = !(POKEROLE.painPenaltyExcludedAttributes.includes(accAttr1) || POKEROLE.painPenaltyExcludedAttributes.includes(accAttr1var));
   let painPenalty = actor.system.painPenalty ?? 'none';
   if (!enablePainPenalty) {
     painPenalty = 'none';
@@ -341,7 +341,7 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
 
   dicePool += poolBonus;
   if (item.system.attributes.accuracyReduction) {
-    constantBonus -= item.system.attributes.accuracyReduction;
+    constantBonus -= Math.abs(item.system.attributes.accuracyReduction);
   }
   if (actor.system.accuracyMod.value) {
     constantBonus += actor.system.accuracyMod.value;
@@ -407,8 +407,8 @@ const DAMAGE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/damage-ro
  */
 export async function rollDamage(item, actor, token) {
   let baseFormula = `${item.system.power}-[def/sp.def]`;
-  if (item.system.dmgMod) {
-    baseFormula = `${item.system.dmgMod}+${item.system.power}-[def/sp.def]+[STAB]`;
+  if (item.system.dmgMod1) {
+    baseFormula = `${item.system.dmgMod1}+${item.system.power}-[def/sp.def]+[STAB]`;
   }
 
   let selectedTokens = Array.from(game.user.targets)
@@ -497,8 +497,8 @@ export async function rollDamage(item, actor, token) {
   }
 
   let rollCountBeforeDef = (item.system.power ?? 0) + poolBonus;
-  if (item.system.dmgMod) {
-    rollCountBeforeDef += actor.getAnyAttribute(item.system.dmgMod)?.value ?? 0;
+  if (item.system.dmgMod1) {
+    rollCountBeforeDef += actor.getAnyAttribute(item.system.dmgMod1)?.value ?? 0;
   }
 
   if (item.system.attributes?.ignoreDefenses) {

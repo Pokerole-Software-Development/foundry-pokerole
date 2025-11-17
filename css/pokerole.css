@@ -1132,6 +1132,9 @@
   overflow-y: auto;
   scrollbar-width: thin;
   color: #444;
+  padding: 5px;
+  border-radius: 10px;
+  background: white;
 }
 .pokerole .items-list .item-list {
   list-style: none;
@@ -1239,6 +1242,7 @@
   background: rgba(0, 0, 0, 0.05);
   border: 2px groove #eeede0;
   font-weight: bold;
+  border-radius: 10px;
 }
 .pokerole .items-list .items-header > * {
   font-size: 12px;
@@ -1247,6 +1251,7 @@
 .pokerole .items-list .items-header .item-name {
   padding-left: 5px;
   text-align: left;
+  flex: 1 0 5%
 }
 .pokerole .items-list .flex-small {
   -webkit-box-flex: 0.35;
@@ -1422,8 +1427,10 @@
 }
 
 .pokerole .split .changebox.editable {
-  box-shadow: inset 0 0 2px #000000;
+  /* box-shadow: inset 0 0 2px #000000; */
+  text-decoration: underline;
   border: 0px;
+  text-underline-offset: 2px;
 }
 
 .pokerole .split .changebox-icon {
@@ -1482,20 +1489,17 @@
   background-color: #A74D39;
 }
 .pokerole .stat-changes .statchange {
-  min-width: 210px;
-  max-width: 250px;
   -webkit-box-flex: 1;
   -ms-flex: 1;
   flex: 1;
   -webkit-box-align: stretch;
   -ms-flex-align: stretch;
   align-items: center;
-  display: flex; 
-  background-color: black; 
+  display: flex;
   border-radius: 14px; 
-  padding: 4px 10px; 
+  padding: 2px 0px; 
   gap: 12px; 
-  font-family: Trebuchet MS, Arial, sans-serif;
+  font-family: Signika, sans-serif;
   justify-content: space-between;
 }
 

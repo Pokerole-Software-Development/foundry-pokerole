@@ -279,7 +279,7 @@ POKEROLE.specialStatusEffects = {
   INVISIBLE: 'invisible',
 }
 
-POKEROLE.ranks = ['none', 'starter', 'rookie', 'standard', 'advance', 'expert', 'ace', 'master', 'champion'];
+POKEROLE.ranks = ['none', 'starter', 'rookie', 'standard', 'advanced', 'expert', 'ace', 'master', 'champion'];
 POKEROLE.moveGroups = ['learned', ...POKEROLE.ranks.slice(1), 'maneuver'];
 
 POKEROLE.itemCategory = {
@@ -298,7 +298,7 @@ POKEROLE.styleImages = {
   starter: 'systems/pokerole/images/icons/Ranks/1.rank_starter.png',
   rookie: 'systems/pokerole/images/icons/Ranks/2.rank_rookie.png',
   standard: 'systems/pokerole/images/icons/Ranks/3.rank_standard.png',
-  advance: 'systems/pokerole/images/icons/Ranks/4.rank_advance.png',
+  advanced: 'systems/pokerole/images/icons/Ranks/4.rank_advance.png',
   expert: 'systems/pokerole/images/icons/Ranks/5.rank_expert.png',
   ace: 'systems/pokerole/images/icons/Ranks/6.rank_ace.png',
   master: 'systems/pokerole/images/icons/Ranks/7.rank_master.png',
@@ -380,7 +380,7 @@ POKEROLE.rankProgression = {
     totalPassiveIncrease: 0,
     confusionPenalty: 1,
   },
-  'advance': {
+  'advanced': {
     attributePoints: 2,
     skillPoints: 3,
     socialPoints: 2,
@@ -740,7 +740,7 @@ POKEROLE.i18n = {
     "starter": "POKEROLE.RankStarter",
     "rookie": "POKEROLE.RankRookie",
     "standard": "POKEROLE.RankStandard",
-    "advance": "POKEROLE.RankAdvance",
+    "advanced": "POKEROLE.RankAdvanced",
     "expert": "POKEROLE.RankExpert",
     "ace": "POKEROLE.RankAce",
     "master": "POKEROLE.RankMaster",
@@ -753,7 +753,7 @@ POKEROLE.i18n = {
     "starter": "POKEROLE.MoveGroupStarter",
     "rookie": "POKEROLE.MoveGroupRookie",
     "standard": "POKEROLE.MoveGroupStandard",
-    "advance": "POKEROLE.MoveGroupAdvance",
+    "advanced": "POKEROLE.MoveGroupAdvanced",
     "expert": "POKEROLE.MoveGroupExpert",
     "ace": "POKEROLE.MoveGroupAce",
     "master": "POKEROLE.MoveGroupMaster",
