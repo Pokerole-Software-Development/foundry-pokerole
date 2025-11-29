@@ -637,6 +637,13 @@ POKEROLE.i18n = {
     "etiquette": "POKEROLE.SkillEtiquette",
     "intimidate": "POKEROLE.SkillIntimidate",
     "perform": "POKEROLE.SkillPerform",
+    "crafts": "POKEROLE.SkillCrafts",
+    "lore": "POKEROLE.SkillLore",
+    "medicine": "POKEROLE.SkillMedicine",
+    "science": "POKEROLE.SkillScience",
+    "throw": "POKEROLE.SkillThrow",
+    "weapon": "POKEROLE.SkillWeapon",
+    "empathy": "POKEROLE.SkillEmpathy"
   },
 
   social: {

@@ -235,6 +235,16 @@ function registerSettings() {
     requiresReload: true
   });
 
+  game.settings.register('pokerole', 'autoBuff', {
+    name: 'Enable Display of Buff & Debuff on Token',
+    hint: '',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: true,
+    requiresReload: true
+  });
+
   game.settings.register('pokerole', 'vitaminOption', {
     name: 'Enable Vitamin Tracker',
     hint: 'Add a new section on the Biography tab to keeptrack of the vitamin you are giving to a pokemon and add a visual reminder on the attribute tab',
@@ -254,6 +264,8 @@ function registerSettings() {
     default: false,
     requiresReload: true
   });
+
+  
  /*
   game.settings.registerMenu('pokerole', 'battleConst', {
       name: "Battle Constants",

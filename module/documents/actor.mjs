@@ -515,7 +515,7 @@ export class PokeroleActor extends Actor {
     ));
 
     let negativeColor = ["#AAAAAA","#ffae00ff","#ff7b00ff","#ff0000ff"] // ["#AAAAAA","#EE3124","#b9160aff","#640e07ff"]
-    let positiveColor = ["#AAAAAA","#0099ffff","#02d2f7ff","#00ccffff"] // ["#AAAAAA","#085988ff","#1f80b8ff","#00A1E4"]
+    let positiveColor = ["#AAAAAA","#0d47e7ff","#18a4f7","#29ecff"] // ["#AAAAAA","#085988ff","#1f80b8ff","#00A1E4"]
 
     const effectspush = []
 
