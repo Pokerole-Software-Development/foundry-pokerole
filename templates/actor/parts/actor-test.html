@@ -25,7 +25,6 @@
         class="mini-stats {{#if system.accuracyMod.isPositive}}positive{{/if}}{{#if system.accuracyMod.isNegative}}negative{{/if}}">
         ACC: + {{system.accuracyMod.value}} </div>
     </div>
-    <button type="button" title="Reset resources" class="reset-stat-changes">Clear</button>
   </div>
 
   <section class="" style="align-items: start; display: flex;">
@@ -45,47 +44,13 @@
           {{/each}}
         </div>
         <button type="button" title="Reset resources" class="reset-round-based-resources">Reset</button>
-        <div class="combat-resources" style="flex-direction: column;">
-          <div class="clash-evade">
-            <button type="button" class="toggle-can-clash {{#unless system.canClash}}translucent{{/unless}}"
-              style="background-color: red; border: 2px black groove">
-              <i class="{{#unless system.canClash}}fas fa-circle-xmark{{else}}fa-regular fa-circle{{/unless}}"></i>
-              <label>Clash</label>
-            </button>
-            <button type="button" class="toggle-can-evade {{#unless system.canEvade}}translucent{{/unless}}"
-              style="background-color: yellow; border: 2px black groove">
-              <i class="{{#unless system.canEvade}}fas fa-circle-xmark{{else}}fa-regular fa-circle{{/unless}}"></i>
-              <label>Evade</label>
-            </button>
-          </div>
-        </div>
-        <div class="combat-resources items-list" style="display: flex; flex-direction: row; min-width: 100px;">
-          <li class="items-header flexrow" data-effect-type="{{section.type}}">
-            <h3 class="item-name flexrow" style="padding-right: 5px; border: none; ">Roll</h3>
-          </li>
-          <div class="mini-summary">
-            <div for="system.derived.initiative.value" class="rollable mini-derived" data-roll-attribute="initiative"
-              data-roll-label="INI"> INI: {{system.derived.initiative.value}} </div>
-            <div for="system.derived.clashPhysical.value" class="rollable mini-derived"
-              data-roll-attribute="clashPhysical" data-roll-label="C.PHY"> C.PHY: {{system.derived.clashPhysical.value}}
-            </div>
-            <div for="system.derived.clashSpecial.value" class="rollable mini-derived"
-              data-roll-attribute="clashSpecial" data-roll-label="C.SPE"> C.SPE: {{system.derived.clashSpecial.value}}
-            </div>
-            <div for="system.derived.evade.value" class="rollable mini-derived" data-roll-attribute="evade"
-              data-roll-label="EVA"> EVA: {{system.derived.evade.value}} </div>
-
-          </div>
-
-
-        </div>
       </div>
 
       <hr>
       <ul class="inner list-learned grid grid-3col" style="gap: 5px; margin: 0px; row-gap: 8px">
         {{#each moves.learned.moveList as |item id|}}
         <li class="item flexrow move-button {{#unless item.usable}}translucent{{/unless}}"
-          data-item-id="{{item.data._id}}" style="background: {{stylePokerole item.locType 'color1' true}}; ">
+          data-item-id="{{item.data._id}}" style="background: {{styleType item.locType 'color1' true}}; ">
           <div class="item-name flexrow" style="flex: none; align-items: center;">
             <div class="item-image move-image">
               <a class="rollable" data-roll-type="item"><img src="{{item.data.img}}" title="{{itemdata.data.name}}"
@@ -97,7 +62,7 @@
             </a>
           </div>
           <div
-            data-tooltip=" <h3>{{item.data.name}}</h3> {{item.locCategory}} | {{item.locType}} <br> ACC: {{item.data.system.accMod1}}{{#if item.data.system.accMod1var}}{{#if item.data.system.accMod1}}/{{/if}}{{item.data.system.accMod1var}}{{/if}}{{#if item.data.system.accMod2}} + {{item.data.system.accMod2}}{{/if}}{{#if item.data.system.accMod2var}}{{#if item.data.system.accMod2}}/{{else}} + {{/if}}{{item.data.system.accMod2var}}{{/if}} | DMG: {{#if item.dmgPool}}{{item.data.system.dmgMod}}{{/if}}{{#if item.data.system.dmgModvar}}{{#if item.data.system.dmgMod}}/{{/if}}{{item.data.system.dmgModvar}}{{/if}}{{#if item.data.system.power}} +{{item.data.system.power}}{{/if}}{{#unless item.dmgPool}}-{{/unless}} <hr> {{item.data.system.effect}}"
+            data-tooltip=" <h3>{{item.data.name}}</h3> {{item.locCategory}} | {{item.locType}} <br> ACC: {{item.data.system.accAttr1}}{{#if item.data.system.accAttr1var}}{{#if item.data.system.accAttr1}}/{{/if}}{{item.data.system.accAttr1var}}{{/if}}{{#if item.data.system.accSkill1}} + {{item.data.system.accSkill1}}{{/if}}{{#if item.data.system.accSkill1var}}{{#if item.data.system.accSkill1}}/{{else}} + {{/if}}{{item.data.system.accSkill1var}}{{/if}} | DMG: {{#if item.dmgPool}}{{item.data.system.dmgMod1}}{{/if}}{{#if item.data.system.dmgMod1var}}{{#if item.data.system.dmgMod1}}/{{/if}}{{item.data.system.dmgMod1var}}{{/if}}{{#if item.data.system.power}} +{{item.data.system.power}}{{/if}}{{#unless item.dmgPool}}-{{/unless}} <hr> {{item.data.system.effect}}"
             style="display: flex; flex-direction: column; align-items: center;">
             <div>
               <h4 {{#if item.disabled}}class="strikethrough" {{/if}} style="margin-bottom: 0px;">{{item.data.name}}</h4>
@@ -218,5 +183,11 @@
     </li>
     {{/if}}
   </ul>
+
   <hr>
+
+  <div>
+    
+  </div>
+
 </div>

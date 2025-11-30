@@ -1,29 +1,93 @@
-<div class="combat-resources">
-  <div class="action-count">
-    <label for="system.actionCount.value">Action: </label>
-    <div class="input-group">
-      <input type="text" name="system.actionCount.value" value="{{system.actionCount.value}}" data-dtype="Number">
-      <span> / {{system.actionCount.max}}</span>
+<div style="background-color: #3C3C3B; border-radius: 10px; padding: 7px; margin-top: 5px;">
+
+  <div class="combat-resources" >
+    <div class="action-count">
+      <label for="system.actionCount.value" style="color: white">Used Actions: </label>
+      <div class="input-group">
+        <input type="text" name="system.actionCount.value" value="{{system.actionCount.value}}" data-dtype="Number" style="background-color: white;">
+        <span style="color: white"> / {{system.actionCount.max}}</span>
+      </div>
+      <button type="button" title="Increment action count" class="increment-action-num" {{#unless hasAvailableActions}}disabled{{/unless}} style="background-color: white;">
+        <i class="fas fa-plus"></i><label>Increase</label>
+      </button>
     </div>
-    <button type="button" title="Increment action count" class="increment-action-num" {{#unless hasAvailableActions}}disabled{{/unless}}>
-      <i class="fas fa-plus"></i><label>Increase</label>
-    </button>
+
+    <div class="clash-evade" >
+      <button type="button" class="toggle-can-clash {{#unless system.canClash}}translucent{{/unless}}" style="background-color: white;">
+        <i class="{{#unless system.canClash}}fas fa-circle-xmark{{else}}fa-regular fa-circle{{/unless}}"></i>
+        <label>Clash ( {{system.derived.clashPhysical.value}} /  {{system.derived.clashSpecial.value}} )</label>
+      </button>
+      <button type="button" class="toggle-can-evade {{#unless system.canEvade}}translucent{{/unless}}" style="background-color: white;">
+        <i class="{{#unless system.canEvade}}fas fa-circle-xmark{{else}}fa-regular fa-circle{{/unless}}"></i>
+        <label>Evade ({{system.derived.evade.value}})</label>
+      </button>
+    </div>
+
+    <button type="button" title="Reset resources" class="reset-round-based-resources" style="background-color: white;">Reset</button>
   </div>
 
-  <div class="clash-evade">
-    <button type="button" class="toggle-can-clash {{#unless system.canClash}}translucent{{/unless}}">
-      <i class="{{#unless system.canClash}}fas fa-circle-xmark{{else}}fa-regular fa-circle{{/unless}}"></i>
-      <label>Clash ( {{system.derived.clashPhysical.value}} /  {{system.derived.clashSpecial.value}} )</label>
-    </button>
-    <button type="button" class="toggle-can-evade {{#unless system.canEvade}}translucent{{/unless}}">
-      <i class="{{#unless system.canEvade}}fas fa-circle-xmark{{else}}fa-regular fa-circle{{/unless}}"></i>
-      <label>Evade ({{system.derived.evade.value}})</label>
-    </button>
-  </div>
+  <div class="Geoboxer" style="display: flex; gap: 6px; flex-direction: column;">
+    {{#each moves as |moves key|}}
+      <ul class="items-list" style="padding: 5px; border-radius: 10px; background: white;">
+        <li class="item flexrow items-header{{#if moves.hidden}} translucent{{/if}}" style="border-radius: 10px">
+          <a class="item-name toggle-group" style="flex: 1 1 5%" data-group="{{key}}">{{moves.groupName}}</a>
+          <div>Type/Category</div>
+          <div>Accuracy Pool</div>
+          <div>Damage Pool</div>
+          <div>Target</div>
+          <div class="item-controls">
+            <a class="item-control item-create" title="Create move" data-type="move" data-rank="{{key}}"><i class="fas fa-plus"></i>Add</a>
+          </div>
+        </li>
 
-  <button type="button" title="Reset resources" class="reset-round-based-resources">Reset</button>
+        <ul class="inner{{#if moves.hidden}} items-hidden{{/if}} list-{{key}}">
+          {{#each moves.moveList as |item id|}}
+          <li class="item flexrow {{#unless item.usable}}translucent{{/unless}}" data-item-id="{{item.data._id}}">
+            <div class="item-name flexrow">
+              <div class="item-image move-image">
+                <a class="rollable" data-roll-type="item"><img src="{{item.data.img}}" title="{{itemdata.data.name}}" width="30" height="30"/></a>
+              </div>
+              <div class="item-name">
+              {{#if item.data.system.learned}}
+              <a class="move-toggle-used" title="{{localize 'POKEROLE.MoveToggleUsed'}}">
+                <i class="{{#if item.data.system.usedInRound}}fas fa-circle-xmark{{else}}fa-regular fa-circle{{/if}}"></i>
+              </a>
+              {{/if}}
+              <h4 {{#if item.data.system.effect}}data-tooltip="{{item.data.system.effect}}"{{/if}}
+                {{#if item.disabled}}class="strikethrough"{{/if}}>{{item.data.name}}</h4>
+              </div>
+              <div class="item-prop">{{item.locType}} ({{item.locCategory}})</div>
+              <div class="item-prop">{{item.data.system.accAttr1}}{{#if item.data.system.accAttr1var}}{{#if item.data.system.accAttr1}}/{{/if}}{{item.data.system.accAttr1var}}{{/if}}{{#if item.data.system.accSkill1}} + {{item.data.system.accSkill1}}{{/if}}{{#if item.data.system.accSkill1var}}{{#if item.data.system.accSkill1}}/{{else}} + {{/if}}{{item.data.system.accSkill1var}}{{/if}} (<b>{{item.accuracyPool}}</b>)</div>
+              
+              <div class="item-prop">
+                  {{#if item.dmgPool}}{{item.data.system.dmgMod1}}{{/if}}{{#if item.data.system.dmgMod1var}}{{#if item.data.system.dmgMod1}}/{{/if}}{{item.data.system.dmgMod1var}}{{/if}}{{#if item.data.system.power}} +{{item.data.system.power}}{{/if}}
+                  {{#if item.dmgPool}}(<b>{{item.dmgPool}}</b>){{/if}}
+                  {{#unless item.dmgPool}}-{{/unless}}
+              </div>
+              <div class="item-prop">{{item.locTarget}}</div>
+            </div>
+            <div class="item-controls">
+              {{#unless item.data.system.attributes.maneuver}}
+                {{#if item.data.system.learned}}
+                  <a class="move-toggle-overrank" title="Toggle Overranked Status">
+                    <i class="{{#if item.data.system.overrank}}fa-solid fa-star{{else}}fa-regular fa-star{{/if}}"></i>
+                  </a>
+                {{/if}}
+              <a class="move-toggle-learned" title="{{localize 'POKEROLE.MoveToggle'}}">
+                <i class="fas {{#if item.data.system.learned}}fa-times{{else}}fa-check{{/if}}"></i>
+              </a>
+              {{/unless}}
+              <a class="item-control item-edit" title="Edit Item"><i class="fas fa-edit"></i></a>
+              <a class="item-control item-delete" title="Delete Item"><i class="fas fa-trash"></i></a>
+            </div>
+          </li>
+          {{/each}}
+        </ul>
+      </ul>
+      {{/each}}
+  </div>
 </div>
-
+{{!-- 
 <ol class="items-list">
   {{#each moves as |moves key|}}
     <li class="item flexrow items-header{{#if moves.hidden}} translucent{{/if}}">
@@ -54,10 +118,10 @@
               {{#if item.disabled}}class="strikethrough"{{/if}}>{{item.data.name}}</h4>
             </div>
             <div class="item-prop">{{item.locType}} ({{item.locCategory}})</div>
-            <div class="item-prop">{{item.data.system.accMod1}}{{#if item.data.system.accMod1var}}{{#if item.data.system.accMod1}}/{{/if}}{{item.data.system.accMod1var}}{{/if}}{{#if item.data.system.accMod2}} + {{item.data.system.accMod2}}{{/if}}{{#if item.data.system.accMod2var}}{{#if item.data.system.accMod2}}/{{else}} + {{/if}}{{item.data.system.accMod2var}}{{/if}} (<b>{{item.accuracyPool}}</b>)</div>
+            <div class="item-prop">{{item.data.system.accAttr1}}{{#if item.data.system.accAttr1var}}{{#if item.data.system.accAttr1}}/{{/if}}{{item.data.system.accAttr1var}}{{/if}}{{#if item.data.system.accSkill1}} + {{item.data.system.accSkill1}}{{/if}}{{#if item.data.system.accSkill1var}}{{#if item.data.system.accSkill1}}/{{else}} + {{/if}}{{item.data.system.accSkill1var}}{{/if}} (<b>{{item.accuracyPool}}</b>)</div>
             
             <div class="item-prop">
-                {{#if item.dmgPool}}{{item.data.system.dmgMod}}{{/if}}{{#if item.data.system.dmgModvar}}{{#if item.data.system.dmgMod}}/{{/if}}{{item.data.system.dmgModvar}}{{/if}}{{#if item.data.system.power}} +{{item.data.system.power}}{{/if}}
+                {{#if item.dmgPool}}{{item.data.system.dmgMod1}}{{/if}}{{#if item.data.system.dmgMod1var}}{{#if item.data.system.dmgMod1}}/{{/if}}{{item.data.system.dmgMod1var}}{{/if}}{{#if item.data.system.power}} +{{item.data.system.power}}{{/if}}
                 {{#if item.dmgPool}}(<b>{{item.dmgPool}}</b>){{/if}}
                 {{#unless item.dmgPool}}-{{/unless}}
             </div>
@@ -83,3 +147,4 @@
     </li>
   {{/each}}
 </ol>
+--}}

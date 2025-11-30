@@ -159,12 +159,29 @@ Handlebars.registerHelper('pkOptions', function(v1) {
   if (v1=='vitaminOption'){
     return game.settings.get('pokerole', 'vitaminOption') ?? false;
   };
+  if (v1=='developmentOption'){
+    return game.settings.get('pokerole', 'developmentOption') ?? false;
+  };
 });
 
-Handlebars.registerHelper('stylePokerole', function(item='none', asset='image', tolowercase = false) {
+Handlebars.registerHelper('styleImage', function(item='none', tolowercase = false) {
+  if (tolowercase == true){item = item.toLowerCase()};
+  let varo = POKEROLE.styleImages[item];
+  return varo ?? 'systems/pokerole/images/icons/Ranks/none.svg';
+});
+
+Handlebars.registerHelper('styleColor', function(item='skinOld', asset='color1', tolowercase = false) {
+  if (tolowercase == true){item = item.toLowerCase()};
+  if (item == ''){item = 'skinOld'; asset = 'color1';};
+  let varo = POKEROLE.styleColor[item];
+  if (varo){varo = varo[asset]};
+  return varo ?? '#2D2718';
+});
+
+Handlebars.registerHelper('styleType', function(item='none', asset='color1', tolowercase = false) {
   if (tolowercase == true){item = item.toLowerCase()};
   if (item == ''){item = 'none'; asset = 'image';};
-  var varo = POKEROLE.stylePokerole[item];
+  let varo = POKEROLE.typeMatchups[item];
   if (varo){varo = varo[asset]};
   return varo ?? 'none';
 });
@@ -211,13 +228,13 @@ function registerSettings() {
     requiresReload: true
   });
 
-  game.settings.register('pokerole', 'recoveryMode', {
-    name: 'POKEROLE.SettingNameRecoveryMode',
-    hint: 'POKEROLE.SettingHintRecoveryMode',
+  game.settings.register('pokerole', 'autoBuff', {
+    name: 'Display Buff & Debuff',
+    hint: 'Add the Increases and Decreases of stats on token UI',
     scope: 'world',
     config: true,
     type: Boolean,
-    default: false,
+    default: true,
     requiresReload: true
   });
 
@@ -240,6 +257,27 @@ function registerSettings() {
     default: false,
     requiresReload: true
   });
+
+  game.settings.register('pokerole', 'recoveryMode', {
+    name: 'POKEROLE.SettingNameRecoveryMode',
+    hint: 'POKEROLE.SettingHintRecoveryMode',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false,
+    requiresReload: true
+  });
+
+  game.settings.register('pokerole', 'developmentOption', {
+    name: 'Enable The Developer Options ',
+    hint: 'Development Sheets and Menus WARNING: those features may be not secure for your world',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false,
+    requiresReload: true
+  });
+  
  /*
   game.settings.registerMenu('pokerole', 'battleConst', {
       name: "Battle Constants",

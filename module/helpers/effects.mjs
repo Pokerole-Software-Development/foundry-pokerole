@@ -8,7 +8,7 @@ export class TokenEffect {
    * @param {String} tint The tint color applied to the effect
    * @param {boolean} overlay Whether this effect should be displayed as an overlay
    */
-  constructor(statusId, img, tint, overlay = false) {
+  constructor(statusId, img, tint, overlay = false, tooltip) {
     this.img = img;
     this.tint = tint;
     this.disabled = false;
@@ -18,6 +18,8 @@ export class TokenEffect {
         overlay
       }
     };
+    this.name = game.i18n.localize(POKEROLE.i18n.ailments[statusId]) ?? statusId;
+    this.tooltip = tooltip;
     this.statuses = new Set(statusId);
   }
 

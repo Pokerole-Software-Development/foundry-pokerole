@@ -30,19 +30,22 @@
         "money": 0,
         "attributes": {
           "strength": {
-            "value": 0,
+            "value": 1,
             "min": 0,
-            "max": 10
+            "max": 10,
+            "base": 1
           },
           "dexterity": {
-            "value": 0,
+            "value": 1,
             "min": 0,
-            "max": 10
+            "max": 10,
+            "base": 1
           },
           "vitality": {
-            "value": 0,
+            "value": 1,
             "min": 0,
-            "max": 10
+            "max": 10,
+            "base": 1
           }
         },
         "social": {
@@ -99,14 +102,16 @@
       "sheetskin": "skinOld",
       "attributes": {
         "special": {
-          "value": 0,
+          "value": 1,
           "min": 0,
-          "max": 12
+          "max": 10,
+          "base": 1
         },
         "insight": {
-          "value": 0,
+          "value": 1,
           "min": 0,
-          "max": 12
+          "max": 10,
+          "base": 1
         }
       },
       "skills": {
@@ -117,11 +122,13 @@
         },
         "channel": {
           "value": 0,
-          "min": 0
+          "min": 0,
+          "max": 5
         },
         "clash": {
           "value": 0,
-          "min": 0
+          "min": 0,
+          "max": 5
         },
         "evasion": {
           "value": 0,
@@ -183,8 +190,7 @@
       }
     },
     "trainer": {
-      "templates": [
-      ],
+      "templates": [],
       "hp": {
         "value": 0,
         "min": 0,
@@ -238,7 +244,7 @@
       "accuracyMod": {
         "value": 0,
         "plus": 0,
-        "minus": 0	
+        "minus": 0
       },
       "customInitiativeMod": 0,
       "biography": "",
@@ -259,29 +265,34 @@
       "sheetskin": "skinOld",
       "attributes": {
         "strength": {
-          "value": 0,
+          "value": 1,
           "min": 0,
-          "max": 5
+          "max": 5,
+          "base": 1
         },
         "dexterity": {
-          "value": 0,
+          "value": 1,
           "min": 0,
-          "max": 5
+          "max": 5,
+          "base": 1
         },
         "vitality": {
-          "value": 0,
+          "value": 1,
           "min": 0,
-          "max": 5
+          "max": 5,
+          "base": 1
         },
         "special": {
           "value": 0,
           "min": 0,
-          "max": 0
+          "max": 0,
+          "base": 1
         },
         "insight": {
-          "value": 0,
+          "value": 1,
           "min": 0,
-          "max": 5
+          "max": 5,
+          "base": 1
         }
       },
       "skills": {
@@ -325,7 +336,7 @@
           "min": 0,
           "max": 5
         },
-        "emphaty": {
+        "empathy": {
           "value": 0,
           "min": 0,
           "max": 5
@@ -366,8 +377,7 @@
           "max": 5
         }
       },
-      "extra": {
-      }
+      "extra": {}
     }
   },
   "Item": {
@@ -405,16 +415,17 @@
       "category": "physical",
       "target": "Foe",
       "power": 0,
-      "accMod1": null,
-      "accMod2": null,
-      "dmgMod": null,
-      "accMod1var": null,
-      "accMod2var": null,
-      "dmgModvar": null,
+      "accAttr1": null,
+      "accSkill1": null,
+      "dmgMod1": null,
+      "accAttr1var": null,
+      "accSkill1var": null,
+      "dmgMod1var": null,
       "effect": "",
       "attributes": {
         "accuracyReduction": 0,
-        "priority": 0,
+        "reactionMove": 0,
+        "lateReactionMove": 0,
         "highCritical": false,
         "lethal": false,
         "physicalRanged": false,
@@ -435,6 +446,10 @@
         "resetTerrain": false,
         "resistedWithDefense": false,
         "ignoreDefenses": false,
+        "cutterMove": false,
+        "windMove": false,
+        "biteMove": false,
+        "powderMove": false,
         "maneuver": false
       },
       "heal": {
