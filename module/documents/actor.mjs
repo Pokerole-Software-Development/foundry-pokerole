@@ -40,28 +40,28 @@ export class PokeroleActor extends Actor {
     });
 
 
-    if (this.system.source == "Core v2.0" && 
-      (this._stats.systemVersion.split('.')[0] <= 0 && 
-      this._stats.systemVersion.split('.')[1] <= 4 && 
-      this._stats.systemVersion.split('.')[2] <= 4 ) && 
+    if (this.system.source == "Core v2.0" &&
+      (this._stats.systemVersion.split('.')[0] <= 0 &&
+        this._stats.systemVersion.split('.')[1] <= 4 &&
+        this._stats.systemVersion.split('.')[2] <= 4) &&
       this._stats.systemVersion != '0.3.1'
-    ){
-      console.log(this.name,this._stats.systemVersion, "Updating to 0.4.3 - v3.0")
-      if (this.system.skills.allure){
-       this.system.skills.charm = this.system.skills.allure;
-       this.update({'system.skills.-=allure': null});
-       console.log("Allure updated");
+    ) {
+      console.log(this.name, this._stats.systemVersion, "Updating to 0.4.3 - v3.0")
+      if (this.system.skills.allure) {
+        this.system.skills.charm = this.system.skills.allure;
+        this.update({ 'system.skills.-=allure': null });
+        console.log("Allure updated");
       }
       if (this.system.rank == 'beginner') {
-        this.update({'system.rank': 'rookie'});
+        this.update({ 'system.rank': 'rookie' });
       } else if (this.system.rank == 'amateur') {
-        this.update({'system.rank': 'standard'});
+        this.update({ 'system.rank': 'standard' });
       } else if (this.system.rank == 'ace') {
-        this.update({'system.rank': 'advanced'});
+        this.update({ 'system.rank': 'advanced' });
       } else if (this.system.rank == 'pro') {
-        this.update({'system.rank': 'expert'});
+        this.update({ 'system.rank': 'expert' });
       };
-      this.update({'system.source': "Core v3.0"});
+      this.update({ 'system.source': "Core v3.0" });
     };
 
 
@@ -98,26 +98,26 @@ export class PokeroleActor extends Actor {
    */
   _prepareCharacterData(actorData) {
     const system = actorData.system;
-    const { totalPassiveIncrease, skillLimit } = POKEROLE.rankProgression[system.rank ?? 'none'] ?? [0,0];
+    const { totalPassiveIncrease, skillLimit } = POKEROLE.rankProgression[system.rank ?? 'none'] ?? [0, 0];
 
     for (const skill of Object.values(system.skills)) {
       skill.max = skillLimit;
     }
 
     if (game.settings.get('pokerole', 'specialDefenseStat') === 'insight') {
-      system.hp.max = system.baseHp + Math.max(system.attributes.vitality.value,system.attributes.insight.value) + totalPassiveIncrease;
+      system.hp.max = system.baseHp + Math.max(system.attributes.vitality.value, system.attributes.insight.value) + totalPassiveIncrease;
     } else {
       system.hp.max = system.baseHp + system.attributes.vitality.value + totalPassiveIncrease;
     };
 
     // TP Support Will+
-    system.will.max = (system.willbonus ?? 0 ) + system.attributes.insight.value + POKEROLE.CONST.MAX_WILL_BONUS + totalPassiveIncrease;
+    system.will.max = (system.willbonus ?? 0) + system.attributes.insight.value + POKEROLE.CONST.MAX_WILL_BONUS + totalPassiveIncrease;
 
     // Stat changes need to be applied manually here because derived stats are created
     // before `applyEffects` is called
     const strength = Math.max(system.attributes.strength.value + system.statChanges.strength.value, 1);
     const dexterity = Math.max(system.attributes.dexterity.value + system.statChanges.dexterity.value, 1);
- 
+
     const special = Math.max(system.attributes.special.value + system.statChanges.special.value, 1);
 
     system.derived ??= {};
@@ -138,7 +138,7 @@ export class PokeroleActor extends Actor {
       value: special + (system.skills?.clash?.value ?? 0)
     };
 
-    
+
 
     if (system.skills?.medicine?.value !== undefined) { // Pokémon don't have Medicine
       system.derived.useItem = { value: system.social.clever.value + system.skills.medicine.value };
@@ -180,7 +180,7 @@ export class PokeroleActor extends Actor {
       original[path] = currentValue;
     }
 
-    if ((this.hasAilment('burn1')||this.hasAilment('burn2')||this.hasAilment('burn3')) && game.settings.get('pokerole', 'burnConst') > 0) {
+    if ((this.hasAilment('burn1') || this.hasAilment('burn2') || this.hasAilment('burn3')) && game.settings.get('pokerole', 'burnConst') > 0) {
       // Burn reduces Strength by 1 (capped to 0 instead of 1)
       const path = 'system.attributes.strength.value';
       const currentValue = overrides[path] ?? foundry.utils.getProperty(this, path) ?? 0;
@@ -204,7 +204,7 @@ export class PokeroleActor extends Actor {
         for (const rule of effect.system.rules) {
           let value = parseInt(rule.value);
           let pathO = parseInt(foundry.utils.getProperty(this, rule.attribute));
-          
+
           if ((Number.isNaN(value) || Number.isNaN(pathO)) && rule.attribute != '') {
             console.warn("Custom Rule: Path or value is not a number")
             continue;
@@ -373,7 +373,8 @@ export class PokeroleActor extends Actor {
    * 
    */
   resetAttributes() {
-    let recovery = {system: {
+    let recovery = {
+      system: {
         attributes: {
         },
         skills: {
@@ -381,15 +382,16 @@ export class PokeroleActor extends Actor {
         social: {
         },
         rank: 'none'
-    }};
-    for (let atb in this.system.attributes){
-      recovery.system.attributes[atb] = {value: this.system.attributes[atb].base ?? 1};
+      }
     };
-    for (let skl in this.system.skills){
-      recovery.system.skills[skl] = {value: 0};
+    for (let atb in this.system.attributes) {
+      recovery.system.attributes[atb] = { value: this.system.attributes[atb].base ?? 1 };
     };
-    for (let scl in this.system.social){
-      recovery.system.social[scl] = {value: 1};
+    for (let skl in this.system.skills) {
+      recovery.system.skills[skl] = { value: 0 };
+    };
+    for (let scl in this.system.social) {
+      recovery.system.social[scl] = { value: 1 };
     };
     return this.update(recovery);
   }
@@ -511,28 +513,54 @@ export class PokeroleActor extends Actor {
       ailments[ailment.type].icon,
       ailments[ailment.type].tint,
       ailments[ailment.type].overlay ?? false,
-      ailments[ailment.type].tooltip  ?? "null",
+      ailments[ailment.type].tooltip ?? "null",
     ));
 
-    let negativeColor = ["#AAAAAA","#ffae00ff","#ff7b00ff","#ff0000ff"] // ["#AAAAAA","#EE3124","#b9160aff","#640e07ff"]
-    let positiveColor = ["#AAAAAA","#0d47e7ff","#18a4f7","#29ecff"] // ["#AAAAAA","#085988ff","#1f80b8ff","#00A1E4"]
+    let negativeColor = ["#AAAAAA", "#ffae00ff", "#ff7b00ff", "#ff0000ff"]
+    let positiveColor = ["#AAAAAA", "#0d47e7ff", "#18a4f7", "#29ecff"]
 
     const effectspush = []
+    if (game.settings.get('pokerole', 'autoBuff') ?? false) {
+      for (const [key, statChange] of Object.entries(this.system.statChanges)) {
+        if (statChange.value != 0) {
+          let statlabel = game.i18n.localize(POKEROLE.i18n.effectStats[key] ?? "Strange");
+          let statimage = `systems/pokerole/images/icons/combat/${key}_increase.svg`
+          let stattint = "#AAAAAA"
+          let stattooltip = `Character ${statlabel} `
+          let absolute = Math.abs(statChange.value)
+          if (statChange.value > 0) {
+            statlabel += " Buff"
+            stattint = positiveColor[Math.min(absolute, 3)]
+            stattooltip += `is increased by ${absolute}.`
+          } else {
+            statlabel += " Debuff"
+            statimage = `systems/pokerole/images/icons/combat/${key}_decrease.svg`
+            stattint = negativeColor[Math.min(absolute, 3)]
+            stattooltip += `is decreased by ${absolute}.`
+          }
+          effectspush.push(new TokenEffect(
+            statlabel,
+            statimage,
+            stattint,
+            false,
+            stattooltip
+          ))
+        }
+      }
 
-    for (const [key, statChange] of Object.entries(this.system.statChanges)) {
-      if (statChange.value != 0) {
-        let statlabel = game.i18n.localize(POKEROLE.i18n.effectStats[key] ?? "Strange");
-        let statimage = `systems/pokerole/images/icons/combat/${key}_increase.svg`
-        let stattint = "#AAAAAA"
+      if (this.system.accuracyMod.value != 0) {
+        let statlabel = game.i18n.localize(POKEROLE.i18n.effectStats["accuracyMod"] ?? "Accuracy")
+        let statimage = `systems/pokerole/images/icons/combat/accuracyMod_increase.svg`
+        let stattint = `systems/pokerole/images/icons/combat/accuracyMod_increase.svg`
         let stattooltip = `Character ${statlabel} `
-        let absolute = Math.abs(statChange.value)
-        if (statChange.value > 0) {
+        let absolute = Math.abs(this.system.accuracyMod.value)
+        if (this.system.accuracyMod.value > 0) {
           statlabel += " Buff"
           stattint = positiveColor[Math.min(absolute, 3)]
           stattooltip += `is increased by ${absolute}.`
         } else {
           statlabel += " Debuff"
-          statimage = `systems/pokerole/images/icons/combat/${key}_decrease.svg`
+          statimage = `systems/pokerole/images/icons/combat/accuracyMod_decrease.svg`
           stattint = negativeColor[Math.min(absolute, 3)]
           stattooltip += `is decreased by ${absolute}.`
         }
@@ -546,30 +574,6 @@ export class PokeroleActor extends Actor {
       }
     }
 
-    if (this.system.accuracyMod.value != 0) {
-      let statlabel = game.i18n.localize(POKEROLE.i18n.effectStats["accuracyMod"] ?? "Accuracy")
-      let statimage = `systems/pokerole/images/icons/combat/accuracyMod_increase.svg`
-      let stattint = `systems/pokerole/images/icons/combat/accuracyMod_increase.svg`
-      let stattooltip = `Character ${statlabel} `
-      let absolute = Math.abs(this.system.accuracyMod.value)
-      if (this.system.accuracyMod.value > 0) {
-        statlabel += " Buff"
-        stattint = positiveColor[Math.min(absolute, 3)]
-        stattooltip += `is increased by ${absolute}.`
-      } else {
-        statlabel += " Debuff"
-        statimage = `systems/pokerole/images/icons/combat/accuracyMod_decrease.svg`
-        stattint = negativeColor[Math.min(absolute, 3)]
-        stattooltip += `is decreased by ${absolute}.`
-      }
-      effectspush.push(new TokenEffect(
-        statlabel,
-        statimage,
-        stattint,
-        false,
-        stattooltip
-      ))
-    }
 
     const customTokenEffects = this.items.filter(i => i.type === 'effect' && i.system.enabled && (i.system.visible ?? true))
       .map(i => new TokenEffect(
@@ -597,16 +601,16 @@ export class PokeroleActor extends Actor {
   async applyStatChange(stat, amount) { // key need to be selected between plus and minus
     let key;
     if (['strength', 'dexterity', 'special', 'def', 'spDef'].includes(stat)) {
-      if (amount < 0){
+      if (amount < 0) {
         key = `system.statChanges.${stat}.minus`;
-      } else if (amount > 0){
+      } else if (amount > 0) {
         key = `system.statChanges.${stat}.plus`;
       };
       // key = `system.statChanges.${stat}.value`;
     } else if (stat === 'accuracyMod') {
-      if (amount < 0){
+      if (amount < 0) {
         key = `system.accuracyMod.minus`;
-      } else if (amount > 0){
+      } else if (amount > 0) {
         key = `system.accuracyMod.plus`;
       };
       // key = `system.accuracyMod.value`;
@@ -651,7 +655,7 @@ export class PokeroleActor extends Actor {
     const embeddedUpdate = this.updateEmbeddedDocuments('Item', moveUpdates);
     await Promise.all([actorUpdate, embeddedUpdate]);
   }
-  
+
   async resetStatChange() {
     this.resetStatChangeNegative();
     this.resetStatChangePositive();
@@ -692,6 +696,6 @@ export class PokeroleActor extends Actor {
   }
 
   async removeVolatileAilments() {
-    
+
   }
 }

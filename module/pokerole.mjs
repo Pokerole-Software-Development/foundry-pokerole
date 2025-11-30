@@ -159,6 +159,9 @@ Handlebars.registerHelper('pkOptions', function(v1) {
   if (v1=='vitaminOption'){
     return game.settings.get('pokerole', 'vitaminOption') ?? false;
   };
+  if (v1=='developmentOption'){
+    return game.settings.get('pokerole', 'developmentOption') ?? false;
+  };
 });
 
 Handlebars.registerHelper('styleImage', function(item='none', tolowercase = false) {
@@ -225,19 +228,9 @@ function registerSettings() {
     requiresReload: true
   });
 
-  game.settings.register('pokerole', 'recoveryMode', {
-    name: 'POKEROLE.SettingNameRecoveryMode',
-    hint: 'POKEROLE.SettingHintRecoveryMode',
-    scope: 'world',
-    config: true,
-    type: Boolean,
-    default: false,
-    requiresReload: true
-  });
-
   game.settings.register('pokerole', 'autoBuff', {
-    name: 'Enable Display of Buff & Debuff on Token',
-    hint: '',
+    name: 'Display Buff & Debuff',
+    hint: 'Add the Increases and Decreases of stats on token UI',
     scope: 'world',
     config: true,
     type: Boolean,
@@ -265,6 +258,25 @@ function registerSettings() {
     requiresReload: true
   });
 
+  game.settings.register('pokerole', 'recoveryMode', {
+    name: 'POKEROLE.SettingNameRecoveryMode',
+    hint: 'POKEROLE.SettingHintRecoveryMode',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false,
+    requiresReload: true
+  });
+
+  game.settings.register('pokerole', 'developmentOption', {
+    name: 'Enable The Developer Options ',
+    hint: 'Development Sheets and Menus WARNING: those features may be not secure for your world',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false,
+    requiresReload: true
+  });
   
  /*
   game.settings.registerMenu('pokerole', 'battleConst', {

@@ -190,8 +190,7 @@
       }
     },
     "trainer": {
-      "templates": [
-      ],
+      "templates": [],
       "hp": {
         "value": 0,
         "min": 0,
@@ -245,7 +244,7 @@
       "accuracyMod": {
         "value": 0,
         "plus": 0,
-        "minus": 0	
+        "minus": 0
       },
       "customInitiativeMod": 0,
       "biography": "",
@@ -337,7 +336,7 @@
           "min": 0,
           "max": 5
         },
-        "emphaty": {
+        "empathy": {
           "value": 0,
           "min": 0,
           "max": 5
@@ -378,8 +377,7 @@
           "max": 5
         }
       },
-      "extra": {
-      }
+      "extra": {}
     }
   },
   "Item": {
@@ -426,7 +424,8 @@
       "effect": "",
       "attributes": {
         "accuracyReduction": 0,
-        "priority": 0,
+        "reactionMove": 0,
+        "lateReactionMove": 0,
         "highCritical": false,
         "lethal": false,
         "physicalRanged": false,
@@ -447,6 +446,10 @@
         "resetTerrain": false,
         "resistedWithDefense": false,
         "ignoreDefenses": false,
+        "cutterMove": false,
+        "windMove": false,
+        "biteMove": false,
+        "powderMove": false,
         "maneuver": false
       },
       "heal": {

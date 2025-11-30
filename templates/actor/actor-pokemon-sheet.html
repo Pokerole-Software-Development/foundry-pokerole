@@ -143,7 +143,9 @@
     <a class="item" data-tab="effects">Effects</a>
     {{/unless}}
     <a class="item" data-tab="biography">Biography</a>
-    <a class="item" data-tab="battlesheet" style="display: none">Test</a>
+    {{#if (pkOptions "developmentOption")}}
+    <a class="item" data-tab="battlesheet">Test</a>
+    {{/if}}
   </nav>
 
   {{!-- Sheet Body --}}
