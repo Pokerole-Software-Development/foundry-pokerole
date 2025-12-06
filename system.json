@@ -51,6 +51,27 @@
       "system": "pokerole",
       "path": "./packs/items.db",
       "type": "Item"
+    },
+    {
+      "name": "macros",
+      "label": "POKEROLE Macros",
+      "system": "pokerole",
+      "path": "./packs/macros.db",
+      "type": "Macro"
+    }
+  ],
+  "packFolders": [
+    {
+      "name": "POKEROLE 3.0 Compendium",
+      "sorting": "m",
+      "color": "#841722",
+      "packs": [
+        "pokemon",
+        "moves",
+        "abilities",
+        "items",
+        "macros"
+      ]
     }
   ],
   "languages": [

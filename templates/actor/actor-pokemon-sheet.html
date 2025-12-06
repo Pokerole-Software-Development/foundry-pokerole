@@ -97,7 +97,7 @@
           <div class="sub-left" style="background-color: {{styleColor system.sheetskin 'color1'}};">
             <div class="internal" style="display: flex;align-items: center;justify-content: flex-end;gap: 3px;clip-path: polygon(21px 0%, 102% 0%, 102% 102%, 2px 102%);background: {{styleColor system.sheetskin 'color2'}};width: 100%;padding: 0px 3px;height: 100%;">
               {{#if (pkOptions "vitaminOption")}}
-                {{#if (ifvitamin ../system.avitamin ../system.bvitamin "hp")}}
+                {{#if (ifvitamin system.avitamin system.bvitamin "hp")}}
                 <div class="fa-solid fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
                 {{else}}
                 <div class="fa-regular fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
@@ -116,7 +116,7 @@
           <div class="sub-right" style="background: {{styleColor system.sheetskin 'color1'}};">
             <div class="internal" style="display: flex;align-items: center;justify-content: flex-start;gap: 3px;width: 100%;background: {{styleColor system.sheetskin 'color2'}};padding: 0px 5px;clip-path: polygon(-1% 0%, calc(100% - 21px) 0%, calc(100% - 2px) 102%, -1% 102%);height: 100%;">
               {{#if (pkOptions "vitaminOption")}}
-                {{#if (ifvitamin ../system.avitamin ../system.bvitamin "willpower")}}
+                {{#if (ifvitamin system.avitamin system.bvitamin "willpower")}}
                 <div class="fa-solid fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
                 {{else}}
                 <div class="fa-regular fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>

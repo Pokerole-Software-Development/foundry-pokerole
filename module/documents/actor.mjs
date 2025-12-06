@@ -104,11 +104,23 @@ export class PokeroleActor extends Actor {
       skill.max = skillLimit;
     }
 
-    if (game.settings.get('pokerole', 'specialDefenseStat') === 'insight') {
-      system.hp.max = system.baseHp + Math.max(system.attributes.vitality.value, system.attributes.insight.value) + totalPassiveIncrease;
-    } else {
+    if (game.settings.get('pokerole', 'forceAttributeHP') === 'vitality') { // Force Vitality
       system.hp.max = system.baseHp + system.attributes.vitality.value + totalPassiveIncrease;
-    };
+
+    } else if (game.settings.get('pokerole', 'forceAttributeHP') === 'insight') { // Force Insight
+      system.hp.max = system.baseHp + system.attributes.insight.value + totalPassiveIncrease;
+
+    } else if (game.settings.get('pokerole', 'forceAttributeHP') === 'higher') { // Force Vitality
+      system.hp.max = system.baseHp + Math.max(system.attributes.vitality.value, system.attributes.insight.value) + totalPassiveIncrease;
+
+    } else {
+      if (game.settings.get('pokerole', 'specialDefenseStat') === 'insight') { // Fallback to Base Rule
+        system.hp.max = system.baseHp + Math.max(system.attributes.vitality.value, system.attributes.insight.value) + totalPassiveIncrease;
+      } else {
+        system.hp.max = system.baseHp + system.attributes.vitality.value + totalPassiveIncrease;
+      };
+    }
+    
 
     // TP Support Will+
     system.will.max = (system.willbonus ?? 0) + system.attributes.insight.value + POKEROLE.CONST.MAX_WILL_BONUS + totalPassiveIncrease;

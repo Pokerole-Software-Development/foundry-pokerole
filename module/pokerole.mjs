@@ -69,8 +69,11 @@ Hooks.once("ready", async function () {
 });
 
 // Chat message hooks
+/*
 Hooks.on('renderChatLog', (app, html, data) => PokeroleItem.chatListeners(html));
 Hooks.on('renderChatPopout', (app, html, data) => PokeroleItem.chatListeners(html));
+*/
+Hooks.on('renderChatMessageHTML', (app, html, data) => PokeroleItem.chatListeners(html));
 
 PokeroleCombatTracker.registerHooks();
 registerIntegrationHooks();
@@ -203,6 +206,22 @@ function registerSettings() {
       'insight': 'POKEROLE.AttributeInsight',
     },
     default: 'vitality',
+    requiresReload: true
+  });
+
+  game.settings.register('pokerole', 'forceAttributeHP', {
+    name: 'Force HP Calculation',
+    hint: 'Option to bypass HP calculations and force to use either Vitality or Insight for Maximum HP',
+    scope: 'world',
+    config: true,
+    type: String,
+    choices: {
+      'disabled': 'Disabled',
+      'higher': 'Higher',
+      'vitality': 'POKEROLE.AttributeVitality',
+      'insight': 'POKEROLE.AttributeInsight',
+    },
+    default: 'disabled',
     requiresReload: true
   });
 
