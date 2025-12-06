@@ -10,6 +10,7 @@ import { showClashDialog } from "./helpers/clash.mjs";
 import { bulkApplyDamageValidated, canModifyTokenOrActor } from "./helpers/damage.mjs";
 import { registerIntegrationHooks } from "./helpers/integrations.mjs";
 import { applyEffectToActors, registerEffectHooks } from "./helpers/effects.mjs";
+import { APIdb } from "./API/API.mjs";
 
 /* -------------------------------------------- */
 /*  Init Hook                                   */
@@ -21,7 +22,8 @@ Hooks.once('init', async () => {
   game.pokerole = {
     PokeroleActor,
     PokeroleItem,
-    useItemMacro
+    useItemMacro,
+    APIdb
   };
 
   // Add custom constants for configuration.
@@ -37,10 +39,10 @@ Hooks.once('init', async () => {
   CONFIG.ui.combat = PokeroleCombatTracker;
 
   // Register sheet application classes
-  Actors.unregisterSheet("core", ActorSheet);
-  Actors.registerSheet("pokerole", PokeroleActorSheet, { makeDefault: true });
-  Items.unregisterSheet("core", ItemSheet);
-  Items.registerSheet("pokerole", PokeroleItemSheet, { makeDefault: true });
+  foundry.documents.collections.Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
+  foundry.documents.collections.Actors.registerSheet("pokerole", PokeroleActorSheet, { makeDefault: true });
+  foundry.documents.collections.Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
+  foundry.documents.collections.Items.registerSheet("pokerole", PokeroleItemSheet, { makeDefault: true });
 
   CONFIG.TextEditor.enrichers.push({
     pattern: /\[\[(?:\/|#)sc ([^\]]+)\]\](?:{([^}]+)})?/gi,
@@ -67,8 +69,11 @@ Hooks.once("ready", async function () {
 });
 
 // Chat message hooks
+/*
 Hooks.on('renderChatLog', (app, html, data) => PokeroleItem.chatListeners(html));
 Hooks.on('renderChatPopout', (app, html, data) => PokeroleItem.chatListeners(html));
+*/
+Hooks.on('renderChatMessageHTML', (app, html, data) => PokeroleItem.chatListeners(html));
 
 PokeroleCombatTracker.registerHooks();
 registerIntegrationHooks();
@@ -102,6 +107,88 @@ Handlebars.registerHelper('lt', function (a, b) {
   return (a < b) ? (next.fn && next.fn(this)) : (next.inverse && next.inverse(this));
 });
 
+// TP support (EQ)
+
+Handlebars.registerHelper('ifvitamin', function(v1, v2, test) {
+  if (v1==test || v2==test){
+    return true;
+  } else {
+    return false;
+  };
+});
+
+// TP filter EQ
+
+Handlebars.registerHelper('categoryfilter', function(v1, categ) {
+  if (v1==categ || categ=="all"){
+    return true;
+  } else {
+    return false;
+  };
+});
+// TP filter EQ
+Handlebars.registerHelper('eqpk', function(v1, v2) {
+  if (v1==v2){
+    return true;
+  } else {
+    return false;
+  };
+});
+
+Handlebars.registerHelper('gtexe', function(v1, v2) {
+  if (v1 >= v2){
+    return true;
+  } else {
+    return false;
+  };
+});
+
+Handlebars.registerHelper('pokecount', function(cvalue, cmax) {
+  var geo = [];
+  for (let i = 0; i < cmax; i++) {
+    if (cmax - i <= cvalue) {
+      geo[i] = false;
+    } else {
+      geo[i] = true;
+    }
+  }
+    return geo;
+});
+
+Handlebars.registerHelper('pkOptions', function(v1) {
+  if (v1=='genderOption'){
+    return game.settings.get('pokerole', 'genderOption') ?? false;
+  };
+  if (v1=='vitaminOption'){
+    return game.settings.get('pokerole', 'vitaminOption') ?? false;
+  };
+  if (v1=='developmentOption'){
+    return game.settings.get('pokerole', 'developmentOption') ?? false;
+  };
+});
+
+Handlebars.registerHelper('styleImage', function(item='none', tolowercase = false) {
+  if (tolowercase == true){item = item.toLowerCase()};
+  let varo = POKEROLE.styleImages[item];
+  return varo ?? 'systems/pokerole/images/icons/Ranks/none.svg';
+});
+
+Handlebars.registerHelper('styleColor', function(item='skinOld', asset='color1', tolowercase = false) {
+  if (tolowercase == true){item = item.toLowerCase()};
+  if (item == ''){item = 'skinOld'; asset = 'color1';};
+  let varo = POKEROLE.styleColor[item];
+  if (varo){varo = varo[asset]};
+  return varo ?? '#2D2718';
+});
+
+Handlebars.registerHelper('styleType', function(item='none', asset='color1', tolowercase = false) {
+  if (tolowercase == true){item = item.toLowerCase()};
+  if (item == ''){item = 'none'; asset = 'image';};
+  let varo = POKEROLE.typeMatchups[item];
+  if (varo){varo = varo[asset]};
+  return varo ?? 'none';
+});
+
 /* -------------------------------------------- */
 /*  Settings                                    */
 /* -------------------------------------------- */
@@ -119,6 +206,22 @@ function registerSettings() {
       'insight': 'POKEROLE.AttributeInsight',
     },
     default: 'vitality',
+    requiresReload: true
+  });
+
+  game.settings.register('pokerole', 'forceAttributeHP', {
+    name: 'Force HP Calculation',
+    hint: 'Option to bypass HP calculations and force to use either Vitality or Insight for Maximum HP',
+    scope: 'world',
+    config: true,
+    type: String,
+    choices: {
+      'disabled': 'Disabled',
+      'higher': 'Higher',
+      'vitality': 'POKEROLE.AttributeVitality',
+      'insight': 'POKEROLE.AttributeInsight',
+    },
+    default: 'disabled',
     requiresReload: true
   });
 
@@ -144,6 +247,36 @@ function registerSettings() {
     requiresReload: true
   });
 
+  game.settings.register('pokerole', 'autoBuff', {
+    name: 'Display Buff & Debuff',
+    hint: 'Add the Increases and Decreases of stats on token UI',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: true,
+    requiresReload: true
+  });
+
+  game.settings.register('pokerole', 'vitaminOption', {
+    name: 'Enable Vitamin Tracker',
+    hint: 'Add a new section on the Biography tab to keeptrack of the vitamin you are giving to a pokemon and add a visual reminder on the attribute tab',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false,
+    requiresReload: true
+  });
+
+  game.settings.register('pokerole', 'genderOption', {
+    name: 'Enable Pokemon Gender Selector',
+    hint: 'Add a new dropdown list to keep track of the Gender of Actors (Videogame genders)',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false,
+    requiresReload: true
+  });
+
   game.settings.register('pokerole', 'recoveryMode', {
     name: 'POKEROLE.SettingNameRecoveryMode',
     hint: 'POKEROLE.SettingHintRecoveryMode',
@@ -151,6 +284,59 @@ function registerSettings() {
     config: true,
     type: Boolean,
     default: false,
+    requiresReload: true
+  });
+
+  game.settings.register('pokerole', 'developmentOption', {
+    name: 'Enable The Developer Options ',
+    hint: 'Development Sheets and Menus WARNING: those features may be not secure for your world',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false,
+    requiresReload: true
+  });
+  
+ /*
+  game.settings.registerMenu('pokerole', 'battleConst', {
+      name: "Battle Constants",
+      hint: "Allows to change certain numbers of the core mechanics",
+      label: "meow",
+      icon: 'fas fa-wrench',
+      type: AutomationMenu, // Requires an FormApplication
+      restricted: true
+    })
+  */
+  game.settings.register('pokerole', 'burnConst', {
+    name: 'Burn Strength Reduction',
+    hint: 'Homebrew option to add Strength reduction to the Burn condition (Default: 0)',
+    scope: 'world',
+    config: true,
+    type: Number,
+    default: 0,
+    range: {min: 0, max: 3},
+    requiresReload: true
+  });
+
+  game.settings.register('pokerole', 'frozenConst', {
+    name: 'Frozen Special Reduction',
+    hint: 'Homebrew option to add Special reduction to the Frozen condition (Default: 0)',
+    scope: 'world',
+    config: true,
+    type: Number,
+    default: 0,
+    range: {min: 0, max: 3},
+    requiresReload: true
+  });
+
+  game.settings.register('pokerole', 'paralysisConst', {
+    name: 'Paralysis Dexterity Reduction',
+    hint: 'Homebrew option to change the Special reduction to the Paralysis condition (Default: 2)',
+    scope: 'world',
+    config: true,
+    type: Number,
+    default: 2,
+    range: {min: 0, max: 3},
     requiresReload: true
   });
 }
@@ -407,11 +593,20 @@ async function onInlineRollClick(event) {
       const actor = token?.actor ?? game.user?.character;
       await successRollFromExpression(a.dataset.roll, actor, { speaker: ChatMessage.implementation.getSpeaker({ token, actor }) });
       break;
+      /*
+    case "cd":
+      const roll = a.dataset.roll;
+
+      const token = canvas.tokens.controlled.length > 0 ? canvas.tokens.controlled[0] : null;
+      const actor = token?.actor ?? game.user?.character;
+      await chanceDiceRollFromExpression(a.dataset.roll, actor, { speaker: ChatMessage.implementation.getSpeaker({ token, actor }) });
+      break;
+      */
   }
 }
 
-let originalProcessMessage = ChatLog.prototype.processMessage;
-ChatLog.prototype.processMessage = async function (message) {
+let originalProcessMessage = foundry.applications.sidebar.tabs.ChatLog.prototype.processMessage;
+foundry.applications.sidebar.tabs.ChatLog.prototype.processMessage = async function (message) {
   const speaker = ChatMessage.implementation.getSpeaker();
   const chatData = {
     user: game.user.id,
@@ -437,7 +632,7 @@ ChatLog.prototype.processMessage = async function (message) {
       throw new Error('This command requires 2 or more parameters');
     }
 
-    return chanceDiceRollFromExpression(split.slice(1).join());
+    return chanceDiceRollFromExpression(split.slice(1).join(' '), actor, chatData);
   }
 
   return originalProcessMessage.call(this, message);

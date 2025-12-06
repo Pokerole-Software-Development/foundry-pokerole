@@ -10,7 +10,7 @@ Open the *Game Systems* tab and click *Install System*, then enter `https://raw.
 ## Usage
 
 ### Trainer character creation
-Trainer sheets are not yet supported, but you can create a Pokémon sheet in the "Actors" tab and add all missing skills in the meantime.
+Trainer sheets are in a Beta state, you can create an Actor type: Trainer with the skills required for a trainer but it is the same structure as an a Pokemon sheet.
 
 ### Pokémon character creation
 
@@ -43,11 +43,14 @@ The following modules are known to work and provide useful functionality:
 - [Quick Insert - Search Widget](https://foundryvtt.com/packages/quick-insert): Adds a search tool that can be accessed with Ctrl+Space. Useful for searching through the large compendiums.
 - [Next Up](https://foundryvtt.com/packages/Next-Up): Adds a config option to automatically open the active combatant's character sheet. Useful for Storytellers in battle.
 
+- [Enhanced Combat HUD - Pokerole](https://github.com/Axorum/enhancedcombathud-pokerole): Allows to use the [Argon - Combat HUD (CORE)](https://foundryvtt.com/packages/enhancedcombathud) in the Pokerole System to add a interface for easy actions of actors.
+
 ## Development
 
 ### Compiling the CSS
 
-This repository includes SCSS files that must be compiled to CSS. Run `npm install` followed by `npm run gulp` to automatically watch for changes in SCSS files.
+~~This repository includes SCSS files that must be compiled to CSS.~~ CSS is added to the project, no need to compile it. Run `npm install` followed by `npm run gulp` to automatically watch for changes in SCSS files.
+
 
 ### Installation from source
 

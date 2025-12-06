@@ -1,0 +1,193 @@
+<div class="attributes combat-page">
+
+  <div class="combat-resources items-list" style="display: flex; flex-direction: row; min-width: 100px;">
+
+    <div class="items-header flexrow" data-effect-type="{{section.type}}">
+      <h3 class="item-name flexrow" style="padding-right: 5px; border: none; ">Attributes</h3>
+    </div>
+    <div class="mini-summary">
+      <div for="system.attributes.strength.value" data-roll-attribute="strength" data-roll-label="STR"
+        class="rollable mini-stats {{#if system.statChanges.strength.isPositive}}positive{{/if}}{{#if system.statChanges.strength.isNegative}}negative{{/if}}">
+        STR: {{system.attributes.strength.value}} </div>
+      <div for="system.attributes.special.value" data-roll-attribute="special" data-roll-label="SPE"
+        class="rollable mini-stats {{#if system.statChanges.special.isPositive}}positive{{/if}}{{#if system.statChanges.special.isNegative}}negative{{/if}}">
+        SPE: {{system.attributes.special.value}} </div>
+      <div for="system.attributes.dexterity.value" data-roll-attribute="dexterity" data-roll-label="DEX"
+        class="rollable mini-stats {{#if system.statChanges.dexterity.isPositive}}positive{{/if}}{{#if system.statChanges.dexterity.isNegative}}negative{{/if}}">
+        DEX: {{system.attributes.dexterity.value}} </div>
+      <div for="system.derived.def.value" data-roll-attribute="def" data-roll-label="DEF"
+        class="rollable mini-stats {{#if system.statChanges.def.isPositive}}positive{{/if}}{{#if system.statChanges.def.isNegative}}negative{{/if}}">
+        DEF: {{system.derived.def.value}} </div>
+      <div for="system.derived.spDef.value" data-roll-attribute="spDef" data-roll-label="SP.DEF"
+        class="rollable mini-stats {{#if system.statChanges.spDef.isPositive}}positive{{/if}}{{#if system.statChanges.spDef.isNegative}}negative{{/if}}">
+        SPDEF: {{system.derived.spDef.value}} </div>
+      <div
+        class="mini-stats {{#if system.accuracyMod.isPositive}}positive{{/if}}{{#if system.accuracyMod.isNegative}}negative{{/if}}">
+        ACC: + {{system.accuracyMod.value}} </div>
+    </div>
+  </div>
+
+  <section class="" style="align-items: start; display: flex;">
+    <div class="combat-resources" style="display: block; width: 100%;">
+      <div class="action-count" style="display: flex; gap: 10px;">
+        <button type="button" title="Increment action count" class="increment-action-num" {{#unless
+          hasAvailableActions}}disabled{{/unless}}>
+          <label>Action</label>
+        </button>
+        <div class="input-group">
+          {{#each (pokecount system.actionCount.value system.actionCount.max) as |count key|}}
+          {{#if count}}
+          <div class="fa-solid fa-circle"></div>
+          {{else}}
+          <div class="fa-regular fa-circle"></div>
+          {{/if}}
+          {{/each}}
+        </div>
+        <button type="button" title="Reset resources" class="reset-round-based-resources">Reset</button>
+      </div>
+
+      <hr>
+      <ul class="inner list-learned grid grid-3col" style="gap: 5px; margin: 0px; row-gap: 8px">
+        {{#each moves.learned.moveList as |item id|}}
+        <li class="item flexrow move-button {{#unless item.usable}}translucent{{/unless}}"
+          data-item-id="{{item.data._id}}" style="background: {{styleType item.locType 'color1' true}}; ">
+          <div class="item-name flexrow" style="flex: none; align-items: center;">
+            <div class="item-image move-image">
+              <a class="rollable" data-roll-type="item"><img src="{{item.data.img}}" title="{{itemdata.data.name}}"
+                  width="30" height="30" style="border: none" /></a>
+            </div>
+          </div>
+          <div style="flex: none; margin-top: 3px;">
+            <a class="{{#if item.data.system.usedInRound}}fas fa-circle-xmark fa-lg{{else}}fa-regular fa-circle fa-lg{{/if}} move-toggle-used" title="{{localize 'POKEROLE.MoveToggleUsed'}}">
+            </a>
+          </div>
+          <div
+            data-tooltip=" <h3>{{item.data.name}}</h3> {{item.locCategory}} | {{item.locType}} <br> ACC: {{item.data.system.accAttr1}}{{#if item.data.system.accAttr1var}}{{#if item.data.system.accAttr1}}/{{/if}}{{item.data.system.accAttr1var}}{{/if}}{{#if item.data.system.accSkill1}} + {{item.data.system.accSkill1}}{{/if}}{{#if item.data.system.accSkill1var}}{{#if item.data.system.accSkill1}}/{{else}} + {{/if}}{{item.data.system.accSkill1var}}{{/if}} | DMG: {{#if item.dmgPool}}{{item.data.system.dmgMod1}}{{/if}}{{#if item.data.system.dmgMod1var}}{{#if item.data.system.dmgMod1}}/{{/if}}{{item.data.system.dmgMod1var}}{{/if}}{{#if item.data.system.power}} +{{item.data.system.power}}{{/if}}{{#unless item.dmgPool}}-{{/unless}} <hr> {{item.data.system.effect}}"
+            style="display: flex; flex-direction: column; align-items: center;">
+            <div>
+              <h4 {{#if item.disabled}}class="strikethrough" {{/if}} style="margin-bottom: 0px;">{{item.data.name}}</h4>
+            </div>
+
+            <div style="display: flex; flex-direction: row; align-items: center; gap: 3px;">
+              <i class="fa-solid fa-crosshairs-simple"></i>
+              <label>{{item.accuracyPool}}</label>
+              <label>/</label>
+              <i class="fa-solid fa-meteor"></i>
+              <label>{{#if item.dmgPool}}{{item.dmgPool}}{{/if}}
+                {{#unless item.dmgPool}}-{{/unless}}</label>
+            </div>
+
+          </div>
+          <div style="flex: none;">
+            <img src="systems/pokerole/images/icons/combat/{{item.locCategory}}.png" title="{{itemdata.data.name}}"
+              width="50" height="25" style="border: none;text-align: center;" />
+          </div>
+        </li>
+        {{/each}}
+      </ul>
+    </div>
+
+
+
+  </section>
+  <hr>
+  <ol class="items-list effects-list" style="display: flex; flex-wrap: wrap; gap: 3px">
+    <li class="items-header flexrow" data-effect-type="{{section.type}}">
+      <h3 class="item-name flexrow" style="padding-right: 5px;">Status Conditions</h3>
+    </li>
+    {{#each customEffects as |effect i|}}
+    <li class="item flexrow {{#unless effect.data.system.enabled}}translucent{{/unless}}"
+      data-item-id="{{effect.data._id}}" style="padding: 0px; border-bottom: none;">
+      <div class="item-name" data-tooltip="{{effect.data.system.description}}">
+        <div class="item-image item-control" style="margin: 0px;    background-color: #0000009c;">
+          <a class="effect-toggle-enabled" title="Toggle effect">
+            <img src="{{effect.data.img}}" class="fas {{#if effect.data.system.enabled}}fa-times{{else}}fa-check{{/if}}"
+              title="{{effect.data.name}}" width="30" height="30" />
+          </a>
+        </div>
+      </div>
+    </li>
+    {{/each}}
+    {{#each system.ailments as |ailment|}}
+    <li class="item" style="padding: 0px; border-bottom: none">
+      <div class="item-name" data-tooltip="{{ailment.tooltip}} {{ailment.description}}">
+        <div class="item-image" style="background-color: {{ailment.tint}}; margin: 0px">
+          <a class="item-control remove-ailment" title="Remove Ailment" data-ailment="{{ailment.type}}"><img
+              src="{{ailment.icon}}" title="{{ailment.label}}" width="30" height="30" /></a>
+        </div>
+      </div>
+    </li>
+    {{/each}}
+
+  </ol>
+  <hr>
+  <ul class="matchups" style="flex-direction: row;">
+
+    {{#if matchups.tripleWeak}}
+    <li>
+      <h4>Triple weaknesses (+3)</h4>
+      {{#each typematch.tripleWeak}}
+      <img src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px" style="border: 0px"></img>
+      {{/each}}
+    </li>
+    {{/if}}
+
+    {{#if matchups.doubleWeak}}
+    <li class="typematch 2weak" style="border-color: #bd2e0f;">
+      <img src="systems/pokerole/images/icons/matchups/X4.svg" width="25px" height="25px" style="border: 0px"></img>
+      {{#each typematch.doubleWeak}}
+      <img src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px" style="border: 0px"></img>
+      {{/each}}
+    </li>
+    {{/if}}
+
+    {{#if matchups.weak}}
+    <li class="typematch 1weak" style="border-color: #d18910;">
+      <img src="systems/pokerole/images/icons/matchups/X2.svg" width="25px" height="25px" style="border: 0px"></img>
+      {{#each typematch.weak}}
+      <img src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px" style="border: 0px"></img>
+      {{/each}}
+    </li>
+    {{/if}}
+
+    {{#if matchups.resist}}
+    <li class="typematch 1resist" style="border-color: #067ddf;">
+      <img src="systems/pokerole/images/icons/matchups/1-2.svg" width="25px" height="25px" style="border: 0px"></img>
+      {{#each typematch.resist}}
+      <img src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px" style="border: 0px"></img>
+      {{/each}}
+    </li>
+    {{/if}}
+    {{#if matchups.doubleResist}}
+    <li class="typematch 2resist" style="border-color: #59a435;">
+      <img src="systems/pokerole/images/icons/matchups/1-4.svg" width="25px" height="25px" style="border: 0px"></img>
+      {{#each typematch.doubleResist}}
+      <img src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px" style="border: 0px"></img>
+      {{/each}}
+    </li>
+    {{/if}}
+    {{#if matchups.tripleResist}}
+    <li>
+      <h4>Triple resistances (-3)</h4>
+      {{#each typematch.tripleResist}}
+      <img src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px" style="border: 0px"></img>
+      {{/each}}
+    </li>
+    {{/if}}
+    {{#if matchups.immune}}
+    <li class="typematch 0inmune" style="border-color: #3e3e3e;">
+      <img src="systems/pokerole/images/icons/matchups/X0.svg" width="25px" height="25px" style="border: 0px"></img>
+      {{#each typematch.immune}}
+      <img src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px" style="border: 0px"></img>
+      {{/each}}
+    </li>
+    {{/if}}
+  </ul>
+
+  <hr>
+
+  <div>
+    
+  </div>
+
+</div>

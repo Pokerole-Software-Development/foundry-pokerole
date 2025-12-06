@@ -79,12 +79,12 @@ export async function bulkApplyDamageValidated(damageUpdates) {
       return;
     }
 
-    const maxHp = token?.actorData?.system?.hp?.max ?? actor.system.hp.max;
-    const oldHp = token?.actorData?.system?.hp?.value ?? actor.system.hp.value;
+    const maxHp = token?.actor?.system?.hp?.max ?? actor.system.hp.max;
+    const oldHp = token?.actor?.system?.hp?.value ?? actor.system.hp.value;
     const newHp = Math.max(oldHp - update.damage, 0);
     hpUpdates.push({ token, actor, hp: newHp });
 
-    const painPenalty = token?.actorData?.system?.painPenalty ?? actor.system.painPenalty;
+    const painPenalty = token?.actor?.system?.painPenalty ?? actor.system.painPenalty;
     const dataTokenUuid = token ? `data-token-uuid="${token.uuid}"` : '';
 
     html += `<p>Applied ${update.damage} damage to ${name}.</p>`;
@@ -151,7 +151,9 @@ export async function bulkApplyDamageValidated(damageUpdates) {
  */
 export async function canModifyTokenOrActor(token, actor) {
   const name = token?.name ?? actor?.name;
-  const allowedToModify = (!token || token.canUserModify(game.user)) && (!actor || actor.canUserModify(game.user));
+
+  const allowedToModify = (!token || token.canUserModify(game.user,"update")) && (!actor || actor.canUserModify(game.user,"update"));
+
   if (!allowedToModify) {
     ui.notifications.error(`You don't have permission to modify ${name}, `
       + "ask the GM or the owning player to click this button instead.");

@@ -3,6 +3,7 @@ import {
   calcDualTypeMatchupScore,
   calcTripleTypeMatchupScore,
   getLocalizedPainPenaltiesForSelect,
+  getConfusionModifier,
   POKEROLE
 } from "./config.mjs";
 import { bulkApplyDamageValidated, bulkApplyHp, createHealMessage } from "./damage.mjs";
@@ -88,7 +89,7 @@ const ATTRIBUTE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/attrib
 /**
  * Roll an attribute for successes with an optional dialog.
  * @param {{name: string, value: string}} attribute
- * @param {{painPenalty: string, confusionPenalty: bool}} options
+ * @param {{painPenalty: string, confusionPenalty: bool, confusionPenalty: integer}} options
  * @param {boolean} showPopup If `false`, the popup is skipped and default values are assumed
  * @param {Object} chatData
  * @returns {boolean} `true` if the user has rolled, `false` if cancelled
@@ -101,18 +102,20 @@ export async function successRollAttributeDialog(attribute, options, chatData, s
   const enablePainPenalty = !POKEROLE.painPenaltyExcludedAttributes
     .includes(attribute.name);
   let painPenalty = 'none';
+  let confusionModifier = getConfusionModifier(options.userRank) ?? 1;
   let confusionPenalty = options.confusionPenalty ?? false;
   if (enablePainPenalty && options?.painPenalty) {
     painPenalty = options?.painPenalty;
   }
 
   if (showPopup) {
-    const content = await renderTemplate(ATTRIBUTE_ROLL_DIALOGUE_TEMPLATE, {
+    const content = await foundry.applications.handlebars.renderTemplate(ATTRIBUTE_ROLL_DIALOGUE_TEMPLATE, {
       attribute: `${attribute.name} (${attribute.value})`,
       enablePainPenalty,
       painPenalty,
       painPenalties: getLocalizedPainPenaltiesForSelect(),
       confusionPenalty,
+      confusionModifier
     });
 
     // Create the Dialog window and await submission of the form
@@ -134,7 +137,7 @@ export async function successRollAttributeDialog(attribute, options, chatData, s
     if (!result) return false;
 
     const formElement = result[0].querySelector('form');
-    const formData = new FormDataExtended(formElement).object;
+    const formData = new foundry.applications.ux.FormDataExtended(formElement).object;
 
     poolBonus = formData.poolBonus ?? 0;
     constantBonus = formData.constantBonus ?? 0;
@@ -143,7 +146,7 @@ export async function successRollAttributeDialog(attribute, options, chatData, s
   }
 
   if (confusionPenalty) {
-    constantBonus--;
+    constantBonus -= confusionModifier;
   }
 
   const constantBonusWithPainPenalty = constantBonus - POKEROLE.painPenalties[painPenalty];
@@ -163,7 +166,7 @@ const SKILL_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/skill-roll
  * @returns {boolean} `true` if accuracy was rolled, `false` if cancelled
  */
 export async function successRollSkillDialog(skill, attributes, options, chatData) {
-  const content = await renderTemplate(SKILL_ROLL_DIALOGUE_TEMPLATE, {
+  const content = await foundry.applications.handlebars.renderTemplate(SKILL_ROLL_DIALOGUE_TEMPLATE, {
     skill: `${skill.name} (${skill.value})`,
     attributes: Object.keys(attributes).reduce((curr, name) => {
       curr[name] = name;
@@ -171,7 +174,8 @@ export async function successRollSkillDialog(skill, attributes, options, chatDat
     }, {}),
     painPenalty: options?.painPenalty ?? 'none',
     painPenalties: getLocalizedPainPenaltiesForSelect(),
-    confusionPenalty: options.confusionPenalty
+    confusionPenalty: options.confusionPenalty,
+    confusionModifier: getConfusionModifier(options.userRank)
   });
 
   // Create the Dialog window and await submission of the form
@@ -204,14 +208,14 @@ export async function successRollSkillDialog(skill, attributes, options, chatDat
   if (!result) return;
 
   const formElement = result[0].querySelector('form');
-  const formData = new FormDataExtended(formElement).object;
+  const formData = new foundry.applications.ux.FormDataExtended(formElement).object;
 
   let attributeName = formData.attribute;
   let poolBonus = formData.poolBonus ?? 0;
   let constantBonus = formData.constantBonus ?? 0;
 
   if (formData.confusionPenalty) {
-    constantBonus--;
+    constantBonus -= getConfusionModifier(options.userRank);
   }
 
   let painPenalty = formData.painPenalty;
@@ -242,20 +246,39 @@ const ACCURACY_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/accurac
  * @returns {boolean} `true` if accuracy was rolled, `false` if cancelled
  */
 export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeEvaded, showPopup = true) {
-  let { accMod1, accMod2 } = item.system;
-  accMod1 = accMod1.trim();
-  accMod2 = accMod2.trim();
-  if (accMod2 == !accMod1) {
-    accMod1 = accMod2;
-    accMod2 = undefined;
+  let { accAttr1, accSkill1, accAttr1var, accSkill1var} = item.system;
+  accAttr1 = accAttr1.trim();
+  accSkill1 = accSkill1.trim();
+  accAttr1var = accAttr1var?.trim();
+  accSkill1var = accSkill1var?.trim();
+
+  if (!accAttr1 && accAttr1var) {
+    accAttr1 = accAttr1var;
+    accAttr1var = undefined;
+  }
+
+  if (!accSkill1 && accSkill1var) {
+    accSkill1 = accSkill1var;
+    accSkill1var = undefined;
+  }
+
+  if (accSkill1 == !accAttr1) {
+    accAttr1 = accSkill1;
+    accSkill1 = undefined;
   }
 
   let baseFormula = '';
-  if (accMod1) {
-    baseFormula = accMod1;
+  if (accAttr1) {
+    baseFormula = accAttr1;
+    if (accAttr1var) {
+      baseFormula += `/${accAttr1var}`
+    }
 
-    if (accMod2) {
-      baseFormula += `+${accMod2}`;
+    if (accSkill1) {
+      baseFormula += ` + ${accSkill1}`;
+      if (accSkill1var){
+        baseFormula += `/${accSkill1var}`
+      }
     }
   }
 
@@ -263,15 +286,15 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
 
   let poolBonus = 0;
   let constantBonus = 0;
-  let enablePainPenalty = !POKEROLE.painPenaltyExcludedAttributes.includes(accMod1);
+  let enablePainPenalty = !(POKEROLE.painPenaltyExcludedAttributes.includes(accAttr1) || POKEROLE.painPenaltyExcludedAttributes.includes(accAttr1var));
   let painPenalty = actor.system.painPenalty ?? 'none';
   if (!enablePainPenalty) {
     painPenalty = 'none';
   }
-  let requiredSuccesses = Math.max(actor.system.actionCount.value, 0);
+  let requiredSuccesses = Math.max(actor.system.actionCount.value + 1, 0);
 
   if (showPopup) {
-    const content = await renderTemplate(ACCURACY_ROLL_DIALOGUE_TEMPLATE, {
+    const content = await foundry.applications.handlebars.renderTemplate(ACCURACY_ROLL_DIALOGUE_TEMPLATE, {
       baseFormula,
       accuracyMod: actor.system.accuracyMod.value,
       accuracyReduction: item.system.attributes.accuracyReduction,
@@ -279,7 +302,8 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
       enablePainPenalty,
       painPenalty,
       painPenalties: getLocalizedPainPenaltiesForSelect(),
-      confusionPenalty: actor.hasAilment('confused')
+      confusionPenalty: actor.hasAilment('confused'),
+      confusionModifier: getConfusionModifier(actor.system.rank)
     });
 
     // Create the Dialog window and await submission of the form
@@ -301,7 +325,7 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
     if (!result) return false;
 
     const formElement = result[0].querySelector('form');
-    const formData = new FormDataExtended(formElement).object;
+    const formData = new foundry.applications.ux.FormDataExtended(formElement).object;
     poolBonus = formData.poolBonus ?? 0;
     constantBonus = formData.constantBonus ?? 0;
     painPenalty = formData.painPenalty ?? 'none';
@@ -311,13 +335,13 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
     }
 
     if (formData.confusionPenalty) {
-      constantBonus--;
+      constantBonus -= getConfusionModifier(actor.system.rank);
     }
   }
 
   dicePool += poolBonus;
   if (item.system.attributes.accuracyReduction) {
-    constantBonus -= item.system.attributes.accuracyReduction;
+    constantBonus -= Math.abs(item.system.attributes.accuracyReduction);
   }
   if (actor.system.accuracyMod.value) {
     constantBonus += actor.system.accuracyMod.value;
@@ -383,8 +407,8 @@ const DAMAGE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/damage-ro
  */
 export async function rollDamage(item, actor, token) {
   let baseFormula = `${item.system.power}-[def/sp.def]`;
-  if (item.system.dmgMod) {
-    baseFormula = `${item.system.dmgMod}+${item.system.power}-[def/sp.def]+[STAB]`;
+  if (item.system.dmgMod1) {
+    baseFormula = `${item.system.dmgMod1}+${item.system.power}-[def/sp.def]+[STAB]`;
   }
 
   let selectedTokens = Array.from(game.user.targets)
@@ -408,7 +432,7 @@ export async function rollDamage(item, actor, token) {
   const targetNames = selectedTokens.map(token => token.actor.name).join(', ');
   const defaultPainPenalty = actor.system.painPenalty ?? 'none';
 
-  const content = await renderTemplate(DAMAGE_ROLL_DIALOGUE_TEMPLATE, {
+  const content = await foundry.applications.handlebars.renderTemplate(DAMAGE_ROLL_DIALOGUE_TEMPLATE, {
     baseFormula,
     enemyDef: 0,
     ignoreDefenses: item.system.attributes?.ignoreDefenses,
@@ -456,7 +480,7 @@ export async function rollDamage(item, actor, token) {
   if (!result) return false;
 
   const formElement = result[0].querySelector('form');
-  const formData = new FormDataExtended(formElement).object;
+  const formData = new foundry.applications.ux.FormDataExtended(formElement).object;
   let { enemyDef, stab, effectiveness, painPenalty, poolBonus, constantBonus, applyLeechHeal } = formData;
   poolBonus ??= 0;
   constantBonus ??= 0;
@@ -473,8 +497,8 @@ export async function rollDamage(item, actor, token) {
   }
 
   let rollCountBeforeDef = (item.system.power ?? 0) + poolBonus;
-  if (item.system.dmgMod) {
-    rollCountBeforeDef += actor.getAnyAttribute(item.system.dmgMod)?.value ?? 0;
+  if (item.system.dmgMod1) {
+    rollCountBeforeDef += actor.getAnyAttribute(item.system.dmgMod1)?.value ?? 0;
   }
 
   if (item.system.attributes?.ignoreDefenses) {
@@ -682,7 +706,7 @@ export async function rollRecoil(actor, token, damageBeforeEffectiveness) {
 async function rollDice(rollCount) {
   let rolls = [];
   for (let i = 0; i < rollCount; i++) {
-    let roll = await new Roll('d6').evaluate({ async: true });
+    let roll = await new Roll('d6').evaluate();
     rolls.push(roll.total);
   }
   return rolls;
@@ -823,8 +847,8 @@ export async function createChanceDiceRollMessageData(rollCount, flavor, chatDat
   const rolls = await rollDice(rollCount);
 
   const hasSix = rolls.some(roll => roll === 6);
-  const content = hasSix ? `<b>Success!</b>` : `<b>Failure</b>`;
-  const stylingFunction = roll => roll === 6 ? 'max' : '';
+  const content = hasSix ? `<b>Chance Roll Success!</b>` : `<b>Chance Roll Failure</b>`;
+  const stylingFunction = roll => roll === 6 ? 'maxcd' : 'failcd';
 
   const messageData = await createDiceRollChatMessage(
     rolls,

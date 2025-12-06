@@ -132,9 +132,9 @@
     "POKEROLE.CombatNextRoundDialogTitle": "開始下一輪？",
     "POKEROLE.SettingNameCombatResourceAutomation": "自動追踪戰鬥資源",
     "POKEROLE.CombatNextRoundDialogContent": "開始下一輪並重置所有參與者的行動計數器(多重行動值)？",
-    "ITEM.TypeMove": "招式",
-    "ITEM.TypeAbility": "特性",
-    "ITEM.TypeItem": "道具",
+    "TYPES.Item.move": "招式",
+    "TYPES.Item.ability": "特性",
+    "TYPES.Item.item": "道具",
     "POKEROLE.AttributeStrength": "力量",
     "POKEROLE.AttributeVitality": "活力",
     "POKEROLE.AttributeSpecial": "特殊",
@@ -147,8 +147,8 @@
     "POKEROLE.SkillAthletic": "運動",
     "POKEROLE.SkillNature": "自然",
     "POKEROLE.SkillStealth": "隱匿",
-    "POKEROLE.SkillAllure": "誘惑",
-    "ACTOR.TypePokemon": "寵物小精靈",
+    "POKEROLE.SkillCharm": "誘惑",
+    "TYPES.Actor.pokemon": "寵物小精靈",
     "POKEROLE.AttributeDexterity": "靈巧",
     "POKEROLE.MoveToggle": "切換學習狀態"
 }

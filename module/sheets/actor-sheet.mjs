@@ -2,15 +2,16 @@ import { getTripleTypeMatchups, getDualTypeMatchups, getLocalizedEntriesForSelec
 import { successRollAttributeDialog, successRollSkillDialog } from "../helpers/roll.mjs";
 import { addAilmentWithDialog } from "../helpers/effects.mjs";
 
+
 /**
  * Extend the basic ActorSheet with some very simple modifications
- * @extends {ActorSheet}
+ * @extends {foundry.appv1.sheets.ActorSheet}
  */
-export class PokeroleActorSheet extends ActorSheet {
+export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
 
   /** @override */
   static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["pokerole", "sheet", "actor"],
       template: "systems/pokerole/templates/actor/actor-pokemon-sheet.html",
       width: 720,
@@ -27,7 +28,11 @@ export class PokeroleActorSheet extends ActorSheet {
   // Move groups that are collapsed by default
   static HIDDEN_GROUPS = [...POKEROLE.ranks];
 
+  static HIDDEN_POCKET = []
+
   static SETTINGS_TEMPLATE_PATH = `systems/pokerole/templates/actor/actor-settings.html`;
+
+  static STATS_TEMPLATE_PATH = `systems/pokerole/templates/actor/actor-stats.html`;
 
   /* -------------------------------------------- */
 
@@ -41,7 +46,6 @@ export class PokeroleActorSheet extends ActorSheet {
 
     // Use a safe clone of the actor data for further operations.
     const actorData = this.actor.toObject(false);
-
     // Add the actor's data to context.data for easier access, as well as flags.
     context.system = actorData.system;
     context.flags = actorData.flags;
@@ -57,13 +61,25 @@ export class PokeroleActorSheet extends ActorSheet {
     for (let nature of Object.keys(POKEROLE.natureConfidence)) {
       context.natures[nature] = game.i18n.localize(POKEROLE.i18n.natures[nature]) ?? nature;
     }
+    // TP support.
+    context.gender = {neutral: "None", male: "Male", female: "Female", genderless: "Genderless"};
+    context.addedvitamin = {None: "None", strength: "Strength", dexterity: "Dexterity", def: "Defense", vitality: "Vitality", special: "Special", spDef: "Special Def.", insight: "Insight", hp: "HP", willpower: "WP"};
+
+    // TP Test Variable
+      context.testvarso = this._element?.find('.inventoryfilterclass')[0]?.value ?? "all";
+      context.system.testvarso = "reset";
+
+    // TP support.
     context.ranks = this.constructor.getLocalizedRanks();
     context.types = getLocalizedTypesForSelect();
-
+    context.styleSheets = this.constructor.getLocalizedStyle();
+   
     context.matchups = {};
     const matchups = context.system.hasThirdType
         ? getTripleTypeMatchups(context.system.type1, context.system.type2, context.system.type3)
         : getDualTypeMatchups(context.system.type1, context.system.type2);
+    context.typematch = matchups;
+    
     if (matchups.resist) {
       context.matchups.resist = matchups.resist.map(getLocalizedType).join(', ');
     }
@@ -86,10 +102,14 @@ export class PokeroleActorSheet extends ActorSheet {
       context.matchups.immune = matchups.immune.map(getLocalizedType).join(', ');
     }
 
-    context.biographyHtml = await TextEditor.enrichHTML(context.system.biography, {
+    context.biographyHtml = await foundry.applications.ux.TextEditor.implementation.enrichHTML(context.system.biography, {
       secrets: this.document.isOwner,
       async: true
     });
+
+    // TP support.
+     // context.system.typechart = matchups;
+    // TP support.
 
     // m -> ft
     let heightImperial = (context.system.height ?? 0) * 3.28084;
@@ -157,6 +177,7 @@ export class PokeroleActorSheet extends ActorSheet {
       ailment.label = game.i18n.localize(ailments[ailment.type].label) ?? ailment.type;
       ailment.icon = ailments[ailment.type].icon;
       ailment.tint = ailments[ailment.type].tint;
+      ailment.tooltip = ailments[ailment.type].tooltip;
 
       // Ailment-specific description
       switch (ailment.type) {
@@ -178,6 +199,8 @@ export class PokeroleActorSheet extends ActorSheet {
     const abilities = [];
     const effects = [];
     const moves = {};
+    const customitemdf = {};
+    const customitemdfordered = {};
 
     for (const group of POKEROLE.moveGroups) {
       moves[group] = {
@@ -186,7 +209,7 @@ export class PokeroleActorSheet extends ActorSheet {
         moveList: []
       };
     }
-
+    
     let learnedMoveNum = 0;
 
     // Iterate through items, allocating to containers
@@ -195,6 +218,20 @@ export class PokeroleActorSheet extends ActorSheet {
       // Append to gear.
       if (i.type === 'item') {
         gear.push({ data: i });
+
+        // TP Support 
+        let categorylist = (i.system.pocket ?? 'Misc Item');
+
+        if (!customitemdf[categorylist]) {
+          customitemdf[categorylist] = {
+            catname: POKEROLE.itemCategory[categorylist] ?? categorylist, // requires Localization
+            hidden: (this.constructor.HIDDEN_POCKET ?? []).includes(categorylist),
+            customitemlist: []
+          }
+        };
+
+        customitemdf[categorylist].customitemlist.push({ data: i });
+        // TP Support
       }
       // Append to abilities.
       else if (i.type === 'ability') {
@@ -258,11 +295,46 @@ export class PokeroleActorSheet extends ActorSheet {
     context.abilities = abilities;
     context.moves = moves;
     context.customEffects = effects;
+     // TP Support inventory support
+    // categorylist = game.itempiles.API.getItemCategories();
 
+    for (const key in POKEROLE.itemCategory){
+      if (customitemdf[key]) {
+        customitemdfordered[key] = customitemdf[key];
+      };
+    };
+
+    if (customitemdf['Misc Item']) {
+      customitemdfordered['Misc Item'] = customitemdf['Misc Item'];
+    };
+    context.customitemdf = (customitemdfordered ?? customitemdf);
+    
+
+   // TP Support inventory support
+    
     context.abilitiesSelect = {};
     for (let ability of abilities) {
       context.abilitiesSelect[ability.data._id] = ability.data.name;
     }
+
+    // held item power up - TP support
+    context.heldItemSelect = {};
+    for (let ability of gear) {
+      context.heldItemSelect[ability.data._id] = ability.data.name;
+    }
+
+    let activeItem = gear.find(ability => ability.data._id === context.system.activeItem);
+    if (!activeItem && gear.length > 0) {
+      // If the active ability is not set, use the first one
+      activeItem = gear[0];
+    }
+
+    if (activeItem) {
+      context.activeItemDescription = activeItem.data.system.description;
+    }
+
+
+    // held item power up - TP support
 
     // Add active ability description to display it on hover
     let activeAbility = abilities.find(ability => ability.data._id === context.system.activeAbility);
@@ -356,8 +428,21 @@ export class PokeroleActorSheet extends ActorSheet {
       const group = event.currentTarget.dataset.group;
       $(event.currentTarget.closest('li')).toggleClass('translucent');
       html.find(`.list-${group}`).toggleClass('items-hidden');
-
       const hiddenGroups = (this.constructor.HIDDEN_GROUPS ?? []);
+      const groupIndex = hiddenGroups.indexOf(group);
+      if (groupIndex > -1) {
+        hiddenGroups.splice(groupIndex, 1);
+      } else {
+        hiddenGroups.push(group);
+      }
+      this.constructor.hiddenGroups = hiddenGroups;
+    });
+
+    html.find(".toggle-pocket").click(event => {
+      const group = event.currentTarget.dataset.group;
+      $(event.currentTarget.closest('li')).toggleClass('translucent');
+      html.find(`.list-${group}`).toggleClass('items-hidden');
+      const hiddenGroups = (this.constructor.HIDDEN_POCKET ?? []);
       const groupIndex = hiddenGroups.indexOf(group);
       if (groupIndex > -1) {
         hiddenGroups.splice(groupIndex, 1);
@@ -406,6 +491,7 @@ export class PokeroleActorSheet extends ActorSheet {
           learned: !item.system.learned,
           // Remove the "used in round" flag when a move is unlearned
           usedInRound: item.system.learned ? false : item.system.usedInRound,
+          overrank: false,
         }
       });
     });
@@ -414,6 +500,12 @@ export class PokeroleActorSheet extends ActorSheet {
       const li = event.currentTarget.closest("li");
       const item = this.actor.items.get(li.dataset.itemId);
       item.update({ 'system.usedInRound': !item.system.usedInRound });
+    });
+
+    html.find(".move-toggle-overrank").click(event => {
+      const li = event.currentTarget.closest("li");
+      const item = this.actor.items.get(li.dataset.itemId);
+      item.update({ 'system.overrank': !item.system.overrank });
     });
 
     // Drag events for macros.
@@ -456,8 +548,15 @@ export class PokeroleActorSheet extends ActorSheet {
 
     html.find('.settings-button').click(ev => this._showSettings());
 
+    html.on('click', '.reseting-button', this.reTrain.bind(this));
+
     html.find('.increment-action-num').click(ev => this.actor.increaseActionCount());
     html.find('.reset-round-based-resources').click(ev => this.actor.resetRoundBasedResources());
+
+    html.find('.reset-stat-changes').click(ev => this.actor.resetStatChange());
+    html.find('.reset-positive-changes').click(ev => this.actor.resetStatChangePositive());
+    html.find('.reset-negative-changes').click(ev => this.actor.resetStatChangeNegative());
+
 
     html.find('.toggle-can-clash').click(() => {
       this.actor.update({ 'system.canClash': !this.actor.system.canClash });
@@ -473,6 +572,14 @@ export class PokeroleActorSheet extends ActorSheet {
       const item = this.actor.items.get(li.dataset.itemId);
       item.update({
         'system.enabled': !item.system.enabled,
+      });
+    });
+
+    html.find(".visible-toggle-enabled").click(event => {
+      const li = event.currentTarget.closest("li");
+      const item = this.actor.items.get(li.dataset.itemId);
+      item.update({
+        'system.visible': !item.system.visible,
       });
     });
   }
@@ -524,7 +631,7 @@ export class PokeroleActorSheet extends ActorSheet {
     // Get the type of item to create.
     const type = header.dataset.type;
     // Grab any data associated with this control.
-    const data = duplicate(header.dataset);
+    const data = foundry.utils.duplicate(header.dataset);
     const name = `New ${type.capitalize()}`;
     const itemData = {
       name: name,
@@ -574,6 +681,7 @@ export class PokeroleActorSheet extends ActorSheet {
     const rollOptions = {
       painPenalty: this.actor.system.painPenalty,
       confusionPenalty: this.actor.hasAilment('confused'),
+      userRank: this.actor.system.rank,
     };
 
     if (dataset.rollAttribute) {
@@ -659,6 +767,9 @@ export class PokeroleActorSheet extends ActorSheet {
   static ADVANCEMENT_DIALOGUE_TEMPLATE = "systems/pokerole/templates/actor/advancement.html";
 
   async _advanceRank(oldRank, newRank) {
+
+    foundry.utils.mergeObject(this.actor, this.actor.original); // setting Original Numbers
+
     const oldRankIndex = POKEROLE.ranks.indexOf(oldRank);
     const newRankIndex = POKEROLE.ranks.indexOf(newRank);
 
@@ -684,7 +795,7 @@ export class PokeroleActorSheet extends ActorSheet {
     const oldMaxHp = this.actor.system.hp.max;
     const oldMaxWill = this.actor.system.will.max;
 
-    const content = await renderTemplate(this.constructor.ADVANCEMENT_DIALOGUE_TEMPLATE, {
+    const content = await foundry.applications.handlebars.renderTemplate(this.constructor.ADVANCEMENT_DIALOGUE_TEMPLATE, {
       progression: totalProgression,
       skillLimit,
       oldSkillLimit,
@@ -732,7 +843,7 @@ export class PokeroleActorSheet extends ActorSheet {
 
     if (result) {
       const formElement = result[0].querySelector('form');
-      const updateData = new FormDataExtended(formElement).object;
+      const updateData = new foundry.applications.ux.FormDataExtended(formElement).object;
 
       this.actor.update({ system: updateData });
     }
@@ -812,14 +923,27 @@ export class PokeroleActorSheet extends ActorSheet {
   }
 
   async _showSettings() {
-    const { baseHp, customInitiativeMod, hasThirdType, recommendedRank, source } = this.actor.system;
-    const content = await renderTemplate(this.constructor.SETTINGS_TEMPLATE_PATH, {
+
+    const {attributes, varicolor, baseHp, willbonus, customInitiativeMod, hasThirdType, recommendedRank, source, sheetskin} = this.actor.system;
+
+    const labelito = {};
+    for (let [k, v] of Object.entries(attributes)) {
+      labelito[k] = game.i18n.localize(POKEROLE.i18n.attributes[k]) ?? k;
+    }
+
+    const content = await foundry.applications.handlebars.renderTemplate(this.constructor.SETTINGS_TEMPLATE_PATH, {
+      attributes,
+      labelito,
+      varicolor,
       baseHp,
+      willbonus,
       customInitiativeMod,
       hasThirdType,
       recommendedRank,
       source,
       ranks: this.constructor.getLocalizedRanks(),
+      styleSheets: this.constructor.getLocalizedStyle(),
+      sheetskin
     });
 
     const result = await new Promise(resolve => {
@@ -839,12 +963,84 @@ export class PokeroleActorSheet extends ActorSheet {
 
     if (!result) return;
     const formElement = result[0].querySelector('form');
-    const formData = new FormDataExtended(formElement).object;
+    const formData = new foundry.applications.ux.FormDataExtended(formElement).object;
     if(!formData.hasThirdType) this.actor.system.type3 = "none"
     console.log(this.actor.system.type3);
 
     this.actor.update(formData);
   }
+
+  async _actorStats() {
+    const {attributes} = this.actor.system;
+    const labelito = {};
+    for (let [k, v] of Object.entries(attributes)) {
+      labelito[k] = game.i18n.localize(POKEROLE.i18n.attributes[k]) ?? k;
+    }
+
+    const content = await foundry.applications.handlebars.renderTemplate(this.constructor.STATS_TEMPLATE_PATH, {
+      attributes,
+      labelito,
+    });
+
+    const result = await new Promise(resolve => {
+      new Dialog({
+        title: `Actor Base Attributes`,
+        content,
+        buttons: {
+          save: {
+            label: 'Save',
+            callback: html => resolve(html),
+          },
+        },
+        default: 'save',
+        close: () => resolve(undefined),
+      }, { popOutModuleDisable: true }).render(true);
+    });
+
+    if (!result) return;
+    const formElement = result[0].querySelector('form');
+    const formData = new foundry.applications.ux.FormDataExtended(formElement).object;
+
+    this.actor.update(formData);
+  }
+
+  async reTrain() {
+
+    let question = await new Promise(question => {
+      new Dialog({
+        title: "Re Train",
+        content: "<p>The Attributes and skills will be set to initial ones and you will be able to assign points by your actual Rank</p> <br> <p>Other changes will be lost, Are you sure you want to Re-train?</p>",
+        buttons: {
+          yes: {
+            icon: '<i class="fa-solid fa-check"></i>',
+            label: "Yes",
+            callback: () => question(true)
+          },
+          no: {
+            icon: '<i class="fa-solid fa-xmark"></i>',
+            label: "No",
+            callback: () => question(false)
+          }
+        },
+        default: "no",
+          close: () => question(false),
+      }, { popOutModuleDisable: true }).render(true);
+    });
+
+    if (!question) return;
+
+    const newRank = this.actor.system.rank
+    if (newRank != 'none'){
+      await this.actor.resetAttributes();
+      this.actor.update({system: {rank: newRank}});
+      await this._advanceRank('none', newRank);
+      console.log("Re-Train performed")
+    } else {
+      console.warn("Actor doesn't have Rank")
+    }
+    
+  }
+
 
   /** Refresh the token GUI after changing ailments */
   _refreshTokenAndHud() {
@@ -865,6 +1061,14 @@ export class PokeroleActorSheet extends ActorSheet {
     const ranks = {};
     for (let rank of POKEROLE.ranks) {
       ranks[rank] = game.i18n.localize(POKEROLE.i18n.ranks[rank]) ?? rank;
+    }
+    return ranks;
+  }
+
+  static getLocalizedStyle() {
+    const ranks = {};
+    for (let rank of POKEROLE.styleSheet) {
+      ranks[rank] = rank;
     }
     return ranks;
   }

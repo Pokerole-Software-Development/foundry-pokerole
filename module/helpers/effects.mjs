@@ -8,7 +8,7 @@ export class TokenEffect {
    * @param {String} tint The tint color applied to the effect
    * @param {boolean} overlay Whether this effect should be displayed as an overlay
    */
-  constructor(statusId, img, tint, overlay = false) {
+  constructor(statusId, img, tint, overlay = false, tooltip) {
     this.img = img;
     this.tint = tint;
     this.disabled = false;
@@ -18,6 +18,8 @@ export class TokenEffect {
         overlay
       }
     };
+    this.name = game.i18n.localize(POKEROLE.i18n.ailments[statusId]) ?? statusId;
+    this.tooltip = tooltip;
     this.statuses = new Set(statusId);
   }
 
@@ -33,7 +35,7 @@ export class TokenEffect {
 
 /** Register hooks and monkey-patches related to active effects */
 export function registerEffectHooks() {
-  TokenHUD.prototype._getStatusEffectChoices = function() {
+  foundry.applications.hud.TokenHUD.prototype._getStatusEffectChoices = function() {
     const token = this.object;
     const actor = token?.actor;
 
@@ -62,7 +64,8 @@ export function registerEffectHooks() {
       }
 
       const isOverlay = (e.overlay && isActive) ?? false;
-      obj[e.icon] = {
+
+      obj[e.id] = {
         id: e.id ?? '',
         title: e.label ? game.i18n.localize(e.label) : null,
         src: e.icon,
@@ -73,6 +76,7 @@ export function registerEffectHooks() {
           isOverlay ? 'overlay' : null
         ].filterJoin(' ')
       };
+
       return obj;
     }, {});
   };
@@ -80,8 +84,7 @@ export function registerEffectHooks() {
   Hooks.on('renderTokenHUD', (_, elem, data) => {
     const token = canvas.tokens.get(data._id);
     if (!token) return;
-
-    registerTokenHudListeners(elem[0], token);
+    registerTokenHudListeners(elem, token);
   });
 }
 

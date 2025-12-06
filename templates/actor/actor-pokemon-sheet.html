@@ -2,81 +2,135 @@
 
   {{!-- Sheet Header --}}
   <header class="sheet-header">
-    {{#unless limitedPermissions}}
-    <div class="horizontal-line"></div>
-    {{/unless}}
-
-    <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100" />
-    <div class="header-fields">
-      <div class="header-top">
-        <h1 class="charname">
-          <input name="name" type="text" value="{{actor.name}}" placeholder="Name" />
-        </h1>
-
-        {{#unless limitedPermissions}}
-        <div {{#if system.hasThirdType}}class="sidedata-thirdtype"{{else}}class="sidedata"{{/if}}>
-          <div class="active-ability">
-            <label for="system.activeAbility" class="resource-label">Ability</label>
-            <select name="system.activeAbility" value="{{system.activeAbility}}" data-dtype="String" class="active-ability" data-tooltip="{{activeAbilityDescription}}">
-              {{selectOptions abilitiesSelect selected=system.activeAbility}}
-            </select>
+    {{!-- Sheet NEW Header --}}
+    <div class="new-sheet-header" style="background-color: {{styleColor system.sheetskin 'color4'}};">
+      <div class="main-header" style="display: flex;justify-content: center;">
+        <div class="side-containers">
+          <div class="side-slot up-left" style="background: {{styleColor system.sheetskin 'color1'}};"> 
+            <div class="internal" style="background: {{styleColor system.sheetskin 'color3'}};">
+              <div style="background: {{styleColor system.sheetskin 'color1'}};height: 100%;width: 50px;clip-path: polygon(0px 0%, 102% 0%, calc( 100% - 30px) 102%, 0% 102%);display: flex;justify-content: flex-start;">
+                <div style="background: {{styleColor system.sheetskin 'color2'}};clip-path: polygon(0px 0%, 102% 0%, calc( 100% - 30px) 102%, 0% 102%);width: 45px;display: flex;justify-content: flex-start;align-items: center;padding-left: 5px;color: white;font-size: 20px;">
+                  <i class="fas fa-gear butonable settings-button"></i>
+                </div>
+              </div>
+              <input name="name" type="text" value="{{actor.name}}" placeholder="Name">
+            </div>
           </div>
-          {{/unless}}
-
-          <div class="types">
-            <label for="system.type1" class="resource-label">Type</label>
-            <div class="type">
-              <select name="system.type1" value="{{system.type1}}" data-dtype="String" class="type-select">
-                {{selectOptions types selected=system.type1}}
-              </select>
+          <div class="side-slot down-left" style="background: {{styleColor system.sheetskin 'color1'}};">
+            <div class="internal">
+              <div class="info-container" style="background: {{styleColor system.sheetskin 'color2'}};">
+                 <div style="display: flex; align-items: center;gap: 1px;">
+                  <label title="#{{system.pokedexId}} {{system.species}}" style="color: white; background: transparent; text-align: center; padding: 2px 0px;max-width: 185px; overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">#{{system.pokedexId}} {{system.species}}</label>
+                  {{#if (pkOptions "genderOption")}}
+                  <img  src="{{styleImage system.gender}}" style="width: 22px;height: 22px;border: 0px;">
+                  {{/if}}
+                  {{#if system.varicolor}}
+                  <img title="Shinny" src="systems/pokerole/images/icons/varicolor.png" style="width: 22px;height: 22px;border: 0px;">
+                  {{/if}}
+                  </div>
+              </div>
+              <div class="type-container">
+                <div class="type-selector" style="background: {{styleType system.type1 'color1'}};">
+                  <img src="{{styleType system.type1 'image'}}" style="height: 100%;border: 0px">
+                  <select name="system.type1" value="{{system.type1}}" data-dtype="String">
+                    {{selectOptions types selected=system.type1}}
+                  </select>
+                </div>
+                <div class="type-selector" style="background: {{styleType system.type2 'color1'}};">
+                  <img src="{{styleType system.type2 'image'}}" style="height: 100%;border: 0px">
+                  <select name="system.type2" value="{{system.type2}}" data-dtype="String">
+                    {{selectOptions types selected=system.type2}}
+                  </select>
+                </div>
+                {{#if system.hasThirdType}}
+                <div class="type-selector" style="background: {{styleType system.type3 'color1'}};">
+                  <img src="{{styleType system.type3 'image'}}" style="height: 100%;border: 0px">
+                  <select name="system.type3" value="{{system.type3}}" data-dtype="String">
+                    {{selectOptions types selected=system.type3}}
+                  </select>
+                </div>
+                {{/if}}
+              </div>
             </div>
-
-            <div class="type">
-              <select name="system.type2" value="{{system.type2}}" data-dtype="String" class="type-select">
-                {{selectOptions types selected=system.type2}}
-              </select>
+          </div>
+        </div>
+        <div class="portrait-img">
+          <img class="profile-img" data-edit="img" src="{{actor.img}}" title="{{actor.name}}" height="100" width="100">
+        </div>
+        <div class="side-containers">
+          <div class="side-slot up-right" style="background: {{styleColor system.sheetskin 'color1'}};">
+            <div class="internal" style="background: {{styleColor system.sheetskin 'color3'}};">
+              <div class="rank-container">
+                <select class="rank-select" name="system.rank" value="{{system.rank}}" data-dtype="String">
+                  {{selectOptions ranks selected=system.rank}}
+                </select>
+              </div>
+              <div style="background: {{styleColor system.sheetskin 'color1'}};height: 100%;width: 75px;clip-path: polygon(0px 0%, 102% 0%, 102% 102%, calc(30px) 102%);display: flex;justify-content: flex-end;">
+                <div style="background: {{styleColor system.sheetskin 'color2'}};clip-path: polygon(0px 0%, 102% 0%, 102% 102%, calc(30px) 102%);height: 100%;width: 70px;display: flex;justify-content: center;align-items: center;padding-left: 15px;color: white;font-size: 18px;">
+                  <label>Rank</label>
+                </div>
+              </div>
             </div>
-
-            {{#if system.hasThirdType}}
-            <div class="type">
-              <select name="system.type3" value="{{system.type3}}" data-dtype="String" class="type-select">
-                {{selectOptions types selected=system.type3}}
-              </select>
+            
+          </div>
+          <div class="side-slot down-right" style="background: {{styleColor system.sheetskin 'color1'}};">
+            <div class="internal">
+              <div class="item-selector-container" style="background: {{styleColor system.sheetskin 'color3'}}; padding-left: 6px;">
+                <label for="system.activeAbility" style="background: {{styleColor system.sheetskin 'color2'}};padding: 3px 10px 3px 17px; color: white; height: 100%; clip-path: polygon(0 0%, 100% 0%, calc(100% - 12.5px) 101%, 0% 101%); text-align: center; width: 84px;">Ability</label>
+                <select name="system.activeAbility" value="{{system.activeAbility}}" data-dtype="String" data-tooltip="{{activeAbilityDescription}}">
+                 {{selectOptions abilitiesSelect selected=system.activeAbility}}
+                </select>
+              </div>
+              <div class= "item-selector-container" style="background: {{styleColor system.sheetskin 'color3'}}; padding-left: 0px;">
+                <label for="system.activeItem" style="background: {{styleColor system.sheetskin 'color2'}}; padding: 3px 8px 3px 12px;color: white;height: 100%;width: 77px;clip-path: polygon(0% 0%, 100% 0%, calc(100% - 12.5px) 101%, 0% 101%);text-align: center;">Item</label>
+                <select name="system.activeItem" value="{{system.activeItem}}" data-dtype="String"
+              data-tooltip="{{activeItemDescription}}" style="margin-left: 12px;">
+                  {{selectOptions heldItemSelect selected=system.activeItem}}
+                </select>
+              </div>
             </div>
-            {{/if}}
           </div>
         </div>
       </div>
-
-      {{#unless limitedPermissions}}
-      <div class="resources flexrow">
-        <div class="resource">
-          <label for="system.hp.value" class="resource-label">HP</label>
-          <div class="resource-content flex-center flex-between">
-            <input type="text" name="system.hp.value" value="{{system.hp.value}}" data-dtype="Number" />
-            <span> / {{ system.hp.max }}</span>
+      <div class="sub-header">
+        <div class="sub-container">
+          <div class="sub-left" style="background-color: {{styleColor system.sheetskin 'color1'}};">
+            <div class="internal" style="display: flex;align-items: center;justify-content: flex-end;gap: 3px;clip-path: polygon(21px 0%, 102% 0%, 102% 102%, 2px 102%);background: {{styleColor system.sheetskin 'color2'}};width: 100%;padding: 0px 3px;height: 100%;">
+              {{#if (pkOptions "vitaminOption")}}
+                {{#if (ifvitamin system.avitamin system.bvitamin "hp")}}
+                <div class="fa-solid fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
+                {{else}}
+                <div class="fa-regular fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
+                {{/if}}
+              {{/if}}
+              <label for="system.hp.value" style="color: white;text-align: center; font-weight: bold;"> HP </label>
+              <div class="pp-displayer">
+                <input type="number" min="0" name="system.hp.value" value="{{system.hp.value}}" data-dtype="Number">
+                <label>{{ system.hp.max }}</label>
+              </div>
+            </div>
+          </div>
+          <div class="sub-center" style="background: {{styleColor system.sheetskin 'color2'}};  border-color: {{styleColor system.sheetskin 'color1'}};">
+            <img src="{{styleImage system.rank}}" style="width: 45px;height: 45px;border: 0px;top: -13px;position: relative;">
+          </div>
+          <div class="sub-right" style="background: {{styleColor system.sheetskin 'color1'}};">
+            <div class="internal" style="display: flex;align-items: center;justify-content: flex-start;gap: 3px;width: 100%;background: {{styleColor system.sheetskin 'color2'}};padding: 0px 5px;clip-path: polygon(-1% 0%, calc(100% - 21px) 0%, calc(100% - 2px) 102%, -1% 102%);height: 100%;">
+              {{#if (pkOptions "vitaminOption")}}
+                {{#if (ifvitamin system.avitamin system.bvitamin "willpower")}}
+                <div class="fa-solid fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
+                {{else}}
+                <div class="fa-regular fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
+                {{/if}}
+              {{/if}}
+              <label for="system.will.value" class="rollable" data-roll-attribute="will" data-label="Will" style="color: white;text-align: center; font-weight: bold;"> WP </label>
+              <div class="pp-displayer">
+                <input type="number" min="0" name="system.will.value" value="{{system.will.value}}" data-dtype="Number">
+                <label style="color: white;text-align: center;font-weight: bold;width: 18px;">{{ system.will.max }}</label>
+              </div>
+            </div>
           </div>
         </div>
-
-        <div class="resource">
-          <label for="system.will.value" class="resource-label rollable" data-roll-attribute="will"
-            data-label="Will">Will</label>
-          <div class="resource-content flex-center flex-between">
-            <input type="text" name="system.will.value" value="{{system.will.value}}" data-dtype="Number" />
-            <span> / {{ system.will.max }}</span>
-          </div>
-        </div>
-
-        <div class="resource large">
-          <label for="system.rank" class="resource-label">Rank</label>
-          <select class="rank-select" name="system.rank" value="{{system.rank}}" data-dtype="String"
-            class="rank-select">
-            {{selectOptions ranks selected=system.rank}}
-          </select>
-        </div>
-
       </div>
-      {{/unless}}
     </div>
   </header>
 
@@ -89,6 +143,9 @@
     <a class="item" data-tab="effects">Effects</a>
     {{/unless}}
     <a class="item" data-tab="biography">Biography</a>
+    {{#if (pkOptions "developmentOption")}}
+    <a class="item" data-tab="battlesheet">Test</a>
+    {{/if}}
   </nav>
 
   {{!-- Sheet Body --}}
@@ -104,11 +161,19 @@
     {{!-- Stats Tab --}}
     <div class="tab attributes" data-group="primary" data-tab="attributes">
       <section class="grid grid-3col">
-
         <div class="attribute-col">
           <div class="main-attributes">
             {{#each system.attributes as |attribute key|}}
             <div class="attribute">
+
+              {{#if (pkOptions "vitaminOption")}}
+                {{#if (ifvitamin ../system.avitamin ../system.bvitamin key)}}
+                <div class="fa-solid fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
+                {{else}}
+                <div class="fa-regular fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
+                {{/if}}
+              {{/if}}
+
               <label for="system.attributes.{{key}}.value" class="rollable resource-label flexlarge align-left"
                 data-roll-attribute="{{key}}" data-label="{{attribute.label}}">{{attribute.label}}</label>
               <input type="text" class="value-input {{#if attribute.overridden}}overridden{{/if}}"
@@ -141,13 +206,11 @@
             <div class="attribute">
               <label for="system.extra.{{key}}.value" class="rollable resource-label flexlarge align-left"
                 data-roll-attribute="{{key}}" data-label="{{attribute.label}}">{{attribute.label}}</label>
-
               {{#if attribute.custom}}
               <a class="delete-value-button" title="Delete attribute" data-attribute-key="{{key}}">
                 <i class="fas fa-trash"></i>
               </a>
               {{/if}}
-
               <input type="text" class="value-input {{#if attribute.overridden}}overridden{{/if}}"
                 name="system.extra.{{key}}.value" value="{{attribute.value}}" data-dtype="Number" {{disabled
                 attribute.overridden}} />
@@ -189,83 +252,121 @@
               <a class="add-value-button" title="Create skill"><i class="fas fa-plus"></i></a>
             </div>
           </div>
-
           <ul class="matchups">
-            {{#if matchups.weak}}
-            <li>
-              <h4>Weaknesses</h4>
-              <span>{{ matchups.weak }}</span>
-            </li>
-            {{/if}}
-            {{#if matchups.doubleWeak}}
-            <li>
-              <h4>Double weaknesses</h4>
-              <span>{{ matchups.doubleWeak }}</span>
-            </li>
-            {{/if}}
+
             {{#if matchups.tripleWeak}}
-              <li>
-                <h4>Triple weaknesses</h4>
-                <span>{{ matchups.tripleWeak }}</span>
-              </li>
-            {{/if}}
-            {{#if matchups.resist}}
             <li>
-              <h4>Resistances</h4>
-              <span>{{ matchups.resist }}</span>
+              <h4>Triple weaknesses (+3)</h4>
+              {{#each typematch.tripleWeak}}
+              <img title="{{this}}" src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
+                style="border: 0px"></img>
+              {{/each}}
+            </li>
+            {{/if}}
+
+            {{#if matchups.doubleWeak}}
+            <li style="background-image: url('systems/pokerole/images/icons/matchups/X4.svg'); background-repeat: no-repeat; background-size: 20px; background-position: top right;">
+              <h4>Double weaknesses (+2)</h4>
+              {{#each typematch.doubleWeak}}
+              <img title="{{this}}" src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
+                style="border: 0px"></img>
+              {{/each}}
+            </li>
+            {{/if}}
+
+            {{#if matchups.weak}}
+            <li style="background-image: url('systems/pokerole/images/icons/matchups/X2.svg'); background-repeat: no-repeat; background-size: 20px; background-position: top right;">
+              <h4>Weaknesses (+1)</h4>
+              {{#each typematch.weak}}
+              <img title="{{this}}" src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
+                style="border: 0px"></img>
+              {{/each}}
+            </li>
+            {{/if}}
+
+            {{#if matchups.resist}}
+            <li style="background-image: url('systems/pokerole/images/icons/matchups/1-2.svg'); background-repeat: no-repeat; background-size: 20px; background-position: top right;">
+              <h4>Resistances (-1)</h4>
+              {{#each typematch.resist}}
+              <img title="{{this}}" src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
+                style="border: 0px"></img>
+              {{/each}}
             </li>
             {{/if}}
             {{#if matchups.doubleResist}}
-            <li>
-              <h4>Double resistances</h4>
-              <span>{{ matchups.doubleResist }}</span>
+            <li style="background-image: url('systems/pokerole/images/icons/matchups/1-4.svg'); background-repeat: no-repeat; background-size: 20px; background-position: top right;">
+              <h4>Double resistances (-2)</h4>
+              {{#each typematch.doubleResist}}
+              <img title="{{this}}" src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
+                style="border: 0px"></img>
+              {{/each}}
             </li>
             {{/if}}
             {{#if matchups.tripleResist}}
-              <li>
-                <h4>Triple resistances</h4>
-                <span>{{ matchups.tripleResist }}</span>
-              </li>
+            <li>
+              <h4>Triple resistances (-3)</h4>
+              {{#each typematch.tripleResist}}
+              <img title="{{this}}" src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
+                style="border: 0px"></img>
+              {{/each}}
+            </li>
             {{/if}}
             {{#if matchups.immune}}
-            <li>
-              <h4>Immunities</h4>
-              <span>{{ matchups.immune }}</span>
+            <li style="background-image: url('systems/pokerole/images/icons/matchups/X0.svg'); background-repeat: no-repeat; background-size: 20px; background-position: top right;">
+              <h4>Immunities (x0)</h4>
+              {{#each typematch.immune}}
+              <img title="{{this}}" src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
+                style="border: 0px"></img>
+              {{/each}}
             </li>
             {{/if}}
           </ul>
+          <!-- TP Support -->
         </div>
-
+        
         <aside>
-          <div class="nature-box">
-            <div class="attribute">
-              <label for="system.personality" class="resource-label flexlarge align-left">Nature</label>
-              <select name="system.personality" value="{{system.personality}}" data-dtype="String" class="large">
-                {{selectOptions natures selected=system.personality}}
-              </select>
-            </div>
-            <div class="attribute">
-              <label for="system.confidence" class="resource-label flexlarge align-left">Confidence</label>
-              <input type="text" name="system.confidence" value="{{system.confidence}}" data-dtype="Number" />
+
+          <div style="display: flex;
+            justify-content: space-between;
+            flex-direction: row;">
+            <div class="nature-box battle-nature-wrap">
+              <!-- TP Support -->
+               {{#if (pkOptions "genderOption")}}
+                <div class="attribute">
+                  <label for="system.gender" class="resource-label flexlarge align-left">Gender</label>
+                  <select name="system.gender" value="{{system.gender}}" data-dtype="String" class="large">
+                    {{selectOptions gender selected=system.gender}}
+                  </select>
+                </div>
+               {{/if}}
+              <!-- TP Support -->
+              <div class="attribute">
+                <label for="system.personality" class="resource-label flexlarge align-left">Nature</label>
+                <select name="system.personality" value="{{system.personality}}" data-dtype="String" class="large">
+                  {{selectOptions natures selected=system.personality}}
+                </select>
+              </div>
+              <div class="attribute">
+                <label for="system.trainingPoints" class="resource-label flexlarge align-left">Training Points</label>
+                <input type="text" name="system.trainingPoints" value="{{system.trainingPoints}}" data-dtype="Number" />
+              </div>
             </div>
           </div>
-
-          <div class="battles-box">
-            <div class="attribute">
-              <label for="system.battles" class="resource-label flexlarge align-left">No. of Battles</label>
-              <input type="text" name="system.battles" value="{{system.battles}}" data-dtype="Number" />
-            </div>
-            <div class="attribute">
-              <label for="system.victories" class="resource-label flexlarge align-left">Victories</label>
-              <input type="text" name="system.victories" value="{{system.victories}}" data-dtype="Number" />
-            </div>
+          <div class="button-container" style="margin-bottom: 6px; margin-top: 3px;">
+            <button type="button" title="Retrain" class="reseting-button set-button">Retrain</button>
           </div>
-
           <div class="derived">
             <h3 class="section-header centered">Quick References</h3>
             <div class="derived-attributes">
               {{#each system.derived as |attribute key|}}
               <div class="attribute">
+                {{#if (pkOptions "vitaminOption")}}
+                {{#if (ifvitamin ../system.avitamin ../system.bvitamin key)}}
+                <div class="fa-solid fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
+                {{else}}
+                <div class="fa-regular fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
+                {{/if}}
+              {{/if}}
                 <label for="system.derived.{{key}}.value" class="rollable resource-label flexlarge align-left"
                   data-roll-attribute="{{key}}" data-roll-label="{{attribute.label}}">{{attribute.label}}</label>
                 <input type="text" class="{{#if attribute.overridden}}overridden{{/if}}" value="{{attribute.value}}"
@@ -283,11 +384,11 @@
     <div class="tab biography flexrow" data-group="primary" data-tab="biography">
       <aside class="species-data">
         <div class="pokedex-number-name">
-            <span class="number-sign">#</span>
-            <input type="text" class="pokedex-num" name="system.pokedexId" value="{{system.pokedexId}}" placeholder="0"
-              data-dtype="Number" />
-            <input type="text" name="system.species" value="{{system.species}}" placeholder="Species"
-              data-dtype="String" />
+          <span class="number-sign">#</span>
+          <input type="text" class="pokedex-num" name="system.pokedexId" value="{{system.pokedexId}}" placeholder="0"
+            data-dtype="Number" />
+          <input type="text" name="system.species" value="{{system.species}}" placeholder="Species"
+            data-dtype="String" />
           {{#unless limitedPermissions}}
           <a class="settings-button"><i class="fas fa-cogs"></i></a>
           {{/unless}}
@@ -342,9 +443,48 @@
 
       </aside>
 
-      {{#unless limitedPermissions}}
-      {{editor biographyHtml target="system.biography" button=true owner=owner editable=editable engine="prosemirror"}}
-      {{/unless}}
+      <div class="species-data">
+        <div class="pokedex-number-name">
+          <span class="number-sign">Character Data</span>
+        </div>
+
+        <ul class="pokedex">
+          <li>
+            <h4>Trait</h4>
+            <input name="system.trait" value="{{system.trait}}" placeholder="None">
+          </li>
+          {{#if (pkOptions "vitaminOption")}}
+          <li class="inner-list">
+            <ul>
+              <li>
+                <h4>A Vitamin</h4>
+                <select name="system.avitamin" value="{{system.avitamin}}" data-dtype="String"
+                  class="medium clean-selector">
+                  {{selectOptions addedvitamin selected=system.avitamin}}
+                </select>
+              </li>
+              <li>
+                <h4>B Vitamin</h4>
+                <select name="system.bvitamin" value="{{system.bvitamin}}" data-dtype="String"
+                  class="medium clean-selector">
+                  {{selectOptions addedvitamin selected=system.bvitamin}}
+                </select>
+              </li>
+            </ul>
+          </li>
+          {{/if}}
+        </ul>
+
+        {{#unless limitedPermissions}}
+        {{editor biographyHtml target="system.biography" button=true owner=owner editable=editable
+        engine="prosemirror"}}
+        {{/unless}}
+      </div>
+    </div>
+
+    {{!-- Owned Battle Tab --}}
+    <div class="tab items" data-group="primary" data-tab="battlesheet">
+      {{> "systems/pokerole/templates/actor/parts/actor-test.html"}}
     </div>
 
     {{!-- Owned Items Tab --}}
@@ -361,6 +501,7 @@
     <div class="tab effects flexcol" data-group="primary" data-tab="effects">
       {{> "systems/pokerole/templates/actor/parts/actor-effects.html"}}
     </div>
+
 
   </section>
 </form>

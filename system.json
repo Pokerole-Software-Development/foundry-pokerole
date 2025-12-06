@@ -1,16 +1,19 @@
 {
   "id": "pokerole",
   "title": "Pokérole",
-  "description": "FoundryVTT system for Pokérole, the Pokémon role-playing game",
-  "version": "0.4.2",
+  "description": "FoundryVTT system for Pokérole, the Pokémon role-playing game.",
+  "version": "0.5.1",
   "compatibility": {
-    "minimum": 10,
-    "verified": "12.331",
-    "maximum": 12
+    "minimum": 13,
+    "verified": "13.348",
+    "maximum": 13
   },
   "authors": [
     {
       "name": "techticks"
+    },
+    {
+      "name": "Axorum"
     }
   ],
   "esmodules": [
@@ -23,31 +26,52 @@
   "packs": [
     {
       "name": "pokemon",
-      "label": "Pokémon (Core 2.0)",
+      "label": "Pokémon (Core 3.0)",
       "system": "pokerole",
       "path": "./packs/pokedex.db",
       "type": "Actor"
     },
     {
       "name": "moves",
-      "label": "Moves (Core 2.0)",
+      "label": "Moves (Core 3.0)",
       "system": "pokerole",
       "path": "./packs/moves.db",
       "type": "Item"
     },
     {
       "name": "abilities",
-      "label": "Abilities (Core 2.0)",
+      "label": "Abilities (Core 3.0)",
       "system": "pokerole",
       "path": "./packs/abilities.db",
       "type": "Item"
     },
     {
       "name": "items",
-      "label": "Items (Core 2.0)",
+      "label": "Items (Core 3.0)",
       "system": "pokerole",
       "path": "./packs/items.db",
       "type": "Item"
+    },
+    {
+      "name": "macros",
+      "label": "POKEROLE Macros",
+      "system": "pokerole",
+      "path": "./packs/macros.db",
+      "type": "Macro"
+    }
+  ],
+  "packFolders": [
+    {
+      "name": "POKEROLE 3.0 Compendium",
+      "sorting": "m",
+      "color": "#841722",
+      "packs": [
+        "pokemon",
+        "moves",
+        "abilities",
+        "items",
+        "macros"
+      ]
     }
   ],
   "languages": [
@@ -55,11 +79,6 @@
       "lang": "en",
       "name": "English",
       "path": "lang/en.json"
-    },
-    {
-      "lang": "zh-tw",
-      "name": "正體中文",
-      "path": "lang/zh-tw.json"
     }
   ],
   "grid": {
@@ -70,7 +89,7 @@
   "secondaryTokenAttribute": "will",
   "url": "https://github.com/Pokerole-Software-Development/foundry-pokerole",
   "manifest": "https://raw.githubusercontent.com/Pokerole-Software-Development/foundry-pokerole/main/system.json",
-  "download": "https://github.com/Pokerole-Software-Development/foundry-pokerole/releases/download/v0.4.2/foundry-pokerole-v0.4.2.zip",
+  "download": "https://github.com/Pokerole-Software-Development/foundry-pokerole/releases/download/v0.5.1/foundry-pokerole-v0.5.1.zip",
   "license": "LICENSE.txt",
   "changelog": "CHANGELOG.md"
 }
