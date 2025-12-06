@@ -1,18 +1,16 @@
 # Pokérole
 
-Fork made of the original VTT Module [https://github.com/Pokerole-Software-Development/foundry-pokerole](https://github.com/Pokerole-Software-Development/foundry-pokerole) for Foundry V12. This is an updated version for V13 and WIP for updating to the new rulebook 3.0
-
 Work-in-progress [FoundryVTT](https://foundryvtt.com/) system for [Pokérole](https://www.pokeroleproject.com/). **Note that this system is in early development, using it in actual games is not recommended as features are missing and non-backwards compatible changes to data will occur.**
 
 Partially based on [Boilerplate](https://gitlab.com/asacolips-projects/foundry-mods/boilerplate) and [dnd5e](https://github.com/foundryvtt/dnd5e). Powered by [Pokerole-Data](https://github.com/Willowlark/Pokerole-Data).
 
 ## Installation
-Open the *Game Systems* tab and click *Install System*, then enter `https://raw.githubusercontent.com/Axorum/foundry-pokerole/refs/heads/main/system.json` as the manifest URL and click *Install*.
+Open the *Game Systems* tab and click *Install System*, then enter `https://raw.githubusercontent.com/Pokerole-Software-Development/foundry-pokerole/main/system.json` as the manifest URL and click *Install*.
 
 ## Usage
 
 ### Trainer character creation
-Trainer sheets are not yet supported, but you can create a Pokémon sheet in the "Actors" tab and add all missing skills in the meantime.
+Trainer sheets are in a Beta state, you can create an Actor type: Trainer with the skills required for a trainer but it is the same structure as an a Pokemon sheet.
 
 ### Pokémon character creation
 
@@ -45,11 +43,14 @@ The following modules are known to work and provide useful functionality:
 - [Quick Insert - Search Widget](https://foundryvtt.com/packages/quick-insert): Adds a search tool that can be accessed with Ctrl+Space. Useful for searching through the large compendiums.
 - [Next Up](https://foundryvtt.com/packages/Next-Up): Adds a config option to automatically open the active combatant's character sheet. Useful for Storytellers in battle.
 
+- [Enhanced Combat HUD - Pokerole](https://github.com/Axorum/enhancedcombathud-pokerole): Allows to use the [Argon - Combat HUD (CORE)](https://foundryvtt.com/packages/enhancedcombathud) in the Pokerole System to add a interface for easy actions of actors.
+
 ## Development
 
 ### Compiling the CSS
 
--This repository includes SCSS files that must be compiled to CSS. Run `npm install` followed by `npm run gulp` to automatically watch for changes in SCSS files.-
+~~This repository includes SCSS files that must be compiled to CSS.~~ CSS is added to the project, no need to compile it. Run `npm install` followed by `npm run gulp` to automatically watch for changes in SCSS files.
+
 
 ### Installation from source
 

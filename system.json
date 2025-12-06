@@ -87,9 +87,9 @@
   },
   "primaryTokenAttribute": "hp",
   "secondaryTokenAttribute": "will",
-  "url": "https://github.com/Axorum/foundry-pokerole",
-  "manifest": "https://raw.githubusercontent.com/Axorum/foundry-pokerole/refs/heads/main/system.json",
-  "download": "https://github.com/Axorum/foundry-pokerole/releases/download/v0.5.0/foundry-pokerole-LoS-v0.5.0.zip",
+  "url": "https://github.com/Pokerole-Software-Development/foundry-pokerole",
+  "manifest": "https://raw.githubusercontent.com/Pokerole-Software-Development/foundry-pokerole/main/system.json",
+  "download": "https://github.com/Pokerole-Software-Development/foundry-pokerole/releases/download/v0.5.1/foundry-pokerole-v0.5.1.zip",
   "license": "LICENSE.txt",
   "changelog": "CHANGELOG.md"
 }
