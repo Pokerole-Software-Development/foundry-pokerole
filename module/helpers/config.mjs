@@ -387,7 +387,7 @@ POKEROLE.rankProgression = {
     skillLimit: 4,
     maxTargets: 5,
     totalPassiveIncrease: 0,
-    confusionPenalty: 1,
+    confusionPenalty: 2,
   },
   'expert': {
     attributePoints: 2,
