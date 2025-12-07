@@ -24,6 +24,8 @@
   line-height: 36px;
   color: black;
   border-bottom: none;
+  display: flex;
+  align-items: center;
 }
 .pokerole.chat-card .card-header h3:hover {
   color: #111;
