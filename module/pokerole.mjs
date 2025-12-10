@@ -518,7 +518,13 @@ async function onChatActionClick(event) {
         const { effect: effectJson, mightTargetUser } = event.target.dataset;
         const effect = JSON.parse(effectJson);
         const { actor: attackerActor, token: attackerToken } = await getActorAndTokenFromEvent(event);
-        await applyEffectToActors(effect, attackerActor, attackerToken, actors, mightTargetUser === 'true');
+        if (effect.affects === 'targets') {
+          let targets = game.user.targets.map(t => t.actor)
+          await applyEffectToActors(effect, attackerActor, attackerToken, targets, mightTargetUser === 'true');
+        } else {
+          await applyEffectToActors(effect, attackerActor, attackerToken, actors, mightTargetUser === 'true');
+        }
+
         break;
       }
       case 'chanceDiceRollEffect': {

@@ -407,8 +407,18 @@ const DAMAGE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/damage-ro
  */
 export async function rollDamage(item, actor, token) {
   let baseFormula = `${item.system.power}-[def/sp.def]`;
-  if (item.system.dmgMod1) {
+  let highermod = "";
+  if (item.system.dmgMod1 && item.system.dmgMod1var) {
+    if (actor.getAnyAttribute(item.system.dmgMod1)?.value ?? 0 < actor.getAnyAttribute(item.system.dmgMod1var)?.value ?? 0) {
+      highermod = item.system.dmgMod1var
+    } else {
+      highermod = item.system.dmgMod1
+    }
+    baseFormula = `${highermod}+${item.system.power}-[def/sp.def]+[STAB]`;
+  } else if (item.system.dmgMod1) {
     baseFormula = `${item.system.dmgMod1}+${item.system.power}-[def/sp.def]+[STAB]`;
+  } else if (item.system.dmgMod1var){
+    baseFormula = `${item.system.dmgMod1var}+${item.system.power}-[def/sp.def]+[STAB]`;
   }
 
   let selectedTokens = Array.from(game.user.targets)
@@ -497,8 +507,12 @@ export async function rollDamage(item, actor, token) {
   }
 
   let rollCountBeforeDef = (item.system.power ?? 0) + poolBonus;
-  if (item.system.dmgMod1) {
+  if (item.system.dmgMod1 && item.system.dmgMod1var) {
+    rollCountBeforeDef += Math.max(actor.getAnyAttribute(item.system.dmgMod1)?.value ?? 0, actor.getAnyAttribute(item.system.dmgMod1var)?.value ?? 0)
+  } else if (item.system.dmgMod1) {
     rollCountBeforeDef += actor.getAnyAttribute(item.system.dmgMod1)?.value ?? 0;
+  } else if (item.system.dmgMod1var) {
+    rollCountBeforeDef += actor.getAnyAttribute(item.system.dmgMod1var)?.value ?? 0;
   }
 
   if (item.system.attributes?.ignoreDefenses) {
