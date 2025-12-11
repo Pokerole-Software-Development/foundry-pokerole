@@ -89,7 +89,7 @@ const ATTRIBUTE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/attrib
 /**
  * Roll an attribute for successes with an optional dialog.
  * @param {{name: string, value: string}} attribute
- * @param {{painPenalty: string, confusionPenalty: bool, confusionPenalty: integer}} options
+ * @param {{painPenalty: string, confusionPenalty: bool, userRank: string}} options
  * @param {boolean} showPopup If `false`, the popup is skipped and default values are assumed
  * @param {Object} chatData
  * @returns {boolean} `true` if the user has rolled, `false` if cancelled
