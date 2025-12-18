@@ -58,11 +58,20 @@
     <li class="max-will-box">
       <label>Maximum Will: {{oldMaxWill}} → <span class="max-will">{{oldMaxWill}}</span></label>
     </li>
-
     {{#if showSkillLimit}}
     <li>
       <label>Skill limit: {{oldSkillLimit}} → {{skillLimit}}</label>
     </li>
     {{/if}}
   </ul>
+  <h3>Options</h3>
+  <div style="display: flex; align-items: center;">
+    <input type="checkbox" name="forceCheck" class="force-check"> 
+    <label>Force Advancement?</label> 
+  </div>
+  <div style="display: flex; align-items: center;">
+    <input type="checkbox" name="forceLimit" class="force-limit"> 
+    <label>Allows increase beyond limits?</label> 
+  </div>
+  
 </form>

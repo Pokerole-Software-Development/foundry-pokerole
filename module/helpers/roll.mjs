@@ -343,8 +343,13 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
   if (item.system.attributes.accuracyReduction) {
     constantBonus -= Math.abs(item.system.attributes.accuracyReduction);
   }
+  
   if (actor.system.accuracyMod.value) {
-    constantBonus += actor.system.accuracyMod.value;
+    if (actor.system.accuracyMod.value > 0) {
+      dicePool += actor.system.accuracyMod.value;
+    } else if (actor.system.accuracyMod.value < 0) {
+      constantBonus += actor.system.accuracyMod.value;
+    }
   }
 
   const constantBonusWithPainPenalty = constantBonus - POKEROLE.painPenalties[painPenalty];
