@@ -826,7 +826,8 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
           apply: {
             label: 'Apply',
             callback: html => {
-              if (dialogueProgression.attributePoints > 0 || dialogueProgression.skillPoints > 0 || dialogueProgression.socialPoints > 0) {
+              let forceApply = html.find('.force-check')[0].checked
+              if ((dialogueProgression.attributePoints > 0 || dialogueProgression.skillPoints > 0 || dialogueProgression.socialPoints > 0) && !forceApply) {
                 throw new Error("Not all points have been distributed");
               }
               // Disabled elements are excluded from form data
@@ -844,7 +845,6 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
     if (result) {
       const formElement = result[0].querySelector('form');
       const updateData = new foundry.applications.ux.FormDataExtended(formElement).object;
-
       this.actor.update({ system: updateData });
     }
   }
@@ -852,6 +852,7 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
   _renderProgressionDialogue(html, progression) {
     let vitalityDelta = 0;
     let insightDelta = 0;
+    
 
     html.find('.max-hp-box, .max-will-box').hide();
     html.find('.max-hp-box, .max-will-box').prop('disabled', true);
@@ -883,7 +884,6 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
       }
     };
 
-
     html.on('click', '.increase, .decrease', (event) => {
       const { target: targetName, kind } = event.target.dataset;
       const target = html.find(`[name="${targetName}"]`)[0];
@@ -892,8 +892,9 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
 
       let intValue = parseInt(target.value);
       let min = parseInt(target.dataset.min);
+      let forceLimit = html.find('.force-limit')[0].checked
 
-      if (intValue + sign <= parseInt(target.dataset.max) && intValue + sign >= min) {
+      if ((intValue + sign <= parseInt(target.dataset.max) || forceLimit || (!forceLimit && sign < 0)) && intValue + sign >= min) {
         let newValue = intValue + sign;
         target.value = newValue;
 

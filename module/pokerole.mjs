@@ -465,7 +465,8 @@ async function onChatActionClick(event) {
           value: actor.system.derived.evade.value
         }, {
           painPenalty: actor.system.painPenalty,
-          confusionPenalty: actor.hasAilment('confused')
+          confusionPenalty: actor.hasAilment('confused'),
+          userRank: actor.system.rank
         },
           chatData, !event.shiftKey);
 
