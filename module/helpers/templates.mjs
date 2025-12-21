@@ -6,9 +6,9 @@
  export const preloadHandlebarsTemplates = async function() {
   return foundry.applications.handlebars.loadTemplates([
     // Actor partials.
-    "systems/pokerole/templates/actor/parts/actor-items.html",
-    "systems/pokerole/templates/actor/parts/actor-moves.html",
-    "systems/pokerole/templates/actor/parts/actor-effects.html",
-    "systems/pokerole/templates/actor/parts/actor-test.html",
+    "systems/pokerole/templates/actor/parts/actor-items.hbs",
+    "systems/pokerole/templates/actor/parts/actor-moves.hbs",
+    "systems/pokerole/templates/actor/parts/actor-effects.hbs",
+    "systems/pokerole/templates/actor/parts/actor-test.hbs",
   ]);
 };

@@ -4,51 +4,130 @@ import { addAilmentWithDialog } from "../helpers/effects.mjs";
 
 
 /**
- * Extend the basic ActorSheet with some very simple modifications
- * @extends {foundry.appv1.sheets.ActorSheet}
+ * Extend the basic ActorSheet with AppV2
+ * @extends {foundry.applications.sheets.ActorSheetV2}
  */
-export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
+export class PokeroleActorSheet extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2) {
 
   /** @override */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["pokerole", "sheet", "actor"],
-      template: "systems/pokerole/templates/actor/actor-pokemon-sheet.html",
+  static DEFAULT_OPTIONS = {
+    classes: ["pokerole", "sheet", "actor"],
+    position: {
       width: 720,
-      height: 600,
-      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "attributes" }]
-    });
-  }
+      height: 600
+    },
+    actions: {
+      editImage: PokeroleActorSheet.#onEditImage,
+      editItem: PokeroleActorSheet.#onEditItem,
+      deleteItem: PokeroleActorSheet.#onDeleteItem,
+      createItem: PokeroleActorSheet.#onCreateItem,
+      toggleMoveGroup: PokeroleActorSheet.#onToggleMoveGroup,
+      togglePocket: PokeroleActorSheet.#onTogglePocket,
+      selectRank: PokeroleActorSheet.#onSelectRank,
+      addAilment: PokeroleActorSheet.#onAddAilment,
+      removeAilment: PokeroleActorSheet.#onRemoveAilment,
+      roll: PokeroleActorSheet.#onRoll,
+      toggleMoveLearned: PokeroleActorSheet.#onToggleMoveLearned,
+      toggleMoveUsed: PokeroleActorSheet.#onToggleMoveUsed,
+      toggleMoveOverrank: PokeroleActorSheet.#onToggleMoveOverrank,
+      addCustomAttribute: PokeroleActorSheet.#onAddCustomAttribute,
+      addCustomSkill: PokeroleActorSheet.#onAddCustomSkill,
+      deleteValue: PokeroleActorSheet.#onDeleteValue,
+      showSettings: PokeroleActorSheet.#onShowSettings,
+      reTrain: PokeroleActorSheet.#onReTrain,
+      incrementActions: PokeroleActorSheet.#onIncrementActions,
+      resetRoundResources: PokeroleActorSheet.#onResetRoundResources,
+      resetStatChanges: PokeroleActorSheet.#onResetStatChanges,
+      resetPositiveChanges: PokeroleActorSheet.#onResetPositiveChanges,
+      resetNegativeChanges: PokeroleActorSheet.#onResetNegativeChanges,
+      toggleCanClash: PokeroleActorSheet.#onToggleCanClash,
+      toggleCanEvade: PokeroleActorSheet.#onToggleCanEvade,
+      toggleEffectEnabled: PokeroleActorSheet.#onToggleEffectEnabled,
+      toggleVisible: PokeroleActorSheet.#onToggleVisible
+    },
+    form: {
+      submitOnChange: true
+    },
+    window: {
+      resizable: true
+    }
+  };
 
   /** @override */
-  get template() {
-    return `systems/pokerole/templates/actor/actor-pokemon-sheet.html`;
-  }
+  static PARTS = {
+    header: {
+      template: "systems/pokerole/templates/actor/parts/actor-header.hbs"
+    },
+    tabs: {
+      template: "templates/generic/tab-navigation.hbs"
+    },
+    attributes: {
+      template: "systems/pokerole/templates/actor/parts/actor-attributes.hbs",
+      scrollable: [""]
+    },
+    moves: {
+      template: "systems/pokerole/templates/actor/parts/actor-moves.hbs",
+      scrollable: [""]
+    },
+    items: {
+      template: "systems/pokerole/templates/actor/parts/actor-items.hbs",
+      scrollable: [""]
+    },
+    effects: {
+      template: "systems/pokerole/templates/actor/parts/actor-effects.hbs",
+      scrollable: [""]
+    },
+    biography: {
+      template: "systems/pokerole/templates/actor/parts/actor-biography.hbs",
+      scrollable: [""]
+    }
+  };
+
+  /** @override */
+  tabGroups = {
+    primary: "attributes"
+  };
 
   // Move groups that are collapsed by default
   static HIDDEN_GROUPS = [...POKEROLE.ranks];
 
   static HIDDEN_POCKET = []
 
-  static SETTINGS_TEMPLATE_PATH = `systems/pokerole/templates/actor/actor-settings.html`;
+  static SETTINGS_TEMPLATE_PATH = `systems/pokerole/templates/actor/actor-settings.hbs`;
 
-  static STATS_TEMPLATE_PATH = `systems/pokerole/templates/actor/actor-stats.html`;
+  static STATS_TEMPLATE_PATH = `systems/pokerole/templates/actor/actor-stats.hbs`;
 
   /* -------------------------------------------- */
 
   /** @override */
-  async getData() {
-    // Retrieve the data structure from the base sheet. You can inspect or log
-    // the context variable to see the structure, but some key properties for
-    // sheets are the actor object, the data object, whether or not it's
-    // editable, the items array, and the effects array.
-    const context = await super.getData();
+  async _preparePartContext(partId, context, options) {
+    context = await super._preparePartContext(partId, context, options);
+    
+    const tabs = this._getTabs();
+    
+    // Add tabs data to the tabs part
+    if (partId === "tabs") {
+      context.tabs = tabs;
+    }
+    
+    // Add specific tab data to each tab part
+    if (tabs[partId]) {
+      context.tab = tabs[partId];
+    }
+    
+    return context;
+  }
 
-    // Use a safe clone of the actor data for further operations.
-    const actorData = this.actor.toObject(false);
-    // Add the actor's data to context.data for easier access, as well as flags.
-    context.system = actorData.system;
-    context.flags = actorData.flags;
+  /* -------------------------------------------- */
+
+  /** @override */
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+
+    // Add actor data to context
+    context.actor = this.actor;
+    context.system = this.actor.system;
+    context.flags = this.actor.flags;
 
     // Prepare character data and items.
     await this._prepareItems(context);
@@ -66,8 +145,8 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
     context.addedvitamin = {None: "None", strength: "Strength", dexterity: "Dexterity", def: "Defense", vitality: "Vitality", special: "Special", spDef: "Special Def.", insight: "Insight", hp: "HP", willpower: "WP"};
 
     // TP Test Variable
-      context.testvarso = this._element?.find('.inventoryfilterclass')[0]?.value ?? "all";
-      context.system.testvarso = "reset";
+    context.testvarso = this.element?.querySelector('.inventoryfilterclass')?.value ?? "all";
+    context.system.testvarso = "reset";
 
     // TP support.
     context.ranks = this.constructor.getLocalizedRanks();
@@ -136,6 +215,38 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
     context.limitedPermissions = this.actor.testUserPermission(game.user, CONST.DOCUMENT_OWNERSHIP_LEVELS.LIMITED, { exact: true });
 
     return context;
+  }
+
+  /**
+   * Prepare tab navigation data
+   * @returns {Object} Object of tab configuration objects keyed by tab id
+   * @private
+   */
+  _getTabs() {
+    const tabs = [
+      { id: "attributes", group: "primary", icon: "fa-solid fa-user", label: "Attributes" },
+      { id: "moves", group: "primary", icon: "fa-solid fa-fist-raised", label: "Moves" },
+      { id: "items", group: "primary", icon: "fa-solid fa-suitcase", label: "Items" },
+      { id: "effects", group: "primary", icon: "fa-solid fa-bolt", label: "Effects" },
+      { id: "biography", group: "primary", icon: "fa-solid fa-book", label: "Biography" }
+    ];
+
+    const tabsObject = {};
+    for ( const tab of tabs ) {
+      tab.active = this.tabGroups[tab.group] === tab.id;
+      tab.cssClass = tab.active ? "active" : "";
+      tabsObject[tab.id] = tab;
+    }
+
+    return tabsObject;
+  }
+
+  /** @override */
+  changeTab(tab, group, options) {
+    super.changeTab(tab, group, options);
+    if ( group !== "primary" ) return;
+    this.element.className = this.element.className.replace(/tab-\w+/g, "");
+    this.element.classList.add(`tab-${tab}`);
   }
 
   /**
@@ -213,7 +324,7 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
     let learnedMoveNum = 0;
 
     // Iterate through items, allocating to containers
-    for (let i of context.items) {
+    for (let i of this.actor.items) {
       i.img = i.img || DEFAULT_TOKEN;
       // Append to gear.
       if (i.type === 'item') {
@@ -411,227 +522,69 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
   }
 
   /* -------------------------------------------- */
+  /*  Action Handlers                             */
+  /* -------------------------------------------- */
 
-  /** @override */
-  activateListeners(html) {
-    super.activateListeners(html);
-
-    // Render the item sheet for viewing/editing prior to the editable check.
-    html.find('.item-edit').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-      const item = this.actor.items.get(li.data("itemId"));
-      item.sheet.render(true);
-    });
-
-    // Toggle move groups in the UI
-    html.find(".toggle-group").click(event => {
-      const group = event.currentTarget.dataset.group;
-      $(event.currentTarget.closest('li')).toggleClass('translucent');
-      html.find(`.list-${group}`).toggleClass('items-hidden');
-      const hiddenGroups = (this.constructor.HIDDEN_GROUPS ?? []);
-      const groupIndex = hiddenGroups.indexOf(group);
-      if (groupIndex > -1) {
-        hiddenGroups.splice(groupIndex, 1);
-      } else {
-        hiddenGroups.push(group);
-      }
-      this.constructor.hiddenGroups = hiddenGroups;
-    });
-
-    html.find(".toggle-pocket").click(event => {
-      const group = event.currentTarget.dataset.group;
-      $(event.currentTarget.closest('li')).toggleClass('translucent');
-      html.find(`.list-${group}`).toggleClass('items-hidden');
-      const hiddenGroups = (this.constructor.HIDDEN_POCKET ?? []);
-      const groupIndex = hiddenGroups.indexOf(group);
-      if (groupIndex > -1) {
-        hiddenGroups.splice(groupIndex, 1);
-      } else {
-        hiddenGroups.push(group);
-      }
-      this.constructor.hiddenGroups = hiddenGroups;
-    });
-
-    // -------------------------------------------------------------
-    // Everything below here is only needed if the sheet is editable
-    if (!this.isEditable) return;
-
-    html.find('.rank-select').change(this._onSelectRank.bind(this));
-
-    // Add Inventory Item
-    html.find('.item-create').click(this._onItemCreate.bind(this));
-
-    // Delete Inventory Item
-    html.find('.item-delete').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-      const item = this.actor.items.get(li.data("itemId"));
-      item.delete();
-      li.slideUp(200, () => this.render(false));
-    });
-
-    // Ailment management
-    html.find(".add-ailment").click(async ev => {
-      await addAilmentWithDialog(this.actor, ev.currentTarget.dataset.ailment);
-      this._refreshTokenAndHud();
-    });
-    html.find(".remove-ailment").click(async ev => {
-      await this.actor.removeAilment(ev.currentTarget.dataset.ailment);
-      this._refreshTokenAndHud();
-    });
-
-    // Rollable attributes.
-    html.find('.rollable').click(this._onRoll.bind(this));
-
-    // Toggle moves
-    html.find(".move-toggle-learned").click(event => {
-      const li = event.currentTarget.closest("li");
-      const item = this.actor.items.get(li.dataset.itemId);
-      item.update({
-        system: {
-          learned: !item.system.learned,
-          // Remove the "used in round" flag when a move is unlearned
-          usedInRound: item.system.learned ? false : item.system.usedInRound,
-          overrank: false,
-        }
-      });
-    });
-
-    html.find(".move-toggle-used").click(event => {
-      const li = event.currentTarget.closest("li");
-      const item = this.actor.items.get(li.dataset.itemId);
-      item.update({ 'system.usedInRound': !item.system.usedInRound });
-    });
-
-    html.find(".move-toggle-overrank").click(event => {
-      const li = event.currentTarget.closest("li");
-      const item = this.actor.items.get(li.dataset.itemId);
-      item.update({ 'system.overrank': !item.system.overrank });
-    });
-
-    // Drag events for macros.
-    if (this.actor.isOwner) {
-      let handler = ev => this._onDragStart(ev);
-      html.find('li.item').each((i, li) => {
-        if (li.classList.contains("inventory-header")) return;
-        li.setAttribute("draggable", true);
-        li.addEventListener("dragstart", handler, false);
-      });
-    }
-
-    html.find('.custom-attribute .add-value-button').click(() => {
-      this._addCustomAttributeFromInput(html);
-    });
-    html.find('.custom-attribute .add-value-input').keypress(event => {
-      if (event.which === 13 /* Return key */) {
-        this._addCustomAttributeFromInput(html);
-      }
-    });
-    html.find('.custom-skill .add-value-button').click(() => {
-      this._addCustomSkillFromInput(html);
-    });
-    html.find('.custom-skill .add-value-input').keypress(event => {
-      if (event.which === 13 /* Return key */) {
-        this._addCustomSkillFromInput(html);
-      }
-    });
-
-    html.find('.delete-value-button').click(ev => {
-      const { attributeKey, skillKey } = $(ev.target).closest('.delete-value-button')[0].dataset;
-      let obj = {};
-      if (attributeKey) {
-        obj[`system.extra.-=${attributeKey}`] = null;
-      } else if (skillKey) {
-        obj[`system.skills.-=${skillKey}`] = null;
-      }
-      this.actor.update(obj);
-    });
-
-    html.find('.settings-button').click(ev => this._showSettings());
-
-    html.on('click', '.reseting-button', this.reTrain.bind(this));
-
-    html.find('.increment-action-num').click(ev => this.actor.increaseActionCount());
-    html.find('.reset-round-based-resources').click(ev => this.actor.resetRoundBasedResources());
-
-    html.find('.reset-stat-changes').click(ev => this.actor.resetStatChange());
-    html.find('.reset-positive-changes').click(ev => this.actor.resetStatChangePositive());
-    html.find('.reset-negative-changes').click(ev => this.actor.resetStatChangeNegative());
-
-
-    html.find('.toggle-can-clash').click(() => {
-      this.actor.update({ 'system.canClash': !this.actor.system.canClash });
-    });
-    html.find('.toggle-can-evade').click(() => {
-      this.actor.update({ 'system.canEvade': !this.actor.system.canEvade });
-    });
-
-    this._registerStatChangeListeners(html);
-
-    html.find(".effect-toggle-enabled").click(event => {
-      const li = event.currentTarget.closest("li");
-      const item = this.actor.items.get(li.dataset.itemId);
-      item.update({
-        'system.enabled': !item.system.enabled,
-      });
-    });
-
-    html.find(".visible-toggle-enabled").click(event => {
-      const li = event.currentTarget.closest("li");
-      const item = this.actor.items.get(li.dataset.itemId);
-      item.update({
-        'system.visible': !item.system.visible,
-      });
-    });
-  }
-
-  /** 
-   * Register listeners for state change inputs.
-   * Special handling is required here since the input `value`
-   * usually shows an absolute value without a leading "-" sign,
-   * which would result in a wrong value when the form saves.
+  /**
+   * Handle editing an image.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
    */
-  _registerStatChangeListeners(html) {
-    html.find('.stat-change-input').focusin(ev => {
-      const input = ev.target;
-      const { actualValue } = input.dataset;
-      input.value = actualValue;
-
-      input.closest('.stat-change-item').classList.add('editing');
-    });
-    html.find('.stat-change-input').focusout(ev => {
-      const input = ev.target;
-      const { displayValue } = input.dataset;
-      input.value = displayValue;
-
-      input.closest('.stat-change-item').classList.remove('editing');
-    });
-    html.find('.stat-change-input').change(ev => {
-      const input = ev.target;
-      const { key } = input.dataset;
-
-      let val = parseInt(input.value, 10);
-      if (isNaN(val)) {
-        val = 0;
+  static async #onEditImage(event, target) {
+    const attr = target.dataset.edit;
+    const current = foundry.utils.getProperty(this.document._source, attr);
+    const fp = new CONFIG.ux.FilePicker({
+      current,
+      type: target.dataset.type,
+      callback: path => {
+        target.src = path;
+        this.submit({ updateData: { [attr]: path } });
+      },
+      position: {
+        top: this.position.top + 40,
+        left: this.position.left + 10
       }
-      input.dataset.displayValue = Math.abs(val);
-      this._updateObject(ev, { [key]: val });
-      ev.preventDefault();
-      ev.stopPropagation();
     });
+    await fp.browse();
   }
 
   /**
-   * Handle creating a new Owned Item for the actor using initial data defined in the HTML dataset
-   * @param {Event} event   The originating click event
-   * @private
+   * Handle editing an item.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
    */
-  async _onItemCreate(event) {
-    event.preventDefault();
-    const header = event.currentTarget;
-    // Get the type of item to create.
-    const type = header.dataset.type;
-    // Grab any data associated with this control.
-    const data = foundry.utils.duplicate(header.dataset);
+  static #onEditItem(event, target) {
+    const li = target.closest("[data-item-id]");
+    const item = this.actor.items.get(li?.dataset.itemId);
+    if (item) item.sheet.render(true);
+  }
+
+  /**
+   * Handle deleting an item.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static async #onDeleteItem(event, target) {
+    const li = target.closest("[data-item-id]");
+    const item = this.actor.items.get(li?.dataset.itemId);
+    if (item) {
+      await item.delete();
+      li.remove();
+    }
+  }
+
+  /**
+   * Handle creating a new item.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static async #onCreateItem(event, target) {
+    const type = target.dataset.type;
+    const data = foundry.utils.duplicate(target.dataset);
     const name = `New ${type.capitalize()}`;
     const itemData = {
       name: name,
@@ -639,7 +592,6 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
       system: data
     };
 
-    // Remove the type from the dataset since it's in the itemData.type prop.
     delete itemData.system["type"];
 
     if (type === 'move') {
@@ -651,28 +603,105 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
         itemData.system.rank = 'starter';
         itemData.system.attributes = { maneuver: true };
       }
-    };
+    }
 
     return await Item.create(itemData, { parent: this.actor });
   }
 
   /**
-   * Handle clickable rolls.
-   * @param {Event} event   The originating click event
-   * @private
+   * Handle toggling move group visibility.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
    */
-  async _onRoll(event) {
-    event.preventDefault();
-    const element = event.currentTarget;
-    const dataset = element.dataset;
+  static #onToggleMoveGroup(event, target) {
+    const group = target.dataset.group;
+    const li = target.closest('li');
+    li?.classList.toggle('translucent');
+    const list = this.element.querySelector(`.list-${group}`);
+    list?.classList.toggle('items-hidden');
+    
+    const hiddenGroups = (this.constructor.HIDDEN_GROUPS ?? []);
+    const groupIndex = hiddenGroups.indexOf(group);
+    if (groupIndex > -1) {
+      hiddenGroups.splice(groupIndex, 1);
+    } else {
+      hiddenGroups.push(group);
+    }
+    this.constructor.HIDDEN_GROUPS = hiddenGroups;
+  }
+
+  /**
+   * Handle toggling pocket visibility.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static #onTogglePocket(event, target) {
+    const group = target.dataset.group;
+    const li = target.closest('li');
+    li?.classList.toggle('translucent');
+    const list = this.element.querySelector(`.list-${group}`);
+    list?.classList.toggle('items-hidden');
+    
+    const hiddenGroups = (this.constructor.HIDDEN_POCKET ?? []);
+    const groupIndex = hiddenGroups.indexOf(group);
+    if (groupIndex > -1) {
+      hiddenGroups.splice(groupIndex, 1);
+    } else {
+      hiddenGroups.push(group);
+    }
+    this.constructor.HIDDEN_POCKET = hiddenGroups;
+  }
+
+  /**
+   * Handle rank selection change.
+   * @this {PokeroleActorSheet}
+   * @param {Event} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static async #onSelectRank(event, target) {
+    const newRank = target.value;
+    const oldRank = this.actor.system.rank;
+    await this._advanceRank(oldRank, newRank);
+  }
+
+  /**
+   * Handle adding an ailment.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static async #onAddAilment(event, target) {
+    await addAilmentWithDialog(this.actor, target.dataset.ailment);
+    this._refreshTokenAndHud();
+  }
+
+  /**
+   * Handle removing an ailment.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static async #onRemoveAilment(event, target) {
+    await this.actor.removeAilment(target.dataset.ailment);
+    this._refreshTokenAndHud();
+  }
+
+  /**
+   * Handle rolling from the sheet.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static async #onRoll(event, target) {
+    const dataset = target.dataset;
 
     // Handle move rolls.
-    if (dataset.rollType) {
-      if (dataset.rollType == 'item') {
-        const itemId = element.closest('.item').dataset.itemId;
-        const item = this.actor.items.get(itemId);
-        if (item) return item.use();
-      }
+    if (dataset.rollType === 'item') {
+      const itemId = target.closest('[data-item-id]')?.dataset.itemId;
+      const item = this.actor.items.get(itemId);
+      if (item) return item.use();
     }
 
     const chatData = {
@@ -712,17 +741,64 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
     }
   }
 
-  async _onSelectRank(event) {
-    const newRank = event.target.value;
-    const oldRank = this.actor.system.rank;
-
-    await this._advanceRank(oldRank, newRank);
+  /**
+   * Handle toggling move learned status.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static #onToggleMoveLearned(event, target) {
+    const li = target.closest("[data-item-id]");
+    const item = this.actor.items.get(li?.dataset.itemId);
+    if (item) {
+      item.update({
+        system: {
+          learned: !item.system.learned,
+          usedInRound: item.system.learned ? false : item.system.usedInRound,
+          overrank: false,
+        }
+      });
+    }
   }
 
-  _addCustomAttributeFromInput(html) {
-    const name = html.find('.custom-attribute .add-value-input').val();
-    // Remove non-alphanumeric characters
-    const sanitizedName = this.constructor._sanitizeName(name ?? '');
+  /**
+   * Handle toggling move used status.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static #onToggleMoveUsed(event, target) {
+    const li = target.closest("[data-item-id]");
+    const item = this.actor.items.get(li?.dataset.itemId);
+    if (item) {
+      item.update({ 'system.usedInRound': !item.system.usedInRound });
+    }
+  }
+
+  /**
+   * Handle toggling move overrank status.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static #onToggleMoveOverrank(event, target) {
+    const li = target.closest("[data-item-id]");
+    const item = this.actor.items.get(li?.dataset.itemId);
+    if (item) {
+      item.update({ 'system.overrank': !item.system.overrank });
+    }
+  }
+
+  /**
+   * Handle adding custom attribute.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static #onAddCustomAttribute(event, target) {
+    const input = this.element.querySelector('.custom-attribute .add-value-input');
+    const name = input?.value;
+    const sanitizedName = this._sanitizeName(name ?? '');
     if (sanitizedName) {
       if (this._checkDuplicateAttributeOrSkill(sanitizedName)) return;
 
@@ -734,13 +810,20 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
         custom: true,
       };
       this.actor.update(obj);
+      if (input) input.value = '';
     }
   }
 
-  _addCustomSkillFromInput(html) {
-    const name = html.find('.custom-skill .add-value-input').val();
-    // Remove non-alphanumeric characters
-    const sanitizedName = this.constructor._sanitizeName(name ?? '');
+  /**
+   * Handle adding custom skill.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static #onAddCustomSkill(event, target) {
+    const input = this.element.querySelector('.custom-skill .add-value-input');
+    const name = input?.value;
+    const sanitizedName = this._sanitizeName(name ?? '');
     if (sanitizedName) {
       if (this._checkDuplicateAttributeOrSkill(sanitizedName)) return;
 
@@ -751,8 +834,148 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
         custom: true,
       };
       this.actor.update(obj);
+      if (input) input.value = '';
     }
   }
+
+  /**
+   * Handle deleting custom value.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static #onDeleteValue(event, target) {
+    const { attributeKey, skillKey } = target.dataset;
+    let obj = {};
+    if (attributeKey) {
+      obj[`system.extra.-=${attributeKey}`] = null;
+    } else if (skillKey) {
+      obj[`system.skills.-=${skillKey}`] = null;
+    }
+    this.actor.update(obj);
+  }
+
+  /**
+   * Handle showing settings.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static async #onShowSettings(event, target) {
+    await this._showSettings();
+  }
+
+  /**
+   * Handle re-training.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static async #onReTrain(event, target) {
+    await this.reTrain();
+  }
+
+  /**
+   * Handle incrementing action number.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static #onIncrementActions(event, target) {
+    this.actor.increaseActionCount();
+  }
+
+  /**
+   * Handle resetting round-based resources.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static #onResetRoundResources(event, target) {
+    this.actor.resetRoundBasedResources();
+  }
+
+  /**
+   * Handle resetting stat changes.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static #onResetStatChanges(event, target) {
+    this.actor.resetStatChange();
+  }
+
+  /**
+   * Handle resetting positive changes.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static #onResetPositiveChanges(event, target) {
+    this.actor.resetStatChangePositive();
+  }
+
+  /**
+   * Handle resetting negative changes.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static #onResetNegativeChanges(event, target) {
+    this.actor.resetStatChangeNegative();
+  }
+
+  /**
+   * Handle toggling can clash.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static #onToggleCanClash(event, target) {
+    this.actor.update({ 'system.canClash': !this.actor.system.canClash });
+  }
+
+  /**
+   * Handle toggling can evade.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static #onToggleCanEvade(event, target) {
+    this.actor.update({ 'system.canEvade': !this.actor.system.canEvade });
+  }
+
+  /**
+   * Handle toggling effect enabled.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static #onToggleEffectEnabled(event, target) {
+    const li = target.closest("[data-item-id]");
+    const item = this.actor.items.get(li?.dataset.itemId);
+    if (item) {
+      item.update({ 'system.enabled': !item.system.enabled });
+    }
+  }
+
+  /**
+   * Handle toggling visibility.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static #onToggleVisible(event, target) {
+    const li = target.closest("[data-item-id]");
+    const item = this.actor.items.get(li?.dataset.itemId);
+    if (item) {
+      item.update({ 'system.visible': !item.system.visible });
+    }
+  }
+
+  /* -------------------------------------------- */
+  /*  Helper Methods                              */
+  /* -------------------------------------------- */
 
   /** Shows an error message if an attribute or skill with the given name already exists */
   _checkDuplicateAttributeOrSkill(name) {
@@ -764,7 +987,7 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
     return false;
   }
 
-  static ADVANCEMENT_DIALOGUE_TEMPLATE = "systems/pokerole/templates/actor/advancement.html";
+  static ADVANCEMENT_DIALOGUE_TEMPLATE = "systems/pokerole/templates/actor/advancement.hbs";
 
   async _advanceRank(oldRank, newRank) {
 
