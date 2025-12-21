@@ -57,23 +57,8 @@
     height: 22px;
     text-align: center;
     border: none;
-    background-color: white;
     border-radius: 50%;
-  }
-}
-
-.attributes .skills {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  background-color: #A74D39;
-  border-radius: 15px;
-  padding: 5px;
-  color: white;
-  height: fit-content;
-
-  .attribute label {
-    width: 80px;
+    padding: 0;
   }
 }
 
@@ -114,10 +99,11 @@
   border-radius: 30px;
   border: 3px black solid;
   background-color: #48A49D;
+  color: var(--color-dark-1);
 }
 
 .nature-box, .battles-box {
-  background-color: black;
+  background-color: #841722;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
@@ -131,7 +117,7 @@
     }
 
     input, select {
-      background-color: white;
+      // background-color: white;
       border-radius: 10px;
       width: 40px;
     }
@@ -184,13 +170,16 @@
     padding: 1px 5px;
     border-radius: 30px;
     background-color: white;
+    color: black;
 
     input {
-      width: 20px;
-      height: unset;
+      width: 30px;
+      height: 22px;
       text-align: right;
       border-radius: 0;
       background-color: unset;
+      border: none;
+      color: black;
     }
   }
 }

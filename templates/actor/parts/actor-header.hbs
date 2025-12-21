@@ -1,7 +1,6 @@
 {{!-- Sheet Header --}}
 <div class="character-header">
-  <div class="main-header"
-    style="display: flex;justify-content: center;background-color: {{styleColor system.sheetskin 'color4'}};">
+  <div class="main-header">
     <div class="side-containers">
       <div class="side-slot up-left" style="background: {{styleColor system.sheetskin 'color1'}};">
         <div class="internal" style="background: {{styleColor system.sheetskin 'color3'}};">
@@ -104,9 +103,8 @@
   </div>
   <div class="sub-header">
     <div class="sub-container">
-      <div class="sub-left" style="background-color: {{styleColor system.sheetskin 'color1'}};">
-        <div class="internal"
-          style="display: flex;align-items: center;justify-content: flex-end;gap: 3px;clip-path: polygon(21px 0%, 102% 0%, 102% 102%, 2px 102%);background: {{styleColor system.sheetskin 'color2'}};width: 100%;padding: 0px 3px;height: 100%;">
+      <div class="hp-container">
+        <div class="internal">
           {{#if (pkOptions "vitaminOption")}}
           {{#if (ifvitamin system.avitamin system.bvitamin "hp")}}
           <div class="fa-solid fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
@@ -121,13 +119,12 @@
           </div>
         </div>
       </div>
-      <div class="sub-center"
+      <div class="rank-icon"
         style="background: {{styleColor system.sheetskin 'color2'}};  border-color: {{styleColor system.sheetskin 'color1'}};">
-        <img src="{{styleImage system.rank}}" style="width: 45px;height: 45px;border: 0px;top: -13px;position: relative;">
+        <img src="{{styleImage system.rank}}">
       </div>
-      <div class="sub-right" style="background: {{styleColor system.sheetskin 'color1'}};">
-        <div class="internal"
-          style="display: flex;align-items: center;justify-content: flex-start;gap: 3px;width: 100%;background: {{styleColor system.sheetskin 'color2'}};padding: 0px 5px;clip-path: polygon(-1% 0%, calc(100% - 21px) 0%, calc(100% - 2px) 102%, -1% 102%);height: 100%;">
+      <div class="wp-container">
+        <div class="internal">
           {{#if (pkOptions "vitaminOption")}}
           {{#if (ifvitamin system.avitamin system.bvitamin "willpower")}}
           <div class="fa-solid fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
