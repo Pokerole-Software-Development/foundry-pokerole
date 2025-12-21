@@ -158,32 +158,6 @@
   }
 }
 
-.derived {
-  .derived-attributes {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .attribute {
-    border: 2px solid black;
-    padding: 1px 5px;
-    border-radius: 30px;
-    background-color: white;
-    color: black;
-
-    input {
-      width: 30px;
-      height: 22px;
-      text-align: right;
-      border-radius: 0;
-      background-color: unset;
-      border: none;
-      color: black;
-    }
-  }
-}
-
 .middle {
   display: flex;
   flex-direction: column;

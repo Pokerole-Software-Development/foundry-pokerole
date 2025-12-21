@@ -7,15 +7,17 @@
   }
 
   // variables
+  --color-pkmn-header-back: #A21C1C;
   --color-pkmn-red: #A21C1C;
   --color-pkmn-outline: #433727;
   --color-pkmn-field-back: #DAECF9; // white
+  --color-disposition: #999999;
 
   // Header styles
   .character-header {
     display: block;
     width: 100%;
-    background-color: var(--color-pkmn-red);
+    background-color: var(--color-pkmn-header-back);
 
     .main-header {
       display: flex;
@@ -188,14 +190,14 @@
 
       .portrait-img {
         height: 100px;
-        width: 10%;
+        width: 100px;
         display: flex;
         justify-content: center;
         align-items: center;
         min-width: 100px;
         background-color: #f4f4f43b;
         border-radius: 50%;
-        border: unset;
+        border: 2px solid var(--color-disposition);
         margin: 0px;
 
         .profile-img {
@@ -364,27 +366,13 @@
     }
 
     .rank-icon {
-      $rank-icon-border-size: 3px;
-      $rank-icon-dimension: 45px;
-      width: $rank-icon-dimension;
-      height: $rank-icon-dimension;
-      border-radius: 50%;
-      border: $rank-icon-border-size solid;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 45px;
+      height: 45px;
+      border: unset;
+      border-radius: unset;
       margin: 0 -10px;
       z-index: 10;
-      position: relative;
-      img {
-        width: $rank-icon-dimension;
-        height: $rank-icon-dimension;
-        border: 0px;
-        top: -$rank-icon-border-size;
-        left: -$rank-icon-border-size;
-        position: absolute;
-        max-width: unset;
-      }
+      max-width: unset;
     }
 
     .sub-header {
@@ -414,6 +402,8 @@
             width: 100%;
             padding: 0px 3px;
             height: 100%;
+            padding-top: 2px;
+            padding-bottom: 2px;
 
             .pp-displayer {
               clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 101%, 0% 101%);
@@ -421,6 +411,7 @@
               width: 80px;
               input {
                 width: 46px;
+                height: 28px;
                 text-align: center;
                 border: none;
                 padding: 2px;
@@ -526,6 +517,32 @@
     .button-container {
       margin-bottom: 6px;
       margin-top: 3px;
+    }
+
+    .derived {
+      .derived-attributes {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .attribute {
+        border: 2px solid black;
+        padding: 1px 5px;
+        border-radius: 30px;
+        background-color: var(--color-pkmn-field-back);
+        color: black;
+
+        input {
+          width: 30px;
+          height: 22px;
+          text-align: right;
+          border-radius: 0;
+          background-color: unset;
+          border: none;
+          color: black;
+        }
+      }
     }
   }
 
