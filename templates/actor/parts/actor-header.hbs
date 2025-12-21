@@ -2,22 +2,20 @@
 <div class="character-header">
   <div class="main-header">
     <div class="side-containers">
-      <div class="side-slot up-left" style="background: {{styleColor system.sheetskin 'color1'}};">
-        <div class="internal" style="background: {{styleColor system.sheetskin 'color3'}};">
-          <div
-            style="background: {{styleColor system.sheetskin 'color1'}};height: 100%;width: 50px;clip-path: polygon(0px 0%, 102% 0%, calc( 100% - 30px) 102%, 0% 102%);display: flex;justify-content: flex-start;">
-            <div
-              style="background: {{styleColor system.sheetskin 'color2'}};clip-path: polygon(0px 0%, 102% 0%, calc( 100% - 30px) 102%, 0% 102%);width: 45px;display: flex;justify-content: flex-start;align-items: center;padding-left: 5px;color: white;font-size: 20px;">
+      <div class="side-slot up-left">
+        <div class="internal">
+          <div class="settings-container">
+            <div class="internal">
               <i class="fas fa-gear butonable" data-action="showSettings"></i>
             </div>
           </div>
           <input name="name" type="text" value="{{actor.name}}" placeholder="Name">
         </div>
       </div>
-      <div class="side-slot down-left" style="background: {{styleColor system.sheetskin 'color1'}};">
+      <div class="side-slot down-left">
         <div class="internal">
-          <div class="info-container" style="background: {{styleColor system.sheetskin 'color2'}};">
-            <div style="display: flex; align-items: cente`r;gap: 1px;">
+          <div class="info-container">
+            <div style="display: flex; align-items: center;gap: 1px;">
               <label title="#{{system.pokedexId}} {{system.species}}"
                 style="color: white; background: transparent; text-align: center; padding: 2px 0px;max-width: 185px; overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">#{{system.pokedexId}}
                 {{system.species}}</label>
@@ -25,26 +23,26 @@
               <img src="{{styleImage system.gender}}" style="width: 22px;height: 22px;border: 0px;">
               {{/if}}
               {{#if system.varicolor}}
-              <img title="Shinny" src="systems/pokerole/images/icons/varicolor.png"
+              <img title="Shiny" src="systems/pokerole/images/icons/varicolor.png"
                 style="width: 22px;height: 22px;border: 0px;">
               {{/if}}
             </div>
           </div>
           <div class="type-container">
-            <div class="type-selector" style="background: {{styleType system.type1 'color1'}};">
+            <div class="type-selector" style="--type-color: {{styleType system.type1 'color1'}};">
               <img src="{{styleType system.type1 'image'}}" style="height: 100%;border: 0px">
               <select name="system.type1" value="{{system.type1}}" data-dtype="String">
                 {{selectOptions types selected=system.type1}}
               </select>
             </div>
-            <div class="type-selector" style="background: {{styleType system.type2 'color1'}};">
+            <div class="type-selector" style="--type-color: {{styleType system.type2 'color1'}};">
               <img src="{{styleType system.type2 'image'}}" style="height: 100%;border: 0px">
               <select name="system.type2" value="{{system.type2}}" data-dtype="String">
                 {{selectOptions types selected=system.type2}}
               </select>
             </div>
             {{#if system.hasThirdType}}
-            <div class="type-selector" style="background: {{styleType system.type3 'color1'}};">
+            <div class="type-selector" style="--type-color: {{styleType system.type3 'color1'}};">
               <img src="{{styleType system.type3 'image'}}" style="height: 100%;border: 0px">
               <select name="system.type3" value="{{system.type3}}" data-dtype="String">
                 {{selectOptions types selected=system.type3}}
@@ -56,42 +54,36 @@
       </div>
     </div>
     <div class="portrait-img">
-      <img class="profile-img" data-action="editImage" data-edit="img" data-type="image" src="{{actor.img}}"
+      <img class="profile-img" {{#if editable}}data-action="editImage" data-edit="img" data-type="image"{{/if}} src="{{actor.img}}"
         title="{{actor.name}}" height="100" width="100">
     </div>
     <div class="side-containers">
-      <div class="side-slot up-right" style="background: {{styleColor system.sheetskin 'color1'}};">
-        <div class="internal" style="background: {{styleColor system.sheetskin 'color3'}};">
+      <div class="side-slot up-right">
+        <div class="internal">
           <div class="rank-container">
             <select name="system.rank" value="{{system.rank}}" data-dtype="String" data-action="selectRank">
               {{selectOptions ranks selected=system.rank}}
             </select>
           </div>
-          <div
-            style="background: {{styleColor system.sheetskin 'color1'}};height: 100%;width: 75px;clip-path: polygon(0px 0%, 102% 0%, 102% 102%, calc(30px) 102%);display: flex;justify-content: flex-end;">
-            <div
-              style="background: {{styleColor system.sheetskin 'color2'}};clip-path: polygon(0px 0%, 102% 0%, 102% 102%, calc(30px) 102%);height: 100%;width: 70px;display: flex;justify-content: center;align-items: center;padding-left: 15px;color: white;font-size: 18px;">
+          <div class="rank-label-container">
+            <div class="internal">
               <label>Rank</label>
             </div>
           </div>
         </div>
 
       </div>
-      <div class="side-slot down-right" style="background: {{styleColor system.sheetskin 'color1'}};">
+      <div class="side-slot down-right">
         <div class="internal">
-          <div class="item-selector-container"
-            style="background: {{styleColor system.sheetskin 'color3'}}; padding-left: 6px;">
-            <label for="system.activeAbility"
-              style="background: {{styleColor system.sheetskin 'color2'}};padding: 3px 10px 3px 17px; color: white; height: 100%; clip-path: polygon(0 0%, 100% 0%, calc(100% - 12.5px) 101%, 0% 101%); text-align: center; width: 84px;">Ability</label>
+          <div class="item-selector-container">
+            <label for="system.activeAbility">Ability</label>
             <select name="system.activeAbility" value="{{system.activeAbility}}" data-dtype="String"
               data-tooltip="{{activeAbilityDescription}}">
               {{selectOptions abilitiesSelect selected=system.activeAbility}}
             </select>
           </div>
-          <div class="item-selector-container"
-            style="background: {{styleColor system.sheetskin 'color3'}}; padding-left: 0px;">
-            <label for="system.activeItem"
-              style="background: {{styleColor system.sheetskin 'color2'}}; padding: 3px 8px 3px 12px;color: white;height: 100%;width: 77px;clip-path: polygon(0% 0%, 100% 0%, calc(100% - 12.5px) 101%, 0% 101%);text-align: center;">Item</label>
+          <div class="item-selector-container">
+            <label for="system.activeItem">Item</label>
             <select name="system.activeItem" value="{{system.activeItem}}" data-dtype="String"
               data-tooltip="{{activeItemDescription}}" style="margin-left: 12px;">
               {{selectOptions heldItemSelect selected=system.activeItem}}
@@ -132,10 +124,10 @@
           <div class="fa-regular fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
           {{/if}}
           {{/if}}
-          <label for="system.will.value" data-action="roll" data-roll-attribute="will" data-label="Will"
+          <label for="{{id}}-system-will-value" data-action="roll" data-roll-attribute="will" data-label="Will" class="rollable"
             style="color: white;text-align: center; font-weight: bold;"> WP </label>
           <div class="pp-displayer">
-            <input type="number" min="0" name="system.will.value" value="{{system.will.value}}" data-dtype="Number">
+            <input id="{{id}}-system-will-value" type="number" min="0" name="system.will.value" value="{{system.will.value}}" data-dtype="Number">
             <label style="color: white;text-align: center;font-weight: bold;width: 18px;">{{ system.will.max }}</label>
           </div>
         </div>

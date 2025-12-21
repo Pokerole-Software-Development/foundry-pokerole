@@ -9,56 +9,226 @@
   // variables
   --color-pkmn-red: #A21C1C;
   --color-pkmn-outline: #433727;
+  --color-pkmn-field-back: #DAECF9; // white
 
   // Header styles
   .character-header {
+    display: block;
+    width: 100%;
     background-color: var(--color-pkmn-red);
+
     .main-header {
       display: flex;
       justify-content: center;
-    }
+      flex-direction: row;
+      flex-wrap: nowrap;
+      height: 100px;
+      padding: 0px 8px;
 
-    .side-slot {
-      &.up-left,
-      &.down-left {
-        background: var(--sheet-color-1);
-      }
-
-      .internal {
-        background: var(--sheet-color-3);
-      }
-
-      .rank-number {
-        background: var(--sheet-color-1);
-        height: 100%;
-        width: 50px;
-        clip-path: polygon(0px 0%, 102% 0%, calc(100% - 30px) 102%, 0% 102%);
+      .side-containers {
         display: flex;
-        justify-content: flex-start;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        flex: 1;
+        min-width: 256px;
 
-        .rank-number-inner {
-          background: var(--sheet-color-2);
-          clip-path: polygon(0px 0%, 102% 0%, calc(100% - 30px) 102%, 0% 102%);
-          width: 45px;
+        .side-slot {
           display: flex;
-          justify-content: flex-start;
-          align-items: center;
-          padding-left: 5px;
-          color: white;
-          font-size: 20px;
+          flex-direction: row;
+          flex-wrap: nowrap;
+          flex: 0 1 auto;
+          height: 50px;
+          min-width: 256px;
+
+          &.up-left,
+          &.down-left {
+            background: var(--color-pkmn-outline);
+          }
+
+          &.up-left {
+            padding: 3px 3px 2px 3px;
+            clip-path: polygon(0% 0%, 100% 0%, calc(100% - 30px) 101%, 0% 101%);
+            background: var(--color-pkmn-outline);
+            
+            > .internal {
+              display: flex;
+              flex-direction: row;
+              flex-wrap: nowrap;
+              justify-content: space-between;
+              align-items: center;
+              flex: 1;
+              height: 45px;
+              min-width: 250px;
+              padding: 0px 30px 0px 0px;
+              background: var(--color-pkmn-field-back);
+              clip-path: polygon(0% 0%, calc(100% - 3px) 0%, calc(100% - 30px) 102%, 0% 102%);
+
+              input[name="name"] {
+                flex: 1;
+                min-width: 170px;
+                border: none;
+                padding: 1px 3px;
+                background: transparent;
+                font-size: 22px;
+                overflow: clip;
+                color: black;
+              }
+
+              .settings-container {
+                background: var(--color-pkmn-outline);
+                height: 100%;
+                width: 50px;
+                clip-path: polygon(0px 0%, 102% 0%, calc( 100% - 30px) 102%, 0% 102%);
+                display: flex;
+                justify-content: flex-start;
+                > .internal {
+                  background: var(--color-pkmn-red);
+                  clip-path: polygon(0px 0%, 102% 0%, calc( 100% - 30px) 102%, 0% 102%);
+                  width: 45px;
+                  display: flex;
+                  justify-content: flex-start;
+                  align-items: center;
+                  padding-left: 5px;
+                  color: var(--color-pkmn-field-back);
+                  font-size: 20px;
+                }
+              }
+            }
+          }
+
+          &.up-right {
+            padding: 3px 3px 2px 3px;
+            clip-path: polygon(0% 0%, 100% 0%, 100% 101%, calc(30px) 101%);
+            background: var(--color-pkmn-outline);
+            
+            > .internal {
+              display: flex;
+              flex-direction: row;
+              flex-wrap: nowrap;
+              flex: 1;
+              height: 45px;
+              min-width: 250px;
+              padding: 0px 0px 0px 30px;
+              background: var(--color-pkmn-field-back);
+              clip-path: polygon(3px 0%, 102% 0%, 102% 102%, calc(30px) 102%);
+            }
+          }
+
+          &.down-left {
+            padding: 2px 3px 3px 3px;
+            clip-path: polygon(0% 0%, calc(100% - 30px) 0%, 100% 100%, 0% 100%);
+            
+            > .internal {
+              display: flex;
+              flex-direction: column;
+              flex-wrap: nowrap;
+              gap: 2px;
+              flex: 1;
+              height: 45px;
+              min-width: 250px;
+              clip-path: polygon(0% 0%, calc(100% - 30px) 0%, calc(100% - 3px) 101%, 0% 101%);
+            }
+          }
+
+          &.down-right {
+            padding: 2px 3px 3px 3px;
+            clip-path: polygon(30px 0%, 100% 0%, 100% 101%, 0% 101%);
+            background: var(--color-pkmn-outline);
+            
+            > .internal {
+              display: flex;
+              flex-direction: column;
+              flex-wrap: nowrap;
+              gap: 2px;
+              flex: 1;
+              height: 45px;
+              min-width: 250px;
+              clip-path: polygon(30px 0%, 100% 0%, 100% 101%, 3px 101%);
+            }
+          }
+          .rank-container {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            flex: 1;
+            align-items: center;
+            background: var(--color-pkmn-field-back);
+
+            select {
+              width: 100%;
+              border: none;
+              padding: 0px 3px;
+              background: transparent;
+              color: black;
+              font-size: 22px;
+            }
+          }
+          .rank-label-container {
+            background: var(--color-pkmn-outline);
+            height: 100%;
+            width: 75px;
+            clip-path: polygon(0px 0%, 102% 0%, 102% 102%, calc(30px) 102%);
+            display: flex;
+            justify-content: flex-end;
+            > .internal {
+              background: var(--color-pkmn-red);
+              clip-path: polygon(0px 0%, 102% 0%, 102% 102%, calc(30px) 102%);
+              height: 100%;
+              width: 70px;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              padding-left: 15px;
+              color: white;
+              font-size: 18px;
+            }
+          }
+        }
+      }
+
+      .portrait-img {
+        height: 100px;
+        width: 10%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-width: 100px;
+        background-color: #f4f4f43b;
+        border-radius: 50%;
+        border: unset;
+        margin: 0px;
+
+        .profile-img {
+          width: 100px;
+          height: 100px;
+          z-index: 10;
+          border: 0px;
+          object-fit: contain;
+          &[data-action="editImage"] {
+            cursor: pointer;
+          }
         }
       }
     }
 
     .info-container {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      flex: 0 1 auto;
+      height: 21.5938px;
+      min-width: 250px;
+      padding: 0px 32px 0px 10px;
       background: var(--sheet-color-2);
 
       .pokedex-info {
         display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
         align-items: center;
         gap: 1px;
 
-        input {
+        label {
           color: white;
           background: transparent;
           text-align: center;
@@ -69,6 +239,18 @@
           white-space: nowrap;
         }
 
+        input {
+          color: white;
+          background: transparent;
+          text-align: center;
+          padding: 2px 0px;
+          max-width: 185px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          border: none;
+        }
+
         img {
           width: 22px;
           height: 22px;
@@ -77,12 +259,107 @@
       }
     }
 
-    .type-selector {
-      background: var(--type-color-1);
+    .type-container {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      flex: 0 1 auto;
+      min-width: 250px;
+      height: 21.5938px;
 
-      img {
+      .type-selector {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        flex: 1;
+        padding: 0px 12px;
+        background: var(--type-color);
+        overflow: visible;
+        clip-path: polygon(0% 0%, calc(100% - 12.5px) 0%, 100% 101%, 12.5px 101%);
+
+        img {
+          width: auto;
+          height: 100%;
+          flex-shrink: 0;
+          border: 0px;
+        }
+
+        select, span {
+          flex: 1;
+          border: none;
+          background: var(--type-color);
+          color: white;
+          font-weight: 400;
+          padding: 0px 3px;
+          height: unset;
+        }
+      }
+    }
+
+    .rank-display-box {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      background: var(--color-pkmn-outline);
+      height: 100%;
+      width: 75px;
+      clip-path: polygon(0px 0%, 102% 0%, 102% 102%, calc(30px) 102%);
+      justify-content: flex-end;
+
+      .rank-display-inner {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        background: var(--sheet-color-2);
+        clip-path: polygon(0px 0%, 102% 0%, 102% 102%, calc(30px) 102%);
         height: 100%;
-        border: 0px;
+        width: 70px;
+        justify-content: center;
+        align-items: center;
+        padding-left: 15px;
+        color: white;
+        font-size: 18px;
+      }
+    }
+
+    .item-selector-container {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: center;
+      flex: 0 1 auto;
+      min-width: 250px;
+      height: 21.5938px;
+      padding: 0px 6px;
+      background: var(--color-pkmn-field-back);
+
+      label {
+        flex-shrink: 0;
+        padding: 3px 10px 3px 17px;
+        background: var(--color-pkmn-red);
+        color: white;
+        height: 100%;
+        clip-path: polygon(0px 0%, 100% 0%, calc(100% - 12.5px) 101%, 0% 101%);
+        text-align: center;
+        width: 84px;
+      }
+
+      select {
+        flex: 1;
+        min-width: 154px;
+        height: unset;
+        border: none;
+        padding: 0px 3px;
+        background: var(--color-pkmn-field-back);
+        color: black;
+      }
+
+      &:nth-child(2) {
+        padding-left: 0px;
+        label {
+          padding-left: 12px;
+          width: 77px;
+        }
       }
     }
 
@@ -110,73 +387,79 @@
       }
     }
 
-    .sub-container {
+    .sub-header {
       display: flex;
-      width: 100%;
-      max-width: 500px;
-      align-items: flex-end;
       justify-content: center;
-      
-      .hp-container,
-      .wp-container {
-        display: flex;
-        align-items: center;
-        width: 40%;
-        background: var(--color-pkmn-outline);
+      align-items: center;
 
-        .internal {
+      .sub-container {
+        display: flex;
+        width: 100%;
+        max-width: 500px;
+        align-items: flex-end;
+        justify-content: center;
+        
+        .hp-container,
+        .wp-container {
           display: flex;
           align-items: center;
-          gap: 3px;
-          background: var(--color-pkmn-red);
-          width: 100%;
-          padding: 0px 3px;
-          height: 100%;
+          width: 40%;
+          background: var(--color-pkmn-outline);
 
-          .pp-displayer {
-            clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 101%, 0% 101%);
-            background: var(--color-pkmn-outline);
-            width: 80px;
-            input {
-              width: 46px;
-              text-align: center;
-              border: none;
-              padding: 2px;
-              border-radius: 3px;
-              background-color: white;
-              color: black;
-              border: 0px;
-              border-radius: 0;
-              clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
-            }
-            label {
-              color: white;
-              text-align: center;
-              font-weight: bold;
-              width: 17px;
-              padding-left: 4px;
+          > .internal {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            background: var(--color-pkmn-red);
+            width: 100%;
+            padding: 0px 3px;
+            height: 100%;
+
+            .pp-displayer {
+              clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 101%, 0% 101%);
+              background: var(--color-pkmn-outline);
+              width: 80px;
+              input {
+                width: 46px;
+                text-align: center;
+                border: none;
+                padding: 2px;
+                border-radius: 3px;
+                background-color: white;
+                color: black;
+                border: 0px;
+                border-radius: 0;
+                clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+              }
+              label {
+                color: white;
+                text-align: center;
+                font-weight: bold;
+                width: 17px;
+                padding-left: 4px;
+              }
             }
           }
         }
-      }
-      .hp-container {
-        clip-path: polygon(21px 0%, 102% 0%, 102% 102%, 0% 102%);
-        padding: 3px 0px 0px 3px;
+        .hp-container {
+          clip-path: polygon(21px 0%, 102% 0%, 102% 102%, 0% 102%);
+          padding: 3px 0px 0px 3px;
 
-        .internal {
-          clip-path: polygon(21px 0%, 102% 0%, 102% 102%, 2px 102%);
-          padding-right: 20px;
-          justify-content: flex-end;
+          > .internal {
+            clip-path: polygon(21px 0%, 102% 0%, 102% 102%, 2px 102%);
+            padding-right: 20px;
+            justify-content: flex-end;
+          }
         }
-      }
-      .wp-container {
-        clip-path: polygon(-1% 0%, calc(100% - 21px) 0%, 100% 102%, -1% 102%);
-        padding: 3px 3px 0px 0px;
+        .wp-container {
+          clip-path: polygon(-1% 0%, calc(100% - 21px) 0%, 100% 102%, -1% 102%);
+          padding: 3px 3px 0px 0px;
 
-        .internal {
-          clip-path: polygon(-1% 0%, calc(100% - 21px) 0%, calc(100% - 2px) 102%, -1% 102%);
-          padding-left: 20px;
-          justify-content: flex-start;
+          > .internal {
+            clip-path: polygon(-1% 0%, calc(100% - 21px) 0%, calc(100% - 2px) 102%, -1% 102%);
+            padding-left: 20px;
+            justify-content: flex-start;
+          }
         }
       }
     }
