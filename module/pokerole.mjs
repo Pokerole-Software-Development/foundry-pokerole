@@ -11,12 +11,18 @@ import { bulkApplyDamageValidated, canModifyTokenOrActor } from "./helpers/damag
 import { registerIntegrationHooks } from "./helpers/integrations.mjs";
 import { applyEffectToActors, registerEffectHooks } from "./helpers/effects.mjs";
 import { APIdb } from "./API/API.mjs";
+import CheckboxElement from "./components/checkbox.mjs";
+import SlideToggleElement from "./components/slide-toggle.mjs";
 
 /* -------------------------------------------- */
 /*  Init Hook                                   */
 /* -------------------------------------------- */
 
 Hooks.once('init', async () => {
+  // Register custom elements
+  customElements.define(CheckboxElement.tagName, CheckboxElement);
+  customElements.define(SlideToggleElement.tagName, SlideToggleElement);
+
   // Add utility classes to the global game object so that they're more easily
   // accessible in global contexts.
   game.pokerole = {

@@ -3,7 +3,7 @@
     <div class="action-count">
       <label for="system.actionCount.value">Used Actions: </label>
       <div class="input-group">
-        <input type="text" name="system.actionCount.value" value="{{system.actionCount.value}}" data-dtype="Number">
+        <input type="text" name="system.actionCount.value" value="{{system.actionCount.value}}" data-dtype="Number" class="always-interactive">
         <span> / {{system.actionCount.max}}</span>
       </div>
       <button type="button" title="Increment action count" data-action="incrementActions" {{#unless hasAvailableActions}}disabled{{/unless}}>

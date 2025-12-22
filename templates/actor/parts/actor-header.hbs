@@ -106,7 +106,7 @@
           {{/if}}
           <label for="system.hp.value" style="color: white;text-align: center; font-weight: bold;"> HP </label>
           <div class="pp-displayer">
-            <input type="number" min="0" name="system.hp.value" value="{{system.hp.value}}" data-dtype="Number">
+            <input type="number" min="0" name="system.hp.value" value="{{system.hp.value}}" data-dtype="Number" class="always-interactive">
             <label>{{ system.hp.max }}</label>
           </div>
         </div>
@@ -124,7 +124,7 @@
           <label for="{{id}}-system-will-value" data-action="roll" data-roll-attribute="will" data-label="Will" class="rollable"
             style="color: white;text-align: center; font-weight: bold;"> WP </label>
           <div class="pp-displayer">
-            <input id="{{id}}-system-will-value" type="number" min="0" name="system.will.value" value="{{system.will.value}}" data-dtype="Number">
+            <input id="{{id}}-system-will-value" type="number" min="0" name="system.will.value" value="{{system.will.value}}" data-dtype="Number" class="always-interactive">
             <label style="color: white;text-align: center;font-weight: bold;width: 18px;">{{ system.will.max }}</label>
           </div>
         </div>

@@ -740,4 +740,11 @@
       flex-wrap: wrap;
     }
   }
+
+  // locked inputs
+  &:not(.editable) {
+    input:not(.always-interactive) {
+      color: inherit;
+    }
+  }
 }

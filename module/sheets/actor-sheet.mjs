@@ -88,6 +88,22 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     primary: "attributes"
   };
 
+  /**
+   * Available sheet modes.
+   * @enum {number}
+   */
+  static MODES = {
+    PLAY: 1,
+    EDIT: 2
+  };
+
+  /**
+   * The mode the sheet is currently in.
+   * @type {number|null}
+   * @protected
+   */
+  _mode = null;
+
   // Move groups that are collapsed by default
   static HIDDEN_GROUPS = [...POKEROLE.ranks];
 
@@ -96,6 +112,18 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
   static SETTINGS_TEMPLATE_PATH = `systems/pokerole/templates/actor/actor-settings.hbs`;
 
   static STATS_TEMPLATE_PATH = `systems/pokerole/templates/actor/actor-stats.hbs`;
+
+  /* -------------------------------------------- */
+
+  /** @inheritDoc */
+  _configureRenderOptions(options) {
+    super._configureRenderOptions(options);
+
+    // Set initial mode
+    let { mode, renderContext } = options;
+    if ( (mode === undefined) && (renderContext === "createItem") ) mode = this.constructor.MODES.EDIT;
+    this._mode = mode ?? this._mode ?? this.constructor.MODES.PLAY;
+  }
 
   /* -------------------------------------------- */
 
@@ -128,6 +156,9 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     context.actor = this.actor;
     context.system = this.actor.system;
     context.flags = this.actor.flags;
+    context.owner = this.document.isOwner;
+    context.locked = !this.isEditable;
+    context.editable = this.isEditable && (this._mode === this.constructor.MODES.EDIT);
 
     // Prepare character data and items.
     await this._prepareItems(context);
@@ -247,6 +278,80 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     if ( group !== "primary" ) return;
     this.element.className = this.element.className.replace(/tab-\w+/g, "");
     this.element.classList.add(`tab-${tab}`);
+  }
+
+  /* -------------------------------------------- */
+
+  /** @inheritDoc */
+  _toggleDisabled(disabled) {
+    super._toggleDisabled(disabled);
+    this.element.querySelectorAll(".always-interactive").forEach(input => input.disabled = false);
+  }
+
+  /* -------------------------------------------- */
+
+  /** @inheritDoc */
+  async _renderFrame(options) {
+    const html = await super._renderFrame(options);
+    if ( !game.user.isGM && this.document.limited ) html.classList.add("limited");
+    return html;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Handle re-rendering the mode toggle on ownership changes.
+   * @protected
+   */
+  _renderModeToggle() {
+    const header = this.element.querySelector(".window-header");
+    const toggle = header?.querySelector(".mode-slider");
+    if ( this.isEditable && !toggle ) {
+      const toggle = document.createElement("slide-toggle");
+      toggle.checked = this._mode === this.constructor.MODES.EDIT;
+      toggle.classList.add("mode-slider");
+      toggle.dataset.tooltip = "POKEROLE.SheetModeEdit";
+      toggle.setAttribute("aria-label", game.i18n.localize("POKEROLE.SheetModeEdit"));
+      toggle.addEventListener("change", this._onChangeSheetMode.bind(this));
+      toggle.addEventListener("dblclick", event => event.stopPropagation());
+      toggle.addEventListener("pointerdown", event => event.stopPropagation());
+      header.prepend(toggle);
+    } else if ( this.isEditable && toggle ) {
+      toggle.checked = this._mode === this.constructor.MODES.EDIT;
+    } else if ( !this.isEditable && toggle ) {
+      toggle.remove();
+    }
+  }
+
+  /* -------------------------------------------- */
+
+  /** @inheritDoc */
+  async _onRender(context, options) {
+    await super._onRender(context, options);
+
+    // Set toggle state and add status class to frame
+    this._renderModeToggle();
+    this.element.classList.toggle("editable", this.isEditable && (this._mode === this.constructor.MODES.EDIT));
+    this.element.classList.toggle("interactable", this.isEditable && (this._mode === this.constructor.MODES.PLAY));
+    this.element.classList.toggle("locked", !this.isEditable);
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Handle the user toggling the sheet mode.
+   * @param {Event} event  The triggering event.
+   * @protected
+   */
+  async _onChangeSheetMode(event) {
+    const { MODES } = this.constructor;
+    const toggle = event.currentTarget;
+    const label = game.i18n.localize(`POKEROLE.SheetMode${toggle.checked ? "Play" : "Edit"}`);
+    toggle.dataset.tooltip = label;
+    toggle.setAttribute("aria-label", label);
+    this._mode = toggle.checked ? MODES.EDIT : MODES.PLAY;
+    await this.submit();
+    this.render();
   }
 
   /**
