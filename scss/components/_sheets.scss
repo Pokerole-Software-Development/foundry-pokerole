@@ -60,6 +60,43 @@
     border-radius: 50%;
     padding: 0;
   }
+
+  .bubbles {
+    display: flex;
+    gap: 1px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .bubble {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid #333;
+    display: inline-block;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+
+    &.bubble-black {
+      background-color: #222;
+      border-color: black;
+    }
+
+    &.bubble-red {
+      background-color: #d32f2f;
+      border-color: #690f0f;
+    }
+
+    &.bubble-blue {
+      background-color: #1976d2;
+      border-color: #082858;
+    }
+
+    &.bubble-white {
+      background-color: white;
+      border-color: #666;
+    }
+  }
 }
 
 .attribute-col {

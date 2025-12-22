@@ -8,7 +8,7 @@
   </div>
   {{/if}}
 
-  <div class="attribute-col">
+  <div class="attribute-col" style="--num-bubbles: {{attributesBubblesNum}};">
     <div class="main-attributes">
       {{#each system.attributes as |attribute key|}}
       <div class="attribute">
@@ -23,12 +23,21 @@
 
         <label for="{{id}}-system-attributes-{{key}}-value" data-action="roll" class="resource-label flexlarge align-left rollable"
           data-roll-attribute="{{key}}" data-label="{{attribute.label}}">{{attribute.label}}</label>
+        
+        {{#if ../editable}}
         <input id="{{id}}-system-attributes-{{key}}-value" type="text" class="value-input {{#if attribute.overridden}}overridden{{/if}}"
           name="system.attributes.{{key}}.value" value="{{attribute.value}}" {{disabled attribute.overridden}}
           data-dtype="Number" />
         <span> / </span>
         <input type="text" class="value-input" name="system.attributes.{{key}}.max" value="{{attribute.max}}"
           data-dtype="Number" />
+        {{else}}
+        <div class="bubbles" data-tooltip="{{attribute.value}} / {{attribute.max}}">
+          {{#each (attributeBubbles ../actor "attributes" key) as |bubble|}}
+          <span class="bubble bubble-{{bubble.color}}"></span>
+          {{/each}}
+        </div>
+        {{/if}}
       </div>
       {{/each}}
     </div>
@@ -38,12 +47,21 @@
       <div class="attribute" data-kind="social.{{key}}">
         <label for="{{id}}-system-social-{{key}}-value" data-action="roll" class="resource-label flexlarge align-left rollable"
           data-roll-attribute="{{key}}" data-label="{{attribute.label}}">{{attribute.label}}</label>
+        
+        {{#if ../editable}}
         <input id="{{id}}-system-social-{{key}}-value" type="text" class="value-input {{#if attribute.overridden}}overridden{{/if}}"
           name="system.social.{{key}}.value" value="{{attribute.value}}" data-dtype="Number" {{disabled
           attribute.overridden}} />
         <span> / </span>
         <input type="text" class="value-input" name="system.social.{{key}}.max" value="{{attribute.max}}"
           data-dtype="Number" />
+        {{else}}
+        <div class="bubbles">
+          {{#each (attributeBubbles ../actor "social" key) as |bubble|}}
+          <span class="bubble bubble-{{bubble.color}}"></span>
+          {{/each}}
+        </div>
+        {{/if}}
       </div>
       {{/each}}
     </div>
@@ -53,6 +71,8 @@
       <div class="attribute">
         <label for="{{id}}-system-extra-{{key}}-value" data-action="roll" class="resource-label flexlarge align-left rollable"
           data-roll-attribute="{{key}}" data-label="{{attribute.label}}">{{attribute.label}}</label>
+        
+        {{#if ../editable}}
         {{#if attribute.custom}}
         <a data-action="deleteValue" title="Delete attribute" data-attribute-key="{{key}}">
           <i class="fas fa-trash"></i>
@@ -64,12 +84,21 @@
         <span> / </span>
         <input type="text" class="value-input" name="system.extra.{{key}}.max" value="{{attribute.max}}"
           data-dtype="Number" />
+        {{else}}
+        <div class="bubbles">
+          {{#each (attributeBubbles ../actor "extra" key) as |bubble|}}
+          <span class="bubble bubble-{{bubble.color}}"></span>
+          {{/each}}
+        </div>
+        {{/if}}
       </div>
       {{/each}}
+      {{#if editable}}
       <div class="add-custom-value custom-attribute">
         <input type="text" class="add-value-input" placeholder="Add attribute..." data-dtype="Number" />
         <a data-action="addCustomAttribute" title="Create attribute"><i class="fas fa-plus"></i></a>
       </div>
+      {{/if}}
     </div>
   </div>
 
@@ -80,24 +109,33 @@
         <label for="{{id}}-system-skills-{{key}}-value" data-action="roll" class="resource-label flexlarge align-left rollable"
           data-roll-skill="{{key}}">{{skill.label}}</label>
 
+        {{#if ../editable}}
         {{#if skill.custom}}
         <a data-action="deleteValue" title="Delete skill" data-skill-key="{{key}}">
           <i class="fas fa-trash"></i>
         </a>
         {{/if}}
-
         <input id="{{id}}-system-skills-{{key}}-value" type="text" class="value-input {{#if skill.overridden}}overridden{{/if}}"
           name="system.skills.{{key}}.value" value="{{skill.value}}" data-dtype="Number" {{disabled
           skill.overridden}} />
         <span> / </span>
         <input type="text" class="value-input" name="system.skills.{{key}}.max" value="{{skill.max}}"
           data-dtype="Number" readonly />
+        {{else}}
+        <div class="bubbles">
+          {{#each (attributeBubbles ../actor "skills" key) as |bubble|}}
+          <span class="bubble bubble-{{bubble.color}}"></span>
+          {{/each}}
+        </div>
+        {{/if}}
       </div>
       {{/each}}
+      {{#if editable}}
       <div class="add-custom-value custom-skill">
         <input type="text" class="add-value-input" placeholder="Add skill..." data-dtype="Number" />
         <a data-action="addCustomSkill" title="Create skill"><i class="fas fa-plus"></i></a>
       </div>
+      {{/if}}
     </div>
     <ul class="matchups">
       {{#if matchups.tripleWeak}}

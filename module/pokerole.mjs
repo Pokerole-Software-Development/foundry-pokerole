@@ -195,6 +195,67 @@ Handlebars.registerHelper('styleType', function(item='none', asset='color1', tol
   return varo ?? 'none';
 });
 
+/**
+ * Generate bubble data for attributes in Play mode.
+ * @param {object} actor - The actor document
+ * @param {string} category - The category path (e.g., "attributes", "social", "skills")
+ * @param {string} key - The attribute key
+ * @returns {Array} Array of bubble objects with type and color
+ */
+Handlebars.registerHelper('attributeBubbles', function(actor, category, key) {
+  if (!actor || !category || !key) return [];
+  
+  const sourceData = actor._source?.system?.[category]?.[key];
+  const currentData = actor.system?.[category]?.[key];
+  const statChange = actor.system?.statChanges?.[key];
+  
+  if (!sourceData || !currentData) return [];
+  
+  const baseValue = sourceData.value || 0;
+  const maxValue = currentData.max || 0;
+  const changeValue = Math.max(baseValue >= 1 ? -baseValue + 1 : Number.NEGATIVE_INFINITY, statChange?.value || 0);
+  
+  const bubbles = [];
+  
+  // Calculate how many bubbles of each type
+  let blackCount = baseValue;
+  let redCount = 0;
+  let blueCount = 0;
+  
+  if (changeValue < 0) {
+    // Stat is lowered - some black bubbles become red
+    redCount = Math.min(Math.abs(changeValue), baseValue);
+    blackCount = baseValue - redCount;
+  } else if (changeValue > 0) {
+    // Stat is increased - add blue bubbles
+    blueCount = changeValue;
+  }
+  
+  // Add black bubbles (base value minus any red)
+  for (let i = 0; i < blackCount; i++) {
+    bubbles.push({ type: 'base', color: 'black' });
+  }
+  
+  // Add red bubbles (penalties)
+  for (let i = 0; i < redCount; i++) {
+    bubbles.push({ type: 'penalty', color: 'red' });
+  }
+  
+  // Add blue bubbles (bonuses)
+  for (let i = 0; i < blueCount; i++) {
+    bubbles.push({ type: 'bonus', color: 'blue' });
+  }
+  
+  // Add white bubbles for remaining capacity
+  const totalFilled = blackCount + redCount + blueCount;
+  const whiteCount = Math.max(0, maxValue - totalFilled);
+  for (let i = 0; i < whiteCount; i++) {
+    bubbles.push({ type: 'empty', color: 'white' });
+  }
+  
+  return bubbles;
+});
+
 /* -------------------------------------------- */
 /*  Settings                                    */
 /* -------------------------------------------- */

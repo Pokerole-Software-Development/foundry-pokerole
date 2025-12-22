@@ -6,7 +6,9 @@
         <div class="internal">
           <div class="settings-container">
             <div class="internal">
+              {{#if editable}}
               <i class="fas fa-gear butonable" data-action="showSettings"></i>
+              {{/if}}
             </div>
           </div>
           <input name="name" type="text" value="{{actor.name}}" placeholder="Name">

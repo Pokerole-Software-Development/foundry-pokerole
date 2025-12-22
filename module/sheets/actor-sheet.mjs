@@ -137,12 +137,38 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     if (partId === "tabs") {
       context.tabs = tabs;
     }
+
+    if (partId === "header") {
+      await this._prepareHeaderContext(context, options);
+    }
     
     // Add specific tab data to each tab part
     if (tabs[partId]) {
       context.tab = tabs[partId];
     }
     
+    return context;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Prepares the header-specific context data.
+   * @param {*} context 
+   * @param {*} options 
+   */
+  async _prepareHeaderContext(context, options) {
+    let attributesBubblesNum = 0;
+    for (let attribute of Object.values(this.actor.system.attributes)) {
+      attributesBubblesNum = Math.max(attributesBubblesNum, attribute.max || 0, attribute.value || 0);
+    }
+    for (let attribute of Object.values(this.actor.system.social)) {
+      attributesBubblesNum = Math.max(attributesBubblesNum, attribute.max || 0, attribute.value || 0);
+    }
+    for (let attribute of Object.values(this.actor.system.extra)) {
+      attributesBubblesNum = Math.max(attributesBubblesNum, attribute.max || 0, attribute.value || 0);
+    }
+    context.attributesBubblesNum = Math.min(attributesBubblesNum, 8);
     return context;
   }
 
@@ -903,7 +929,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
   static #onAddCustomAttribute(event, target) {
     const input = this.element.querySelector('.custom-attribute .add-value-input');
     const name = input?.value;
-    const sanitizedName = this._sanitizeName(name ?? '');
+    const sanitizedName = PokeroleActorSheet._sanitizeName(name ?? '');
     if (sanitizedName) {
       if (this._checkDuplicateAttributeOrSkill(sanitizedName)) return;
 
@@ -928,7 +954,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
   static #onAddCustomSkill(event, target) {
     const input = this.element.querySelector('.custom-skill .add-value-input');
     const name = input?.value;
-    const sanitizedName = this._sanitizeName(name ?? '');
+    const sanitizedName = PokeroleActorSheet._sanitizeName(name ?? '');
     if (sanitizedName) {
       if (this._checkDuplicateAttributeOrSkill(sanitizedName)) return;
 

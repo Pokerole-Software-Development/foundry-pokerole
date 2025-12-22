@@ -293,7 +293,8 @@
           color: white;
           font-weight: 400;
           padding: 0px 3px;
-          height: unset;
+          height: 100%;
+          line-height: 100%;
         }
       }
     }
@@ -349,7 +350,8 @@
       select {
         flex: 1;
         min-width: 154px;
-        height: unset;
+        height: 100%;
+        line-height: 100%;
         border: none;
         padding: 0px 3px;
         background: var(--color-pkmn-field-back);
@@ -475,6 +477,11 @@
       height: 22px;
       border: 0px;
       margin: 0px 2px 0px 0px;
+    }
+
+    .bubbles {
+      width: calc(var(--num-bubbles) * 11px);
+      min-height: 11px;
     }
 
     .skills {
@@ -745,6 +752,9 @@
   &:not(.editable) {
     input:not(.always-interactive) {
       color: inherit;
+    }
+    select:not(.always-interactive) {
+      appearance: none;
     }
   }
 }
