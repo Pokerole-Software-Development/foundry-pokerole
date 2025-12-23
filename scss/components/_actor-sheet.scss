@@ -92,7 +92,7 @@
       flex-direction: row;
       flex-wrap: nowrap;
       height: 100px;
-      padding: 0px 8px;
+      padding: 0 8px;
 
       .side-containers {
         display: flex;
@@ -128,7 +128,7 @@
               flex: 1;
               height: 45px;
               min-width: 250px;
-              padding: 0px 30px 0px 0px;
+              padding: 0 30px 0 0;
               background: var(--color-pkmn-field-back);
               clip-path: polygon(0% 0%, calc(100% - 3px) 0%, calc(100% - 30px) 102%, 0% 102%);
 
@@ -177,7 +177,7 @@
               flex: 1;
               height: 45px;
               min-width: 250px;
-              padding: 0px 0px 0px 30px;
+              padding: 0 0 0 30px;
               background: var(--color-pkmn-field-back);
               clip-path: polygon(3px 0%, 102% 0%, 102% 102%, calc(30px) 102%);
             }
@@ -265,13 +265,13 @@
         background-color: #f4f4f43b;
         border-radius: 50%;
         border: 2px solid var(--color-disposition);
-        margin: 0px;
+        margin: 0;
 
         .profile-img {
           width: 100px;
           height: 100px;
           z-index: 10;
-          border: 0px;
+          border: none;
           object-fit: contain;
           &[data-action="editImage"] {
             cursor: pointer;
@@ -287,7 +287,7 @@
       flex: 0 1 auto;
       height: 21.5938px;
       min-width: 250px;
-      padding: 0px 32px 0px 10px;
+      padding: 0 32px 0 10px;
       background: var(--sheet-color-2);
 
       .pokedex-info {
@@ -301,7 +301,7 @@
           color: white;
           background: transparent;
           text-align: center;
-          padding: 2px 0px;
+          padding: 2px 0;
           max-width: 185px;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -312,7 +312,7 @@
           color: white;
           background: transparent;
           text-align: center;
-          padding: 2px 0px;
+          padding: 2px 0;
           max-width: 185px;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -323,7 +323,7 @@
         img {
           width: 22px;
           height: 22px;
-          border: 0px;
+          border: none;
         }
       }
     }
@@ -341,7 +341,7 @@
         flex-direction: row;
         flex-wrap: nowrap;
         flex: 1;
-        padding: 0px 12px;
+        padding: 0 12px;
         background: var(--type-color);
         overflow: visible;
         clip-path: polygon(0% 0%, calc(100% - 12.5px) 0%, 100% 101%, 12.5px 101%);
@@ -350,7 +350,7 @@
           width: auto;
           height: 100%;
           flex-shrink: 0;
-          border: 0px;
+          border: none;
         }
 
         select, span {
@@ -359,7 +359,7 @@
           background: var(--type-color);
           color: white;
           font-weight: 400;
-          padding: 0px 3px;
+          padding: 0 3px;
           height: 100%;
           line-height: 100%;
         }
@@ -400,7 +400,7 @@
       flex: 0 1 auto;
       min-width: 250px;
       height: 21.5938px;
-      padding: 0px 6px;
+      padding: 0 6px;
       background: var(--color-pkmn-field-back);
 
       label {
@@ -419,7 +419,7 @@
         flex: 1;
         min-width: 154px;
         border: none;
-        padding: 0px 3px;
+        padding: 0 3px;
         color: black;
       }
       select {
@@ -429,7 +429,7 @@
       }
 
       &:nth-child(2) {
-        padding-left: 0px;
+        padding-left: 0;
         label {
           padding-left: 12px;
           width: 77px;
@@ -440,8 +440,8 @@
     .rank-icon {
       width: 45px;
       height: 45px;
-      border: unset;
-      border-radius: unset;
+      border: none;
+      border-radius: 0;
       margin: 0 -10px;
       z-index: 10;
       max-width: unset;
@@ -472,10 +472,8 @@
             gap: 3px;
             background: var(--color-pkmn-red);
             width: 100%;
-            padding: 0px 3px;
+            padding: 2px 3px;
             height: 100%;
-            padding-top: 2px;
-            padding-bottom: 2px;
 
             .pp-displayer {
               clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 101%, 0% 101%);
@@ -487,10 +485,9 @@
                 text-align: center;
                 border: none;
                 padding: 2px;
-                border-radius: 3px;
                 background-color: white;
                 color: black;
-                border: 0px;
+                border: none;
                 border-radius: 0;
                 clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
               }
@@ -506,7 +503,7 @@
         }
         .hp-container {
           clip-path: polygon(21px 0%, 102% 0%, 102% 102%, 0% 102%);
-          padding: 3px 0px 0px 3px;
+          padding: 3px 0 0 3px;
 
           > .internal {
             clip-path: polygon(21px 0%, 102% 0%, 102% 102%, 2px 102%);
@@ -516,7 +513,7 @@
         }
         .wp-container {
           clip-path: polygon(-1% 0%, calc(100% - 21px) 0%, 100% 102%, -1% 102%);
-          padding: 3px 3px 0px 0px;
+          padding: 3px 3px 0 0;
 
           > .internal {
             clip-path: polygon(-1% 0%, calc(100% - 21px) 0%, calc(100% - 2px) 102%, -1% 102%);
@@ -546,8 +543,8 @@
     .attribute-star {
       width: 22px;
       height: 22px;
-      border: 0px;
-      margin: 0px 2px 0px 0px;
+      border: none;
+      margin: 0 2px 0 0;
     }
 
     .bubbles {
@@ -618,7 +615,7 @@
           gap: 5px;
 
           img {
-            border: 0px;
+            border: none;
           }
         }
       }
@@ -674,7 +671,7 @@
 
       .money-container {
         img {
-          border: 0px;
+          border: none;
         }
       }
 
@@ -694,7 +691,7 @@
     }
 
     img {
-      border: 0px;
+      border: none;
     }
   }
 
@@ -798,7 +795,7 @@
             width: 60px; 
             text-align: center; 
             font-size: 1.1em;
-            flex: 1px
+            flex: 1;
           }
         }
       }
@@ -820,7 +817,7 @@
       width: 60px;
       text-align: center;
       font-size: 1.1em;
-      flex: 1px;
+      flex: 1;
     }
 
     .conditions-panel {
@@ -1275,7 +1272,6 @@
     margin: 0.5rem 0;
     color: #A74D39;
     text-transform: uppercase;
-    text-align: center;
     border-bottom: none;
     text-align: left;
 
