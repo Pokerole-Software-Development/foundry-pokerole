@@ -139,40 +139,6 @@
   color: var(--color-dark-1);
 }
 
-.nature-box, .battles-box {
-  background-color: #841722;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding: 5px;
-  margin-bottom: 10px;
-
-  .attribute {
-    label {
-      color: white;
-    }
-
-    input, select {
-      // background-color: white;
-      border-radius: 10px;
-      width: 40px;
-    }
-
-    input {
-      text-align: right;
-    }
-
-    select {
-      text-align: left;
-    }
-
-    select.large {
-      width: 90px;
-    }
-  }
-}
-
 .overridden, .attribute .value-input.overridden {
   font-weight: bold;
   background-color: #dadada;

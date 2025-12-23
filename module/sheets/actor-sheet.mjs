@@ -572,6 +572,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     }
 
     if (activeItem) {
+      context.activeItemName = activeItem.data.name;
       context.activeItemDescription = activeItem.data.system.description;
     }
 
@@ -585,6 +586,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       activeAbility = abilities[0];
     }
     if (activeAbility) {
+      context.activeAbilityName = activeAbility.data.name;
       context.activeAbilityDescription = activeAbility.data.system.description;
     }
 

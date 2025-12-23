@@ -26,7 +26,7 @@
         
         {{#if ../editable}}
         <input id="{{id}}-system-attributes-{{key}}-value" type="text" class="value-input {{#if attribute.overridden}}overridden{{/if}}"
-          name="system.attributes.{{key}}.value" value="{{attribute.value}}" {{disabled attribute.overridden}}
+          name="system.attributes.{{key}}.value" value="{{lookup (lookup ../actor._source.system.attributes key) "value"}}" {{!--{{disabled attribute.overridden}}--}}
           data-dtype="Number" />
         <span> / </span>
         <input type="text" class="value-input" name="system.attributes.{{key}}.max" value="{{attribute.max}}"
@@ -207,8 +207,7 @@
         {{/if}}
           <label for="{{id}}-system-derived-{{key}}-value" data-action="roll" class="resource-label flexlarge align-left rollable"
             data-roll-attribute="{{key}}" data-roll-label="{{attribute.label}}">{{attribute.label}}</label>
-          <input id="{{id}}-system-derived-{{key}}-value" type="text" class="{{#if attribute.overridden}}overridden{{/if}}" value="{{attribute.value}}"
-            data-dtype="Number" disabled />
+          <span id="{{id}}-system-derived-{{key}}-value">{{attribute.value}}</spanq>
         </div>
         {{/each}}
       </div>

@@ -34,41 +34,36 @@
           <div>Accuracy Pool</div>
           <div>Damage Pool</div>
           <div>Target</div>
-          {{#if ../editable}}
           <div class="item-controls">
+            {{#if ../editable}}
             <a data-action="createItem" title="Create move" data-type="move" data-rank="{{key}}"><i class="fas fa-plus"></i>Add</a>
+            {{/if}}
           </div>
-          {{/if}}
         </li>
 
         <ul class="inner{{#if moves.hidden}} items-hidden{{/if}} list-{{key}}">
           {{#each moves.moveList as |item id|}}
           <li class="item flexrow {{#unless item.usable}}translucent{{/unless}}" data-item-id="{{item.data._id}}">
-            <div class="item-name flexrow">
-              <div class="item-image move-image">
-                <a data-action="roll" data-roll-type="item"><img src="{{item.data.img}}" title="{{itemdata.data.name}}" width="30" height="30"/></a>
-              </div>
-              <div class="item-name">
+            <div class="item-name-container flexrow">
+              <a class="item-image move-image" data-action="roll" data-roll-type="item"><img src="{{item.data.img}}" title="{{itemdata.data.name}}" width="30" height="30"/></a>
               {{#if item.data.system.learned}}
               <a data-action="toggleMoveUsed" title="{{localize 'POKEROLE.MoveToggleUsed'}}">
                 <i class="{{#if item.data.system.usedInRound}}fas fa-circle-xmark{{else}}fa-regular fa-circle{{/if}}"></i>
               </a>
               {{/if}}
-              <h4 {{#if item.data.system.effect}}data-tooltip="{{item.data.system.effect}}"{{/if}}
-                {{#if item.disabled}}class="strikethrough"{{/if}}>{{item.data.name}}</h4>
-              </div>
-              <div class="item-prop">{{item.locType}} ({{item.locCategory}})</div>
-              <div class="item-prop">{{item.data.system.accAttr1}}{{#if item.data.system.accAttr1var}}{{#if item.data.system.accAttr1}}/{{/if}}{{item.data.system.accAttr1var}}{{/if}}{{#if item.data.system.accSkill1}} + {{item.data.system.accSkill1}}{{/if}}{{#if item.data.system.accSkill1var}}{{#if item.data.system.accSkill1}}/{{else}} + {{/if}}{{item.data.system.accSkill1var}}{{/if}} (<b>{{item.accuracyPool}}</b>)</div>
-              
-              <div class="item-prop">
-                  {{#if item.dmgPool}}{{item.data.system.dmgMod1}}{{/if}}{{#if item.data.system.dmgMod1var}}{{#if item.data.system.dmgMod1}}/{{/if}}{{item.data.system.dmgMod1var}}{{/if}}{{#if item.data.system.power}} +{{item.data.system.power}}{{/if}}
-                  {{#if item.dmgPool}}(<b>{{item.dmgPool}}</b>){{/if}}
-                  {{#unless item.dmgPool}}-{{/unless}}
-              </div>
-              <div class="item-prop">{{item.locTarget}}</div>
+              <h4 class="item-name {{#if item.disabled}}strikethrough{{/if}}" {{#if item.data.system.effect}}data-tooltip="{{item.data.system.effect}}"{{/if}}>{{item.data.name}}</h4>
             </div>
-            {{#if ../../editable}}
+            <div class="item-prop">{{item.locType}} ({{item.locCategory}})</div>
+            <div class="item-prop">{{item.data.system.accAttr1}}{{#if item.data.system.accAttr1var}}{{#if item.data.system.accAttr1}}/{{/if}}{{item.data.system.accAttr1var}}{{/if}}{{#if item.data.system.accSkill1}} + {{item.data.system.accSkill1}}{{/if}}{{#if item.data.system.accSkill1var}}{{#if item.data.system.accSkill1}}/{{else}} + {{/if}}{{item.data.system.accSkill1var}}{{/if}} (<b>{{item.accuracyPool}}</b>)</div>
+            
+            <div class="item-prop">
+                {{#if item.dmgPool}}{{item.data.system.dmgMod1}}{{/if}}{{#if item.data.system.dmgMod1var}}{{#if item.data.system.dmgMod1}}/{{/if}}{{item.data.system.dmgMod1var}}{{/if}}{{#if item.data.system.power}} +{{item.data.system.power}}{{/if}}
+                {{#if item.dmgPool}}(<b>{{item.dmgPool}}</b>){{/if}}
+                {{#unless item.dmgPool}}-{{/unless}}
+            </div>
+            <div class="item-prop">{{item.locTarget}}</div>
             <div class="item-controls">
+              {{#if ../../editable}}
               {{#unless item.data.system.attributes.maneuver}}
                 {{#if item.data.system.learned}}
                   <a data-action="toggleMoveOverrank" title="Toggle Overranked Status">
@@ -81,8 +76,12 @@
               {{/unless}}
               <a data-action="editItem" title="Edit Item"><i class="fas fa-edit"></i></a>
               <a data-action="deleteItem" title="Delete Item"><i class="fas fa-trash"></i></a>
+              {{else}}
+              {{#if item.data.system.overrank}}
+              <i class="fa-solid fa-star" title="Overranked"></i>
+              {{/if}}
+              {{/if}}
             </div>
-            {{/if}}
           </li>
           {{/each}}
         </ul>

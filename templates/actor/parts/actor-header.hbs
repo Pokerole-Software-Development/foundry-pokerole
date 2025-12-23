@@ -79,17 +79,25 @@
         <div class="internal">
           <div class="item-selector-container">
             <label for="system.activeAbility">Ability</label>
+            {{#if editable}}
             <select name="system.activeAbility" value="{{system.activeAbility}}" data-dtype="String"
               data-tooltip="{{activeAbilityDescription}}">
               {{selectOptions abilitiesSelect selected=system.activeAbility}}
             </select>
+            {{else}}
+            <span data-tooltip="{{activeAbilityDescription}}">{{activeAbilityName}}</span>
+            {{/if}}
           </div>
           <div class="item-selector-container">
             <label for="system.activeItem">Item</label>
+            {{#if editable}}
             <select name="system.activeItem" value="{{system.activeItem}}" data-dtype="String"
               data-tooltip="{{activeItemDescription}}" style="margin-left: 12px;">
               {{selectOptions heldItemSelect selected=system.activeItem}}
             </select>
+            {{else}}
+            <span data-tooltip="{{activeItemDescription}}">{{activeItemName}}</span>
+            {{/if}}
           </div>
         </div>
       </div>

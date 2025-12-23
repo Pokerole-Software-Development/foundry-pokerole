@@ -11,10 +11,12 @@
   --color-pkmn-red: #A21C1C;
   --color-pkmn-outline: #433727;
   --color-pkmn-field-back: #DAECF9; // white
+  --color-pkmn-darkfield-back: #841722;
   --color-disposition: #999999;
 
   // Item Box Styles
-  .Geoboxer {
+  .Geoboxer,
+  .conditions-panel {
     display: flex;
     gap: 10px;
     flex-direction: column;
@@ -33,15 +35,27 @@
         .item-name {
           height: 80%;
           flex: 1;
+          color: inherit;
         }
       }
 
       &.inventory {
         height: 78px;
       }
+      .item > .item-name,
+      .item > .item-name-container {
+        flex-basis: 60px;
+        flex-grow: 1;
+      }
 
-      .item .item-name {
-        color: inherit;
+      .item-name-container {
+        justify-content: flex-start;
+        .item-name {
+          color: inherit;
+          font-size: 12px;
+          font-weight: normal;
+          font-family: var(--font-sans);
+        }
       }
     }
   }
@@ -380,15 +394,18 @@
         width: 84px;
       }
 
-      select {
+      select,
+      span {
         flex: 1;
         min-width: 154px;
-        height: 100%;
-        line-height: 100%;
         border: none;
         padding: 0px 3px;
-        background: var(--color-pkmn-field-back);
         color: black;
+      }
+      select {
+        height: 100%;
+        line-height: 100%;
+        background: var(--color-pkmn-field-back);
       }
 
       &:nth-child(2) {
@@ -491,13 +508,17 @@
     }
   }
 
+  .tab {
+    margin: 10px;
+    margin-top: 5px;
+  }
+
   // Attributes tab
   .tab[data-tab="attributes"] {
     &.active {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
-      margin: 10px 0;
       padding: 0;
     }
 
@@ -521,7 +542,7 @@
       display: flex;
       flex-direction: column;
       gap: 3px;
-      background-color: #841722;
+      background-color: var(--color-pkmn-darkfield-back);
       border-radius: 15px;
       padding: 5px;
       height: fit-content;
@@ -531,7 +552,45 @@
       }
     }
 
+    .nature-box, .battles-box {
+      background-color: var(--color-pkmn-darkfield-back);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      padding: 5px;
+      margin-bottom: 10px;
+
+      .attribute {
+        label {
+          color: white;
+        }
+
+        input, select {
+          // background-color: white;
+          border-radius: 10px;
+          width: 40px;
+        }
+
+        input {
+          text-align: right;
+        }
+
+        select {
+          text-align: left;
+        }
+
+        select.large {
+          width: 90px;
+        }
+      }
+    }
+
     .matchups {
+      h4 {
+        font-size: revert;
+        font-family: var(--font-sans);
+      }
       li.typematch {
         background-repeat: no-repeat;
         background-size: 20px;
@@ -557,9 +616,17 @@
     .button-container {
       margin-bottom: 6px;
       margin-top: 3px;
+      display: flex;
+      button {
+        flex: 1;
+      }
     }
 
     .derived {
+      .section-header {
+        font-size: 1.25em;
+        font-family: var(--font-sans);
+      }
       .derived-attributes {
         display: flex;
         flex-direction: column;
@@ -568,31 +635,19 @@
 
       .attribute {
         border: 2px solid black;
-        padding: 1px 5px;
+        padding: 1px 6px;
         border-radius: 30px;
         background-color: var(--color-pkmn-field-back);
         color: black;
-
-        input {
-          width: 30px;
-          height: 22px;
-          text-align: right;
-          border-radius: 0;
-          background-color: unset;
-          border: none;
-          color: black;
-        }
       }
     }
   }
 
   // Items tab
   .tab[data-tab="items"] {
-    background-color: var(--color-pkmn-red);
+    background-color: var(--color-pkmn-darkfield-back);
     border-radius: 10px;
     padding: 7px;
-    margin: 2px;
-    margin-top: 5px;
 
     .inventory-header {
       display: flex;
@@ -609,6 +664,14 @@
       }
     }
 
+
+    .move-group > .inner .move-image img {
+      border: none;
+      width: 30px;
+      height: 30px;
+    }
+
+
     .items-list .inner > .item:nth-last-child(2) {
       border-bottom: none;
     }
@@ -620,11 +683,9 @@
 
   // Moves tab
   .tab[data-tab="moves"] {
-    background-color: var(--color-pkmn-red);
+    background-color: var(--color-pkmn-darkfield-back);
     border-radius: 10px;
     padding: 7px;
-    margin: 2px;
-    margin-top: 5px;
 
     .Geoboxer {
       gap: 6px;
@@ -663,7 +724,6 @@
           gap: 6px;
         }
 
-        // TODO: add .statchange styles here
         .statchange {
           flex: 1;
           align-items: center;
@@ -745,13 +805,17 @@
     .conditions-panel {
       flex: 1;
       min-width: 375px;
-      background-color: #3C3C3B;
+      background-color: var(--color-pkmn-darkfield-back);
       border-radius: 10px;
       padding: 7px;
       margin-top: 5px;
 
       .section-header {
         color: white;
+      }
+      .quick-ailment-list img {
+        width: 18px;
+        height: 18px;
       }
     }
 
@@ -766,6 +830,11 @@
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .species-data {
+      flex: 1;
     }
   }
 
@@ -776,6 +845,10 @@
     }
     select:not(.always-interactive) {
       appearance: none;
+    }
+
+    .item-controls {
+      justify-content: center;
     }
   }
 }
