@@ -1,401 +1,12 @@
-.strikethrough {
-  text-decoration: line-through;
-}
-
-&.actor .resource {
-  background-color: black;
-  border-radius: 20px;
-  display: flex;
-  color: white;
-  align-items: center;
-  justify-content: space-between;
-  padding: 7px 10px;
-  font-size: 1.3em;
-
-  input, .rank-select {
-    width: 40px;
-    background-color: white;
-    border: none;
-    border-radius: 20px;
-    text-align: center;
-  }
-
-  .rank-select {
-    width: 110px;
-    text-align: left;
-  }
-
-  &.large {
-    flex: 1.35;
-  }
-}
-
-.resources {
-  gap: 10px;
-  margin: 10px 0 5px 0;
-}
-
-&.actor .resource-label {
-  font-weight: bold;
-  width: 30px;
-  text-transform: uppercase;
-}
-
-.attribute, .add-custom-value {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1px;
-
-  label {
-    width: 100px;
-    display: inline-block;
-  }
-
-  .value-input, .add-value-button {
-    width: 22px;
-    height: 22px;
-    text-align: center;
-    border: none;
-    border-radius: 50%;
-    padding: 0;
-  }
-
-  .bubbles {
-    display: flex;
-    gap: 1px;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: flex-start;
-  }
-
-  .bubble {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    border: 1px solid #333;
-    display: inline-block;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-
-    &.bubble-black {
-      background-color: #222;
-      border-color: black;
-    }
-
-    &.bubble-red {
-      background-color: #d32f2f;
-      border-color: #690f0f;
-    }
-
-    &.bubble-blue {
-      background-color: #1976d2;
-      border-color: #082858;
-    }
-
-    &.bubble-white {
-      background-color: white;
-      border-color: #666;
-    }
-  }
-}
-
-.attribute-col {
-  gap: 10px;
-  display: flex;
-  flex-direction: column;
-
-  .main-attributes, .social, .extra-attributes {
-    gap: 3px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .attribute[data-kind="social.tough"] {
-    background-color: #F5E28E;
-  }
-
-  .attribute[data-kind="social.cool"] {
-    background-color: #FBA485;
-  }
-
-  .attribute[data-kind="social.beauty"] {
-    background-color: #A5BDD9;
-  }
-
-  .attribute[data-kind="social.cute"] {
-    background-color: #F8AABD;
-  }
-
-  .attribute[data-kind="social.clever"] {
-    background-color: #A3CF8E;
-  }
-}
-
-.attribute-col .attribute, .custom-attribute {
-  padding: 1px 6px;
-  border-radius: 30px;
-  border: 3px black solid;
-  background-color: #48A49D;
-  color: var(--color-dark-1);
-}
-
-.overridden, .attribute .value-input.overridden {
-  font-weight: bold;
-  background-color: #dadada;
-}
-
-.battles-box {
-  background-color: #A74D39;
-}
-
-.section-header {
-  margin: 0.5rem 0;
-  color: #A74D39;
-  text-transform: uppercase;
-  text-align: center;
-  border-bottom: none;
-  text-align: left;
-
-  &.centered {
-    text-align: center;
-  }
-}
-
-.middle {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.matchups, .pokedex {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-
-  li {
-    border-radius: 13px;
-    border: 3px solid #AB3E2E;
-    padding: 3px 5px;
-    background-color: white;
-    font-size: 0.75rem;
-
-    h4 {
-      text-transform: uppercase;
-      color: #AB3E2E;
-      margin-bottom: 0;
-    }
-  }
-
-  li.inner-list {
-    background-color: #AB3E2E;
-    padding: 0;
-  }
-
-  .inner-list ul {
-    display: flex;
-    flex-direction: row;
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    gap: 3px;
-
-    li {
-      flex: 1;
-      background-color: white;
-      border: none;
-
-      span {
-        margin-left: 5px;
-      }
-    }
-  }
-
-  input, textarea {
-    font-family: inherit;
-    font-size: inherit; 
-    background-color: unset;
-    border: none; 
-    padding: 0;
-    width: 100%;
-
-    &.small {
-      width: 35px;
-      text-align: right;
-    }
-
-    &.pokedex-description {
-      height: 76px;
-    }
-  }
-
-  input {
-    border-bottom: 1px solid black;
-    border-radius: 0;
-  }
-}
-
-.matchups, .pokedex, .species-data .pokedex-number-name {
-  input:hover, input:active, input:focus, textarea:hover, textarea:active, textarea:focus {
-    background-color: #f3f3f3;
-    outline: none;
-    box-shadow: none;
-  }
-}
-
-.biography {
-  gap: 10px;
-}
-
-.sheet-body .biography .editor {
-  background-color: white;
-  border-radius: 20px;
-  padding: 5px;
-  height: calc(100% - 5px);
-  flex: 1.5;
-}
-
-.species-data {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 5px 0;
-
-
-  .pokedex-number-name {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 5px;
-  }
-
-  .pokedex-number-name input {
-    border: none;
-    background-color: unset;
-    font-size: 1.25rem;
-    color: #A74D39;
-    font-weight: bold;
-    text-decoration: underline;
-    text-underline-offset: 5px;
-    text-decoration-thickness: 1px;
-  }
-
-  .number-sign {
-    font-size: 1.25rem;
-    color: #A74D39;
-  }
-
-  .pokedex-num {
-    width: 80px;
-    text-align: center;
-  }
-
-  .settings-button {
-    font-size: 1.1rem;
-    color: #A74D39;
-  }
-}
-
-.abilities {
-  background-color: black;
-  color: white;
-  border-radius: 15px;
-  padding: 5px;
-
-  h4 {
-    text-transform: uppercase;
-    margin: 3px 0;
-  }
-
-  ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-
-    li {
-      background-color: white;
-      color: black;
-      border-radius: 15px;
-      padding: 5px;
-      font-size: 0.75rem;
-
-      max-height: 150px;
-      overflow: hidden;
-
-      // Only show the first non-empty paragraph
-      p, p:not(:empty) ~ p {
-        display: none;
-      }
-  
-      p:not(:empty) {
-        display: block;
-      }
-    }
-
-    h5 {
-      margin: 0;
-      font-weight: bold;
-      font-size: inherit;
-    }
-  }
-}
-
-.custom-skill {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 5px;
-}
-
-.add-custom-value {
-  .add-value-input {
-    height: 20px;
-    border: none;
-    border-bottom: 2px solid white;
-    background-color: unset;
-    border-radius: 0;
-    flex: 1;
-    margin: 0;
-    padding: 0;
-    color: white;
-    text-transform: uppercase;
-  }
-
-  .add-value-input::placeholder {
-    color: rgba(255, 255, 255, 0.5);
-    text-transform: uppercase;
-  }
-
-  .add-value-button {
-    color: black;
-    background-color: rgba(255, 255, 255, 0.5);
-
-    i {
-      width: 100%;
-      height: 100%;
-      line-height: 22px;
-    }
-  }
-}
-
-.custom-attribute.add-custom-value {
-  .add-value-input {
-    color: black;
-    border: none;
-  }
-
-  .add-value-input::placeholder {
-    color: rgba(0, 0, 0, 0.5);
-  }
-}
-
-.delete-value-button {
-  margin-right: 5px;
+// =============================================================================
+// GENERIC SHEET STYLES
+// =============================================================================
+// This file contains styles that apply to all sheet types (actor, item, etc.)
+// Actor-specific styles have been moved to _actor-sheet.scss
+// =============================================================================
+
+.item-form {
+  font-family: $font-primary;
 }
 
 &.item textarea {
@@ -403,68 +14,187 @@
   border: revert;
 }
 
-.items-list {
-  ul.inner {
-    margin: 0;
-    padding: 0 0 5px 0;
-  
-    &.items-hidden {
-      padding: 0;
+// ---------------------------------------------------------------------------
+// AppV2 Header Part Wrapper
+// ---------------------------------------------------------------------------
+[data-application-part="header"] {
+  flex: 0 auto;
+  overflow: visible;
+  display: block;
+}
 
-      li {
-        display: none;
-      }
+// ---------------------------------------------------------------------------
+// Generic Sheet Header
+// ---------------------------------------------------------------------------
+.sheet-header {
+  flex: 0 auto;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  background-color: #E54733;
+
+  .horizontal-line {
+    display: block;
+    width: 100%;
+    height: 9px;
+    position: absolute;
+    top: 57px;
+    background-color: #AB3E2E;
+  }
+
+  .profile-img {
+    margin-left: 8px;
+    flex: 0 0 100px;
+    height: 100px;
+    margin-right: 10px;
+    border-radius: 50%;
+    border: 5px solid black;
+    background-color: white;
+    z-index: 10;
+    object-fit: contain;
+  }
+
+  .header-fields {
+    display: flex;
+    flex-direction: column;
+    margin-right: 8px;
+    gap: 3px;
+    z-index: 10;
+
+    input {
+      background-color: white;
+      border-radius: 20px;
+      padding: 0px 10px;
+      border: none;
     }
   }
 
-  .move-toggle-used {
-    margin-right: 5px;
-  }
-}
+  h1.charname {
+    height: 40px;
+    margin: 5px 0;
+    border-bottom: 0;
 
-.translucent {
-  opacity: 60%;
-}
-
-.combat-resources, .money {
-  display: flex;
-  font-size: 0.75rem;
-  margin-bottom: 5px;
-  gap: 5px;
-  align-items: center;
-
-  button {
-    width: fit-content;
-    line-height: 20px;
-    font-size: 0.75rem;
-
-    i.fa-plus {
+    input {
+      height: 100%;
       margin: 0;
     }
   }
 
-  input {
-    width: 80px;
+  .header-top {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+  }
+
+  .sidedata {
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    input, select {
+      height: 22px;
+    }
+  }
+
+  .sidedata-thirdtype {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    input, select {
+      height: 22px;
+    }
+  }
+
+  .active-ability, .types {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    justify-content: flex-end;
+
+    select {
+      border: none;
+      background-color: white;
+      border-radius: 20px;
+    }
+
+    label {
+      width: 100px;
+      text-align: right;
+    }
+  }
+
+  .active-ability select {
+    width: 157px;
   }
 }
 
+// ---------------------------------------------------------------------------
+// Biography & Editor
+// ---------------------------------------------------------------------------
+.biography, .editor {
+  height: 100%;
+}
 
-.action-count {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+// ---------------------------------------------------------------------------
+// Sheet Tabs
+// ---------------------------------------------------------------------------
+.sheet-tabs {
+  flex: 0;
+  text-transform: uppercase;
+  font-weight: 600;
+  background-color: #C34231;
+  margin: 0 0 4px 0 !important;
+  border: 2px solid #AB3E2E !important;
+}
 
-  .input-group {
-    margin: 0 5px;
-  }
+.tabs .item.active {
+  text-shadow: 0 0 10px white;
+}
 
-  input {
-    width: 30px;
-    text-align: right;
+// ---------------------------------------------------------------------------
+// Sheet Size Constraints
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Sheet Size Constraints
+// ---------------------------------------------------------------------------
+&.actor {
+  .sheet-header, .sheet-tabs, .sheet-body {
+    min-width: 600px;
   }
 }
 
-.clash-evade {
-  display: flex;
-  gap: 2px;
+.sheet-header, .sheet-tabs, .sheet-body {
+  min-width: 400px;
 }
+
+.sheet-body {
+  padding: 0 8px;
+}
+
+.sheet-body,
+.sheet-body .tab.description,
+.sheet-body .tab .editor {
+  height: 100%;
+}
+
+// ---------------------------------------------------------------------------
+// Rich Text Editor (TinyMCE)
+// ---------------------------------------------------------------------------
+.tox {
+  .tox-editor-container {
+    background: $c-white;
+  }
+
+  .tox-edit-area {
+    padding: 0 8px;
+  }
+}
+

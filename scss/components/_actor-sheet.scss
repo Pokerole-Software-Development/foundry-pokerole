@@ -1,20 +1,36 @@
-// Actor Sheet Specific Styles
+// =============================================================================
+// ACTOR SHEET STYLES
+// =============================================================================
+// This file contains all styles specific to the actor (Pokemon/Trainer) sheet
+// Organized by section: Variables, Header, Tabs, Resources, Attributes, etc.
+// =============================================================================
 
-// Tab styles
 &.actor.sheet {
+  // ---------------------------------------------------------------------------
+  // CSS Variables
+  // ---------------------------------------------------------------------------
+  --color-pkmn-header-back: #A21C1C;
+  --color-pkmn-red: #A21C1C;
+  --color-pkmn-outline: #433727;
+  --color-pkmn-field-back: #DAECF9;
+  --color-pkmn-darkfield-back: #841722;
+  --color-disposition: #999999;
+
   .window-content {
     overflow-y: auto;
   }
 
-  // variables
-  --color-pkmn-header-back: #A21C1C;
-  --color-pkmn-red: #A21C1C;
-  --color-pkmn-outline: #433727;
-  --color-pkmn-field-back: #DAECF9; // white
-  --color-pkmn-darkfield-back: #841722;
-  --color-disposition: #999999;
+  // ---------------------------------------------------------------------------
+  // Common Tab Styles
+  // ---------------------------------------------------------------------------
+  .tab {
+    margin: 10px;
+    margin-top: 5px;
+  }
 
-  // Item Box Styles
+  // ---------------------------------------------------------------------------
+  // Item Box Styles (used in multiple tabs)
+  // ---------------------------------------------------------------------------
   .Geoboxer,
   .conditions-panel {
     display: flex;
@@ -42,6 +58,7 @@
       &.inventory {
         height: 78px;
       }
+
       .item > .item-name,
       .item > .item-name-container {
         flex-basis: 60px;
@@ -50,6 +67,7 @@
 
       .item-name-container {
         justify-content: flex-start;
+
         .item-name {
           color: inherit;
           font-size: 12px;
@@ -60,7 +78,9 @@
     }
   }
 
-  // Header styles
+  // ---------------------------------------------------------------------------
+  // Character Header
+  // ---------------------------------------------------------------------------
   .character-header {
     display: block;
     width: 100%;
@@ -508,12 +528,9 @@
     }
   }
 
-  .tab {
-    margin: 10px;
-    margin-top: 5px;
-  }
-
-  // Attributes tab
+  // ---------------------------------------------------------------------------
+  // Attributes Tab
+  // ---------------------------------------------------------------------------
   .tab[data-tab="attributes"] {
     &.active {
       display: grid;
@@ -643,7 +660,9 @@
     }
   }
 
-  // Items tab
+  // ---------------------------------------------------------------------------
+  // Items Tab
+  // ---------------------------------------------------------------------------
   .tab[data-tab="items"] {
     background-color: var(--color-pkmn-darkfield-back);
     border-radius: 10px;
@@ -664,13 +683,11 @@
       }
     }
 
-
     .move-group > .inner .move-image img {
       border: none;
       width: 30px;
       height: 30px;
     }
-
 
     .items-list .inner > .item:nth-last-child(2) {
       border-bottom: none;
@@ -681,7 +698,9 @@
     }
   }
 
-  // Moves tab
+  // ---------------------------------------------------------------------------
+  // Moves Tab
+  // ---------------------------------------------------------------------------
   .tab[data-tab="moves"] {
     background-color: var(--color-pkmn-darkfield-back);
     border-radius: 10px;
@@ -693,7 +712,9 @@
     }
   }
   
-  // Effects tab
+  // ---------------------------------------------------------------------------
+  // Effects Tab
+  // ---------------------------------------------------------------------------
   .tab[data-tab="effects"] {
     &.active {
       display: flex;
@@ -824,7 +845,9 @@
     }
   }
 
-  // Biography tab
+  // ---------------------------------------------------------------------------
+  // Biography Tab
+  // ---------------------------------------------------------------------------
   .tab[data-tab="biography"] {
     &.active {
       display: flex;
@@ -838,7 +861,643 @@
     }
   }
 
-  // locked inputs
+  // ---------------------------------------------------------------------------
+  // Resources (HP, WP, etc.)
+  // ---------------------------------------------------------------------------
+  .resource {
+    background-color: black;
+    border-radius: 20px;
+    display: flex;
+    color: white;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 10px;
+    font-size: 1.3em;
+
+    input, .rank-select {
+      width: 40px;
+      background-color: white;
+      border: none;
+      border-radius: 20px;
+      text-align: center;
+    }
+
+    .rank-select {
+      width: 110px;
+      text-align: left;
+    }
+
+    &.large {
+      flex: 1.35;
+    }
+  }
+
+  .resources {
+    gap: 10px;
+    margin: 10px 0 5px 0;
+  }
+
+  .resource-label {
+    font-weight: bold;
+    width: 30px;
+    text-transform: uppercase;
+  }
+
+  .combat-resources, .money {
+    display: flex;
+    font-size: 0.75rem;
+    margin-bottom: 5px;
+    gap: 5px;
+    align-items: center;
+
+    button {
+      width: fit-content;
+      line-height: 20px;
+      font-size: 0.75rem;
+
+      i.fa-plus {
+        margin: 0;
+      }
+    }
+
+    input {
+      width: 80px;
+    }
+  }
+
+  .action-count {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .input-group {
+      margin: 0 5px;
+    }
+
+    input {
+      width: 30px;
+      text-align: right;
+    }
+  }
+
+  .clash-evade {
+    display: flex;
+    gap: 2px;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Attributes & Skills
+  // ---------------------------------------------------------------------------
+  .attribute, .add-custom-value {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1px;
+
+    label {
+      width: 100px;
+      display: inline-block;
+    }
+
+    .value-input, .add-value-button {
+      width: 22px;
+      height: 22px;
+      text-align: center;
+      border: none;
+      border-radius: 50%;
+      padding: 0;
+    }
+
+    .bubbles {
+      display: flex;
+      gap: 1px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .bubble {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 1px solid #333;
+      display: inline-block;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+
+      &.bubble-black {
+        background-color: #222;
+        border-color: black;
+      }
+
+      &.bubble-red {
+        background-color: #d32f2f;
+        border-color: #690f0f;
+      }
+
+      &.bubble-blue {
+        background-color: #1976d2;
+        border-color: #082858;
+      }
+
+      &.bubble-white {
+        background-color: white;
+        border-color: #666;
+      }
+    }
+  }
+
+  .attribute-col {
+    gap: 10px;
+    display: flex;
+    flex-direction: column;
+
+    .main-attributes, .social, .extra-attributes {
+      gap: 3px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .attribute[data-kind="social.tough"] {
+      background-color: #F5E28E;
+    }
+
+    .attribute[data-kind="social.cool"] {
+      background-color: #FBA485;
+    }
+
+    .attribute[data-kind="social.beauty"] {
+      background-color: #A5BDD9;
+    }
+
+    .attribute[data-kind="social.cute"] {
+      background-color: #F8AABD;
+    }
+
+    .attribute[data-kind="social.clever"] {
+      background-color: #A3CF8E;
+    }
+  }
+
+  .attribute-col .attribute, .custom-attribute {
+    padding: 1px 6px;
+    border-radius: 30px;
+    border: 3px black solid;
+    background-color: #48A49D;
+    color: var(--color-dark-1);
+  }
+
+  .overridden, .attribute .value-input.overridden {
+    font-weight: bold;
+    background-color: #dadada;
+  }
+
+  .custom-skill {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .add-custom-value {
+    .add-value-input {
+      height: 20px;
+      border: none;
+      border-bottom: 2px solid white;
+      background-color: unset;
+      border-radius: 0;
+      flex: 1;
+      margin: 0;
+      padding: 0;
+      color: white;
+      text-transform: uppercase;
+    }
+
+    .add-value-input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+    }
+
+    .add-value-button {
+      color: black;
+      background-color: rgba(255, 255, 255, 0.5);
+
+      i {
+        width: 100%;
+        height: 100%;
+        line-height: 22px;
+      }
+    }
+  }
+
+  .custom-attribute.add-custom-value {
+    .add-value-input {
+      color: black;
+      border: none;
+    }
+
+    .add-value-input::placeholder {
+      color: rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  .delete-value-button {
+    margin-right: 5px;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Stat Changes & Effects
+  // ---------------------------------------------------------------------------
+  .stat-changes {
+    display: flex;
+    gap: 5px;
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    justify-content: space-between;
+
+    .stat-change-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 70px;
+      height: 70px;
+      background-color: black;
+      border-radius: 14px;
+      padding: 5px;
+      gap: 2px;
+
+      label {
+        color: white;
+        font-size: 0.9rem;
+        text-align: center;
+      }
+
+      label, input {
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+      }
+
+      .icon-and-value {
+        display: flex;
+        align-items: center;
+        background-color: white;
+        border-radius: 14px;
+        flex: 1;
+        padding: 0 6px;
+
+        i {
+          font-size: 1.5rem;
+          width: 0;
+        }
+      }
+
+      &.editing .icon-and-value i {
+        display: none;
+      }
+
+      input, select {
+        color: black;
+        height: 30px;
+        border: none;
+        background-color: transparent;
+        flex: 1;
+      }
+
+      input {
+        font-weight: bold;
+        font-size: 2rem;
+        text-align: right;
+      }
+
+      select {
+        font-size: 1.2rem;
+        font-weight: normal;
+        width: 100%;
+      }
+
+      &.positive {
+        background-color: #0095db;
+
+        .icon-and-value i {
+          color: #2a5b7b;
+        }
+
+        input {
+          color: #0095db;
+        }
+      }
+
+      &.negative {
+        background-color: #e41b13;
+
+        .icon-and-value i {
+          color: #e84124;
+        }
+
+        input {
+          color: #e41b13;
+        }
+      }
+
+      &.pain {
+        width: 130px;
+        max-width: 220px;
+        flex: 1;
+        align-items: stretch;
+        background-color: #A74D39;
+      }
+    }
+  }
+
+  .effects-list {
+    h3 {
+      border: none;
+    }
+
+    .item {
+      .ailment-duration,
+      .ailment-controls {
+        text-align: center;
+        border-left: 1px solid #c9c7b8;
+        border-right: 1px solid #c9c7b8;
+        font-size: 12px;
+      }
+
+      .ailment-controls {
+        border: none;
+      }
+
+      .item-image {
+        border-radius: 6px;
+
+        img {
+          border: none;
+        }
+      }
+    }
+
+    .quick-ailment-list {
+      display: flex;
+      gap: 4px;
+      align-items: stretch;
+      justify-content: flex-end;
+      margin: 0 5px;
+
+      .add-ailment, .disabled-elem {
+        width: 18px;
+        height: 18px;
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        border: none;
+        filter: brightness(40%);
+      }
+
+      .add-ailment img {
+        filter: brightness(10%);
+
+        &:hover {
+          filter: brightness(10%) drop-shadow(0 0 8px var(--color-shadow-primary));
+        }
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Biography & Species Data
+  // ---------------------------------------------------------------------------
+  .battles-box {
+    background-color: #A74D39;
+  }
+
+  .section-header {
+    margin: 0.5rem 0;
+    color: #A74D39;
+    text-transform: uppercase;
+    text-align: center;
+    border-bottom: none;
+    text-align: left;
+
+    &.centered {
+      text-align: center;
+    }
+  }
+
+  .middle {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .matchups, .pokedex {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    li {
+      border-radius: 13px;
+      border: 3px solid #AB3E2E;
+      padding: 3px 5px;
+      background-color: white;
+      font-size: 0.75rem;
+
+      h4 {
+        text-transform: uppercase;
+        color: #AB3E2E;
+        margin-bottom: 0;
+      }
+    }
+
+    li.inner-list {
+      background-color: #AB3E2E;
+      padding: 0;
+    }
+
+    .inner-list ul {
+      display: flex;
+      flex-direction: row;
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      gap: 3px;
+
+      li {
+        flex: 1;
+        background-color: white;
+        border: none;
+
+        span {
+          margin-left: 5px;
+        }
+      }
+    }
+
+    input, textarea {
+      font-family: inherit;
+      font-size: inherit;
+      background-color: unset;
+      border: none;
+      padding: 0;
+      width: 100%;
+
+      &.small {
+        width: 35px;
+        text-align: right;
+      }
+
+      &.pokedex-description {
+        height: 76px;
+      }
+    }
+
+    input {
+      border-bottom: 1px solid black;
+      border-radius: 0;
+    }
+  }
+
+  .matchups, .pokedex, .species-data .pokedex-number-name {
+    input:hover, input:active, input:focus, textarea:hover, textarea:active, textarea:focus {
+      background-color: #f3f3f3;
+      outline: none;
+      box-shadow: none;
+    }
+  }
+
+  .biography {
+    gap: 10px;
+  }
+
+  .sheet-body .biography .editor {
+    background-color: white;
+    border-radius: 20px;
+    padding: 5px;
+    height: calc(100% - 5px);
+    flex: 1.5;
+  }
+
+  .species-data {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 5px 0;
+
+    .pokedex-number-name {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .pokedex-number-name input {
+      border: none;
+      background-color: unset;
+      font-size: 1.25rem;
+      color: #A74D39;
+      font-weight: bold;
+      text-decoration: underline;
+      text-underline-offset: 5px;
+      text-decoration-thickness: 1px;
+    }
+
+    .number-sign {
+      font-size: 1.25rem;
+      color: #A74D39;
+    }
+
+    .pokedex-num {
+      width: 80px;
+      text-align: center;
+    }
+
+    .settings-button {
+      font-size: 1.1rem;
+      color: #A74D39;
+    }
+  }
+
+  .abilities {
+    background-color: black;
+    color: white;
+    border-radius: 15px;
+    padding: 5px;
+
+    h4 {
+      text-transform: uppercase;
+      margin: 3px 0;
+    }
+
+    ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+
+      li {
+        background-color: white;
+        color: black;
+        border-radius: 15px;
+        padding: 5px;
+        font-size: 0.75rem;
+        max-height: 150px;
+        overflow: hidden;
+
+        p, p:not(:empty) ~ p {
+          display: none;
+        }
+
+        p:not(:empty) {
+          display: block;
+        }
+      }
+
+      h5 {
+        margin: 0;
+        font-weight: bold;
+        font-size: inherit;
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Miscellaneous
+  // ---------------------------------------------------------------------------
+  .strikethrough {
+    text-decoration: line-through;
+  }
+
+  .items-list {
+    .move-toggle-used {
+      margin-right: 5px;
+    }
+
+    ul.inner {
+      margin: 0;
+      padding: 0 0 5px 0;
+
+      &.items-hidden {
+        padding: 0;
+
+        li {
+          display: none;
+        }
+      }
+    }
+  }
+
+  .translucent {
+    opacity: 60%;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Locked/Editable State
+  // ---------------------------------------------------------------------------
   &:not(.editable) {
     input:not(.always-interactive) {
       color: inherit;
