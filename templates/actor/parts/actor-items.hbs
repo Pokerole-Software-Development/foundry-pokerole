@@ -32,7 +32,9 @@
         <div class="flexrow">
           <div class="item-name" data-action="togglePocket" data-group="{{key}}"></div>
           <div class="flex-small">Quantity</div>
+          {{#if ../editable}}
           <div class="item-controls-small"></div>
+          {{/if}}
         </div>
       </li>
       <ul class="inner{{#if custom.hidden}} items-hidden{{/if}} list-{{key}} grid grid-2col">
@@ -46,10 +48,12 @@
             <h4 data-tooltip="{{item.data.system.description}}">{{item.data.name}}</h4>
           </div>
           <div class="item-prop flex-small">{{item.data.system.quantity}}</div>
+          {{#if ../../editable}}
           <div class="item-controls-small">
             <a data-action="editItem" title="Edit Item"><i class="fas fa-edit"></i></a>
             <a data-action="deleteItem" title="Delete Item"><i class="fas fa-trash"></i></a>
           </div>
+          {{/if}}
         </li>
         {{/each}}
       </ul>

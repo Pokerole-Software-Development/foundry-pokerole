@@ -13,6 +13,39 @@
   --color-pkmn-field-back: #DAECF9; // white
   --color-disposition: #999999;
 
+  // Item Box Styles
+  .Geoboxer {
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+
+    .items-list {
+      color: inherit;
+      padding: 5px;
+      border-radius: 10px;
+      background: var(--color-header-background);
+      border: 1px solid var(--color-fieldset-border);
+      .items-header {
+        border-radius: 10px;
+        background: var(--color-header-background);
+        gap: 10px;
+
+        .item-name {
+          height: 80%;
+          flex: 1;
+        }
+      }
+
+      &.inventory {
+        height: 78px;
+      }
+
+      .item .item-name {
+        color: inherit;
+      }
+    }
+  }
+
   // Header styles
   .character-header {
     display: block;
@@ -555,9 +588,10 @@
 
   // Items tab
   .tab[data-tab="items"] {
-    background-color: #3C3C3B;
+    background-color: var(--color-pkmn-red);
     border-radius: 10px;
     padding: 7px;
+    margin: 2px;
     margin-top: 5px;
 
     .inventory-header {
@@ -568,53 +602,15 @@
         img {
           border: 0px;
         }
-
-        input {
-          background-color: white;
-        }
       }
 
       .create-item-link {
-        color: white;
         font-size: 14px;
       }
-
-      .filter-button {
-        background-color: white;
-      }
-
-      .filter-icon {
-        color: white;
-      }
     }
 
-    .Geoboxer {
-      display: flex;
-      gap: 10px;
-      flex-direction: column;
-    }
-
-    .items-list.pocket {
-      padding: 5px;
-      border-radius: 10px;
-      background: white;
-
-      .items-header {
-        border-radius: 10px;
-        gap: 10px;
-
-        .item-name {
-          height: 80%;
-          flex: 1;
-        }
-      }
-    }
-
-    .items-list.inventory {
-      padding: 5px;
-      border-radius: 10px;
-      background: white;
-      height: 78px;
+    .items-list .inner > .item:nth-last-child(2) {
+      border-bottom: none;
     }
 
     img {
@@ -624,47 +620,15 @@
 
   // Moves tab
   .tab[data-tab="moves"] {
-    background-color: #3C3C3B;
+    background-color: var(--color-pkmn-red);
     border-radius: 10px;
     padding: 7px;
+    margin: 2px;
     margin-top: 5px;
 
-    .combat-resources {
-      label {
-        color: white;
-      }
-
-      input {
-        background-color: white;
-      }
-
-      span {
-        color: white;
-      }
-
-      button {
-        background-color: white;
-      }
-    }
-
     .Geoboxer {
-      display: flex;
       gap: 6px;
       flex-direction: column;
-    }
-
-    .items-list.move-group {
-      padding: 5px;
-      border-radius: 10px;
-      background: white;
-
-      .items-header {
-        border-radius: 10px;
-
-        .item-name {
-          flex: 1 1 5%;
-        }
-      }
     }
   }
   
@@ -691,19 +655,76 @@
         border-radius: 10px;
         padding: 7px;
         margin-top: 5px;
+
+        .button-container {
+          margin-bottom: 3px;
+          display: flex;
+          justify-content: space-between;
+          gap: 6px;
+        }
+
+        // TODO: add .statchange styles here
+        .statchange {
+          flex: 1;
+          align-items: center;
+          display: flex;
+          border-radius: 14px; 
+          padding: 2px 0px; 
+          gap: 12px; 
+          font-family: Signika, sans-serif;
+          justify-content: space-between;
+
+          .split {
+            background-color: white;
+            border-radius: 8px;
+            font-weight: bold;
+            color: grey;
+            border: solid 2px;
+            height: 28px;
+            width: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+
+            &.negative {
+              color: #e41b13;
+            }
+            &.positive {
+              color: #0095db;
+            }
+            .changebox-icon {
+              position: relative;
+              left: 4px;
+              top: 1px;
+              width: 0px;
+            }
+            .changebox {
+              text-align: end;
+              color: inherit;
+              background-color: transparent;
+              height: 24px;
+              &.editable {
+                text-decoration: underline;
+                border: 0px;
+                text-underline-offset: 2px;
+              }
+            }
+          }
+
+          label {
+            color: white; 
+            width: 60px; 
+            text-align: center; 
+            font-size: 1.1em;
+            flex: 1px
+          }
+        }
       }
     }
 
     .stat-change-item.pain {
       width: 100%;
-    }
-
-    .button-container {
-      margin-bottom: 3px;
-
-      button.set-button {
-        background-color: white;
-      }
     }
 
     .stat-change-label {

@@ -47,11 +47,19 @@
     text-align: left;
     align-items: center;
     display: flex;
+    gap: 5px;
 
     h3, h4 {
       margin: 0;
       white-space: nowrap;
       overflow-x: hidden;
+    }
+    h1, h2, h3, h4 {
+      font-family: inherit;
+      font-weight: inherit;
+      font-size: inherit;
+      line-height: inherit;
+      color: inherit;
     }
   }
 
@@ -61,7 +69,8 @@
   }
 
   // Control Buttons
-  .item-controls {
+  .item-controls,
+  .item-controls-small {
     display: flex;
     flex: 0 0 75px;
     justify-content: flex-end;
@@ -73,7 +82,7 @@
   }
 
   // Individual Item
-  .item {
+  .inner > .item {
     align-items: center;
     padding: 0 2px; // to align with the header border
     border-bottom: 1px solid $c-faint;
