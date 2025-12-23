@@ -44,7 +44,7 @@ slide-toggle .slide-toggle-track {
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.45);
   display: flex;
   flex-direction: row;
-  justify-content: start;
+  justify-content: flex-start;
   padding: var(--slide-toggle-padding);
 }
 
