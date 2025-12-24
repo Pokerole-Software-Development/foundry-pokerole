@@ -26,6 +26,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       addAilment: PokeroleActorSheet.#onAddAilment,
       removeAilment: PokeroleActorSheet.#onRemoveAilment,
       roll: PokeroleActorSheet.#onRoll,
+      editDescription: PokeroleActorSheet.#onEditDescription,
       toggleMoveLearned: PokeroleActorSheet.#onToggleMoveLearned,
       toggleMoveUsed: PokeroleActorSheet.#onToggleMoveUsed,
       toggleMoveOverrank: PokeroleActorSheet.#onToggleMoveOverrank,
@@ -141,6 +142,22 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       await this._prepareHeaderContext(context, options);
     }
     
+    // Prepare enriched biography HTML for the biography part
+    if (partId === "biography") {
+      // Check if we're editing a description field
+      if (this._editingDescriptionTarget) {
+        context.editingDescription = {
+          target: this._editingDescriptionTarget,
+          value: foundry.utils.getProperty(this.document, this._editingDescriptionTarget)
+        };
+      } else {
+        context.biographyHtml = await foundry.applications.ux.TextEditor.implementation.enrichHTML(context.system.biography, {
+          secrets: this.document.isOwner,
+          async: true
+        });
+      }
+    }
+    
     // Add specific tab data to each tab part
     if (tabs[partId]) {
       context.tab = tabs[partId];
@@ -236,11 +253,6 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     if (matchups.immune) {
       context.matchups.immune = matchups.immune.map(getLocalizedType).join(', ');
     }
-
-    context.biographyHtml = await foundry.applications.ux.TextEditor.implementation.enrichHTML(context.system.biography, {
-      secrets: this.document.isOwner,
-      async: true
-    });
 
     // TP support.
      // context.system.typechart = matchups;
@@ -360,6 +372,17 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       if (rankSelect) {
         rankSelect.addEventListener("change", async (event) => {
           await this.constructor.#onSelectRank.call(this, event, event.target);
+        });
+      }
+    }
+    
+    // Clear editing description state when prose-mirror is saved
+    if (partId === "biography" && this._editingDescriptionTarget) {
+      const proseMirror = htmlElement.querySelector('prose-mirror');
+      if (proseMirror) {
+        proseMirror.addEventListener('save', () => {
+          this._editingDescriptionTarget = null;
+          this.render();
         });
       }
     }
@@ -1135,6 +1158,18 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     if (item) {
       item.update({ 'system.visible': !item.system.visible });
     }
+  }
+
+  /**
+   * Handle editing description fields.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static #onEditDescription(event, target) {
+    const field = target.dataset.target;
+    this._editingDescriptionTarget = field;
+    this.render();
   }
 
   /* -------------------------------------------- */
