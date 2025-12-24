@@ -23,7 +23,6 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       createItem: PokeroleActorSheet.#onCreateItem,
       toggleMoveGroup: PokeroleActorSheet.#onToggleMoveGroup,
       togglePocket: PokeroleActorSheet.#onTogglePocket,
-      selectRank: PokeroleActorSheet.#onSelectRank,
       addAilment: PokeroleActorSheet.#onAddAilment,
       removeAilment: PokeroleActorSheet.#onRemoveAilment,
       roll: PokeroleActorSheet.#onRoll,
@@ -346,6 +345,23 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       toggle.checked = this._mode === this.constructor.MODES.EDIT;
     } else if ( !this.isEditable && toggle ) {
       toggle.remove();
+    }
+  }
+
+  /* -------------------------------------------- */
+
+  /** @inheritDoc */
+  _attachPartListeners(partId, htmlElement, options) {
+    super._attachPartListeners(partId, htmlElement, options);
+    
+    // Attach change event listener to rank select (actions only work for click events)
+    if (partId === "header") {
+      const rankSelect = htmlElement.querySelector('select[name="system.rank"]');
+      if (rankSelect) {
+        rankSelect.addEventListener("change", async (event) => {
+          await this.constructor.#onSelectRank.call(this, event, event.target);
+        });
+      }
     }
   }
 
@@ -794,9 +810,24 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
    * @param {HTMLElement} target  The action target.
    */
   static async #onSelectRank(event, target) {
+    console.log("PokeroleActorSheet | #onSelectRank triggered", { event, target, oldRank: this.actor.system.rank, newRank: target.value });
+    
+    // Prevent the form from auto-submitting (AppV2 submitOnChange behavior)
+    event.preventDefault();
+    event.stopPropagation();
+    
     const newRank = target.value;
     const oldRank = this.actor.system.rank;
-    await this._advanceRank(oldRank, newRank);
+    
+    // Only show advancement dialog if rank actually changed
+    if (oldRank !== newRank) {
+      const advanced = await this._advanceRank(oldRank, newRank);
+      
+      // If user cancelled the dialog, revert the dropdown to old rank
+      if (!advanced) {
+        target.value = oldRank;
+      }
+    }
   }
 
   /**
@@ -1177,7 +1208,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
         buttons: {
           skip: {
             label: 'Skip',
-            callback: _ => resolve(undefined),
+            callback: _ => resolve('skip'),
           },
           apply: {
             label: 'Apply',
@@ -1194,14 +1225,25 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
         },
         default: 'apply',
         render: (html) => this._renderProgressionDialogue(html, dialogueProgression),
-        close: () => resolve(undefined),
+        close: () => resolve(null),
       }, { popOutModuleDisable: true }).render(true);
     });
 
-    if (result) {
+    if (result === 'skip') {
+      // User clicked "Skip" - update rank without applying stat changes
+      await this.actor.update({ 'system.rank': newRank });
+      return true;
+    } else if (result) {
+      // User clicked "Apply" - apply stat changes and update rank
       const formElement = result[0].querySelector('form');
       const updateData = new foundry.applications.ux.FormDataExtended(formElement).object;
-      this.actor.update({ system: updateData });
+      // Include the new rank in the update
+      updateData.rank = newRank;
+      await this.actor.update({ system: updateData });
+      return true;
+    } else {
+      // User cancelled (closed dialog) - don't update anything
+      return false;
     }
   }
 
