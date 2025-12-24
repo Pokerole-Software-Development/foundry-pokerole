@@ -16,6 +16,13 @@
   --color-pkmn-darkfield-back: #841722;
   --color-disposition: #999999;
 
+  // ---------------------------------------------------------------------------
+  // Window Header
+  // ---------------------------------------------------------------------------
+  .window-header slide-toggle {
+    --slide-toggle-track-color-unchecked: darkgray;
+  }
+
   .window-content {
     overflow-y: auto;
   }
