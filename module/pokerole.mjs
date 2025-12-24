@@ -213,7 +213,7 @@ Handlebars.registerHelper('attributeBubbles', function(actor, category, key) {
   const baseValue = sourceData.value || 0;
   const currentValue = currentData.value || 0;
   const maxValue = currentData.max || 0;
-  const changeValue = Math.max(currentValue >= 1 ? -currentValue + 1 : Number.NEGATIVE_INFINITY, currentValue - baseValue);
+  const changeValue = currentValue - baseValue;
   
   const bubbles = [];
   
