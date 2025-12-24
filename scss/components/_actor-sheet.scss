@@ -25,6 +25,7 @@
 
   .window-content {
     overflow-y: auto;
+    background: url(../../../ui/denim075.png);
   }
 
   // ---------------------------------------------------------------------------
@@ -1306,13 +1307,15 @@
       border-radius: 13px;
       border: 3px solid #AB3E2E;
       padding: 3px 5px;
-      background-color: white;
+      background-color: black;
       font-size: 0.75rem;
 
       h4 {
         text-transform: uppercase;
         color: #AB3E2E;
         margin-bottom: 0;
+        font-size: revert;
+        font-family: var(--font-sans);
       }
     }
 
@@ -1331,7 +1334,7 @@
 
       li {
         flex: 1;
-        background-color: white;
+        background-color: black;
         border: none;
 
         span {
@@ -1366,7 +1369,6 @@
 
   .matchups, .pokedex, .species-data .pokedex-number-name {
     input:hover, input:active, input:focus, textarea:hover, textarea:active, textarea:focus {
-      background-color: #f3f3f3;
       outline: none;
       box-shadow: none;
     }
@@ -1444,8 +1446,6 @@
       gap: 5px;
 
       li {
-        background-color: white;
-        color: black;
         border-radius: 15px;
         padding: 5px;
         font-size: 0.75rem;
