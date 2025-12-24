@@ -67,14 +67,17 @@ slide-toggle[checked] .slide-toggle-thumb {
 }
 
 /* Sheet Mode States */
-.actor.editable {
+.actor.editable,
+.item.editable {
   /* Edit mode styling */
 }
 
-.actor.interactable {
+.actor.interactable,
+.item.interactable {
   /* Play mode styling */
   input[type="text"],
   input[type="number"],
+  input[type="checkbox"],
   select,
   textarea {
     &:not(.always-interactive) {
@@ -85,10 +88,12 @@ slide-toggle[checked] .slide-toggle-thumb {
   }
 }
 
-.actor.locked {
+.actor.locked,
+.item.locked {
   /* Locked/non-editable styling */
   input[type="text"],
   input[type="number"],
+  input[type="checkbox"],
   select,
   textarea {
     pointer-events: none;

@@ -1,10 +1,12 @@
 // =============================================================================
-// GENERIC SHEET STYLES
+// SHARED SHEET STYLES
 // =============================================================================
-// This file contains styles that apply to all sheet types (actor, item, etc.)
-// Actor-specific styles have been moved to _actor-sheet.scss
+// This file contains styles that apply to both actor and item sheets
 // =============================================================================
 
+// ---------------------------------------------------------------------------
+// Base Form Styles
+// ---------------------------------------------------------------------------
 .item-form {
   font-family: $font-primary;
 }
@@ -15,7 +17,7 @@
 }
 
 // ---------------------------------------------------------------------------
-// AppV2 Header Part Wrapper
+// AppV2 Part Wrappers
 // ---------------------------------------------------------------------------
 [data-application-part="header"] {
   flex: 0 auto;
@@ -24,7 +26,7 @@
 }
 
 // ---------------------------------------------------------------------------
-// Generic Sheet Header
+// Generic Sheet Header (used by item sheets)
 // ---------------------------------------------------------------------------
 .sheet-header {
   flex: 0 auto;
@@ -65,7 +67,6 @@
     z-index: 10;
 
     input {
-      background-color: white;
       border-radius: 20px;
       padding: 0px 10px;
       border: none;
@@ -143,7 +144,7 @@
 }
 
 // ---------------------------------------------------------------------------
-// Sheet Tabs
+// Sheet Tabs (navigation)
 // ---------------------------------------------------------------------------
 .sheet-tabs {
   flex: 0;
@@ -157,10 +158,6 @@
 .tabs .item.active {
   text-shadow: 0 0 10px white;
 }
-
-// ---------------------------------------------------------------------------
-// Sheet Size Constraints
-// ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
 // Sheet Size Constraints
@@ -186,15 +183,10 @@
 }
 
 // ---------------------------------------------------------------------------
-// Rich Text Editor (TinyMCE)
+// Rich Text Editor (TinyMCE/ProseMirror)
 // ---------------------------------------------------------------------------
 .tox {
-  .tox-editor-container {
-    background: $c-white;
-  }
-
   .tox-edit-area {
     padding: 0 8px;
   }
 }
-

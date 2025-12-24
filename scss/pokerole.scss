@@ -16,8 +16,7 @@
 
 /* Styles limited to sheets */
 .pokerole {
-  @import 'components/forms';
-  @import 'components/sheets';
+  @import 'components/shared';
   @import 'components/items';
   @import 'components/effects';
   @import 'components/advancement';
