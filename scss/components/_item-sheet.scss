@@ -1,0 +1,30 @@
+// =============================================================================
+// ITEM SHEET STYLES
+// =============================================================================
+// This file contains all styles specific to the item (Move/Pokeball/Items) sheet
+// =============================================================================
+
+&.item.sheet {
+  // ---------------------------------------------------------------------------
+  // CSS Variables
+  // ---------------------------------------------------------------------------
+  --color-pkmn-header-back: #A21C1C;
+  --color-pkmn-red: #A21C1C;
+  --color-pkmn-outline: #433727;
+  --color-pkmn-field-back: #DAECF9;
+  --color-pkmn-darkfield-back: #841722;
+  --color-disposition: #999999;
+
+  // ---------------------------------------------------------------------------
+  // Window Header
+  // ---------------------------------------------------------------------------
+  .window-header slide-toggle {
+    --slide-toggle-track-color-unchecked: darkgray;
+  }
+
+  .window-content {
+    overflow-y: auto;
+    background: url(../../../ui/denim075.png);
+    display: block;
+  }
+}

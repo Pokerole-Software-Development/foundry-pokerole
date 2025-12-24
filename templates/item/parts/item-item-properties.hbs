@@ -1,0 +1,14 @@
+{{!-- Item (Gear) Properties Tab --}}
+<section class="tab {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
+  {{!-- As you add new fields, add them in here! --}}
+  <div class="resource">
+    <label class="resource-label">Roll Formula</label>
+    <input disabled type="text" name="system.formula" value="{{system.formula}}" data-dtype="String"/>
+  </div>
+  <div class="resource">
+    <label class="resource-label">Item Category</label>
+    <select name="system.pocket" value="{{system.pocket}}" data-dtype="String">
+      {{selectOptions pockets selected=system.pocket}}
+    </select>
+  </div>
+</section>

@@ -2,7 +2,10 @@ import { PokeroleActor } from "./documents/actor.mjs";
 import { PokeroleItem } from "./documents/item.mjs";
 import { PokeroleCombat, PokeroleCombatTracker } from "./documents/combat.mjs";
 import { PokeroleActorSheet } from "./sheets/actor-sheet.mjs";
-import { PokeroleItemSheet } from "./sheets/item-sheet.mjs";
+import { PokeroleAbilitySheet } from "./sheets/item-ability-sheet.mjs";
+import { PokeroleEffectSheet } from "./sheets/item-effect-sheet.mjs";
+import { PokeroleItemItemSheet } from "./sheets/item-item-sheet.mjs";
+import { PokeroleMoveSheet } from "./sheets/item-move-sheet.mjs";
 import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { getAilmentList, POKEROLE } from "./helpers/config.mjs";
 import { rollRecoil, successRollAttributeDialog, successRollFromExpression, chanceDiceRollFromExpression, chanceDiceRoll, createChanceDiceRollMessageData } from "./helpers/roll.mjs";
@@ -48,7 +51,22 @@ Hooks.once('init', async () => {
   foundry.documents.collections.Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
   foundry.documents.collections.Actors.registerSheet("pokerole", PokeroleActorSheet, { makeDefault: true });
   foundry.documents.collections.Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
-  foundry.documents.collections.Items.registerSheet("pokerole", PokeroleItemSheet, { makeDefault: true });
+  foundry.documents.collections.Items.registerSheet("pokerole", PokeroleAbilitySheet, { 
+    types: ["ability"], 
+    makeDefault: true 
+  });
+  foundry.documents.collections.Items.registerSheet("pokerole", PokeroleEffectSheet, { 
+    types: ["effect"], 
+    makeDefault: true 
+  });
+  foundry.documents.collections.Items.registerSheet("pokerole", PokeroleItemItemSheet, { 
+    types: ["item"], 
+    makeDefault: true 
+  });
+  foundry.documents.collections.Items.registerSheet("pokerole", PokeroleMoveSheet, { 
+    types: ["move"], 
+    makeDefault: true 
+  });
 
   CONFIG.TextEditor.enrichers.push({
     pattern: /\[\[(?:\/|#)sc ([^\]]+)\]\](?:{([^}]+)})?/gi,

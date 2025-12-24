@@ -8,9 +8,9 @@
 
   {{!-- Sheet Tab Navigation --}}
   <nav class="sheet-tabs tabs" data-group="primary">
-    <a class="item" data-tab="attributes">Attributes</a>
-    <a class="item" data-tab="description">Description</a>
-    <a class="item" data-tab="effects">Effects</a>
+    <a class="item" data-action="tab" data-group="primary" data-tab="attributes" >Attributes</a>
+    <a class="item" data-action="tab" data-group="primary" data-tab="description">Description</a>
+    <a class="item" data-action="tab" data-group="primary" data-tab="effects">Effects</a>
   </nav>
 
   {{!-- Sheet Body --}}
@@ -30,7 +30,7 @@
       <div class="form-group">
         <label class="resource-label">Learned at Rank</label>
         <select name="system.rank" value="{{system.rank}}" data-dtype="String">
-          {{selectOptions ranks selected=system.rank}}
+          {{!-- {{selectOptions ranks selected=system.rank}} --}}
         </select>
       </div>
       {{/unless}}
@@ -49,19 +49,19 @@
       <div class="form-group">
         <label class="resource-label">Type</label>
         <select name="system.type" value="{{system.type}}" data-dtype="String">
-          {{selectOptions types selected=system.type}}
+          {{!-- {{selectOptions types selected=system.type}} --}}
         </select>
       </div>
       <div class="form-group">
         <label class="resource-label">Category</label>
         <select name="system.category" value="{{system.category}}" data-dtype="String">
-          {{selectOptions categories selected=system.category}}
+          {{!-- {{selectOptions categories selected=system.category}} --}}
         </select>
       </div>
       <div class="form-group">
         <label class="resource-label">Target</label>
         <select name="system.target" value="{{system.target}}" data-dtype="String">
-          {{selectOptions targets selected=system.target}}
+          {{!-- {{selectOptions targets selected=system.target}} --}}
         </select>
       </div>
       <div class="form-group">
@@ -190,7 +190,7 @@
       <ol class="items-list effect-group-list">
         <li class="item flexrow items-header">
           <div class="item-name">Condition</div>
-          <a class="effect-group-control effect-group-create" title="Create group" data-type="item"><i class="fas fa-plus"></i> Add Group</a>
+          <a class="effect-group-control" title="Create group" data-action="createEffectGroup" data-type="item"><i class="fas fa-plus"></i> Add Group</a>
         </li>
         {{#each system.effectGroups as |group index|}}
           <li class="item flexrow">
@@ -207,8 +207,8 @@
                   </select>
                 </div>
                 <div class="item-controls">
-                  <a class="item-control effect-group-add-effect" title="Add Effect to Group" data-index="{{index}}"><i class="fas fa-add"></i> Effect</a>
-                  <a class="item-control effect-group-delete" title="Delete Group" data-index="{{index}}"><i class="fas fa-trash"></i></a>
+                  <a class="item-control" title="Add Effect to Group" data-action="addEffect" data-index="{{index}}"><i class="fas fa-add"></i> Effect</a>
+                  <a class="item-control" title="Delete Group" data-action="deleteEffectGroup" data-index="{{index}}"><i class="fas fa-trash"></i></a>
                 </div>
               </li>
 
@@ -235,7 +235,7 @@
                     {{selectOptions ../../effectAffects selected=effect.affects}}
                   </select>
                   <div class="item-controls">
-                    <a class="item-control delete-effect" title="Delete Effect" data-group-index="{{index}}" data-effect-index="{{effectIndex}}"><i class="fas fa-trash"></i></a>
+                    <a class="item-control" title="Delete Effect" data-action="deleteEffect" data-group-index="{{index}}" data-effect-index="{{effectIndex}}"><i class="fas fa-trash"></i></a>
                   </div>
                 </li>
               {{/each}}
