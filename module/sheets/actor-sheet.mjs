@@ -115,6 +115,12 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
 
   /* -------------------------------------------- */
 
+  get title() {
+    return `${this.actor?.isToken ? "[Token] " : ""}${super.title}`;
+  }
+
+  /* -------------------------------------------- */
+
   /** @inheritDoc */
   _configureRenderOptions(options) {
     super._configureRenderOptions(options);
