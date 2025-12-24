@@ -39,7 +39,6 @@
   padding: 0;
   overflow-y: auto;
   scrollbar-width: thin;
-  color: $c-tan;
 
   // Child lists
   .item-list {
@@ -75,7 +74,6 @@
 
   .items-header .item-name {
     flex: 1.1 0 30px;
-    color: $c-dark;
   }
 
   // Control Buttons
