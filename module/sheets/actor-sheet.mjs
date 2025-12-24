@@ -371,7 +371,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       const rankSelect = htmlElement.querySelector('select[name="system.rank"]');
       if (rankSelect) {
         rankSelect.addEventListener("change", async (event) => {
-          await this.constructor.#onSelectRank.call(this, event, event.target);
+          await PokeroleActorSheet.#onSelectRank.call(this, event, event.target);
         });
       }
     }
@@ -537,12 +537,13 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
         }
 
         let group = i.system.rank;
-        if (i.system.learned) {
-          group = 'learned';
-          learnedMoveNum++;
-        }
         if (i.system.attributes.maneuver) {
           group = 'maneuver';
+        } else if (i.system.learned) {
+          group = 'learned';
+          learnedMoveNum++;
+        } else if (!context.editable) {
+          continue;
         }
 
         // HACK: We're operating on a clone created by `toObject` here, but it doesn't
@@ -832,9 +833,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
    * @param {Event} event  The triggering event.
    * @param {HTMLElement} target  The action target.
    */
-  static async #onSelectRank(event, target) {
-    console.log("PokeroleActorSheet | #onSelectRank triggered", { event, target, oldRank: this.actor.system.rank, newRank: target.value });
-    
+  static async #onSelectRank(event, target) {    
     // Prevent the form from auto-submitting (AppV2 submitOnChange behavior)
     event.preventDefault();
     event.stopPropagation();
