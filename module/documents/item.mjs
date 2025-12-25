@@ -40,6 +40,9 @@ export class PokeroleItem extends Item {
    * @param {Event} event The originating click event
    */
   async use() {
+
+    Hooks.callAll("PokeroleItemPre", this);
+
     const token = this.actor.token;
 
     let properties = [];

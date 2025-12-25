@@ -69,7 +69,7 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
   if (!result) return undefined;
 
   const formElement = result[0].querySelector('form');
-  let { moveId, painPenalty, poolBonus, constantBonus, confusionPenalty } = new FormDataExtended(formElement).object;
+  let { moveId, painPenalty, poolBonus, constantBonus, confusionPenalty, rerollBonus } = new FormDataExtended(formElement).object;
   constantBonus ??= 0;
   if (confusionPenalty) {
     constantBonus =- confusionModifier;
@@ -89,7 +89,7 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
     + (actor.system.skills.clash?.value ?? 0);
 
   const constantBonusWithPainPenalty = constantBonus - POKEROLE.painPenalties[painPenalty];
-  const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonusWithPainPenalty);
+  const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonusWithPainPenalty, rerollBonus);
   let html = messageDataPart.content;
 
   if (rollResult >= expectedSuccesses) {    
