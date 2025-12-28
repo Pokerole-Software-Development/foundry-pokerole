@@ -1,6 +1,7 @@
 import { getTripleTypeMatchups, getDualTypeMatchups, getLocalizedEntriesForSelect, getLocalizedType, getLocalizedTypesForSelect, POKEROLE } from "../helpers/config.mjs";
 import { successRollAttributeDialog, successRollSkillDialog } from "../helpers/roll.mjs";
 import { addAilmentWithDialog } from "../helpers/effects.mjs";
+import { AdvancementDialog } from "../applications/advancement-dialog.mjs";
 
 
 /**
@@ -1191,174 +1192,14 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     return false;
   }
 
-  static ADVANCEMENT_DIALOGUE_TEMPLATE = "systems/pokerole/templates/actor/advancement.hbs";
-
+  /**
+   * Handle rank advancement using the AdvancementDialog
+   * @param {string} oldRank - The actor's current rank
+   * @param {string} newRank - The rank to advance to
+   * @returns {Promise<boolean>} Whether the advancement was completed
+   */
   async _advanceRank(oldRank, newRank) {
-
-    foundry.utils.mergeObject(this.actor, this.actor.original); // setting Original Numbers
-
-    const oldRankIndex = POKEROLE.ranks.indexOf(oldRank);
-    const newRankIndex = POKEROLE.ranks.indexOf(newRank);
-
-    const oldRankName = game.i18n.localize(POKEROLE.i18n.ranks[oldRank]) ?? oldRank;
-    const newRankName = game.i18n.localize(POKEROLE.i18n.ranks[newRank]) ?? newRank;
-
-    const totalProgression = {
-      attributePoints: 0,
-      skillPoints: 0,
-      socialPoints: 0,
-    };
-
-    for (let i = oldRankIndex + 1; i <= newRankIndex; i++) {
-      const progression = POKEROLE.rankProgression[POKEROLE.ranks[i]];
-      totalProgression.attributePoints += progression.attributePoints;
-      totalProgression.skillPoints += progression.skillPoints;
-      totalProgression.socialPoints += progression.socialPoints;
-    }
-
-    const { skillLimit: oldSkillLimit } = POKEROLE.rankProgression[oldRank] ?? undefined;
-    const { skillLimit } = POKEROLE.rankProgression[newRank] ?? undefined;
-
-    const oldMaxHp = this.actor.system.hp.max;
-    const oldMaxWill = this.actor.system.will.max;
-
-    const content = await foundry.applications.handlebars.renderTemplate(this.constructor.ADVANCEMENT_DIALOGUE_TEMPLATE, {
-      progression: totalProgression,
-      skillLimit,
-      oldSkillLimit,
-      showSkillLimit: skillLimit !== oldSkillLimit,
-      oldMaxHp,
-      oldMaxWill,
-      attributes: this.actor.system.attributes,
-      social: this.actor.system.social,
-      skills: this.actor.system.skills,
-    });
-
-    let dialogueProgression = {
-      ...totalProgression,
-      oldMaxHp,
-      oldMaxWill,
-    };
-
-    // Create the Dialog window and await submission of the form
-    const result = await new Promise(resolve => {
-      new Dialog({
-        title: `Advancement: ${oldRankName} → ${newRankName} rank`,
-        content,
-        buttons: {
-          skip: {
-            label: 'Skip',
-            callback: _ => resolve('skip'),
-          },
-          apply: {
-            label: 'Apply',
-            callback: html => {
-              let forceApply = html.find('.force-check')[0].checked
-              if ((dialogueProgression.attributePoints > 0 || dialogueProgression.skillPoints > 0 || dialogueProgression.socialPoints > 0) && !forceApply) {
-                throw new Error("Not all points have been distributed");
-              }
-              // Disabled elements are excluded from form data
-              html.find('input[type="text"]').prop('disabled', false);
-              resolve(html);
-            },
-          },
-        },
-        default: 'apply',
-        render: (html) => this._renderProgressionDialogue(html, dialogueProgression),
-        close: () => resolve(null),
-      }, { popOutModuleDisable: true }).render(true);
-    });
-
-    if (result === 'skip') {
-      // User clicked "Skip" - update rank without applying stat changes
-      await this.actor.update({ 'system.rank': newRank });
-      return true;
-    } else if (result) {
-      // User clicked "Apply" - apply stat changes and update rank
-      const formElement = result[0].querySelector('form');
-      const updateData = new foundry.applications.ux.FormDataExtended(formElement).object;
-      // Include the new rank in the update
-      updateData.rank = newRank;
-      await this.actor.update({ system: updateData });
-      return true;
-    } else {
-      // User cancelled (closed dialog) - don't update anything
-      return false;
-    }
-  }
-
-  _renderProgressionDialogue(html, progression) {
-    let vitalityDelta = 0;
-    let insightDelta = 0;
-    
-
-    html.find('.max-hp-box, .max-will-box').hide();
-    html.find('.max-hp-box, .max-will-box').prop('disabled', true);
-
-    const updateCounters = () => {
-      html.find('.pointsleft.attributes').text(progression.attributePoints);
-      html.find('.pointsleft.social').text(progression.socialPoints);
-      html.find('.pointsleft.skills').text(progression.skillPoints);
-
-      html.find('.attributes.list button.increase').prop('disabled', progression.attributePoints <= 0);
-      html.find('.social.list button.increase').prop('disabled', progression.socialPoints <= 0);
-      html.find('.skills.list button.increase').prop('disabled', progression.skillPoints <= 0);
-
-      let newHp = progression.oldMaxHp + vitalityDelta;
-      let newWill = progression.oldMaxWill + insightDelta;
-
-      html.find('.max-hp').text(newHp);
-      html.find('.max-will').text(newWill);
-      if (progression.oldMaxHp == newHp) {
-        html.find('.max-hp-box').hide();
-      } else {
-        html.find('.max-hp-box').show();
-      }
-
-      if (progression.oldMaxWill == newWill) {
-        html.find('.max-will-box').hide();
-      } else {
-        html.find('.max-will-box').show();
-      }
-    };
-
-    html.on('click', '.increase, .decrease', (event) => {
-      const { target: targetName, kind } = event.target.dataset;
-      const target = html.find(`[name="${targetName}"]`)[0];
-      const deltaTarget = html.find(`[data-delta-target="${targetName}"]`)[0];
-      const sign = event.target.classList.contains('increase') ? 1 : -1;
-
-      let intValue = parseInt(target.value);
-      let min = parseInt(target.dataset.min);
-      let forceLimit = html.find('.force-limit')[0].checked
-
-      if ((intValue + sign <= parseInt(target.dataset.max) || forceLimit || (!forceLimit && sign < 0)) && intValue + sign >= min) {
-        let newValue = intValue + sign;
-        target.value = newValue;
-
-        let delta = newValue - min;
-        deltaTarget.innerText = `(+${delta})`;
-
-        switch (kind) {
-          case 'attributes':
-            progression.attributePoints -= sign;
-            if (targetName === 'attributes.insight.value') {
-              insightDelta = delta;
-            }
-            if (targetName === 'attributes.vitality.value') {
-              vitalityDelta = delta;
-            }
-            break;
-          case 'social':
-            progression.socialPoints -= sign;
-            break;
-          case 'skills':
-            progression.skillPoints -= sign;
-            break;
-        }
-        updateCounters();
-      }
-    });
+    return await AdvancementDialog.show(this.actor, oldRank, newRank);
   }
 
   async _showSettings() {
@@ -1385,24 +1226,24 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       sheetskin
     });
 
-    const result = await new Promise(resolve => {
-      new Dialog({
-        title: `Actor settings`,
-        content,
-        buttons: {
-          save: {
-            label: 'Save',
-            callback: html => resolve(html),
-          },
-        },
-        default: 'save',
-        close: () => resolve(undefined),
-      }, { popOutModuleDisable: true }).render(true);
+    const result = await foundry.applications.api.DialogV2.prompt({
+      window: {
+        title: 'Actor settings'
+      },
+      content,
+      ok: {
+        label: 'Save',
+        callback: (event, button, dialog) => {
+          const formElement = dialog.element.querySelector('form');
+          return new foundry.applications.ux.FormDataExtended(formElement).object;
+        }
+      },
+      rejectClose: false,
+      modal: true
     });
 
     if (!result) return;
-    const formElement = result[0].querySelector('form');
-    const formData = new foundry.applications.ux.FormDataExtended(formElement).object;
+    const formData = result;
     if(!formData.hasThirdType) this.actor.system.type3 = "none"
     console.log(this.actor.system.type3);
 
@@ -1421,49 +1262,46 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       labelito,
     });
 
-    const result = await new Promise(resolve => {
-      new Dialog({
-        title: `Actor Base Attributes`,
-        content,
-        buttons: {
-          save: {
-            label: 'Save',
-            callback: html => resolve(html),
-          },
-        },
-        default: 'save',
-        close: () => resolve(undefined),
-      }, { popOutModuleDisable: true }).render(true);
+    const result = await foundry.applications.api.DialogV2.prompt({
+      window: {
+        title: 'Actor Base Attributes'
+      },
+      content,
+      ok: {
+        label: 'Save',
+        callback: (event, button, dialog) => {
+          const formElement = dialog.element.querySelector('form');
+          return new foundry.applications.ux.FormDataExtended(formElement).object;
+        }
+      },
+      rejectClose: false,
+      modal: true
     });
 
     if (!result) return;
-    const formElement = result[0].querySelector('form');
-    const formData = new foundry.applications.ux.FormDataExtended(formElement).object;
+    const formData = result;
 
     this.actor.update(formData);
   }
 
   async reTrain() {
 
-    let question = await new Promise(question => {
-      new Dialog({
-        title: "Re Train",
-        content: "<p>The Attributes and skills will be set to initial ones and you will be able to assign points by your actual Rank</p> <br> <p>Other changes will be lost, Are you sure you want to Re-train?</p>",
-        buttons: {
-          yes: {
-            icon: '<i class="fa-solid fa-check"></i>',
-            label: "Yes",
-            callback: () => question(true)
-          },
-          no: {
-            icon: '<i class="fa-solid fa-xmark"></i>',
-            label: "No",
-            callback: () => question(false)
-          }
-        },
-        default: "no",
-          close: () => question(false),
-      }, { popOutModuleDisable: true }).render(true);
+    const question = await foundry.applications.api.DialogV2.confirm({
+      window: {
+        title: "Re Train"
+      },
+      content: "<p>The Attributes and skills will be set to initial ones and you will be able to assign points by your actual Rank</p> <br> <p>Other changes will be lost, Are you sure you want to Re-train?</p>",
+      yes: {
+        icon: 'fa-solid fa-check',
+        label: "Yes"
+      },
+      no: {
+        icon: 'fa-solid fa-xmark',
+        label: "No",
+        default: true
+      },
+      rejectClose: false,
+      modal: true
     });
 
     if (!question) return;

@@ -1,77 +1,90 @@
 <form class="pokerole advancement">
   {{#gt progression.attributePoints 0}}
-  <h3>Attributes</h3>
-  <p class="attribute-info">Increase {{progression.attributePoints}} attributes (<span class="pointsleft attributes">{{progression.attributePoints}}</span> left).</p>
-
-  <div class="list attributes">
-  {{#each attributes as |attribute key|}}
-    <div class="form-group">
-      <label for="attributes.{{key}}.value">{{key}} (Maximum: {{attribute.max}})</label>
-      <button type="button" class="decrease" data-target="attributes.{{key}}.value" data-kind="attributes">-</button>
-      <button type="button" class="increase" data-target="attributes.{{key}}.value" data-kind="attributes">+</button>
-      <input type="text" name="attributes.{{key}}.value" value="{{attribute.value}}" data-min="{{attribute.value}}" data-max="{{attribute.max}}" data-dtype="Number" disabled/>
-      <span class="delta" data-delta-target="attributes.{{key}}.value">(+0)</span>
+  <fieldset>
+    <legend>Attributes</legend>
+    <p class="hint">Increase {{progression.attributePoints}} attributes (<span class="pointsleft attributes">{{progression.attributePoints}}</span> left).</p>
+    <div class="list attributes">
+    {{#each attributes as |attribute key|}}
+      <div class="form-group attrib-{{key}}">
+        <label for="attributes.{{key}}.value">{{attribute.label}}</label>
+        <button type="button" class="decrease" data-target="attributes.{{key}}.value" data-kind="attributes">-</button>
+        <button type="button" class="increase" data-target="attributes.{{key}}.value" data-kind="attributes">+</button>
+        <input type="text" name="attributes.{{key}}.value" value="{{attribute.value}}" data-min="{{attribute.value}}" data-max="{{attribute.max}}" data-dtype="Number" disabled/>
+        <span class="max">/ {{attribute.max}}</span>
+        <span class="delta" data-delta-target="attributes.{{key}}.value">(+0)</span>
+      </div>
+    {{/each}}
     </div>
-  {{/each}}
-  </div>
-  {{/gt}}
-
-  {{#gt progression.skillPoints 0}}
-  <h3>Skills</h3>
-  <p class="attribute-info">Increase {{progression.skillPoints}} skills (<span class="pointsleft skills">{{progression.skillPoints}}</span> left).</p>
-
-  <div class="list skills">
-  {{#each skills as |skill key|}}
-    <div class="form-group">
-      <label for="skills.{{key}}.value">{{key}} (Maximum: {{@root.skillLimit}})</label>
-      <button type="button" class="decrease" data-target="skills.{{key}}.value" data-kind="skills">-</button>
-      <button type="button" class="increase" data-target="skills.{{key}}.value" data-kind="skills">+</button>
-      <input type="text" name="skills.{{key}}.value" value="{{skill.value}}" data-min="{{skill.value}}" data-max="{{@root.skillLimit}}" data-dtype="Number" disabled/>
-      <span class="delta" data-delta-target="skills.{{key}}.value">(+0)</span>
-    </div>
-  {{/each}}
-  </div>
+  </fieldset>
   {{/gt}}
 
   {{#gt progression.socialPoints 0}}
-  <h3>Social attributes</h3>
-  <p class="attribute-info">Increase {{progression.socialPoints}} social attributes (<span class="pointsleft social">{{progression.socialPoints}}</span> left).</p>
+  <fieldset>
+    <legend>Social attributes</legend>
+    <p class="hint">Increase {{progression.socialPoints}} social attributes (<span class="pointsleft social">{{progression.socialPoints}}</span> left).</p>
 
-  <div class="list social">
-  {{#each social as |attribute key|}}
-    <div class="form-group">
-      <label for="social.{{key}}.value">{{key}} (Maximum: {{attribute.max}})</label>
-      <button type="button" class="decrease" data-target="social.{{key}}.value" data-kind="social">-</button>
-      <button type="button" class="increase" data-target="social.{{key}}.value" data-kind="social">+</button>
-      <input type="text" name="social.{{key}}.value" value="{{attribute.value}}" data-min="{{attribute.value}}" data-max="{{attribute.max}}" data-dtype="Number" disabled/>
-      <span class="delta" data-delta-target="social.{{key}}.value">(+0)</span>
+    <div class="list social">
+    {{#each social as |attribute key|}}
+      <div class="form-group attrib-{{key}}">
+        <label for="social.{{key}}.value">{{attribute.label}}</label>
+        <button type="button" class="decrease" data-target="social.{{key}}.value" data-kind="social">-</button>
+        <button type="button" class="increase" data-target="social.{{key}}.value" data-kind="social">+</button>
+        <input type="text" name="social.{{key}}.value" value="{{attribute.value}}" data-min="{{attribute.value}}" data-max="{{attribute.max}}" data-dtype="Number" disabled/>
+        <span class="max">/ {{attribute.max}}</span>
+        <span class="delta" data-delta-target="social.{{key}}.value">(+0)</span>
+      </div>
+    {{/each}}
     </div>
-  {{/each}}
-  </div>
+  </fieldset>
+  {{/gt}}
+
+  {{#gt progression.skillPoints 0}}
+  <fieldset>
+    <legend>Skills</legend>
+    <p class="hint">Increase {{progression.skillPoints}} skills (<span class="pointsleft skills">{{progression.skillPoints}}</span> left).</p>
+    <div class="list skills">
+    {{#each skills as |skill key|}}
+      <div class="form-group skill-{{key}}">
+        <label for="skills.{{key}}.value">{{skill.label}}</label>
+        <button type="button" class="decrease" data-target="skills.{{key}}.value" data-kind="skills">-</button>
+        <button type="button" class="increase" data-target="skills.{{key}}.value" data-kind="skills">+</button>
+        <input type="text" name="skills.{{key}}.value" value="{{skill.value}}" data-min="{{skill.value}}" data-max="{{@root.skillLimit}}" data-dtype="Number" disabled/>
+        <span class="max">/ {{@root.skillLimit}}</span>
+        <span class="delta" data-delta-target="skills.{{key}}.value">(+0)</span>
+      </div>
+    {{/each}}
+    </div>
+  </fieldset>
   {{/gt}}
   
-  <h3>Other stat changes (always applied)</h3>
-  <ul>
-    <li class="max-hp-box">
-      <label>Maximum HP: {{oldMaxHp}} → <span class="max-hp">{{oldMaxHp}}</span></label>
-    </li>
-    <li class="max-will-box">
-      <label>Maximum Will: {{oldMaxWill}} → <span class="max-will">{{oldMaxWill}}</span></label>
-    </li>
-    {{#if showSkillLimit}}
-    <li>
-      <label>Skill limit: {{oldSkillLimit}} → {{skillLimit}}</label>
-    </li>
-    {{/if}}
-  </ul>
-  <h3>Options</h3>
-  <div style="display: flex; align-items: center;">
+  <fieldset>
+    <legend>Other Stat Changes</legend>
+    <ul>
+      <li class="max-hp-box">
+        <label>Maximum HP: {{oldMaxHp}} → <span class="max-hp">{{oldMaxHp}}</span></label>
+      </li>
+      <li class="max-will-box">
+        <label>Maximum Will: {{oldMaxWill}} → <span class="max-will">{{oldMaxWill}}</span></label>
+      </li>
+      {{#if showSkillLimit}}
+      <li>
+        <label>Skill limit: {{oldSkillLimit}} → {{skillLimit}}</label>
+      </li>
+      {{/if}}
+    </ul>
+  </fieldset>
+
+  <fieldset>
+    <legend>Options</legend>
+  <div class="form-group">
     <input type="checkbox" name="forceCheck" class="force-check"> 
     <label>Force Advancement?</label> 
   </div>
-  <div style="display: flex; align-items: center;">
+  <div class="form-group">
     <input type="checkbox" name="forceLimit" class="force-limit"> 
     <label>Allows increase beyond limits?</label> 
   </div>
+
+  </fieldset>
   
 </form>
