@@ -1290,16 +1290,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       window: {
         title: "Re Train"
       },
-      content: "<p>The Attributes and skills will be set to initial ones and you will be able to assign points by your actual Rank</p> <br> <p>Other changes will be lost, Are you sure you want to Re-train?</p>",
-      yes: {
-        icon: 'fa-solid fa-check',
-        label: "Yes"
-      },
-      no: {
-        icon: 'fa-solid fa-xmark',
-        label: "No",
-        default: true
-      },
+      content: "<p>The Attributes and skills will be set to initial ones and you will be able to assign points by your actual Rank</p><p>Other changes will be lost, Are you sure you want to Re-train?</p>",
       rejectClose: false,
       modal: true
     });

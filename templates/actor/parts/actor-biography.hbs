@@ -17,7 +17,7 @@
         <input name="system.pokedexCategory" value="{{system.pokedexCategory}}" placeholder="Pokédex Category">
       </li>
       <li>
-        <h4>Description</h4>
+        <h4>Pokédex Entry</h4>
         <textarea class="pokedex-description"
           name="system.pokedexDescription">{{ system.pokedexDescription }}</textarea>
       </li>
@@ -41,16 +41,20 @@
     <div class="abilities">
       <h4>
         Abilities
+        {{#if editable}}
         <a data-action="createItem" title="Create ability" data-type="ability"><i
             class="fas fa-plus"></i></a>
+        {{/if}}
       </h4>
       <ul>
         {{#each abilities as |item index|}}
         <li class="item" data-item-id="{{item.data._id}}">
           <h5>
             <a data-action="roll" data-roll-type="item">{{item.data.name}}</a>
+            {{#if editable}}
             <a data-action="editItem" title="Edit Ability"><i class="fas fa-edit"></i></a>
             <a data-action="deleteItem" title="Delete Ability"><i class="fas fa-trash"></i></a>
+            {{/if}}
           </h5>
           <p>{{{item.data.system.description}}}</p>
         </li>

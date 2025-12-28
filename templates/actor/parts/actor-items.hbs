@@ -6,11 +6,13 @@
       <input type="text" name="system.money" value="{{system.money}}" data-dtype="Number" class="always-interactive">
     </div>
 
-    <div class="money">
+    <div class="item-controls">
+      {{#if editable}}
       <a data-action="createItem" title="Create item" data-type="item" class="create-item-link"><i
           class="fas fa-plus"></i> Add</a>
+      {{/if}}
       <select value="{{system.testvarso}}" name="system.testvarso" data-dtype="String" class="inventoryfilterclass filter-button">
-        <option value="all"> All Items </option>
+        <option value="all">All Items</option>
         {{selectOptions customitemdf selected=testvarso labelAttr="catname"}}
       </select>
       <i class="fas fa-bars fa-xl filter-icon"></i>
