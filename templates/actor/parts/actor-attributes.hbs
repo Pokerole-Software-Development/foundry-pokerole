@@ -26,7 +26,7 @@
         
         {{#if ../editable}}
         <input id="{{@root/id}}-system-attributes-{{key}}-value" type="text" class="value-input {{#if attribute.overridden}}overridden{{/if}}"
-          name="system.attributes.{{key}}.value" value="{{lookup (lookup ../actor._source.system.attributes key) "value"}}" {{!--{{disabled attribute.overridden}}--}}
+          name="system.attributes.{{key}}.value" value="{{lookup (lookup ../actor._source.system.attributes key) "value"}}"
           data-dtype="Number" />
         <span> / </span>
         <input type="text" class="value-input" name="system.attributes.{{key}}.max" value="{{attribute.max}}"
