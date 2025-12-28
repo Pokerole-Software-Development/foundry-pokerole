@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="7980 5230 1620 980" width="200"
+  height="120">
+  <g class="Group">
+    <g class="com.sun.star.drawing.PolyPolygonShape">
+      <g id="id13">
+        <rect class="BoundingBox" stroke="none" fill="none" x="8000" y="5250" width="1582"
+          height="939" />
+        <path fill="rgb(114,34,14)" stroke="none"
+          d="M 8000,5250 L 9581,5250 9581,6187 8000,6187 8000,5250 Z " />
+      </g>
+    </g>
+    <g class="com.sun.star.drawing.PolyPolygonShape">
+      <g id="id14">
+        <rect class="BoundingBox" stroke="none" fill="none" x="8043" y="5286" width="1497"
+          height="858" />
+        <path fill="rgb(234,84,56)" stroke="none"
+          d="M 8043,5286 L 9539,5286 9539,6142 8043,6142 8043,5286 Z " />
+      </g>
+    </g>
+    <g class="com.sun.star.drawing.PolyPolygonShape">
+      <g id="id15">
+        <rect class="BoundingBox" stroke="none" fill="none" x="8440" y="5329" width="798"
+          height="765" />
+        <path fill="rgb(114,34,14)" stroke="none"
+          d="M 9095,6082 L 8845,5958 8602,6093 8643,5818 8440,5628 8714,5582 8832,5329 8961,5577 9237,5611 9042,5809 9095,6082 Z " />
+      </g>
+    </g>
+    <g class="com.sun.star.drawing.PolyPolygonShape">
+      <g id="id16">
+        <rect class="BoundingBox" stroke="none" fill="none" x="8458" y="5338" width="799"
+          height="764" />
+        <path fill="rgb(114,34,14)" stroke="none"
+          d="M 9256,5806 L 8981,5849 8860,6100 8734,5853 8458,5816 8654,5619 8604,5345 8852,5472 9097,5338 9054,5614 9256,5806 Z " />
+      </g>
+    </g>
+    <g class="com.sun.star.drawing.PolyPolygonShape">
+      <g id="id17">
+        <rect class="BoundingBox" stroke="none" fill="none" x="8448" y="5324" width="671"
+          height="642" />
+        <path fill="rgb(255,213,0)" stroke="none"
+          d="M 8999,5956 L 8790,5852 8585,5965 8620,5733 8449,5574 8680,5535 8778,5324 8886,5531 9118,5559 8954,5726 8999,5956 Z " />
+      </g>
+    </g>
+    <g class="com.sun.star.drawing.PolyPolygonShape">
+      <g id="id18">
+        <rect class="BoundingBox" stroke="none" fill="none" x="8464" y="5332" width="670"
+          height="640" />
+        <path fill="rgb(255,213,0)" stroke="none"
+          d="M 9133,5723 L 8903,5759 8802,5971 8696,5762 8464,5731 8630,5566 8586,5337 8795,5443 9000,5332 8964,5562 9133,5723 Z " />
+      </g>
+    </g>
+  </g>
+</svg>

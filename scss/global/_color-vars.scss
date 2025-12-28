@@ -1,0 +1,142 @@
+
+body,
+.pkmn-type-typeless {
+  --pkmn-type-header-bg: #e7e7e8;
+  --pkmn-type-main-bg: #d1d2d4;
+  --pkmn-type-footer-bg: #bcbdc0;
+  --pkmn-type-text-color: #404041;
+}
+
+.pkmn-type-bug {
+  --pkmn-type-header-bg: #a7c03c;
+  --pkmn-type-main-bg: #89a031;
+  --pkmn-type-footer-bg: #6c8124;
+  --pkmn-type-text-color: white;
+}
+
+.pkmn-type-dark {
+  --pkmn-type-header-bg: #695448;
+  --pkmn-type-main-bg: #59473b;
+  --pkmn-type-footer-bg: #44352b;
+  --pkmn-type-text-color: white;
+}
+
+.pkmn-type-dragon {
+  --pkmn-type-header-bg: #6b479c;
+  --pkmn-type-main-bg: #624190;
+  --pkmn-type-footer-bg: #55367d;
+  --pkmn-type-text-color: white;
+}
+
+.pkmn-type-electric {
+  --pkmn-type-header-bg: #fec240;
+  --pkmn-type-main-bg: #ffd768;
+  --pkmn-type-footer-bg: #f4b535;
+  --pkmn-type-text-color: #404041;
+}
+
+.pkmn-type-fairy {
+  --pkmn-type-header-bg: #eaaacc;
+  --pkmn-type-main-bg: #e897c1;
+  --pkmn-type-footer-bg: #e181b1;
+  --pkmn-type-text-color: #404041;
+}
+
+.pkmn-type-fighting,
+.pkmn-type-fight {
+  --pkmn-type-header-bg: #a0543f;
+  --pkmn-type-main-bg: #7a4432;
+  --pkmn-type-footer-bg: #653625;
+  --pkmn-type-text-color: white;
+}
+
+.pkmn-type-fire {
+  --pkmn-type-header-bg: #f15f42;
+  --pkmn-type-main-bg: #d15239;
+  --pkmn-type-footer-bg: #d9392c;
+  --pkmn-type-text-color: white;
+}
+
+.pkmn-type-flying {
+  --pkmn-type-header-bg: #91a3d4;
+  --pkmn-type-main-bg: #8195c2;
+  --pkmn-type-footer-bg: #7082aa;
+  --pkmn-type-text-color: white;
+}
+
+.pkmn-type-ghost {
+  --pkmn-type-header-bg: #5e67b0;
+  --pkmn-type-main-bg: #525593;
+  --pkmn-type-footer-bg: #3c3d70;
+  --pkmn-type-text-color: white;
+}
+
+.pkmn-type-grass {
+  --pkmn-type-header-bg: #78c364;
+  --pkmn-type-main-bg: #71b254;
+  --pkmn-type-footer-bg: #609b48;
+  --pkmn-type-text-color: white;
+}
+
+.pkmn-type-ground {
+  --pkmn-type-header-bg: #d0b060;
+  --pkmn-type-main-bg: #bea25b;
+  --pkmn-type-footer-bg: #ab9352;
+  --pkmn-type-text-color: white;
+}
+
+.pkmn-type-ice {
+  --pkmn-type-header-bg: #53c7dd;
+  --pkmn-type-main-bg: #44aec5;
+  --pkmn-type-footer-bg: #3996ab;
+  --pkmn-type-text-color: white;
+}
+
+.pkmn-type-normal {
+  --pkmn-type-header-bg: #a39f8f;
+  --pkmn-type-main-bg: #939082;
+  --pkmn-type-footer-bg: #7d7b6f;
+  --pkmn-type-text-color: white;
+}
+
+.pkmn-type-poison {
+  --pkmn-type-header-bg: #ab5fa5;
+  --pkmn-type-main-bg: #9c5697;
+  --pkmn-type-footer-bg: #8f4e8a;
+  --pkmn-type-text-color: white;
+}
+
+.pkmn-type-psychic {
+  --pkmn-type-header-bg: #f176a6;
+  --pkmn-type-main-bg: #e26b9c;
+  --pkmn-type-footer-bg: #d56593;
+  --pkmn-type-text-color: white;
+}
+
+.pkmn-type-rock {
+  --pkmn-type-header-bg: #b49e5f;
+  --pkmn-type-main-bg: #a28f55;
+  --pkmn-type-footer-bg: #91814c;
+  --pkmn-type-text-color: white;
+}
+
+.pkmn-type-steel {
+  --pkmn-type-header-bg: #a2a5bd;
+  --pkmn-type-main-bg: #9598af;
+  --pkmn-type-footer-bg: #828599;
+  --pkmn-type-text-color: white;
+}
+
+.pkmn-type-water {
+  --pkmn-type-header-bg: #4f91cd;
+  --pkmn-type-main-bg: #467fb4;
+  --pkmn-type-footer-bg: #3c6e9c;
+  --pkmn-type-text-color: white;
+}
+
+.pkmn-type-unknown {
+  --pkmn-type-header-bg: unset;
+  --pkmn-type-main-bg: unset;
+  --pkmn-type-footer-bg: unset;
+  --pkmn-type-text-color: white;
+}

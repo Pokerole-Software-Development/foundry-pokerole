@@ -20,6 +20,7 @@
     "systems/pokerole/templates/item/parts/item-move-attributes.hbs",
     "systems/pokerole/templates/item/parts/item-move-description.hbs",
     "systems/pokerole/templates/item/parts/item-move-effects.hbs",
+    "systems/pokerole/templates/item/parts/item-move-tooltip.hbs",
     // Ability item partials.
     "systems/pokerole/templates/item/parts/item-ability-header.hbs",
     "systems/pokerole/templates/item/parts/item-ability-description.hbs",

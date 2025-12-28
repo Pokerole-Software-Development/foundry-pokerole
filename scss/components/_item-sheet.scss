@@ -346,4 +346,130 @@
     flex-direction: column;
     gap: 15px;
   }
+
+  // ---------------------------------------------------------------------------
+  // Move-Specific Display Styles
+  // ---------------------------------------------------------------------------
+  &.move {
+    &:not(.editable) {
+      .window-content > *:not(.move-tooltip) {
+        display: none;
+      }
+    }
+    &.editable {
+      .window-content > .move-tooltip {
+        display: none;
+      }
+    }
+  }
+}
+
+// =============================================================================
+// TOOLTIP STYLES
+// =============================================================================
+.move-tooltip {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  // gap: 5px;
+  background: var(--pkmn-type-main-bg);
+  color: var(--pkmn-type-text-color);
+  font-family: "Prototype", var(--font-body);
+  font-size: 10pt;
+
+  header {
+    grid-column: 1 / 3;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background: var(--pkmn-type-header-bg);
+    h2 {
+      flex-grow: 1;
+      color: inherit;
+      margin: 0 5px;
+      font-family: "Blissful Thinking", var(--font-h2);
+    }
+    .power-container {
+      background: var(--pkmn-type-footer-bg);
+      padding: 5px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      .move-power {
+        font-family: "Cafe Nero M54", var(--font-body);
+        font-size: 14pt;
+      }
+    }
+    .move-category {
+      width: 80px;
+    }
+  }
+
+  section {
+    margin: 5px;
+    gap: 5px;
+    &+section {
+      margin-left: 0;
+    }
+
+    .move-type,
+    .move-category {
+      display: inline-block;
+      margin-right: 5px;
+    }
+
+    &.description .label {
+      font-family: "Cafe Nero M54", var(--font-body);
+      font-size: 8pt;
+      .label-colon {
+        font-family: "Prototype", var(--font-body);
+      }
+    }
+
+    &.attributes {
+      display: flex;
+      flex-wrap: wrap-reverse;
+      flex-direction: column;
+      max-height: 105px;
+      gap: 5px;
+      justify-self: end;
+      > * {
+        width: 50px;
+        height: 50px;
+        flex-grow: 0;
+        flex-basis: 50px;
+        background-size: contain;
+        background-position: center;
+        background-repeat: no-repeat;
+        position: relative;
+        .number {
+          position: absolute;
+          top: 20px;
+          bottom: 5px;
+          left: 25px;
+          right: 5px;
+          text-align: center;
+          color: white;
+          font-weight: bold;
+          font-size: 20px;
+        }
+
+        &.teal .number {
+          color: #6bb9bc;
+        }
+      }
+    }
+  }
+
+  footer {
+    grid-column: 1 / 3;
+    background: var(--pkmn-type-footer-bg);
+    min-height: 48px;
+    > * {
+      margin: 5px;
+      & + * {
+        margin-top: 0;
+      }
+    }
+  }
 }

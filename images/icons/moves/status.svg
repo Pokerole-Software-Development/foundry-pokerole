@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="9980 5230 1620 980" width="200"
+  height="120">
+  <g class="Group">
+    <g class="com.sun.star.drawing.PolyPolygonShape">
+      <g id="id19">
+        <rect class="BoundingBox" stroke="none" fill="none" x="10000" y="5250" width="1580"
+          height="936" />
+        <path fill="rgb(82,82,82)" stroke="none"
+          d="M 10000,5250 L 11578,5250 11578,6185 10000,6185 10000,5250 Z " />
+      </g>
+    </g>
+    <g class="com.sun.star.drawing.PolyPolygonShape">
+      <g id="id20">
+        <rect class="BoundingBox" stroke="none" fill="none" x="10042" y="5291" width="1496"
+          height="856" />
+        <path fill="rgb(173,166,149)" stroke="none"
+          d="M 10042,5291 L 11536,5291 11536,6145 10042,6145 10042,5291 Z " />
+      </g>
+    </g>
+    <g class="com.sun.star.drawing.ClosedBezierShape">
+      <g id="id21">
+        <rect class="BoundingBox" stroke="none" fill="none" x="10248" y="5378" width="1083"
+          height="722" />
+        <path fill="rgb(82,82,82)" stroke="none"
+          d="M 10789,6099 C 10491,6099 10248,5938 10248,5739 10248,5541 10491,5379 10789,5379 11088,5379 11330,5541 11330,5739 11330,5938 11088,6099 10789,6099 Z " />
+      </g>
+    </g>
+    <g class="com.sun.star.drawing.ClosedBezierShape">
+      <g id="id22">
+        <rect class="BoundingBox" stroke="none" fill="none" x="10285" y="5368" width="1009"
+          height="671" />
+        <path fill="rgb(255,255,255)" stroke="none"
+          d="M 10790,6038 C 10511,6038 10285,5888 10285,5702 10285,5518 10511,5368 10790,5368 11067,5368 11293,5518 11293,5702 11293,5888 11067,6038 10790,6038 Z " />
+      </g>
+    </g>
+    <g class="com.sun.star.drawing.ClosedBezierShape">
+      <g id="id23">
+        <rect class="BoundingBox" stroke="none" fill="none" x="10359" y="5411" width="861"
+          height="573" />
+        <path fill="rgb(82,82,82)" stroke="none"
+          d="M 10359,5696 C 10359,5854 10551,5983 10788,5983 11027,5983 11219,5854 11219,5696 11219,5539 11027,5411 10788,5411 10551,5411 10359,5539 10359,5696 Z " />
+      </g>
+    </g>
+    <g class="com.sun.star.drawing.ClosedBezierShape">
+      <g id="id24">
+        <rect class="BoundingBox" stroke="none" fill="none" x="10368" y="5446" width="843"
+          height="546" />
+        <path fill="rgb(173,166,149)" stroke="none"
+          d="M 10368,5717 C 10368,5868 10556,5990 10790,5990 11022,5990 11210,5868 11210,5717 11210,5567 11022,5446 10790,5446 10556,5446 10368,5567 10368,5717 Z " />
+      </g>
+    </g>
+    <g class="com.sun.star.drawing.ClosedBezierShape">
+      <g id="id25">
+        <rect class="BoundingBox" stroke="none" fill="none" x="10639" y="5455" width="580"
+          height="538" />
+        <path fill="rgb(82,82,82)" stroke="none"
+          d="M 10878,5950 C 10980,5904 10971,5773 10870,5762 10671,5740 10612,5645 10650,5574 10729,5426 10989,5430 11103,5516 11166,5563 11241,5637 11211,5750 11197,5800 11150,5867 11091,5907 10947,6005 10744,5993 10744,5988 10745,5981 10803,5984 10878,5950 Z " />
+      </g>
+    </g>
+    <g class="com.sun.star.drawing.ClosedBezierShape">
+      <g id="id26">
+        <rect class="BoundingBox" stroke="none" fill="none" x="10671" y="5457" width="565"
+          height="546" />
+        <path fill="rgb(255,255,255)" stroke="none"
+          d="M 10906,5947 C 11008,5902 10995,5766 10896,5755 10701,5733 10645,5642 10682,5572 10758,5428 11013,5432 11124,5516 11185,5561 11257,5633 11228,5744 11215,5792 11167,5875 11110,5914 10970,6009 10739,6015 10743,5988 10744,5982 10834,5980 10906,5947 Z " />
+      </g>
+    </g>
+  </g>
+</svg>
