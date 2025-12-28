@@ -1,91 +1,84 @@
 <section class="tab {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
   <div class="attribute-col">
-    <h4 class="section-header">Increases/reductions</h4>
-    <ul class="stat-changes">
-      <ul class="stat-changes">
-        <li class="stat-change-item pain">
-          <label for="system.painPenalty">Pain Penalization</label>
-          <div class="icon-and-value">
-            <select name="system.painPenalty">
-              {{selectOptions painPenalties selected=system.painPenalty}}
-            </select>
-          </div>
-        </li>
-        <ul class="stat-changes stat-changes-panel">
-          <li class="button-container">
-            <button type="button" title="Clear Decreases" data-action="resetNegativeChanges" class="set-button">Clear (-)</button>
-            <button type="button" title="Clear Increases" data-action="resetPositiveChanges" class="set-button">Clear (+)</button>
-            <button type="button" title="Clear Increases/Decreases" data-action="resetStatChanges" class="set-button">Clear
-              All</button>
-          </li>
-          {{#each system.statChanges as |change key|}}
-          <li class="statchange">
+    <fieldset class="stat-changes pain">
+      <legend>Pain Penalization</legend>
+      <select name="system.painPenalty">
+        {{selectOptions painPenalties selected=system.painPenalty}}
+      </select>
+    </fieldset>
+    <fieldset class="stat-changes stat-changes-panel">
+      <legend>Increases/Reductions</legend>
+      <div class="button-container">
+        <button type="button" title="Clear Decreases" data-action="resetNegativeChanges" class="set-button">Clear (-)</button>
+        <button type="button" title="Clear Increases" data-action="resetPositiveChanges" class="set-button">Clear (+)</button>
+        <button type="button" title="Clear Increases/Decreases" data-action="resetStatChanges" class="set-button">Clear
+          All</button>
+      </div>
+      {{#each system.statChanges as |change key|}}
+      <div class="statchange">
 
-            <div class="icon-and-value split negative">
-              <i class="fas fa-minus fa-xs changebox-icon"></i>
-              <input type="number" min="0" max="9" class="changebox editable always-interactive" value="{{change.minus}}"
-                data-key="system.statChanges.{{key}}.minus" name="system.statChanges.{{key}}.minus" data-dtype="Number">
-            </div>
+        <div class="icon-and-value split negative">
+          <i class="fas fa-minus fa-xs changebox-icon"></i>
+          <input type="number" min="0" max="9" class="changebox editable always-interactive" value="{{change.minus}}"
+            data-key="system.statChanges.{{key}}.minus" name="system.statChanges.{{key}}.minus" data-dtype="Number">
+        </div>
 
-            <div class="icon-and-value split positive">
-              <i class="fas fa-plus fa-xs changebox-icon"></i>
-              <input type="number" min="0" max="9" class="changebox editable always-interactive" value="{{change.plus}}"
-                data-key="system.statChanges.{{key}}.plus" name="system.statChanges.{{key}}.plus" data-dtype="Number">
-            </div>
+        <div class="icon-and-value split positive">
+          <i class="fas fa-plus fa-xs changebox-icon"></i>
+          <input type="number" min="0" max="9" class="changebox editable always-interactive" value="{{change.plus}}"
+            data-key="system.statChanges.{{key}}.plus" name="system.statChanges.{{key}}.plus" data-dtype="Number">
+        </div>
 
-            <label for="system.statChanges.{{key}}.value" class="stat-change-label">{{change.label}}</label>
+        <label for="system.statChanges.{{key}}.value" class="stat-change-label">{{change.label}}</label>
 
-            <div
-              class="icon-and-value split {{#if change.isPositive}}positive{{/if}}{{#if change.isNegative}}negative{{/if}}">
-              {{#if change.isPositive}}
-              <i class="fas fa-arrow-up changebox-icon"></i>
-              {{/if}}
-              {{#if change.isNegative}}
-              <i class="fas fa-arrow-down changebox-icon"></i>
-              {{/if}}
-              <input disabled="" type="text" maxlength="2" class="changebox" value="{{change.displayValue}}"
-                data-display-value="{{change.displayValue}}" data-actual-value="{{change.value}}"
-                data-key="system.statChanges.{{key}}.value" name="system.statChanges.{{key}}.displayValue"
-                data-dtype="Number">
-            </div>
+        <div
+          class="icon-and-value split {{#if change.isPositive}}positive{{/if}}{{#if change.isNegative}}negative{{/if}}">
+          {{#if change.isPositive}}
+          <i class="fas fa-arrow-up changebox-icon"></i>
+          {{/if}}
+          {{#if change.isNegative}}
+          <i class="fas fa-arrow-down changebox-icon"></i>
+          {{/if}}
+          <input disabled="" type="text" maxlength="2" class="changebox" value="{{change.displayValue}}"
+            data-display-value="{{change.displayValue}}" data-actual-value="{{change.value}}"
+            data-key="system.statChanges.{{key}}.value" name="system.statChanges.{{key}}.displayValue"
+            data-dtype="Number">
+        </div>
 
-          </li>
-          {{/each}}
-          <li class="statchange">
+      </div>
+      {{/each}}
+      <div class="statchange">
 
-            <div class="icon-and-value split negative">
-              <i class="fas fa-minus fa-xs changebox-icon"></i>
-              <input type="number" min="0" max="9" class="changebox editable" value="{{system.accuracyMod.minus}}"
-                data-key="system.accuracyMod.minus" name="system.accuracyMod.minus" data-dtype="Number">
-            </div>
+        <div class="icon-and-value split negative">
+          <i class="fas fa-minus fa-xs changebox-icon"></i>
+          <input type="number" min="0" max="9" class="changebox editable" value="{{system.accuracyMod.minus}}"
+            data-key="system.accuracyMod.minus" name="system.accuracyMod.minus" data-dtype="Number">
+        </div>
 
-            <div class="icon-and-value split positive">
-              <i class="fas fa-plus fa-xs changebox-icon"></i>
-              <input type="number" min="0" max="9" class="changebox editable" value="{{system.accuracyMod.plus}}"
-                data-key="system.accuracyMod.plus" name="system.accuracyMod.plus" data-dtype="Number">
-            </div>
+        <div class="icon-and-value split positive">
+          <i class="fas fa-plus fa-xs changebox-icon"></i>
+          <input type="number" min="0" max="9" class="changebox editable" value="{{system.accuracyMod.plus}}"
+            data-key="system.accuracyMod.plus" name="system.accuracyMod.plus" data-dtype="Number">
+        </div>
 
-            <label for="system.accuracyMod.value" class="accuracy-label">Accuracy</label>
+        <label for="system.accuracyMod.value" class="accuracy-label">Accuracy</label>
 
-            <div
-              class="icon-and-value split {{#if system.accuracyMod.isPositive}}positive{{/if}}{{#if system.accuracyMod.isNegative}}negative{{/if}}">
-              {{#if system.accuracyMod.isPositive}}
-              <i class="fas fa-arrow-up changebox-icon"></i>
-              {{/if}}
-              {{#if system.accuracyMod.isNegative}}
-              <i class="fas fa-arrow-down changebox-icon"></i>
-              {{/if}}
-              <input disabled="" type="text" maxlength="2" class="changebox" value="{{system.accuracyMod.displayValue}}"
-                data-display-value="{{system.accuracyMod.displayValue}}"
-                data-actual-value="{{system.accuracyMod.value}}" data-key="system.accuracyMod.value"
-                name="system.accuracyMod.displayValue" data-dtype="Number">
-            </div>
+        <div
+          class="icon-and-value split {{#if system.accuracyMod.isPositive}}positive{{/if}}{{#if system.accuracyMod.isNegative}}negative{{/if}}">
+          {{#if system.accuracyMod.isPositive}}
+          <i class="fas fa-arrow-up changebox-icon"></i>
+          {{/if}}
+          {{#if system.accuracyMod.isNegative}}
+          <i class="fas fa-arrow-down changebox-icon"></i>
+          {{/if}}
+          <input disabled="" type="text" maxlength="2" class="changebox" value="{{system.accuracyMod.displayValue}}"
+            data-display-value="{{system.accuracyMod.displayValue}}"
+            data-actual-value="{{system.accuracyMod.value}}" data-key="system.accuracyMod.value"
+            name="system.accuracyMod.displayValue" data-dtype="Number">
+        </div>
 
-          </li>
-        </ul>
-
-      </ul>
-    </ul>
+      </div>
+    </fieldset>
   </div>
 
   <div class="middle conditions-panel">
