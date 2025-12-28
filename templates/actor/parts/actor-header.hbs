@@ -17,35 +17,33 @@
       <div class="side-slot down-left">
         <div class="internal">
           <div class="info-container">
-            <div style="display: flex; align-items: center;gap: 1px;">
-              <label title="#{{system.pokedexId}} {{system.species}}"
-                style="color: white; background: transparent; text-align: center; padding: 2px 0px;max-width: 185px; overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">#{{system.pokedexId}}
+            <div class="pokedex-info">
+              <label title="#{{system.pokedexId}} {{system.species}}">#{{system.pokedexId}}
                 {{system.species}}</label>
               {{#if (pkOptions "genderOption")}}
-              <img src="{{styleImage system.gender}}" style="width: 22px;height: 22px;border: 0px;">
+              <img class="icon" src="{{styleImage system.gender}}">
               {{/if}}
               {{#if system.varicolor}}
-              <img title="Shiny" src="systems/pokerole/images/icons/varicolor.png"
-                style="width: 22px;height: 22px;border: 0px;">
+              <img class="icon" title="Shiny" src="systems/pokerole/images/icons/varicolor.png">
               {{/if}}
             </div>
           </div>
           <div class="type-container">
             <div class="type-selector" style="--type-color: {{styleType system.type1 'color1'}};">
-              <img src="{{styleType system.type1 'image'}}" style="height: 100%;border: 0px">
+              <img src="{{styleType system.type1 'image'}}">
               <select name="system.type1" value="{{system.type1}}" data-dtype="String">
                 {{selectOptions types selected=system.type1}}
               </select>
             </div>
             <div class="type-selector" style="--type-color: {{styleType system.type2 'color1'}};">
-              <img src="{{styleType system.type2 'image'}}" style="height: 100%;border: 0px">
+              <img src="{{styleType system.type2 'image'}}">
               <select name="system.type2" value="{{system.type2}}" data-dtype="String">
                 {{selectOptions types selected=system.type2}}
               </select>
             </div>
             {{#if system.hasThirdType}}
             <div class="type-selector" style="--type-color: {{styleType system.type3 'color1'}};">
-              <img src="{{styleType system.type3 'image'}}" style="height: 100%;border: 0px">
+              <img src="{{styleType system.type3 'image'}}">
               <select name="system.type3" value="{{system.type3}}" data-dtype="String">
                 {{selectOptions types selected=system.type3}}
               </select>
@@ -92,7 +90,7 @@
             <label for="system.activeItem">Item</label>
             {{#if editable}}
             <select name="system.activeItem" value="{{system.activeItem}}" data-dtype="String"
-              data-tooltip="{{activeItemDescription}}" style="margin-left: 12px;">
+              data-tooltip="{{activeItemDescription}}">
               {{selectOptions heldItemSelect selected=system.activeItem}}
             </select>
             {{else}}
@@ -109,12 +107,12 @@
         <div class="internal">
           {{#if (pkOptions "vitaminOption")}}
           {{#if (ifvitamin system.avitamin system.bvitamin "hp")}}
-          <div class="fa-solid fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
+          <div class="vitamin-star fa-solid fa-star"></div>
           {{else}}
-          <div class="fa-regular fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
+          <div class="vitamin-star fa-regular fa-star"></div>
           {{/if}}
           {{/if}}
-          <label for="system.hp.value" style="color: white;text-align: center; font-weight: bold;"> HP </label>
+          <label for="system.hp.value"> HP </label>
           <div class="pp-displayer">
             <input type="number" min="0" name="system.hp.value" value="{{system.hp.value}}" data-dtype="Number" class="always-interactive">
             <label>{{ system.hp.max }}</label>
@@ -126,16 +124,15 @@
         <div class="internal">
           {{#if (pkOptions "vitaminOption")}}
           {{#if (ifvitamin system.avitamin system.bvitamin "willpower")}}
-          <div class="fa-solid fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
+          <div class="vitamin-star fa-solid fa-star"></div>
           {{else}}
-          <div class="fa-regular fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
+          <div class="vitamin-star fa-regular fa-star"></div>
           {{/if}}
           {{/if}}
-          <label for="{{id}}-system-will-value" data-action="roll" data-roll-attribute="will" data-label="Will" class="rollable"
-            style="color: white;text-align: center; font-weight: bold;"> WP </label>
+          <label for="{{id}}-system-will-value" data-action="roll" data-roll-attribute="will" data-label="Will" class="rollable"> WP </label>
           <div class="pp-displayer">
             <input id="{{id}}-system-will-value" type="number" min="0" name="system.will.value" value="{{system.will.value}}" data-dtype="Number" class="always-interactive">
-            <label style="color: white;text-align: center;font-weight: bold;width: 18px;">{{ system.will.max }}</label>
+            <label>{{ system.will.max }}</label>
           </div>
         </div>
       </div>

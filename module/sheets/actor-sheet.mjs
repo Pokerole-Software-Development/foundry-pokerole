@@ -208,6 +208,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     context.owner = this.document.isOwner;
     context.locked = !this.isEditable;
     context.editable = this.isEditable && (this._mode === this.constructor.MODES.EDIT);
+    context.id = this.id;
 
     // Prepare character data and items.
     await this._prepareItems(context);
@@ -1245,7 +1246,6 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     if (!result) return;
     const formData = result;
     if(!formData.hasThirdType) this.actor.system.type3 = "none"
-    console.log(this.actor.system.type3);
 
     this.actor.update(formData);
   }
@@ -1302,9 +1302,6 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       await this.actor.resetAttributes();
       this.actor.update({system: {rank: newRank}});
       await this._advanceRank('none', newRank);
-      console.log("Re-Train performed")
-    } else {
-      console.warn("Actor doesn't have Rank")
     }
     
   }

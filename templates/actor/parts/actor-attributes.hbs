@@ -1,7 +1,7 @@
 {{!-- Attributes Tab --}}
 <section class="tab {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
   {{#if recoveryMode}}
-  <div style="color: red;">
+  <div class="recovery-mode-warning">
     <strong>RECOVERY MODE</strong>
     <p>Custom effects are disabled. Please fix potential errors and disable recovery mode in settings.</p>
     <hr>
@@ -15,17 +15,17 @@
 
         {{#if (pkOptions "vitaminOption")}}
           {{#if (ifvitamin ../system.avitamin ../system.bvitamin key)}}
-          <div class="fa-solid fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
+          <div class="fa-solid fa-star attribute-star"></div>
           {{else}}
-          <div class="fa-regular fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
+          <div class="fa-regular fa-star attribute-star"></div>
           {{/if}}
         {{/if}}
 
-        <label for="{{id}}-system-attributes-{{key}}-value" data-action="roll" class="resource-label flexlarge align-left rollable"
+        <label for="{{@root/id}}-system-attributes-{{key}}-value" data-action="roll" class="resource-label flexlarge align-left rollable"
           data-roll-attribute="{{key}}" data-label="{{attribute.label}}">{{attribute.label}}</label>
         
         {{#if ../editable}}
-        <input id="{{id}}-system-attributes-{{key}}-value" type="text" class="value-input {{#if attribute.overridden}}overridden{{/if}}"
+        <input id="{{@root/id}}-system-attributes-{{key}}-value" type="text" class="value-input {{#if attribute.overridden}}overridden{{/if}}"
           name="system.attributes.{{key}}.value" value="{{lookup (lookup ../actor._source.system.attributes key) "value"}}" {{!--{{disabled attribute.overridden}}--}}
           data-dtype="Number" />
         <span> / </span>
@@ -45,11 +45,11 @@
     <div class="social">
       {{#each system.social as |attribute key|}}
       <div class="attribute" data-kind="social.{{key}}">
-        <label for="{{id}}-system-social-{{key}}-value" data-action="roll" class="resource-label flexlarge align-left rollable"
+        <label for="{{@root/id}}-system-social-{{key}}-value" data-action="roll" class="resource-label flexlarge align-left rollable"
           data-roll-attribute="{{key}}" data-label="{{attribute.label}}">{{attribute.label}}</label>
         
         {{#if ../editable}}
-        <input id="{{id}}-system-social-{{key}}-value" type="text" class="value-input {{#if attribute.overridden}}overridden{{/if}}"
+        <input id="{{@root/id}}-system-social-{{key}}-value" type="text" class="value-input {{#if attribute.overridden}}overridden{{/if}}"
           name="system.social.{{key}}.value" value="{{attribute.value}}" data-dtype="Number" {{disabled
           attribute.overridden}} />
         <span> / </span>
@@ -69,7 +69,7 @@
     <div class="extra-attributes">
       {{#each system.extra as |attribute key|}}
       <div class="attribute">
-        <label for="{{id}}-system-extra-{{key}}-value" data-action="roll" class="resource-label flexlarge align-left rollable"
+        <label for="{{@root/id}}-system-extra-{{key}}-value" data-action="roll" class="resource-label flexlarge align-left rollable"
           data-roll-attribute="{{key}}" data-label="{{attribute.label}}">{{attribute.label}}</label>
         
         {{#if ../editable}}
@@ -78,7 +78,7 @@
           <i class="fas fa-trash"></i>
         </a>
         {{/if}}
-        <input id="{{id}}-system-extra-{{key}}-value" type="text" class="value-input {{#if attribute.overridden}}overridden{{/if}}"
+        <input id="{{@root/id}}-system-extra-{{key}}-value" type="text" class="value-input {{#if attribute.overridden}}overridden{{/if}}"
           name="system.extra.{{key}}.value" value="{{attribute.value}}" data-dtype="Number" {{disabled
           attribute.overridden}} />
         <span> / </span>
@@ -106,7 +106,7 @@
     <div class="skills">
       {{#each system.skills as |skill key|}}
       <div class="attribute">
-        <label for="{{id}}-system-skills-{{key}}-value" data-action="roll" class="resource-label flexlarge align-left rollable"
+        <label for="{{@root/id}}-system-skills-{{key}}-value" data-action="roll" class="resource-label flexlarge align-left rollable"
           data-roll-skill="{{key}}">{{skill.label}}</label>
 
         {{#if ../editable}}
@@ -115,7 +115,7 @@
           <i class="fas fa-trash"></i>
         </a>
         {{/if}}
-        <input id="{{id}}-system-skills-{{key}}-value" type="text" class="value-input {{#if skill.overridden}}overridden{{/if}}"
+        <input id="{{@root/id}}-system-skills-{{key}}-value" type="text" class="value-input {{#if skill.overridden}}overridden{{/if}}"
           name="system.skills.{{key}}.value" value="{{skill.value}}" data-dtype="Number" {{disabled
           skill.overridden}} />
         <span> / </span>
@@ -191,7 +191,7 @@
       </div>
     </div>
     {{#if editable}}
-    <div class="button-container" style="margin-bottom: 6px; margin-top: 3px;">
+    <div class="button-container">
       <button type="button" title="Retrain" data-action="reTrain" class="set-button">Retrain</button>
     </div>
     {{/if}}
@@ -202,14 +202,14 @@
         <div class="attribute">
           {{#if (pkOptions "vitaminOption")}}
           {{#if (ifvitamin ../system.avitamin ../system.bvitamin key)}}
-          <div class="fa-solid fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
+          <div class="fa-solid fa-star attribute-star"></div>
           {{else}}
-          <div class="fa-regular fa-star" width="22px" height="22px" style="border: 0px; margin: 0px 2px 0px 0px"></div>
+          <div class="fa-regular fa-star attribute-star"></div>
           {{/if}}
-        {{/if}}
-          <label for="{{id}}-system-derived-{{key}}-value" data-action="roll" class="resource-label flexlarge align-left rollable"
+          {{/if}}
+          <label for="{{@root/id}}-system-derived-{{key}}-value" data-action="roll" class="resource-label flexlarge align-left rollable"
             data-roll-attribute="{{key}}" data-roll-label="{{attribute.label}}">{{attribute.label}}</label>
-          <span id="{{id}}-system-derived-{{key}}-value">{{attribute.value}}</spanq>
+          <span id="{{@root/id}}-system-derived-{{key}}-value">{{attribute.value}}</spanq>
         </div>
         {{/each}}
       </div>
@@ -220,12 +220,12 @@
 
 
 {{#* inline "typematch"}}
-<li class="typematch" {{#if img}}style="background-image: url('{{img}}');"{{/if}}>
+<li class="typematch {{#if img}}typematch-icon{{/if}}" {{#if img}}data-icon="{{img}}"{{/if}}>
   <h4>{{label}}</h4>
   <div class="types">
     {{#each typematch}}
     <img title="{{this}}" src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
-      style="border: 0px"></img>
+      class="type-icon"></img>
     {{/each}}
   </div>
 </li>

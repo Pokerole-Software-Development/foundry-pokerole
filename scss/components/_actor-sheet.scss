@@ -37,6 +37,14 @@
     margin-top: 5px;
   }
 
+  .recovery-mode-warning {
+    color: red;
+    font-weight: bold;
+    padding: 10px;
+    border: 2px solid red;
+    margin-bottom: 10px;
+  }
+
   // ---------------------------------------------------------------------------
   // Item Box Styles (used in multiple tabs)
   // ---------------------------------------------------------------------------
@@ -484,6 +492,19 @@
             width: 100%;
             padding: 2px 3px;
             height: 100%;
+            
+            .vitamin-star {
+              width: 22px;
+              height: 22px;
+              border: none;
+              margin: 0 2px 0 0;
+            }
+            
+            label {
+              color: white;
+              text-align: center;
+              font-weight: bold;
+            }
 
             .pp-displayer {
               clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 101%, 0% 101%);
@@ -553,6 +574,7 @@
     .attribute-star {
       width: 22px;
       height: 22px;
+      line-height: 22px;
       border: none;
       margin: 0 2px 0 0;
     }
@@ -627,6 +649,12 @@
           img {
             border: none;
           }
+        }
+        
+        .typematch-icon {
+          width: 20px;
+          height: 20px;
+          border: none;
         }
       }
     }
