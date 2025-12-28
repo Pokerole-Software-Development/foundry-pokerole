@@ -148,6 +148,10 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     if (partId === "header") {
       await this._prepareHeaderContext(context, options);
     }
+
+    if (partId === "attributes") {
+      await this._prepareAttributesContext(context, options);
+    }
     
     // Prepare enriched biography HTML for the biography part
     if (partId === "biography") {
@@ -194,6 +198,19 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     context.attributesBubblesNum = Math.min(attributesBubblesNum, 8);
     return context;
   }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Prepares the attributes-specific context data.
+   * @param {*} context 
+   * @param {*} options 
+   */
+  async _prepareAttributesContext(context, options) {
+    context.hideBubbles = !(game.settings.get('pokerole', 'showBubbles') ?? true);
+    return context;
+  }
+
 
   /* -------------------------------------------- */
 

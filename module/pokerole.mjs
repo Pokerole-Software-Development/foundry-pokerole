@@ -131,6 +131,16 @@ Handlebars.registerHelper('lt', function (a, b) {
   return (a < b) ? (next.fn && next.fn(this)) : (next.inverse && next.inverse(this));
 });
 
+// getProperty
+Handlebars.registerHelper('getProperty', function (...args) {
+  const options = args.pop(); // remove Handlebars options arguments
+  var next = args.shift();
+  for (const a of args) {
+    next = foundry.utils.getProperty(next, a) ?? {};
+  }
+  return next;
+});
+
 // TP support (EQ)
 
 Handlebars.registerHelper('ifvitamin', function(v1, v2, test) {
@@ -423,6 +433,15 @@ function registerSettings() {
     default: 2,
     range: {min: 0, max: 3},
     requiresReload: true
+  });
+
+  game.settings.register('pokerole', 'showBubbles', {
+    name: 'Show Bubbles on Attributes',
+    hint: 'In "Play" mode on the character sheet, display bubbles for attributes instead of numbers (similar to the PDF)',
+    scope: 'user',
+    config: true,
+    type: Boolean,
+    default: true
   });
 }
 

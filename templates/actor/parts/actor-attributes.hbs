@@ -23,21 +23,8 @@
 
         <label for="{{@root/id}}-system-attributes-{{key}}-value" data-action="roll" class="resource-label flexlarge align-left rollable"
           data-roll-attribute="{{key}}" data-label="{{attribute.label}}">{{attribute.label}}</label>
-        
-        {{#if ../editable}}
-        <input id="{{@root/id}}-system-attributes-{{key}}-value" type="text" class="value-input {{#if attribute.overridden}}overridden{{/if}}"
-          name="system.attributes.{{key}}.value" value="{{lookup (lookup ../actor._source.system.attributes key) "value"}}"
-          data-dtype="Number" />
-        <span> / </span>
-        <input type="text" class="value-input" name="system.attributes.{{key}}.max" value="{{attribute.max}}"
-          data-dtype="Number" />
-        {{else}}
-        <div class="bubbles" data-tooltip="{{attribute.value}} / {{attribute.max}}">
-          {{#each (attributeBubbles ../actor "attributes" key) as |bubble|}}
-          <span class="bubble bubble-{{bubble.color}}"></span>
-          {{/each}}
-        </div>
-        {{/if}}
+        {{> dicePool type="attributes" key=key pool=attribute}}
+
       </div>
       {{/each}}
     </div>
@@ -46,22 +33,8 @@
       {{#each system.social as |attribute key|}}
       <div class="attribute" data-kind="social.{{key}}">
         <label for="{{@root/id}}-system-social-{{key}}-value" data-action="roll" class="resource-label flexlarge align-left rollable"
-          data-roll-attribute="{{key}}" data-label="{{attribute.label}}">{{attribute.label}}</label>
-        
-        {{#if ../editable}}
-        <input id="{{@root/id}}-system-social-{{key}}-value" type="text" class="value-input {{#if attribute.overridden}}overridden{{/if}}"
-          name="system.social.{{key}}.value" value="{{attribute.value}}" data-dtype="Number" {{disabled
-          attribute.overridden}} />
-        <span> / </span>
-        <input type="text" class="value-input" name="system.social.{{key}}.max" value="{{attribute.max}}"
-          data-dtype="Number" />
-        {{else}}
-        <div class="bubbles">
-          {{#each (attributeBubbles ../actor "social" key) as |bubble|}}
-          <span class="bubble bubble-{{bubble.color}}"></span>
-          {{/each}}
-        </div>
-        {{/if}}
+          data-roll-attribute="{{key}}" data-label="{{attribute.label}}">{{attribute.label}}</label>        
+        {{> dicePool type="social" key=key pool=attribute}}
       </div>
       {{/each}}
     </div>
@@ -78,19 +51,8 @@
           <i class="fas fa-trash"></i>
         </a>
         {{/if}}
-        <input id="{{@root/id}}-system-extra-{{key}}-value" type="text" class="value-input {{#if attribute.overridden}}overridden{{/if}}"
-          name="system.extra.{{key}}.value" value="{{attribute.value}}" data-dtype="Number" {{disabled
-          attribute.overridden}} />
-        <span> / </span>
-        <input type="text" class="value-input" name="system.extra.{{key}}.max" value="{{attribute.max}}"
-          data-dtype="Number" />
-        {{else}}
-        <div class="bubbles">
-          {{#each (attributeBubbles ../actor "extra" key) as |bubble|}}
-          <span class="bubble bubble-{{bubble.color}}"></span>
-          {{/each}}
-        </div>
         {{/if}}
+        {{> dicePool type="extra" key=key pool=attribute}}
       </div>
       {{/each}}
       {{#if editable}}
@@ -115,19 +77,8 @@
           <i class="fas fa-trash"></i>
         </a>
         {{/if}}
-        <input id="{{@root/id}}-system-skills-{{key}}-value" type="text" class="value-input {{#if skill.overridden}}overridden{{/if}}"
-          name="system.skills.{{key}}.value" value="{{skill.value}}" data-dtype="Number" {{disabled
-          skill.overridden}} />
-        <span> / </span>
-        <input type="text" class="value-input" name="system.skills.{{key}}.max" value="{{skill.max}}"
-          data-dtype="Number" readonly />
-        {{else}}
-        <div class="bubbles">
-          {{#each (attributeBubbles ../actor "skills" key) as |bubble|}}
-          <span class="bubble bubble-{{bubble.color}}"></span>
-          {{/each}}
-        </div>
         {{/if}}
+        {{> dicePool type="skills" key=key pool=skill maxReadonly=true}}
       </div>
       {{/each}}
       {{#if editable}}
@@ -229,4 +180,28 @@
     {{/each}}
   </div>
 </li>
+{{/inline}}
+
+{{#* inline "dicePool"}}
+  {{#if @root/editable}}
+    <input id="{{@root/id}}-system-{{type}}-{{key}}-value" type="text" class="value-input {{#if pool.overridden}}overridden{{/if}}"
+      name="system.{{type}}.{{key}}.value" value="{{getProperty @root/actor._source.system type key "value"}}" data-dtype="Number" />
+    <span> / </span>
+    <input type="text" class="value-input" name="system.{{type}}.{{key}}.max" value="{{pool.max}}"
+      data-dtype="Number" {{#if maxReadonly}}disabled{{/if}} />
+  {{else}}
+  {{#if @root/hideBubbles}}
+    <input id="{{@root/id}}-system-{{type}}-{{key}}-value" type="text" class="value-input {{#if pool.overridden}}overridden{{/if}}"
+      name="system.{{type}}.{{key}}.value" value="{{pool.value}}" data-dtype="Number" disabled />
+    <span> / </span>
+    <input type="text" class="value-input" name="system.{{type}}.{{key}}.max" value="{{pool.max}}"
+      data-dtype="Number" disabled />
+  {{else}}
+    <div class="bubbles">
+      {{#each (attributeBubbles @root/actor type key) as |bubble|}}
+      <span class="bubble bubble-{{bubble.color}}"></span>
+      {{/each}}
+    </div>
+  {{/if}}
+  {{/if}}
 {{/inline}}
