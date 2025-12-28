@@ -4,17 +4,14 @@
  * @return {Promise}
  */
  export const preloadHandlebarsTemplates = async function() {
-  return foundry.applications.handlebars.loadTemplates([
+  const partials = [
+    // Shared partials.
+    "systems/pokerole/templates/shared/multi-editor.hbs",
     // Actor partials.
     "systems/pokerole/templates/actor/parts/actor-items.hbs",
     "systems/pokerole/templates/actor/parts/actor-moves.hbs",
     "systems/pokerole/templates/actor/parts/actor-effects.hbs",
     "systems/pokerole/templates/actor/parts/actor-test.hbs",
-    // Item partials.
-    "systems/pokerole/templates/item/item-ability-sheet.hbs",
-    "systems/pokerole/templates/item/item-effect-sheet.hbs",
-    "systems/pokerole/templates/item/item-item-sheet.hbs",
-    "systems/pokerole/templates/item/item-move-sheet.hbs",
     // Move item partials.
     "systems/pokerole/templates/item/parts/item-move-header.hbs",
     "systems/pokerole/templates/item/parts/item-move-attributes.hbs",
@@ -32,5 +29,13 @@
     "systems/pokerole/templates/item/parts/item-item-header.hbs",
     "systems/pokerole/templates/item/parts/item-item-description.hbs",
     "systems/pokerole/templates/item/parts/item-item-properties.hbs",
-  ]);
+  ];
+
+  const paths = {};
+  for ( const path of partials ) {
+    paths[path.replace(".hbs", ".html")] = path;
+    paths[`pokerole.${path.split("/").pop().replace(".hbs", "")}`] = path;
+  }
+
+  return foundry.applications.handlebars.loadTemplates(paths);
 };

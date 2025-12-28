@@ -19,7 +19,8 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
       createEffectGroup: PokeroleItemBaseSheet.#onCreateEffectGroup,
       deleteEffectGroup: PokeroleItemBaseSheet.#onDeleteEffectGroup,
       addEffect: PokeroleItemBaseSheet.#onAddEffect,
-      deleteEffect: PokeroleItemBaseSheet.#onDeleteEffect
+      deleteEffect: PokeroleItemBaseSheet.#onDeleteEffect,
+      editDescription: PokeroleItemBaseSheet.#onEditDescription
     },
     form: {
       submitOnChange: true
@@ -89,8 +90,13 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
     context.locked = !this.isEditable;
     context.owned = this.item.isOwned;
 
-    // Enrich description if it exists
-    if (this.item.system?.description) {
+    // Handle description editing
+    if (this._editingDescriptionTarget) {
+      context.editingDescription = {
+        target: this._editingDescriptionTarget,
+        value: foundry.utils.getProperty(this.document, this._editingDescriptionTarget)
+      };
+    } else if (this.item.system?.description) {
       context.descriptionHtml = await foundry.applications.ux.TextEditor.implementation.enrichHTML(this.item.system.description, {
         secrets: this.document.isOwner,
         async: true
@@ -210,6 +216,17 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
     htmlElement.querySelectorAll('.effect-affects').forEach(el => {
       el.addEventListener('change', this._onEffectAffectsChange.bind(this));
     });
+    
+    // Clear editing description state when prose-mirror is saved
+    if (this._editingDescriptionTarget) {
+      const proseMirror = htmlElement.querySelector('prose-mirror');
+      if (proseMirror) {
+        proseMirror.addEventListener('save', () => {
+          this._editingDescriptionTarget = null;
+          this.render();
+        });
+      }
+    }
   }
 
   /* -------------------------------------------- */
@@ -447,5 +464,18 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
     const groups = [...this.item.system.effectGroups];
     groups[groupIndex].effects.splice(effectIndex, 1);
     await this.item.update({ "system.effectGroups": groups });
+  }
+
+  /**
+   * Handle editing description fields.
+   * @this {PokeroleItemBaseSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static #onEditDescription(event, target) {
+    const field = target.dataset.target;
+    this._editingDescriptionTarget = field;
+    console.log("#onEditDescription", field);
+    this.render();
   }
 }

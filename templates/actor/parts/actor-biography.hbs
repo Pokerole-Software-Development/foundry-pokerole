@@ -98,25 +98,7 @@
     </ul>
 
     {{#unless limitedPermissions}}
-    {{#if editingDescription}}
-    <prose-mirror name="{{ editingDescription.target }}" value="{{ editingDescription.value }}"
-                  document-uuid="{{ actor.uuid }}" compact></prose-mirror>
-    {{else}}
-    <div class="biography-editor" data-target="system.biography">
-      <h4>
-        Biography
-        {{#if editable}}
-        <button type="button" class="editor-edit" data-action="editDescription" data-target="system.biography"
-                aria-label="Edit Biography">
-          <i class="fas fa-edit"></i>
-        </button>
-        {{/if}}
-      </h4>
-      <div class="editor">
-        <div class="editor-content">{{{ biographyHtml }}}</div>
-      </div>
-    </div>
-    {{/if}}
+    {{> pokerole.multi-editor editing=editingDescription html=biographyHtml label="Biography" key="system.description" editable=editable}}
     {{/unless}}
   </div>
 </section>
