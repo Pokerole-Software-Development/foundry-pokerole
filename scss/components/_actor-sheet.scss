@@ -5,7 +5,7 @@
 // Organized by section: Variables, Header, Tabs, Resources, Attributes, etc.
 // =============================================================================
 
-&.actor.sheet {
+.pokerole.actor.sheet {
   // ---------------------------------------------------------------------------
   // CSS Variables
   // ---------------------------------------------------------------------------
@@ -13,8 +13,11 @@
   --color-pkmn-red: #A21C1C;
   --color-pkmn-outline: #433727;
   --color-pkmn-orange: #C34231;
+  --color-pkmn-dkorange: #AB3E2E;
   --color-pkmn-field-back: #DAECF9;
   --color-pkmn-darkfield-back: #841722;
+  --color-pkmn-container-bg: #151515;
+  --background: #111;
   --color-disposition: #999999;
 
   // ---------------------------------------------------------------------------
@@ -26,7 +29,7 @@
 
   .window-content {
     overflow-y: scroll;
-    background: url(../../../ui/denim075.png);
+    background: var(--background);
     display: block;
   }
 
@@ -46,6 +49,11 @@
     margin-bottom: 10px;
   }
 
+  select,
+  input {
+    box-shadow: none;
+  }
+
   // ---------------------------------------------------------------------------
   // Item Box Styles (used in multiple tabs)
   // ---------------------------------------------------------------------------
@@ -59,13 +67,13 @@
       color: inherit;
       padding: 5px;
       border-radius: 10px;
-      background: var(--color-header-background);
+      background: var(--color-pkmn-container-bg);
       border: 1px solid var(--color-fieldset-border);
       min-height: 78px;
 
       .items-header {
         border-radius: 10px;
-        background: var(--color-header-background);
+        background: var(--color-pkmn-container-bg);
         gap: 10px;
 
         .item-name {
@@ -87,6 +95,12 @@
 
       .item-name-container {
         justify-content: flex-start;
+        gap: 5px;
+
+        > a {
+          flex-grow: 0;
+          margin-right: 0;
+        }
 
         .item-name {
           color: inherit;
@@ -609,6 +623,7 @@
 
       .attribute label {
         width: 80px;
+        color: white;
       }
     }
 
@@ -623,13 +638,11 @@
       margin-bottom: 10px;
 
       .attribute {
-        label {
-          color: white;
-        }
+        --color-text-primary: white;
+        color: var(--color-text-primary);
 
         input,
         select {
-          // background-color: white;
           border-radius: 10px;
           width: 40px;
         }
@@ -648,27 +661,22 @@
       }
     }
 
-    .matchups {
-      h4 {
-        font-size: revert;
-        font-family: var(--font-sans);
+    .matchups .typematch {
+      position: relative;
+
+      .typematch-icon {
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        right: 0;
+        top: -8px;
       }
 
-      li.typematch {
-        background-repeat: no-repeat;
-        background-size: 20px;
-        background-position: top right;
+      .types {
+        display: flex;
+        gap: 5px;
 
-        .types {
-          display: flex;
-          gap: 5px;
-
-          img {
-            border: none;
-          }
-        }
-
-        .typematch-icon {
+        img {
           width: 20px;
           height: 20px;
           border: none;
@@ -872,6 +880,7 @@
     margin-bottom: 5px;
     gap: 5px;
     align-items: center;
+    color: white;
 
     button {
       width: fit-content;
@@ -892,6 +901,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    color: white;
 
     .input-group {
       margin: 0 5px;
@@ -1025,6 +1035,9 @@
     flex-direction: row;
     align-items: center;
     gap: 5px;
+    a {
+      color: white;
+    }
   }
 
   .add-custom-value {
@@ -1076,7 +1089,7 @@
   // ---------------------------------------------------------------------------
   // Stat Changes & Effects
   // ---------------------------------------------------------------------------
-  .stat-changes {
+  fieldset {
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -1084,91 +1097,89 @@
     margin: 0;
     list-style-type: none;
     justify-content: space-between;
-    border: 1px solid var(--color-pkmn-outline);
+    background-color: var(--color-pkmn-container-bg);
+    border: 3px solid var(--color-pkmn-dkorange);
 
     legend {
-      background: url(../../../ui/denim075.png);
-      border-radius: 20px;
+      background: var(--background);
+      color: var(--color-pkmn-dkorange);
       border-radius: 20px;
       padding: 0 10px;
-      border: 1px solid var(--color-pkmn-outline);
-      border-top: unset;
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      border: 1px solid var(--color-pkmn-dkorange);
+    }
+  }
+  .stat-changes.stat-changes-panel {
+    margin-top: 5px;
+
+    .button-container {
+      margin-bottom: 3px;
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
     }
 
-    &.pain {
-      background-color: var(--color-pkmn-orange);
-    }
+    .statchange {
+      flex: 1;
+      align-items: center;
+      display: flex;
+      border-radius: 14px;
+      padding: 2px 0px;
+      gap: 12px;
+      font-family: Signika, sans-serif;
+      justify-content: space-between;
 
-    &.stat-changes-panel {
-      background-color: #3C3C3B;
-      margin-top: 5px;
-
-      .button-container {
-        margin-bottom: 3px;
+      .split {
+        background-color: white;
+        border-radius: 8px;
+        font-weight: bold;
+        color: grey;
+        border: solid 2px;
+        height: 28px;
+        width: 38px;
         display: flex;
-        justify-content: space-between;
-        gap: 6px;
+        align-items: center;
+        justify-content: center;
+        font-size: 17px;
+
+        &.negative {
+          color: #e41b13;
+        }
+
+        &.positive {
+          color: #0095db;
+        }
+
+        .changebox-icon {
+          position: relative;
+          left: 4px;
+          top: 1px;
+          width: 0px;
+        }
+
+        .changebox {
+          text-align: end;
+          color: inherit;
+          background-color: transparent;
+          height: 24px;
+
+          &.editable {
+            text-decoration: underline;
+            border: 0px;
+            text-underline-offset: 2px;
+          }
+        }
       }
 
-      .statchange {
+      label {
+        color: white;
+        width: 60px;
+        text-align: center;
+        font-size: 1.1em;
         flex: 1;
-        align-items: center;
-        display: flex;
-        border-radius: 14px;
-        padding: 2px 0px;
-        gap: 12px;
-        font-family: Signika, sans-serif;
-        justify-content: space-between;
-
-        .split {
-          background-color: white;
-          border-radius: 8px;
-          font-weight: bold;
-          color: grey;
-          border: solid 2px;
-          height: 28px;
-          width: 38px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 17px;
-
-          &.negative {
-            color: #e41b13;
-          }
-
-          &.positive {
-            color: #0095db;
-          }
-
-          .changebox-icon {
-            position: relative;
-            left: 4px;
-            top: 1px;
-            width: 0px;
-          }
-
-          .changebox {
-            text-align: end;
-            color: inherit;
-            background-color: transparent;
-            height: 24px;
-
-            &.editable {
-              text-decoration: underline;
-              border: 0px;
-              text-underline-offset: 2px;
-            }
-          }
-        }
-
-        label {
-          color: white;
-          width: 60px;
-          text-align: center;
-          font-size: 1.1em;
-          flex: 1;
-        }
       }
     }
   }
@@ -1270,25 +1281,23 @@
     gap: 5px;
   }
 
-  .matchups li,
-  .pokedex li,
-  .multi-editor,
-  prose-mirror[name="system.biography"] {
-    border-radius: 13px;
-    border: 3px solid #AB3E2E;
-    padding: 3px 5px;
-    background-color: black;
-    font-size: 0.75rem;
-    min-height: 50px;
+  // .matchups li,
+  // .pokedex li {
+  //   border-radius: 13px;
+  //   border: 3px solid var(--color-pkmn-dkorange);
+  //   padding: 3px 5px;
+  //   background-color: var(--color-pkmn-container-bg);
+  //   font-size: 0.75rem;
+  //   min-height: 50px;
 
-    h4 {
-      text-transform: uppercase;
-      color: #AB3E2E;
-      margin-bottom: 0;
-      font-size: revert;
-      font-family: var(--font-sans);
-    }
-  }
+  //   h4 {
+  //     text-transform: uppercase;
+  //     color: var(--color-pkmn-dkorange);
+  //     margin-bottom: 0;
+  //     font-size: revert;
+  //     font-family: var(--font-sans);
+  //   }
+  // }
 
   .matchups,
   .pokedex {
@@ -1299,27 +1308,23 @@
     flex-direction: column;
     gap: 3px;
 
-    li.inner-list {
-      background-color: #AB3E2E;
+    .inner-list {
+      background-color: var(--color-pkmn-dkorange);
       padding: 0;
-    }
-
-    .inner-list ul {
       display: flex;
       flex-direction: row;
       list-style-type: none;
       margin: 0;
       padding: 0;
       gap: 3px;
+      border-radius: 10px;
+      margin-top: 5px;
 
-      li {
+      > fieldset {
         flex: 1;
-        background-color: black;
         border: none;
-
-        span {
-          margin-left: 5px;
-        }
+        margin: 3px;
+        margin-top: -5px;
       }
     }
 
@@ -1416,8 +1421,8 @@
   }
 
   .abilities {
-    background-color: black;
-    color: white;
+    background-color: var(--color-pkmn-container-bg);
+    color: var(--color-text-primary);
     border-radius: 15px;
     padding: 5px;
 
@@ -1503,6 +1508,51 @@
 
     .item-controls {
       justify-content: center;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Light Mode Support!
+// ---------------------------------------------------------------------------
+body.theme-light .pokerole.actor.sheet:not(.theme-dark),
+.pokerole.actor.sheet.theme-light {
+  --background: #DDD;
+  --color-pkmn-container-bg: white;
+
+  .window-content {
+    background: inherit;
+
+    input,
+    select {
+      --input-text-color: black;
+      --input-background-color: white;
+      &:focus {
+        color: var(--input-text-color);
+        background-color: var(--input-background-color);
+      }
+    }
+
+    button {
+      background: #DDD;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Locked/Editable State
+  // ---------------------------------------------------------------------------
+  &:not(.editable) {
+    input:not(.always-interactive) {
+      color: inherit;
+    }
+
+    select:not(.always-interactive) {
+      appearance: none;
+      color: inherit;
+    }
+    .type-selector select {
+      appearance: none;
+      color: white;
     }
   }
 }

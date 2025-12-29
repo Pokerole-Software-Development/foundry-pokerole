@@ -1,51 +1,46 @@
 {{!-- Biography Tab --}}
 <section class="tab {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
   <aside class="species-data">
-  <div class="pokedex-number-name">
-    <span class="number-sign">#</span>
-    <input type="text" class="pokedex-num" name="system.pokedexId" value="{{system.pokedexId}}" placeholder="0"
-      data-dtype="Number" />
-    <input type="text" name="system.species" value="{{system.species}}" placeholder="Species"
-      data-dtype="String" />
-    {{#unless limitedPermissions}}
-    <a data-action="showSettings"><i class="fas fa-cogs"></i></a>
-    {{/unless}}
-  </div>
-    <ul class="pokedex">
-      <li>
-        <h4>Category</h4>
+    <div class="pokedex-number-name">
+      <span class="number-sign">#</span>
+      <input type="text" class="pokedex-num" name="system.pokedexId" value="{{system.pokedexId}}" placeholder="0"
+        data-dtype="Number" />
+      <input type="text" name="system.species" value="{{system.species}}" placeholder="Species"
+        data-dtype="String" />
+      {{#unless limitedPermissions}}
+      <a data-action="showSettings"><i class="fas fa-cogs"></i></a>
+      {{/unless}}
+    </div>
+    <div class="pokedex">
+      <fieldset>
+        <legend>Category</legend>
         <input name="system.pokedexCategory" value="{{system.pokedexCategory}}" placeholder="Pokédex Category">
-      </li>
-      <li>
-        <h4>Pokédex Entry</h4>
+      </fieldset>
+      <fieldset>
+        <legend>Pokédex Entry</legend>
         <textarea class="pokedex-description"
           name="system.pokedexDescription">{{ system.pokedexDescription }}</textarea>
-      </li>
-      <li class="inner-list">
-        <ul>
-          <li>
-            <h4>Height</h4>
-            <span><input class="small" name="system.height" value="{{system.height}}"> m / {{heightImperial}}
-              ft</span>
-          </li>
-          <li>
-            <h4>Weight</h4>
-            <span><input class="small" name="system.weight" value="{{system.weight}}"> kg / {{weightImperial}}
-              lbs</span>
-          </li>
-        </ul>
-      </li>
-    </ul>
-
+      </fieldset>
+      <div class="inner-list">
+        <fieldset>
+          <legend>Height</legend>
+          <span><input class="small" name="system.height" value="{{system.height}}"> m / {{heightImperial}} ft</span>
+        </fieldset>
+        <fieldset>
+          <legend>Weight</legend>
+          <span><input class="small" name="system.weight" value="{{system.weight}}"> kg / {{weightImperial}} lbs</span>
+        </fieldset>
+      </div>
+    </div>  
     {{#unless limitedPermissions}}
-    <div class="abilities">
-      <h4>
+    <fieldset class="abilities">
+      <legend>
         Abilities
         {{#if editable}}
         <a data-action="createItem" title="Create ability" data-type="ability"><i
             class="fas fa-plus"></i></a>
         {{/if}}
-      </h4>
+      </legend>
       <ul>
         {{#each abilities as |item index|}}
         <li class="item" data-item-id="{{item.data._id}}">
@@ -70,35 +65,36 @@
       <span class="number-sign">Character Data</span>
     </div>
 
-    <ul class="pokedex">
-      <li>
-        <h4>Trait</h4>
+    <div class="pokedex">
+      <fieldset>
+        <legend>Trait</legend>
         <input type="text" name="system.trait" value="{{system.trait}}" placeholder="None">
-      </li>
+      </fieldset>
       {{#if (pkOptions "vitaminOption")}}
-      <li class="inner-list">
-        <ul>
-          <li>
-            <h4>A Vitamin</h4>
-            <select name="system.avitamin" value="{{system.avitamin}}" data-dtype="String"
-              class="medium clean-selector">
-              {{selectOptions addedvitamin selected=system.avitamin}}
-            </select>
-          </li>
-          <li>
-            <h4>B Vitamin</h4>
-            <select name="system.bvitamin" value="{{system.bvitamin}}" data-dtype="String"
-              class="medium clean-selector">
-              {{selectOptions addedvitamin selected=system.bvitamin}}
-            </select>
-          </li>
-        </ul>
-      </li>
+      <div class="inner-list">
+        <fieldset>
+          <legend>A Vitamin</legend>
+          <select name="system.avitamin" value="{{system.avitamin}}" data-dtype="String"
+            class="medium clean-selector">
+            {{selectOptions addedvitamin selected=system.avitamin}}
+          </select>
+        </fieldset>
+        <fieldset>
+          <legend>B Vitamin</legend>
+          <select name="system.bvitamin" value="{{system.bvitamin}}" data-dtype="String"
+            class="medium clean-selector">
+            {{selectOptions addedvitamin selected=system.bvitamin}}
+          </select>
+        </fieldset>
+      </div>
       {{/if}}
-    </ul>
+    </div>
 
     {{#unless limitedPermissions}}
-    {{> pokerole.multi-editor editing=editingDescription html=biographyHtml label="Biography" key="system.description" editable=editable}}
+    <fieldset class="biography">
+      <legend>Biography</legend>
+      {{> pokerole.multi-editor editing=editingDescription html=biographyHtml key="system.biography" editable=editable}}
+    </fieldset>
     {{/unless}}
   </div>
 </section>

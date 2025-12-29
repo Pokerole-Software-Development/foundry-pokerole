@@ -88,7 +88,7 @@
       </div>
       {{/if}}
     </div>
-    <ul class="matchups">
+    <div class="matchups">
       {{#if matchups.tripleWeak}}
         {{> typematch label="Triple weaknesses (+3)" typematch=typematch.tripleWeak img="systems/pokerole/images/icons/matchups/X8.svg"}}
       {{/if}}
@@ -116,7 +116,7 @@
       {{#if matchups.immune}}
         {{> typematch label="Immunities (x0)" typematch=typematch.immune img="systems/pokerole/images/icons/matchups/X0.svg"}}
       {{/if}}
-    </ul>
+    </div>
   </div>
   
   <aside>
@@ -171,15 +171,17 @@
 
 
 {{#* inline "typematch"}}
-<li class="typematch {{#if img}}typematch-icon{{/if}}" {{#if img}}data-icon="{{img}}"{{/if}}>
-  <h4>{{label}}</h4>
+<fieldset class="typematch">
+  <legend>{{label}}</legend>
+  {{#if img}}
+  <img class="typematch-icon" src="{{img}}" />
+  {{/if}}
   <div class="types">
     {{#each typematch}}
-    <img title="{{this}}" src="systems/pokerole/images/types/{{this}}.svg" width="25px" height="25px"
-      class="type-icon"></img>
+    <img title="{{this}}" src="systems/pokerole/images/types/{{this}}.svg" class="type-icon"></img>
     {{/each}}
   </div>
-</li>
+</fieldset>
 {{/inline}}
 
 {{#* inline "dicePool"}}

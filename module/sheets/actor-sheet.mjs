@@ -106,7 +106,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
   _mode = null;
 
   // Move groups that are collapsed by default
-  static HIDDEN_GROUPS = [...POKEROLE.ranks];
+  static HIDDEN_GROUPS = [];
 
   static HIDDEN_POCKET = []
 
