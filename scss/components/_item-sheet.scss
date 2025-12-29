@@ -9,6 +9,7 @@
   // ---------------------------------------------------------------------------
   // CSS Variables
   // ---------------------------------------------------------------------------
+  --background: #111;
   --color-pkmn-header-back: #A21C1C;
   --color-pkmn-red: #A21C1C;
   --color-pkmn-outline: #433727;
@@ -25,7 +26,7 @@
 
   .window-content {
     overflow-y: scroll;
-    background: url(../../../ui/denim075.png);
+    background: var(--background);
     display: block;
   }
 
@@ -362,6 +363,14 @@
       }
     }
   }
+}
+
+// ---------------------------------------------------------------------------
+// Light Mode Support!
+// ---------------------------------------------------------------------------
+body.theme-light .pokerole.item.sheet:not(.theme-dark),
+.pokerole.item.sheet.theme-light {
+  --background: #DDD;
 }
 
 // =============================================================================

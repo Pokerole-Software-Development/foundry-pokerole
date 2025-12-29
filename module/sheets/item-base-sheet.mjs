@@ -97,7 +97,11 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
         value: foundry.utils.getProperty(this.document, this._editingDescriptionTarget)
       };
     } else if (this.item.system?.description) {
-      context.descriptionHtml = await foundry.applications.ux.TextEditor.implementation.enrichHTML(this.item.system.description, {
+      let modDescription = this.item.system.description.trim();
+      if (modDescription.at(0) != "<") {
+        modDescription = `<p>${escapeHTML(modDescription)}</p>`;
+      }
+      context.descriptionHtml = await foundry.applications.ux.TextEditor.implementation.enrichHTML(modDescription, {
         secrets: this.document.isOwner,
         async: true
       });
