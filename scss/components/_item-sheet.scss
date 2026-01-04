@@ -1,0 +1,484 @@
+// =============================================================================
+// ITEM SHEET STYLES
+// =============================================================================
+// This file contains all styles specific to item sheets (Move/Ability/Effect/Item)
+// Organized by section: Layout, Header, Tabs, Forms, Effects, etc.
+// =============================================================================
+
+.pokerole.item.sheet {
+  // ---------------------------------------------------------------------------
+  // CSS Variables
+  // ---------------------------------------------------------------------------
+  --background: #111;
+  --color-pkmn-header-back: #A21C1C;
+  --color-pkmn-red: #A21C1C;
+  --color-pkmn-outline: #433727;
+  --color-pkmn-field-back: #DAECF9;
+  --color-pkmn-darkfield-back: #841722;
+  --color-disposition: #999999;
+
+  // ---------------------------------------------------------------------------
+  // Window & Layout
+  // ---------------------------------------------------------------------------
+  .window-header slide-toggle {
+    --slide-toggle-track-color-unchecked: darkgray;
+  }
+
+  .window-content {
+    overflow-y: scroll;
+    background: var(--background);
+    display: block;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Common Tab Styles
+  // ---------------------------------------------------------------------------
+  .tab {
+    margin: 10px;
+    margin-top: 5px;
+    
+    // Add vertical spacing for form elements in tabs
+    > * + * {
+      margin-top: 10px;
+    }
+
+    h3 {
+      margin-top: 15px;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    p {
+      margin: 5px 0;
+    }
+
+    hr {
+      margin: 15px 0;
+      border: none;
+      border-top: 1px solid rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Form Groups & Resources (Item-specific overrides)
+  // ---------------------------------------------------------------------------
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 10px;
+
+    label {
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      padding: 5px 10px;
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      border-radius: 3px;
+    }
+
+    input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .resource {
+    background-color: black;
+    border-radius: 20px;
+    display: flex;
+    color: white;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 10px;
+    font-size: 1.3em;
+
+    input, select {
+      width: 40px;
+      background-color: white;
+      border: none;
+      border-radius: 20px;
+      text-align: center;
+      color: black;
+    }
+  }
+
+  .resource-label {
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Grid Layout (for header fields like quantity/price)
+  // ---------------------------------------------------------------------------
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Move Attributes Tab Styles
+  // ---------------------------------------------------------------------------
+  .tab[data-tab="attributes"] {
+    // Section headings in attributes tab
+    h3 {
+      margin: 10px 0 5px 0;
+      padding: 3px 8px;
+      background: var(--color-pkmn-red);
+      color: white;
+      border-radius: 3px;
+      font-size: 0.85em;
+      font-weight: 600;
+      
+      &:first-child {
+        margin-top: 0;
+      }
+    }
+
+    // Dividers between sections
+    hr {
+      margin: 8px 0;
+      border: none;
+      border-top: 1px solid rgba(0, 0, 0, 0.15);
+    }
+
+    // Compact form groups in attributes tab
+    .form-group {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+      
+      label {
+        font-size: 0.75em;
+        font-weight: 500;
+        text-align: right;
+        padding-right: 5px;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      select {
+        padding: 3px 6px;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+        font-size: 0.85em;
+        height: 24px;
+        
+        &:focus {
+          outline: none;
+          border-color: var(--color-pkmn-red);
+        }
+      }
+
+      select {
+        cursor: pointer;
+      }
+
+      textarea {
+        grid-column: 2 / -1;
+        padding: 3px 6px;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+        font-family: inherit;
+        font-size: 0.85em;
+        min-height: 40px;
+        resize: vertical;
+        line-height: 1.3;
+        
+        &:focus {
+          outline: none;
+          border-color: var(--color-pkmn-red);
+        }
+      }
+
+      // When textarea is present, align label to top
+      &:has(textarea) {
+        align-items: start;
+        
+        label {
+          padding-top: 3px;
+        }
+      }
+
+      // Checkbox styling - keep on same line
+      input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+        accent-color: var(--color-pkmn-red);
+        justify-self: start;
+      }
+    }
+  }
+
+  .attributes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+
+    .attribute-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+
+      label {
+        font-weight: bold;
+        font-size: 0.9em;
+        color: $c-dark;
+      }
+
+      input, select {
+        padding: 5px;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Effect Rules Tab Styles (Effect Items)
+  // ---------------------------------------------------------------------------
+  .effects-list {
+    .rule-attribute,
+    .rule-operator,
+    .rule-value {
+      margin: 0 2px;
+    }
+
+    .rule-attribute {
+      flex: 2;
+      min-width: 200px;
+    }
+
+    .rule-operator {
+      flex: 1;
+      min-width: 100px;
+    }
+
+    .rule-value {
+      flex: 1;
+      min-width: 80px;
+    }
+
+    input, select {
+      height: 30px;
+      padding: 3px 8px;
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      border-radius: 3px;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Effect Groups (Move Effects Tab)
+  // ---------------------------------------------------------------------------
+  .effect-group-list {
+    margin-top: 10px;
+
+    .effect-group-condition-amount {
+      width: 50px;
+      margin-right: 5px;
+    }
+
+    .effect-group-condition {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .condition-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .effect-item {
+      padding-left: 15px;
+      background: rgba(0, 0, 0, 0.02);
+    }
+
+    .effect-type,
+    .effect-target,
+    .effect-effect-amount {
+      margin: 0 3px;
+    }
+
+    input[type="number"] {
+      width: 60px;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Item Controls (Add/Delete buttons)
+  // ---------------------------------------------------------------------------
+  .item-control {
+    cursor: pointer;
+    color: $c-dark;
+    transition: color 0.2s;
+
+    &:hover {
+      color: var(--color-pkmn-red);
+    }
+
+    i {
+      margin-right: 3px;
+    }
+  }
+
+  .effect-group-control {
+    cursor: pointer;
+    font-weight: bold;
+    
+    &:hover {
+      color: var(--color-pkmn-red);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Properties Tab (Item/Gear sheets)
+  // ---------------------------------------------------------------------------
+  .properties-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Move-Specific Display Styles
+  // ---------------------------------------------------------------------------
+  &.move {
+    &:not(.editable) {
+      .window-content > *:not(.move-tooltip) {
+        display: none;
+      }
+    }
+    &.editable {
+      .window-content > .move-tooltip {
+        display: none;
+      }
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Light Mode Support!
+// ---------------------------------------------------------------------------
+body.theme-light .pokerole.item.sheet:not(.theme-dark),
+.pokerole.item.sheet.theme-light {
+  --background: #DDD;
+}
+
+// =============================================================================
+// TOOLTIP STYLES
+// =============================================================================
+.move-tooltip {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  // gap: 5px;
+  background: var(--pkmn-type-main-bg);
+  color: var(--pkmn-type-text-color);
+  font-family: "Prototype", var(--font-body);
+  font-size: 10pt;
+
+  header {
+    grid-column: 1 / 3;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background: var(--pkmn-type-header-bg);
+    h2 {
+      flex-grow: 1;
+      color: inherit;
+      margin: 0 5px;
+      font-family: "Blissful Thinking", var(--font-h2);
+    }
+    .power-container {
+      background: var(--pkmn-type-footer-bg);
+      padding: 5px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      .move-power {
+        font-family: "Cafe Nero M54", var(--font-body);
+        font-size: 14pt;
+      }
+    }
+    .move-category {
+      width: 80px;
+    }
+  }
+
+  section {
+    margin: 5px;
+    gap: 5px;
+    &+section {
+      margin-left: 0;
+    }
+
+    .move-type,
+    .move-category {
+      display: inline-block;
+      margin-right: 5px;
+    }
+
+    &.description .label {
+      font-family: "Cafe Nero M54", var(--font-body);
+      font-size: 8pt;
+      .label-colon {
+        font-family: "Prototype", var(--font-body);
+      }
+    }
+
+    &.attributes {
+      display: flex;
+      flex-wrap: wrap-reverse;
+      flex-direction: column;
+      max-height: 105px;
+      gap: 5px;
+      justify-self: end;
+      > * {
+        width: 50px;
+        height: 50px;
+        flex-grow: 0;
+        flex-basis: 50px;
+        background-size: contain;
+        background-position: center;
+        background-repeat: no-repeat;
+        position: relative;
+        .number {
+          position: absolute;
+          top: 20px;
+          bottom: 5px;
+          left: 25px;
+          right: 5px;
+          text-align: center;
+          color: white;
+          font-weight: bold;
+          font-size: 20px;
+        }
+
+        &.teal .number {
+          color: #6bb9bc;
+        }
+      }
+    }
+  }
+
+  footer {
+    grid-column: 1 / 3;
+    background: var(--pkmn-type-footer-bg);
+    min-height: 48px;
+    > * {
+      margin: 5px;
+      & + * {
+        margin-top: 0;
+      }
+    }
+  }
+}

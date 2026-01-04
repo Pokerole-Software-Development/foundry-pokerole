@@ -1,0 +1,158 @@
+<section class="tab {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
+  <div class="attribute-col">
+    <fieldset class="stat-changes pain">
+      <legend>Pain Penalization</legend>
+      <select name="system.painPenalty">
+        {{selectOptions painPenalties selected=system.painPenalty}}
+      </select>
+    </fieldset>
+    <fieldset class="stat-changes stat-changes-panel">
+      <legend>Increases/Reductions</legend>
+      <div class="button-container">
+        <button type="button" title="Clear Decreases" data-action="resetNegativeChanges" class="set-button">Clear (-)</button>
+        <button type="button" title="Clear Increases" data-action="resetPositiveChanges" class="set-button">Clear (+)</button>
+        <button type="button" title="Clear Increases/Decreases" data-action="resetStatChanges" class="set-button">Clear
+          All</button>
+      </div>
+      {{#each system.statChanges as |change key|}}
+      <div class="statchange">
+
+        <div class="icon-and-value split negative">
+          <i class="fas fa-minus fa-xs changebox-icon"></i>
+          <input type="number" min="0" max="9" class="changebox editable always-interactive" value="{{change.minus}}"
+            data-key="system.statChanges.{{key}}.minus" name="system.statChanges.{{key}}.minus" data-dtype="Number">
+        </div>
+
+        <div class="icon-and-value split positive">
+          <i class="fas fa-plus fa-xs changebox-icon"></i>
+          <input type="number" min="0" max="9" class="changebox editable always-interactive" value="{{change.plus}}"
+            data-key="system.statChanges.{{key}}.plus" name="system.statChanges.{{key}}.plus" data-dtype="Number">
+        </div>
+
+        <label for="system.statChanges.{{key}}.value" class="stat-change-label">{{change.label}}</label>
+
+        <div
+          class="icon-and-value split {{#if change.isPositive}}positive{{/if}}{{#if change.isNegative}}negative{{/if}}">
+          {{#if change.isPositive}}
+          <i class="fas fa-arrow-up changebox-icon"></i>
+          {{/if}}
+          {{#if change.isNegative}}
+          <i class="fas fa-arrow-down changebox-icon"></i>
+          {{/if}}
+          <input disabled="" type="text" maxlength="2" class="changebox" value="{{change.displayValue}}"
+            data-display-value="{{change.displayValue}}" data-actual-value="{{change.value}}"
+            data-key="system.statChanges.{{key}}.value" name="system.statChanges.{{key}}.displayValue"
+            data-dtype="Number">
+        </div>
+
+      </div>
+      {{/each}}
+      <div class="statchange">
+
+        <div class="icon-and-value split negative">
+          <i class="fas fa-minus fa-xs changebox-icon"></i>
+          <input type="number" min="0" max="9" class="changebox editable" value="{{system.accuracyMod.minus}}"
+            data-key="system.accuracyMod.minus" name="system.accuracyMod.minus" data-dtype="Number">
+        </div>
+
+        <div class="icon-and-value split positive">
+          <i class="fas fa-plus fa-xs changebox-icon"></i>
+          <input type="number" min="0" max="9" class="changebox editable" value="{{system.accuracyMod.plus}}"
+            data-key="system.accuracyMod.plus" name="system.accuracyMod.plus" data-dtype="Number">
+        </div>
+
+        <label for="system.accuracyMod.value" class="accuracy-label">Accuracy</label>
+
+        <div
+          class="icon-and-value split {{#if system.accuracyMod.isPositive}}positive{{/if}}{{#if system.accuracyMod.isNegative}}negative{{/if}}">
+          {{#if system.accuracyMod.isPositive}}
+          <i class="fas fa-arrow-up changebox-icon"></i>
+          {{/if}}
+          {{#if system.accuracyMod.isNegative}}
+          <i class="fas fa-arrow-down changebox-icon"></i>
+          {{/if}}
+          <input disabled="" type="text" maxlength="2" class="changebox" value="{{system.accuracyMod.displayValue}}"
+            data-display-value="{{system.accuracyMod.displayValue}}"
+            data-actual-value="{{system.accuracyMod.value}}" data-key="system.accuracyMod.value"
+            name="system.accuracyMod.displayValue" data-dtype="Number">
+        </div>
+
+      </div>
+    </fieldset>
+  </div>
+
+  <div class="middle">
+    <fieldset class="conditions-panel">
+      <legend>Conditions and Effects</legend>
+      <ol class="items-list effects-list">
+        <li class="items-header flexrow" data-effect-type="{{section.type}}">
+          <h3 class="item-name flexrow">Status Conditions</h3>
+          <div class="quick-ailment-list">
+            {{#each quickAilmentList as |ailment|}}
+            {{#if ailment.buttonDisabled}}
+            <span class="disabled-elem">
+              <img src="{{ailment.icon}}"></img>
+            </span>
+            {{else}}
+            <a data-action="addAilment" title="{{ailment.label}}" data-ailment="{{ailment.key}}">
+              <img src="{{ailment.icon}}"></img>
+            </a>
+            {{/if}}
+            {{/each}}
+          </div>
+        </li>
+
+        {{#each system.ailments as |ailment|}}
+        <li class="item flexrow">
+          <div class="item-name">
+            <div class="item-image ailment" style="--ailment-tint: {{ailment.tint}};">
+              <img src="{{ailment.icon}}" title="{{ailment.label}}" width="30" height="30" /></a>
+            </div>
+            <h4>{{ailment.label}}</h4>
+          </div>
+          <div class="item-prop">{{ailment.description}}</div>
+          <div class="item-controls">
+            <a data-action="removeAilment" title="Remove Ailment" data-ailment="{{ailment.type}}">
+              <i class="fas fa-trash"></i>
+            </a>
+          </div>
+        </li>
+        {{/each}}
+      </ol>
+
+      <ol class="items-list effects-list">
+        <li class="items-header flexrow" data-effect-type="{{section.type}}">
+          <h3 class="item-name flexrow">Custom Effects</h3>
+          <div class="item-controls">
+            <a data-action="createItem" title="Create effect" data-type="effect"><i class="fas fa-plus"></i>
+              Add</a>
+          </div>
+        </li>
+
+        {{#each customEffects as |effect i|}}
+        <li class="item flexrow {{#unless effect.data.system.enabled}} translucent {{/unless}}"
+          data-item-id="{{effect.data._id}}">
+          <div class="item-name">
+            <div class="item-image">
+              <img src="{{effect.data.img}}" title="{{effect.data.name}}" width="30" height="30" /></a>
+            </div>
+            <h4>{{effect.data.name}}</h4>
+          </div>
+          <div class="item-controls">
+            <a data-action="toggleVisible" title="Toggle visibility">
+              <i class="fas {{#if effect.data.system.visible}}fa-eye{{else}}fa-eye-slash{{/if}}"></i>
+            </a>
+            <a data-action="toggleEffectEnabled" title="Toggle effect">
+              <i class="fas {{#if effect.data.system.enabled}}fa-toggle-on{{else}}fa-toggle-off{{/if}}"></i>
+            </a>
+            <a data-action="editItem" title="Edit Effect"><i class="fas fa-edit"></i></a>
+            <a data-action="deleteItem" title="Remove Effect">
+              <i class="fas fa-trash"></i>
+            </a>
+          </div>
+        </li>
+        {{/each}}
+      </ol>
+    </fieldset>
+  </div>
+</section>

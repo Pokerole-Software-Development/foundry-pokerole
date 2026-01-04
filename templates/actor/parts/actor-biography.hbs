@@ -1,0 +1,100 @@
+{{!-- Biography Tab --}}
+<section class="tab {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
+  <aside class="species-data">
+    <div class="pokedex-number-name">
+      <span class="number-sign">#</span>
+      <input type="text" class="pokedex-num" name="system.pokedexId" value="{{system.pokedexId}}" placeholder="0"
+        data-dtype="Number" />
+      <input type="text" name="system.species" value="{{system.species}}" placeholder="Species"
+        data-dtype="String" />
+      {{#unless limitedPermissions}}
+      <a data-action="showSettings"><i class="fas fa-cogs"></i></a>
+      {{/unless}}
+    </div>
+    <div class="pokedex">
+      <fieldset>
+        <legend>Category</legend>
+        <input name="system.pokedexCategory" value="{{system.pokedexCategory}}" placeholder="Pokédex Category">
+      </fieldset>
+      <fieldset>
+        <legend>Pokédex Entry</legend>
+        <textarea class="pokedex-description"
+          name="system.pokedexDescription">{{ system.pokedexDescription }}</textarea>
+      </fieldset>
+      <div class="inner-list">
+        <fieldset>
+          <legend>Height</legend>
+          <span><input class="small" name="system.height" value="{{system.height}}"> m / {{heightImperial}} ft</span>
+        </fieldset>
+        <fieldset>
+          <legend>Weight</legend>
+          <span><input class="small" name="system.weight" value="{{system.weight}}"> kg / {{weightImperial}} lbs</span>
+        </fieldset>
+      </div>
+    </div>  
+    {{#unless limitedPermissions}}
+    <fieldset class="abilities">
+      <legend>
+        Abilities
+        {{#if editable}}
+        <a data-action="createItem" title="Create ability" data-type="ability"><i
+            class="fas fa-plus"></i></a>
+        {{/if}}
+      </legend>
+      <ul>
+        {{#each abilities as |item index|}}
+        <li class="item" data-item-id="{{item.data._id}}">
+          <h5>
+            <a data-action="roll" data-roll-type="item">{{item.data.name}}</a>
+            {{#if editable}}
+            <a data-action="editItem" title="Edit Ability"><i class="fas fa-edit"></i></a>
+            <a data-action="deleteItem" title="Delete Ability"><i class="fas fa-trash"></i></a>
+            {{/if}}
+          </h5>
+          <p>{{{item.data.system.description}}}</p>
+        </li>
+        {{/each}}
+      </ul>
+    </div>
+    {{/unless}}
+
+  </aside>
+
+  <div class="species-data">
+    <div class="pokedex-number-name">
+      <span class="number-sign">Character Data</span>
+    </div>
+
+    <div class="pokedex">
+      <fieldset>
+        <legend>Trait</legend>
+        <input type="text" name="system.trait" value="{{system.trait}}" placeholder="None">
+      </fieldset>
+      {{#if (pkOptions "vitaminOption")}}
+      <div class="inner-list">
+        <fieldset>
+          <legend>A Vitamin</legend>
+          <select name="system.avitamin" value="{{system.avitamin}}" data-dtype="String"
+            class="medium clean-selector">
+            {{selectOptions addedvitamin selected=system.avitamin}}
+          </select>
+        </fieldset>
+        <fieldset>
+          <legend>B Vitamin</legend>
+          <select name="system.bvitamin" value="{{system.bvitamin}}" data-dtype="String"
+            class="medium clean-selector">
+            {{selectOptions addedvitamin selected=system.bvitamin}}
+          </select>
+        </fieldset>
+      </div>
+      {{/if}}
+    </div>
+
+    {{#unless limitedPermissions}}
+    <fieldset class="biography">
+      <legend>Biography</legend>
+      {{> pokerole.multi-editor editing=editingDescription html=biographyHtml key="system.biography" editable=editable}}
+    </fieldset>
+    {{/unless}}
+  </div>
+</section>

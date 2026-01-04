@@ -2,7 +2,10 @@ import { PokeroleActor } from "./documents/actor.mjs";
 import { PokeroleItem } from "./documents/item.mjs";
 import { PokeroleCombat, PokeroleCombatTracker } from "./documents/combat.mjs";
 import { PokeroleActorSheet } from "./sheets/actor-sheet.mjs";
-import { PokeroleItemSheet } from "./sheets/item-sheet.mjs";
+import { PokeroleAbilitySheet } from "./sheets/item-ability-sheet.mjs";
+import { PokeroleEffectSheet } from "./sheets/item-effect-sheet.mjs";
+import { PokeroleItemItemSheet } from "./sheets/item-item-sheet.mjs";
+import { PokeroleMoveSheet } from "./sheets/item-move-sheet.mjs";
 import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { getAilmentList, POKEROLE } from "./helpers/config.mjs";
 import { rollRecoil, successRollAttributeDialog, successRollFromExpression, chanceDiceRollFromExpression, chanceDiceRoll, createChanceDiceRollMessageData } from "./helpers/roll.mjs";
@@ -11,12 +14,18 @@ import { bulkApplyDamageValidated, canModifyTokenOrActor } from "./helpers/damag
 import { registerIntegrationHooks } from "./helpers/integrations.mjs";
 import { applyEffectToActors, registerEffectHooks } from "./helpers/effects.mjs";
 import { APIdb } from "./API/API.mjs";
+import CheckboxElement from "./components/checkbox.mjs";
+import SlideToggleElement from "./components/slide-toggle.mjs";
 
 /* -------------------------------------------- */
 /*  Init Hook                                   */
 /* -------------------------------------------- */
 
 Hooks.once('init', async () => {
+  // Register custom elements
+  customElements.define(CheckboxElement.tagName, CheckboxElement);
+  customElements.define(SlideToggleElement.tagName, SlideToggleElement);
+
   // Add utility classes to the global game object so that they're more easily
   // accessible in global contexts.
   game.pokerole = {
@@ -42,7 +51,22 @@ Hooks.once('init', async () => {
   foundry.documents.collections.Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
   foundry.documents.collections.Actors.registerSheet("pokerole", PokeroleActorSheet, { makeDefault: true });
   foundry.documents.collections.Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
-  foundry.documents.collections.Items.registerSheet("pokerole", PokeroleItemSheet, { makeDefault: true });
+  foundry.documents.collections.Items.registerSheet("pokerole", PokeroleAbilitySheet, { 
+    types: ["ability"], 
+    makeDefault: true 
+  });
+  foundry.documents.collections.Items.registerSheet("pokerole", PokeroleEffectSheet, { 
+    types: ["effect"], 
+    makeDefault: true 
+  });
+  foundry.documents.collections.Items.registerSheet("pokerole", PokeroleItemItemSheet, { 
+    types: ["item"], 
+    makeDefault: true 
+  });
+  foundry.documents.collections.Items.registerSheet("pokerole", PokeroleMoveSheet, { 
+    types: ["move"], 
+    makeDefault: true 
+  });
 
   CONFIG.TextEditor.enrichers.push({
     pattern: /\[\[(?:\/|#)sc ([^\]]+)\]\](?:{([^}]+)})?/gi,
@@ -105,6 +129,16 @@ Handlebars.registerHelper('gt', function (a, b) {
 Handlebars.registerHelper('lt', function (a, b) {
   var next = arguments[arguments.length - 1];
   return (a < b) ? (next.fn && next.fn(this)) : (next.inverse && next.inverse(this));
+});
+
+// getProperty
+Handlebars.registerHelper('getProperty', function (...args) {
+  const options = args.pop(); // remove Handlebars options arguments
+  var next = args.shift();
+  for (const a of args) {
+    next = foundry.utils.getProperty(next, a) ?? {};
+  }
+  return next;
 });
 
 // TP support (EQ)
@@ -187,6 +221,67 @@ Handlebars.registerHelper('styleType', function(item='none', asset='color1', tol
   let varo = POKEROLE.typeMatchups[item];
   if (varo){varo = varo[asset]};
   return varo ?? 'none';
+});
+
+/**
+ * Generate bubble data for attributes in Play mode.
+ * @param {object} actor - The actor document
+ * @param {string} category - The category path (e.g., "attributes", "social", "skills")
+ * @param {string} key - The attribute key
+ * @returns {Array} Array of bubble objects with type and color
+ */
+Handlebars.registerHelper('attributeBubbles', function(actor, category, key) {
+  if (!actor || !category || !key) return [];
+  
+  const sourceData = actor._source?.system?.[category]?.[key];
+  const currentData = actor.system?.[category]?.[key];
+  
+  if (!sourceData || !currentData) return [];
+  
+  const baseValue = sourceData.value || 0;
+  const currentValue = currentData.value || 0;
+  const maxValue = currentData.max || 0;
+  const changeValue = currentValue - baseValue;
+  
+  const bubbles = [];
+  
+  // Calculate how many bubbles of each type
+  let blackCount = baseValue;
+  let redCount = 0;
+  let blueCount = 0;
+  
+  if (changeValue < 0) {
+    // Stat is lowered - some black bubbles become red
+    redCount = Math.min(Math.abs(changeValue), baseValue);
+    blackCount = baseValue - redCount;
+  } else if (changeValue > 0) {
+    // Stat is increased - add blue bubbles
+    blueCount = changeValue;
+  }
+  
+  // Add black bubbles (base value minus any red)
+  for (let i = 0; i < blackCount; i++) {
+    bubbles.push({ type: 'base', color: 'black' });
+  }
+  
+  // Add red bubbles (penalties)
+  for (let i = 0; i < redCount; i++) {
+    bubbles.push({ type: 'penalty', color: 'red' });
+  }
+  
+  // Add blue bubbles (bonuses)
+  for (let i = 0; i < blueCount; i++) {
+    bubbles.push({ type: 'bonus', color: 'blue' });
+  }
+  
+  // Add white bubbles for remaining capacity
+  const totalFilled = blackCount + redCount + blueCount;
+  const whiteCount = Math.max(0, maxValue - totalFilled);
+  for (let i = 0; i < whiteCount; i++) {
+    bubbles.push({ type: 'empty', color: 'white' });
+  }
+  
+  return bubbles;
 });
 
 /* -------------------------------------------- */
@@ -338,6 +433,15 @@ function registerSettings() {
     default: 2,
     range: {min: 0, max: 3},
     requiresReload: true
+  });
+
+  game.settings.register('pokerole', 'showBubbles', {
+    name: 'Show Bubbles on Attributes',
+    hint: 'In "Play" mode on the character sheet, display bubbles for attributes instead of numbers (similar to the PDF)',
+    scope: 'user',
+    config: true,
+    type: Boolean,
+    default: true
   });
 }
 

@@ -1,0 +1,91 @@
+<section class="tab {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
+  <div class="combat-resources" >
+    <div class="action-count">
+      <label for="system.actionCount.value">Used Actions: </label>
+      <div class="input-group">
+        <input type="text" name="system.actionCount.value" value="{{system.actionCount.value}}" data-dtype="Number" class="always-interactive">
+        <span> / {{system.actionCount.max}}</span>
+      </div>
+      <button type="button" title="Increment action count" data-action="incrementActions" {{#unless hasAvailableActions}}disabled{{/unless}}>
+        <i class="fas fa-plus"></i><label>Increase</label>
+      </button>
+    </div>
+
+    <div class="clash-evade" >
+      <button type="button" data-action="toggleCanClash" class="{{#unless system.canClash}}translucent{{/unless}}">
+        <i class="{{#unless system.canClash}}fas fa-circle-xmark{{else}}fa-regular fa-circle{{/unless}}"></i>
+        <label>Clash ( {{system.derived.clashPhysical.value}} /  {{system.derived.clashSpecial.value}} )</label>
+      </button>
+      <button type="button" data-action="toggleCanEvade" class="{{#unless system.canEvade}}translucent{{/unless}}">
+        <i class="{{#unless system.canEvade}}fas fa-circle-xmark{{else}}fa-regular fa-circle{{/unless}}"></i>
+        <label>Evade ({{system.derived.evade.value}})</label>
+      </button>
+    </div>
+
+    <button type="button" title="Reset resources" data-action="resetRoundResources">Reset</button>
+  </div>
+
+  <div class="Geoboxer">
+    {{#each moves as |moves key|}}
+      <ul class="items-list move-group">
+        <li class="item flexrow items-header{{#if moves.hidden}} translucent{{/if}}">
+          <a class="item-name" data-action="toggleMoveGroup" data-group="{{key}}">{{moves.groupName}}</a>
+          <div>Type/Category</div>
+          <div>Accuracy Pool</div>
+          <div>Damage Pool</div>
+          <div>Target</div>
+          <div class="item-controls">
+            {{#if ../editable}}
+            <a data-action="createItem" title="Create move" data-type="move" data-rank="{{key}}"><i class="fas fa-plus"></i>Add</a>
+            {{/if}}
+          </div>
+        </li>
+
+        <ul class="inner{{#if moves.hidden}} items-hidden{{/if}} list-{{key}}">
+          {{#each moves.moveList as |item id|}}
+          <li class="item flexrow {{#unless item.usable}}translucent{{/unless}}" data-item-id="{{item.data._id}}">
+            <div class="item-name-container flexrow">
+              <a class="item-image move-image" data-action="roll" data-roll-type="item"><img src="{{item.data.img}}" title="{{itemdata.data.name}}" width="30" height="30"/></a>
+              {{#if item.data.system.learned}}
+              <a data-action="toggleMoveUsed" title="{{localize 'POKEROLE.MoveToggleUsed'}}">
+                <i class="{{#if item.data.system.usedInRound}}fas fa-circle-xmark{{else}}fa-regular fa-circle{{/if}}"></i>
+              </a>
+              {{/if}}
+              <h4 class="item-name {{#if item.disabled}}strikethrough{{/if}}" {{#if item.data.system.effect}}data-tooltip="{{item.data.system.effect}}"{{/if}}>{{item.data.name}}</h4>
+            </div>
+            <div class="item-prop">{{item.locType}} ({{item.locCategory}})</div>
+            <div class="item-prop">{{item.data.system.accAttr1}}{{#if item.data.system.accAttr1var}}{{#if item.data.system.accAttr1}}/{{/if}}{{item.data.system.accAttr1var}}{{/if}}{{#if item.data.system.accSkill1}} + {{item.data.system.accSkill1}}{{/if}}{{#if item.data.system.accSkill1var}}{{#if item.data.system.accSkill1}}/{{else}} + {{/if}}{{item.data.system.accSkill1var}}{{/if}} (<b>{{item.accuracyPool}}</b>)</div>
+            
+            <div class="item-prop">
+                {{#if item.dmgPool}}{{item.data.system.dmgMod1}}{{/if}}{{#if item.data.system.dmgMod1var}}{{#if item.data.system.dmgMod1}}/{{/if}}{{item.data.system.dmgMod1var}}{{/if}}{{#if item.data.system.power}} +{{item.data.system.power}}{{/if}}
+                {{#if item.dmgPool}}(<b>{{item.dmgPool}}</b>){{/if}}
+                {{#unless item.dmgPool}}-{{/unless}}
+            </div>
+            <div class="item-prop">{{item.locTarget}}</div>
+            <div class="item-controls">
+              {{#if ../../editable}}
+              {{#unless item.data.system.attributes.maneuver}}
+                {{#if item.data.system.learned}}
+                  <a data-action="toggleMoveOverrank" title="Toggle Overranked Status">
+                    <i class="{{#if item.data.system.overrank}}fa-solid fa-star{{else}}fa-regular fa-star{{/if}}"></i>
+                  </a>
+                {{/if}}
+              <a data-action="toggleMoveLearned" title="{{localize 'POKEROLE.MoveToggle'}}">
+                <i class="fas {{#if item.data.system.learned}}fa-times{{else}}fa-check{{/if}}"></i>
+              </a>
+              {{/unless}}
+              <a data-action="editItem" title="Edit Item"><i class="fas fa-edit"></i></a>
+              <a data-action="deleteItem" title="Delete Item"><i class="fas fa-trash"></i></a>
+              {{else}}
+              {{#if item.data.system.overrank}}
+              <i class="fa-solid fa-star" title="Overranked"></i>
+              {{/if}}
+              {{/if}}
+            </div>
+          </li>
+          {{/each}}
+        </ul>
+      </ul>
+      {{/each}}
+  </div>
+</section>

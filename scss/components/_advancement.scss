@@ -1,7 +1,124 @@
+// =============================================================================
+// ADVANCEMENT STYLES
+// =============================================================================
+// Styles for the advancement/leveling interface
+// =============================================================================
+
 &.advancement {
+  --color-pkmn-red: #A21C1C;
+  --color-pkmn-outline: #433727;
+  --color-pkmn-darkfield-text: #FFFFFF;
+  --color-pkmn-darkfield-back: #841722;
+  --color-pkmn-attribute-text: var(--color-dark-1);
+  --color-pkmn-attribute-bg: #48A49D;
+  
+  .window-content {
+    background: url(../../../ui/denim075.png);
+    min-width: 400px;
+  }
+
+  .dialog-content {
+    overflow: auto;
+    flex-shrink: 1;
+    flex-basis: 70vh;
+    padding: 6px;
+  }
+
+  fieldset {
+    padding-top: 0;
+    gap: 2px;
+  }
+
   .list {
     font-size: 0.85em;
     --form-field-height: 1.4em;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-bottom: 6px;
+
+    &.attributes {
+      .form-group {
+        color: var(--color-pkmn-attribute-text);
+        background-color: var(--color-pkmn-attribute-bg);
+      }
+    }
+
+    &.social {
+      .form-group {
+        color: var(--color-pkmn-attribute-text);
+        background-color: var(--color-pkmn-attribute-bg);
+
+        &.attrib-tough {
+          background-color: #F5E28E;
+        }
+        &.attrib-cool {
+          background-color: #FBA485;
+        }
+        &.attrib-beauty {
+          background-color: #A5BDD9;
+        }
+        &.attrib-cute {
+          background-color: #F8AABD;
+        }
+        &.attrib-clever {
+          background-color: #A3CF8E;
+        }
+      }
+    }
+
+    &.skills {
+      .form-group {
+        color: var(--color-pkmn-darkfield-text);
+        background-color: var(--color-pkmn-darkfield-back);
+      }
+    }
+
+    .form-group {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      border-radius: 30px;
+      border: none;
+      padding: 2px 5px;
+      min-height: 28px;
+
+      input[type="text"] {
+        width: 32px;
+        height: 24px;
+        text-align: center;
+        padding: 1px;
+        font-size: 12px;
+        font-weight: bold;
+        line-height: 1;
+      }
+
+      .delta {
+        font-size: 10px;
+        font-weight: bold;
+        min-width: 28px;
+        text-align: center;
+      }
+
+      button {
+        flex-basis: 24px;
+        width: 24px;
+        height: 24px;
+        min-height: 24px;
+        flex-grow: 0;
+        flex-shrink: 0;
+        margin: 0;
+        padding: 0;
+        border-radius: 2px;
+        cursor: pointer;
+        line-height: 1;
+
+        &:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
+        }
+      }
+    }
 
     button {
       line-height: unset;
@@ -9,10 +126,18 @@
 
     label {
       flex: 10;
+      line-height: 24px;
+      color: inherit;
+      font-size: 14px;
+      text-transform: uppercase;
+      padding-left: 5px;
     }
 
     input {
       text-align: right;
+    }
+    .max {
+      text-align: left;
     }
   }
 }

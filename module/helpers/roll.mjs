@@ -36,7 +36,6 @@ async function parseExpressionForRollCountAndComment(expr, actor) {
 
     for (let [key, value] of Object.entries({ ...actor.getIntrinsicOrSocialAttributes(), ...actor.system.skills })) {
       if (key.toLowerCase() == statName) {
-        console.log(`${key}=${value.value}`);
         rollCount += value.value;
       }
     }
@@ -216,7 +215,6 @@ export async function successRollSkillDialog(skill, attributes, options, chatDat
   let poolBonus = formData.poolBonus ?? 0;
   let constantBonus = formData.constantBonus ?? 0;
   let rerollBonus = formData.rerollBonus ?? 0;
-  console.log(formData.rerollBonus);
 
   if (formData.confusionPenalty) {
     constantBonus -= getConfusionModifier(options.userRank);

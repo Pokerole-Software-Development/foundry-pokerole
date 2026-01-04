@@ -1,0 +1,80 @@
+<section class="tab {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
+  <div class="inventory-header">
+
+    <div class="money money-container">
+      <img src="systems/pokerole/images/icons/money.png" alt="Pokedollar" width="26" height="26">
+      <input type="text" name="system.money" value="{{system.money}}" data-dtype="Number" class="always-interactive">
+    </div>
+
+    <div class="item-controls">
+      {{#if editable}}
+      <a data-action="createItem" title="Create item" data-type="item" class="create-item-link"><i
+          class="fas fa-plus"></i> Add</a>
+      {{/if}}
+      <select value="{{system.testvarso}}" name="system.testvarso" data-dtype="String" class="inventoryfilterclass filter-button">
+        <option value="all">All Items</option>
+        {{selectOptions customitemdf selected=testvarso labelAttr="catname"}}
+      </select>
+      <i class="fas fa-bars fa-xl filter-icon"></i>
+    </div>
+  </div>
+
+  <div class="Geoboxer">
+    {{#each customitemdf as |custom key|}}
+    {{#if (categoryfilter key ../testvarso)}}
+    <ul class="items-list pocket">
+
+      <li class="item flexrow items-header {{#if custom.hidden}} translucent{{/if}}">
+        <div class="flexrow">
+          <div class="item-name" data-action="togglePocket" data-group="{{key}}">
+            {{custom.catname}}</div>
+          <div class="flex-small">Quantity</div>
+          <div class="item-controls-small"></div>
+        </div>
+        <div class="flexrow">
+          <div class="item-name" data-action="togglePocket" data-group="{{key}}"></div>
+          <div class="flex-small">Quantity</div>
+          {{#if ../editable}}
+          <div class="item-controls-small"></div>
+          {{/if}}
+        </div>
+      </li>
+      <ul class="inner{{#if custom.hidden}} items-hidden{{/if}} list-{{key}} grid grid-2col">
+        {{#each custom.customitemlist as |item id|}}
+        <li class="item flexrow" data-item-id="{{item.data._id}}">
+          <div class="item-name">
+            <div class="item-image">
+              <a data-action="roll" data-roll-type="item"><img src="{{item.data.img}}" title="{{item.data.name}}"/></a>
+            </div>
+            <h4 data-tooltip="{{item.data.system.description}}">{{item.data.name}}</h4>
+          </div>
+          <div class="item-prop flex-small">{{item.data.system.quantity}}</div>
+          {{#if ../../editable}}
+          <div class="item-controls-small">
+            <a data-action="editItem" title="Edit Item"><i class="fas fa-edit"></i></a>
+            <a data-action="deleteItem" title="Delete Item"><i class="fas fa-trash"></i></a>
+          </div>
+          {{/if}}
+        </li>
+        {{/each}}
+      </ul>
+    </ul>
+    {{/if}}
+    {{else}}
+    <ul class="items-list">
+      <li class="item flexrow items-header" style="border-radius: 10px; gap: 10px">
+        <div class="flexrow">
+          <div class="item-name">Inventory</div>
+          <div class="flex-small">Quantity</div>
+          <div class="item-controls-small"></div>
+        </div>
+        <div class="flexrow">
+          <div class="item-name"></div>
+          <div class="flex-small">Quantity</div>
+          <div class="item-controls-small"></div>
+        </div>
+      </li>
+    </ul>
+    {{/each}}
+  </div>
+</section>

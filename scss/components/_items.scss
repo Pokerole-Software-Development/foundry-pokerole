@@ -1,4 +1,13 @@
-// Section Header
+// =============================================================================
+// ITEMS LIST STYLES
+// =============================================================================
+// Generic styles for item lists used across all sheet types
+// Actor-specific item list overrides have been moved to _actor-sheet.scss
+// =============================================================================
+
+// ---------------------------------------------------------------------------
+// Items Header
+// ---------------------------------------------------------------------------
 .items-header {
   height: 28px;
   margin: 2px 0;
@@ -7,30 +16,29 @@
   background: rgba(0, 0, 0, 0.05);
   border: $border-groove;
   font-weight: bold;
+
   > * {
     font-size: 14px;
     text-align: center;
   }
+
   .item-name {
     font-weight: bold;
     padding-left: 5px;
     text-align: left;
     display: flex;
-    // font-size: 16px;
   }
 }
 
-/* ----------------------------------------- */
-/*  Items Lists                              */
-/* ----------------------------------------- */
-
+// ---------------------------------------------------------------------------
+// Items Lists
+// ---------------------------------------------------------------------------
 .items-list {
   list-style: none;
   margin: 0;
   padding: 0;
   overflow-y: auto;
   scrollbar-width: thin;
-  color: $c-tan;
 
   // Child lists
   .item-list {
@@ -47,24 +55,34 @@
     text-align: left;
     align-items: center;
     display: flex;
+    gap: 5px;
 
     h3, h4 {
       margin: 0;
       white-space: nowrap;
       overflow-x: hidden;
     }
+
+    h1, h2, h3, h4 {
+      font-family: inherit;
+      font-weight: inherit;
+      font-size: inherit;
+      line-height: inherit;
+      color: inherit;
+    }
   }
 
   .items-header .item-name {
     flex: 1.1 0 30px;
-    color: $c-dark;
   }
 
   // Control Buttons
-  .item-controls {
+  .item-controls,
+  .item-controls-small {
     display: flex;
     flex: 0 0 75px;
     justify-content: flex-end;
+
     a {
       font-size: 12px;
       text-align: center;
@@ -73,13 +91,17 @@
   }
 
   // Individual Item
-  .item {
+  .inner > .item {
     align-items: center;
-    padding: 0 2px; // to align with the header border
+    padding: 0 2px;
     border-bottom: 1px solid $c-faint;
-    &:last-child { border-bottom: none; }
-    .item-name {
-      color: $c-dark;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .item-name,
+    .item-name-container {
       .item-image {
         flex: 0 0 30px;
         height: 30px;
@@ -90,16 +112,6 @@
     }
   }
 
-  .move-image {
-    padding: 2px 0;
-
-    img {
-      border: none;
-      width: 100%;
-      height: 100%;
-    }
-  }
-
   .item-prop {
     text-align: center;
     border-left: 1px solid #c9c7b8;
@@ -107,97 +119,7 @@
     font-size: 12px;
   }
 
-  // Section Header
-  .items-header {
-    height: 28px;
-    margin: 2px 0;
-    padding: 0;
-    align-items: center;
-    background: rgba(0, 0, 0, 0.05);
-    border: $border-groove;
-    font-weight: bold;
-    > * {
-      font-size: 12px;
-      text-align: center;
-    }
-    .item-name {
-      padding-left: 5px;
-      text-align: left;
-      // font-size: 16px;
-    }
-  }
-}
-
-.items-list .flex-small {
-  flex: 0.35;
-}
-
-// Move effects
-.effect-group-list {
-  margin: 0;
-  padding: 0;
-  min-width: 470px;
-
-  input, select {
-    font-size: 0.76rem;
-    height: 23px;
-  }
-
-  .effect-list {
-    margin: 0;
-    padding: 0 0 0 5px;
-
-    li {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      height: 27px;
-    }
-
-    .items-header {
-      margin-bottom: 0;
-      height: 28px;
-
-      .item-prop * {
-        flex-grow: 0;
-      }
-    }
-
-    .label-wrapper {
-      display: flex;
-      align-items: center;
-      flex-grow: 0;
-      gap: 2px;
-
-      label {
-        font-size: 0.75rem;
-        color: black;
-      }
-    }
-  }
-
-  .item-controls {
-    display: flex;
-    flex: 0;
-    gap: 4px;
-  }
-
-  .effect-group-create {
-    flex-grow: 0;
-    flex-basis: 100px;
-  }
-
-  .effect-group-add-effect {
-    display: flex;
-  }
-
-  .small-input {
-    width: 45px;
-    flex-basis: 45px;
-    flex-grow: 0;
-  }
-
-  .condition-wrapper {
-    gap: 2px;
+  .flex-small {
+    flex: 0.35;
   }
 }
