@@ -86,6 +86,8 @@ export class AdvancementDialog extends foundry.applications.api.DialogV2 {
             const html = dialog.element;
             let forceApply = html.querySelector('.force-check').checked;
             if ((dialogueProgression.attributePoints > 0 || dialogueProgression.skillPoints > 0 || dialogueProgression.socialPoints > 0) && !forceApply) {
+              html.querySelectorAll('.form-footer button').forEach(btn => btn.disabled = false);
+              ui.notifications.error("You must distribute all available points before applying changes, or check 'Force Apply' to proceed anyway.");
               throw new Error("Not all points have been distributed");
             }
             // Disabled elements are excluded from form data
