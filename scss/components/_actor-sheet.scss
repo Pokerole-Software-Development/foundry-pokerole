@@ -740,6 +740,10 @@
         }
       }
 
+      > .item-controls {
+        color: white;
+      }
+
       .create-item-link {
         font-size: 14px;
       }
@@ -880,7 +884,7 @@
     margin-bottom: 5px;
     gap: 5px;
     align-items: center;
-    color: white;
+    // color: white;
 
     button {
       width: fit-content;
