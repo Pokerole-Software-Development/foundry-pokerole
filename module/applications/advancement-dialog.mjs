@@ -135,9 +135,12 @@ export class AdvancementDialog extends foundry.applications.api.DialogV2 {
     const updateCounters = () => {
       const forceLimit = html.querySelector('.force-limit')?.checked ?? false;
 
-      html.querySelector('.pointsleft.attributes').textContent = progression.attributePoints;
-      html.querySelector('.pointsleft.social').textContent = progression.socialPoints;
-      html.querySelector('.pointsleft.skills').textContent = progression.skillPoints;
+      const pl_Attributes = html.querySelector('.pointsleft.attributes');
+      if (pl_Attributes) pl_Attributes.textContent = progression.attributePoints;
+      const pl_Social = html.querySelector('.pointsleft.social');
+      if (pl_Social) pl_Social.textContent = progression.socialPoints;
+      const pl_Skills = html.querySelector('.pointsleft.skills');
+      if (pl_Skills) pl_Skills.textContent = progression.skillPoints;
 
       // Handle attribute buttons with limit checking
       html.querySelectorAll('.attributes.list .form-group').forEach(group => {
