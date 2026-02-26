@@ -52,6 +52,10 @@ export function registerEffectHooks() {
       { id: 'disabled', ...allAilments.disabled },
       { id: 'flinch', ...allAilments.flinch },
       { id: 'infatuated', ...allAilments.infatuated },
+      { id: 'cursed', ...allAilments.cursed },
+      { id: 'soaked', ...allAilments.soaked },
+      { id: 'taunted', ...allAilments.taunted },
+      { id: 'drowsy', ...allAilments.drowsy },
     ];
     return displayedAilments.reduce((obj, e) => {
       let isActive = false;
@@ -288,13 +292,19 @@ export async function addAilmentWithDialog(actor, category) {
  * @param {string} ailment The ailment type (e.g. "burn1")
  */
 export function isActorResistantAgainstAilment(actor, ailment) {
-  const type1 = POKEROLE.typeMatchups[actor.system.type1] ?? POKEROLE.typeMatchups.none;
-  const type2 = POKEROLE.typeMatchups[actor.system.type2] ?? POKEROLE.typeMatchups.none;
-  const type3 = POKEROLE.typeMatchups[actor.system.type3] ?? POKEROLE.typeMatchups.none;
+  const effectiveTypes = actor.getEffectiveTypes?.() ?? {
+    type1: actor.system.type1,
+    type2: actor.system.type2,
+    type3: actor.system.type3,
+    hasThirdType: actor.system.hasThirdType,
+  };
+  const type1 = POKEROLE.typeMatchups[effectiveTypes.type1] ?? POKEROLE.typeMatchups.none;
+  const type2 = POKEROLE.typeMatchups[effectiveTypes.type2] ?? POKEROLE.typeMatchups.none;
+  const type3 = POKEROLE.typeMatchups[effectiveTypes.type3] ?? POKEROLE.typeMatchups.none;
 
   return type1.ailmentImmunities.includes(ailment)
       || type2.ailmentImmunities.includes(ailment)
-      || (type3.ailmentImmunities.includes(ailment) && actor.system.hasThirdType);
+      || (type3.ailmentImmunities.includes(ailment) && effectiveTypes.hasThirdType);
 }
 
 /**

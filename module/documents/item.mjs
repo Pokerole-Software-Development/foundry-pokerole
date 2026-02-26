@@ -16,8 +16,9 @@ export class PokeroleItem extends Item {
     super.prepareData();
 
     if (this.actor) {
-      this.system.stab = this.system.type !== 'none' 
-          && [this.actor.system.type1, this.actor.system.type2, this.actor.system.type3].includes(this.system.type);
+      const hasMoveType = this.actor.hasType?.(this.system.type)
+        ?? [this.actor.system.type1, this.actor.system.type2, this.actor.system.type3].includes(this.system.type);
+      this.system.stab = this.system.type !== 'none' && hasMoveType;
     }
   }
 
@@ -65,6 +66,10 @@ export class PokeroleItem extends Item {
   
       if (this.actor?.isMoveDisabled(this)) {
         return ui.notifications.error("You can't use a disabled move!");
+      }
+
+      if (this.system.category === 'support' && this.actor?.hasAilment('taunted')) {
+        return ui.notifications.error("You can't use Support moves while Taunted!");
       }
 
       const locType = game.i18n.localize(POKEROLE.i18n.types[this.system.type]);

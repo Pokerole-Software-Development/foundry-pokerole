@@ -267,6 +267,34 @@ POKEROLE.getAilments = () => ({
     tooltip: 'Infatuated',
     volatile: true
   },
+  cursed: {
+    label: game.i18n.localize('POKEROLE.StatusCursed'),
+    icon: 'icons/svg/degen.svg',
+    tint: '#7F5AA6',
+    tooltip: game.i18n.localize('POKEROLE.StatusCursedTooltip'),
+    volatile: false
+  },
+  soaked: {
+    label: game.i18n.localize('POKEROLE.StatusSoaked'),
+    icon: 'systems/pokerole/images/types/water.svg',
+    tint: '#3099E1',
+    tooltip: game.i18n.localize('POKEROLE.StatusSoakedTooltip'),
+    volatile: false
+  },
+  taunted: {
+    label: game.i18n.localize('POKEROLE.StatusTaunted'),
+    icon: 'icons/svg/combat.svg',
+    tint: '#D93636',
+    tooltip: game.i18n.localize('POKEROLE.StatusTauntedTooltip'),
+    volatile: true
+  },
+  drowsy: {
+    label: game.i18n.localize('POKEROLE.StatusDrowsy'),
+    icon: 'icons/svg/sleep.svg',
+    tint: '#9BA8CC',
+    tooltip: game.i18n.localize('POKEROLE.StatusDrowsyTooltip'),
+    volatile: true
+  },
 });
 
 export function getAilmentList() {
@@ -810,6 +838,10 @@ POKEROLE.i18n = {
     "disabled": "POKEROLE.StatusDisabled",
     "flinch": "POKEROLE.StatusFlinch",
     "infatuated": "POKEROLE.StatusInfatuated",
+    "cursed": "POKEROLE.StatusCursed",
+    "soaked": "POKEROLE.StatusSoaked",
+    "taunted": "POKEROLE.StatusTaunted",
+    "drowsy": "POKEROLE.StatusDrowsy",
   },
 
   effectStats: {
@@ -867,4 +899,3 @@ export function getLocalizedTypesForSelect() {
 export function getLocalizedPainPenaltiesForSelect() {
   return getLocalizedEntriesForSelect('painPenalties');
 }
-

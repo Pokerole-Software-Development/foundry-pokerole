@@ -14,6 +14,7 @@ export class PokeroleCombat extends Combat {
   async nextRound() {
     if (!game.settings.get('pokerole', 'combatResourceAutomation')) {
       await this.handleAilmentDamage();
+      await this.handleDrowsyRoundDecrement();
       return super.nextRound();
     }
 
@@ -25,10 +26,13 @@ export class PokeroleCombat extends Combat {
       yes: () => shouldContinue = true,
     });
 
-    // Apply ailment damage at the end of the round
-    await this.handleAilmentDamage();
-
     if (shouldContinue) {
+      // Apply ailment damage at the end of the round
+      await this.handleAilmentDamage();
+
+      // Decrement drowsy round counter at the end of the round
+      await this.handleDrowsyRoundDecrement();
+
       await super.nextRound();
       this.resetActionCounters();
     }
@@ -38,6 +42,28 @@ export class PokeroleCombat extends Combat {
   async nextTurn() {
     // Mostly copied from base class
     let turn = this.turn ?? -1;
+
+    // Decrement taunt counter for the current combatant before advancing
+    if (turn >= 0) {
+      let currentCombatant = this.turns[turn];
+      let currentActor = currentCombatant?.token?.actor ?? currentCombatant?.actor;
+
+      if (currentActor?.hasAilment('taunted')) {
+        let tauntedAilment = currentActor.system.ailments.find(a => a.type === 'taunted');
+        if (tauntedAilment) {
+          tauntedAilment.turnsRemaining -= 1;
+          if (tauntedAilment.turnsRemaining <= 0) {
+            await currentActor.removeAilment('taunted');
+          } else {
+            // Update the ailment with decremented turns
+            const newAilments = currentActor.system.ailments.map(a =>
+              a.type === 'taunted' ? { ...a, turnsRemaining: tauntedAilment.turnsRemaining } : a
+            );
+            await currentActor.update({ 'system.ailments': newAilments });
+          }
+        }
+      }
+    }
 
     // Determine the next turn number
     let next = turn;
@@ -130,6 +156,41 @@ export class PokeroleCombat extends Combat {
   </div>
 </div>`;
         await ChatMessage.implementation.create({ speaker, content: html });
+      }
+    }
+  }
+
+  /**
+   * Decrement drowsy round counter and convert to sleep at the end of the round
+   */
+  async handleDrowsyRoundDecrement() {
+    for (const combatant of this.turns) {
+      const actor = combatant.token?.actor ?? combatant.actor;
+
+      if (actor?.hasAilment('drowsy')) {
+        let drowsyAilment = actor.system.ailments.find(a => a.type === 'drowsy');
+        if (drowsyAilment) {
+          const newCount = drowsyAilment.roundsUntilSleep - 1;
+
+          // If counter reaches 0, convert to sleep immediately
+          if (newCount <= 0) {
+            let speaker = ChatMessage.implementation.getSpeaker({ actor });
+            // Run sequentially to avoid race condition on ailments array
+            await actor.removeAilment('drowsy');
+            await actor.applyAilment('sleep');
+            await ChatMessage.implementation.create({ speaker, content: `${actor.name} fell asleep!` });
+
+            // Refresh token effects to update the status icons
+            combatant.token?.object?.drawEffects();
+            await canvas.hud?.token.render();
+          } else {
+            // Update the ailment with decremented counter
+            const newAilments = actor.system.ailments.map(a =>
+              a.type === 'drowsy' ? { ...a, roundsUntilSleep: newCount } : a
+            );
+            await actor.update({ 'system.ailments': newAilments });
+          }
+        }
       }
     }
   }

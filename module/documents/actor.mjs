@@ -1,4 +1,4 @@
-import { POKEROLE } from "../helpers/config.mjs";
+import { calcDualTypeMatchupScore, calcTripleTypeMatchupScore, POKEROLE } from "../helpers/config.mjs";
 import { TokenEffect } from "../helpers/effects.mjs";
 
 /**
@@ -428,6 +428,18 @@ export class PokeroleActor extends Actor {
           throw new Error('Disabled move missing');
         }
         break;
+      case 'taunted':
+        // Set default turnsRemaining if not provided
+        if (!ailment.turnsRemaining) {
+          ailment.turnsRemaining = 3;
+        }
+        break;
+      case 'drowsy':
+        // Set roundsUntilSleep - falls asleep on NEXT round (after 1 round)
+        if (!ailment.roundsUntilSleep) {
+          ailment.roundsUntilSleep = 1;
+        }
+        break;
     }
 
     const ailments = this.system.ailments.filter(a => {
@@ -490,6 +502,66 @@ export class PokeroleActor extends Actor {
   }
 
   /**
+   * Get this actor's currently effective types.
+   * Some ailments (e.g. Soaked) can override the base type combination.
+   */
+  getEffectiveTypes() {
+    if (this.hasAilment('soaked')) {
+      return {
+        type1: 'water',
+        type2: 'none',
+        type3: 'none',
+        hasThirdType: false,
+      };
+    }
+
+    const type3 = this.system.type3 ?? 'none';
+    return {
+      type1: this.system.type1 ?? 'none',
+      type2: this.system.type2 ?? 'none',
+      type3,
+      hasThirdType: !!this.system.hasThirdType && type3 !== 'none',
+    };
+  }
+
+  /**
+   * Whether this actor currently counts as the given type.
+   * @param {string} type
+   * @returns {boolean}
+   */
+  hasType(type) {
+    if (!type || type === 'none') {
+      return false;
+    }
+
+    const effectiveTypes = this.getEffectiveTypes();
+    return [effectiveTypes.type1, effectiveTypes.type2, effectiveTypes.type3].includes(type);
+  }
+
+  /**
+   * Get the matchup score against this actor for a given attacking type.
+   * @param {string} attackingType
+   * @returns {number}
+   */
+  getTypeMatchupScore(attackingType) {
+    const effectiveTypes = this.getEffectiveTypes();
+    if (effectiveTypes.hasThirdType) {
+      return calcTripleTypeMatchupScore(
+        attackingType,
+        effectiveTypes.type1,
+        effectiveTypes.type2,
+        effectiveTypes.type3
+      );
+    }
+
+    return calcDualTypeMatchupScore(
+      attackingType,
+      effectiveTypes.type1,
+      effectiveTypes.type2
+    );
+  }
+
+  /**
    * Whether this actor has the 'burn1', 'burn2' or 'burn2' status
    * @returns {boolean}
    */
@@ -520,13 +592,22 @@ export class PokeroleActor extends Actor {
    */
   get temporaryEffects() {
     const ailments = POKEROLE.getAilments();
-    const ailmentTokenEffects = this.system.ailments.map(ailment => new TokenEffect(
-      ailment.type,
-      ailments[ailment.type].icon,
-      ailments[ailment.type].tint,
-      ailments[ailment.type].overlay ?? false,
-      ailments[ailment.type].tooltip ?? "null",
-    ));
+    const ailmentTokenEffects = this.system.ailments.map(ailment => {
+      let tooltip = ailments[ailment.type].tooltip ?? "null";
+
+      // Add turn counter for taunted
+      if (ailment.type === 'taunted' && ailment.turnsRemaining) {
+        tooltip += ` (${ailment.turnsRemaining} turn${ailment.turnsRemaining !== 1 ? 's' : ''} remaining)`;
+      }
+
+      return new TokenEffect(
+        ailment.type,
+        ailments[ailment.type].icon,
+        ailments[ailment.type].tint,
+        ailments[ailment.type].overlay ?? false,
+        tooltip
+      );
+    });
 
     let negativeColor = ["#AAAAAA", "#ffae00ff", "#ff7b00ff", "#ff0000ff"]
     let positiveColor = ["#AAAAAA", "#0d47e7ff", "#18a4f7", "#29ecff"]

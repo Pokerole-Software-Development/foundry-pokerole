@@ -75,9 +75,15 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
     context.styleSheets = this.constructor.getLocalizedStyle();
    
     context.matchups = {};
-    const matchups = context.system.hasThirdType
-        ? getTripleTypeMatchups(context.system.type1, context.system.type2, context.system.type3)
-        : getDualTypeMatchups(context.system.type1, context.system.type2);
+    const effectiveTypes = this.actor.getEffectiveTypes?.() ?? {
+      type1: context.system.type1,
+      type2: context.system.type2,
+      type3: context.system.type3,
+      hasThirdType: context.system.hasThirdType
+    };
+    const matchups = effectiveTypes.hasThirdType
+        ? getTripleTypeMatchups(effectiveTypes.type1, effectiveTypes.type2, effectiveTypes.type3)
+        : getDualTypeMatchups(effectiveTypes.type1, effectiveTypes.type2);
     context.typematch = matchups;
     
     if (matchups.resist) {
@@ -389,6 +395,8 @@ export class PokeroleActorSheet extends foundry.appv1.sheets.ActorSheet {
       'disabled',
       'flinch',
       'infatuated',
+      'cursed',
+      'soaked',
       'fainted'
     ];
     context.quickAilmentList = ailmentFilter

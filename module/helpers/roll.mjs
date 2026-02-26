@@ -46,6 +46,35 @@ async function parseExpressionForRollCountAndComment(expr, actor) {
 }
 
 /**
+ * Resolve an actor from chat message data.
+ * @param {object} chatData
+ * @returns {Actor | undefined}
+ */
+function resolveActorFromChatData(chatData) {
+  const speaker = chatData?.speaker;
+  if (!speaker) {
+    return undefined;
+  }
+
+  if (speaker.token) {
+    const scene = speaker.scene
+      ? game.scenes?.get(speaker.scene)
+      : canvas?.scene;
+    const tokenDoc = scene?.tokens?.get(speaker.token);
+    const tokenActor = tokenDoc?.actor ?? canvas?.tokens?.get(speaker.token)?.actor;
+    if (tokenActor) {
+      return tokenActor;
+    }
+  }
+
+  if (speaker.actor) {
+    return game.actors?.get(speaker.actor);
+  }
+
+  return undefined;
+}
+
+/**
  * Success roll from a chat expression
  * @param {String} expr Expression such as `Dexterity+Alert+2`
  * @param {Actor | undefined} actor The actor to roll as.
@@ -628,16 +657,18 @@ export async function rollDamage(item, actor, token) {
       }
 
       damageBeforeEffectiveness = damage;
-      let effectiveness = defender.system.hasThirdType ? calcTripleTypeMatchupScore(
-        item.system.type,
-        defender.system.type1,
-        defender.system.type2,
-        defender.system.type3
-      ) : calcDualTypeMatchupScore(
-        item.system.type,
-        defender.system.type1,
-        defender.system.type2
-      );
+      let effectiveness = typeof defender.getTypeMatchupScore === 'function'
+        ? defender.getTypeMatchupScore(item.system.type)
+        : (defender.system.hasThirdType ? calcTripleTypeMatchupScore(
+          item.system.type,
+          defender.system.type1,
+          defender.system.type2,
+          defender.system.type3
+        ) : calcDualTypeMatchupScore(
+          item.system.type,
+          defender.system.type1,
+          defender.system.type2
+        ));
 
       if (rollResult <= 0 && effectiveness > 0) {
         // Type advantages are only applied if one or more successes are rolled,
@@ -864,17 +895,28 @@ export async function createSuccessRollMessageData(rollCount, flavor, chatData, 
   const rolls = await rollDice(rollCount);
   const rollsRE = await rollDice(reRolls);
 
-  const rerollCount = rollsRE.length
-  const successCount = Math.min(rolls.filter(roll => roll > 3).length + rollsRE.filter(roll => roll > 3).length, rolls.length) + modifier;
+  const rerollCount = rollsRE.length;
+  const actor = resolveActorFromChatData(chatData);
+  const cursedPenalty = actor?.hasAilment?.('cursed') ? 1 : 0;
+  const successCount = Math.min(
+    rolls.filter(roll => roll > 3).length + rollsRE.filter(roll => roll > 3).length,
+    rolls.length
+  ) + modifier - cursedPenalty;
 
   const stylingFunction = roll => roll > 3 ? 'max' : '';
 
-  let contentSuccess = `<b>${successCount} successes`
+  let contentSuccess = `<b>${successCount} successes`;
+  const details = [];
   if (rerollCount > 0) {
-    contentSuccess += ` (${rerollCount} Rerolls)</b>`
-  } else {
-    contentSuccess += `</b>`
+    details.push(`${rerollCount} Rerolls`);
   }
+  if (cursedPenalty > 0) {
+    details.push('Cursed -1');
+  }
+  if (details.length > 0) {
+    contentSuccess += ` (${details.join(', ')})`;
+  }
+  contentSuccess += `</b>`;
 
   const messageData = await createDiceRollChatMessage(
     rolls,
@@ -903,8 +945,13 @@ export async function createChanceDiceRollMessageData(rollCount, flavor, chatDat
 
   const rolls = await rollDice(rollCount);
 
-  const hasSix = rolls.some(roll => roll === 6);
-  const content = hasSix ? `<b>Chance Roll Success!</b>` : `<b>Chance Roll Failure</b>`;
+  const sixCount = rolls.filter(roll => roll === 6).length;
+  const actor = resolveActorFromChatData(chatData);
+  const cursedPenalty = actor?.hasAilment?.('cursed') ? 1 : 0;
+  const hasSix = (sixCount - cursedPenalty) > 0;
+  const content = hasSix
+    ? `<b>Chance Roll Success${cursedPenalty > 0 ? ' (Cursed -1)' : ''}!</b>`
+    : `<b>Chance Roll Failure${cursedPenalty > 0 ? ' (Cursed -1)' : ''}</b>`;
   const stylingFunction = roll => roll === 6 ? 'maxcd' : 'failcd';
 
   const messageData = await createDiceRollChatMessage(

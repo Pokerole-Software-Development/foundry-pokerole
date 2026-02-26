@@ -130,9 +130,18 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
 }
 
 function calculateClashDamage(move, defender) {
-  let matchup = defender.system.hasThirdType ? calcTripleTypeMatchupScore(move.system.type,
-    defender.system.type1, defender.system.type2, defender.system.type3)
-  :calcDualTypeMatchupScore(move.system.type, defender.system.type1, defender.system.type2);
+  let matchup = typeof defender.getTypeMatchupScore === 'function'
+    ? defender.getTypeMatchupScore(move.system.type)
+    : (defender.system.hasThirdType ? calcTripleTypeMatchupScore(
+      move.system.type,
+      defender.system.type1,
+      defender.system.type2,
+      defender.system.type3
+    ) : calcDualTypeMatchupScore(
+      move.system.type,
+      defender.system.type1,
+      defender.system.type2
+    ));
   let damage = Math.max(1 + matchup, 0);
   let html = '';
   let text = getEffectivenessText(matchup);
