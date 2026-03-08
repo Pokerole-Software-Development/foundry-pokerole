@@ -31,11 +31,7 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
   };
 
   /** @override */
-  static PARTS = {
-    form: {
-      template: ""
-    }
-  };
+  static PARTS = {};
 
   /**
    * Available sheet modes.
@@ -479,7 +475,6 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
   static #onEditDescription(event, target) {
     const field = target.dataset.target;
     this._editingDescriptionTarget = field;
-    console.log("#onEditDescription", field);
     this.render();
   }
 }
