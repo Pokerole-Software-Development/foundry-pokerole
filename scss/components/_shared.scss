@@ -34,9 +34,9 @@
   overflow: hidden;
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
   justify-content: flex-start;
   background-color: #E54733;
+  align-items: center;
 
   .horizontal-line {
     display: block;
@@ -57,6 +57,10 @@
     background-color: white;
     z-index: 10;
     object-fit: contain;
+  }
+
+  .profile-img[data-action=editImage] {
+    cursor: pointer
   }
 
   .header-fields {
@@ -150,9 +154,18 @@
   flex: 0;
   text-transform: uppercase;
   font-weight: 600;
-  background-color: #C34231;
+  background-color: var(--color-pkmn-header-back);
   margin: 0 0 4px 0 !important;
-  border: 2px solid #AB3E2E !important;
+  border-top: 2px solid var(--color-pkmn-outline);
+  border-bottom: 2px solid var(--color-pkmn-outline); 
+
+  &.tabs [data-tab] {
+    color: white;
+  }
+
+  &.tabs [data-tab]:hover, &.tabs [data-tab].active {
+    text-shadow: 0px 0px 5px #5ac0ce;
+  }
 }
 
 .tabs .item.active {

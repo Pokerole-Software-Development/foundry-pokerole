@@ -567,7 +567,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
         } else if (i.system.learned) {
           group = 'learned';
           learnedMoveNum++;
-        } else if (!context.editable) {
+        } else if (!context.editable && this.document.pack == null) {
           continue;
         }
 
@@ -787,6 +787,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     const itemData = {
       name: name,
       type: type,
+      img: "systems/pokerole/images/icons/base.png",
       system: data
     };
 

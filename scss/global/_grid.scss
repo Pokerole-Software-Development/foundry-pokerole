@@ -9,6 +9,11 @@
   padding: 0;
 }
 
+.grid-2col.grid-compact {
+  gap: 0px 10px;
+  margin: 0px;
+}
+
 .grid-3col {
   grid-column: span 3 / span 3;
   grid-template-columns: repeat(3, minmax(0, 1fr));

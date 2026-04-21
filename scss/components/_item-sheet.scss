@@ -10,8 +10,8 @@
   // CSS Variables
   // ---------------------------------------------------------------------------
   --background: #111;
-  --color-pkmn-header-back: #A21C1C;
-  --color-pkmn-red: #A21C1C;
+  --color-pkmn-header-back: #DB442D;
+  --color-pkmn-red: #DB442D;
   --color-pkmn-outline: #433727;
   --color-pkmn-field-back: #DAECF9;
   --color-pkmn-darkfield-back: #841722;
@@ -93,11 +93,13 @@
     color: white;
     align-items: center;
     justify-content: space-between;
-    padding: 7px 10px;
-    font-size: 1.3em;
+    padding: 4px 8px;
+    font-size: 1.2em;
+    gap: 10px;
 
     input, select {
-      width: 40px;
+      min-width: 40px;
+      width: auto;
       background-color: white;
       border: none;
       border-radius: 20px;
@@ -116,14 +118,15 @@
   // ---------------------------------------------------------------------------
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(0px, 1fr));
     gap: 10px;
+    margin: 3px 0;
   }
 
   // ---------------------------------------------------------------------------
   // Move Attributes Tab Styles
   // ---------------------------------------------------------------------------
-  .tab[data-tab="attributes"] {
+  .tab[data-tab="attributes"], .tab[data-tab="rules"] {
     // Section headings in attributes tab
     h3 {
       margin: 10px 0 5px 0;
@@ -153,12 +156,16 @@
       align-items: center;
       gap: 8px;
       margin-bottom: 4px;
+
+      &.alternative-stat {
+        grid-template-columns: 140px 1fr 3px 1fr;
+      }
       
       label {
         font-size: 0.75em;
         font-weight: 500;
         text-align: right;
-        padding-right: 5px;
+        padding-right: 3px;
       }
 
       input[type="text"],
@@ -174,6 +181,8 @@
           outline: none;
           border-color: var(--color-pkmn-red);
         }
+
+        
       }
 
       select {
@@ -216,6 +225,8 @@
       }
     }
   }
+
+  
 
   .attributes-grid {
     display: grid;
@@ -295,11 +306,12 @@
       display: flex;
       align-items: center;
       gap: 5px;
+      padding: 0px 5px;
     }
 
     .effect-item {
       padding-left: 15px;
-      background: rgba(0, 0, 0, 0.02);
+      background: rgba(0, 0, 0, 0.05);
     }
 
     .effect-type,
@@ -318,8 +330,9 @@
   // ---------------------------------------------------------------------------
   .item-control {
     cursor: pointer;
-    color: $c-dark;
     transition: color 0.2s;
+    display: flex;
+    align-items: center;
 
     &:hover {
       color: var(--color-pkmn-red);

@@ -83,6 +83,10 @@ export async function successRollAttributeSkill(attribute, skill, chatData, pool
   }
 }
 
+export async function ReSuccessRoll(li) {
+  console.log(li)
+}
+
 const ATTRIBUTE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/attribute-roll.html";
 
 /**
@@ -747,28 +751,18 @@ async function rollDice(rollCount) {
  */
 async function createDiceRollChatMessage(rolls, content, flavor, chatData, stylingFunction, rollsRE = []) {
   let text = '<div class="dice-tooltip"><div class="dice"><ol class="dice-rolls">';
-  let RRcounter = 0
+  let RRcounter = 1
   rolls.forEach(roll => {
     let classes = stylingFunction(roll);
-    if (roll < 4) {
-      while (RRcounter < rollsRE.length){
-        if (rollsRE[RRcounter] > 3) {
-          classes += " rerolled"
-          RRcounter += 1
-          break
-        }
-        RRcounter += 1
-      }
+    if (roll < 4 && rollsRE.length >= RRcounter) {
+      classes += " rerolled"
+      RRcounter += 1
     }
     text += `<li class="roll die d6 ${classes}">${roll}</li>`;
   });
-  text += `<li class="roll die d6"></li>`;
-  rollsRE.forEach((rollRE, index) => {
+  rollsRE.forEach((rollRE) => {
     let classes = stylingFunction(rollRE);
-    if (index >= RRcounter) {
-      classes += " rerolled"
-    }
-    text += `<li class="roll die d4 ${classes}">${rollRE}</li>`;
+    text += `<li class="roll die d6 ${classes}">${rollRE}</li>`;
   });
   text += '</ol></div></div>';
 
@@ -860,7 +854,7 @@ export async function createSuccessRollMessageData(rollCount, flavor, chatData, 
   }
 
   const rolls = await rollDice(rollCount);
-  const rollsRE = await rollDice(reRolls);
+  const rollsRE = await rollDice(Math.min(reRolls, rolls.filter(roll => roll < 4).length));
 
   const rerollCount = rollsRE.length
   const successCount = Math.min(rolls.filter(roll => roll > 3).length + rollsRE.filter(roll => roll > 3).length, rolls.length) + modifier;
@@ -869,7 +863,7 @@ export async function createSuccessRollMessageData(rollCount, flavor, chatData, 
 
   let contentSuccess = `<b>${successCount} successes`
   if (rerollCount > 0) {
-    contentSuccess += ` (${rerollCount} Rerolls)</b>`
+    contentSuccess += ` (${rerollCount} Rerolls of ${reRolls})</b>`
   } else {
     contentSuccess += `</b>`
   }

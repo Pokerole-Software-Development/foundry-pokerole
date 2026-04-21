@@ -34,7 +34,7 @@
           <div>Accuracy Pool</div>
           <div>Damage Pool</div>
           <div>Target</div>
-          <div class="item-controls">
+          <div class="item-controls centered">
             {{#if ../editable}}
             <a data-action="createItem" title="Create move" data-type="move" data-rank="{{key}}"><i class="fas fa-plus"></i>Add</a>
             {{/if}}
@@ -62,7 +62,7 @@
                 {{#unless item.dmgPool}}-{{/unless}}
             </div>
             <div class="item-prop">{{item.locTarget}}</div>
-            <div class="item-controls">
+            <div class="item-controls centered">
               {{#if ../../editable}}
               {{#unless item.data.system.attributes.maneuver}}
                 {{#if item.data.system.learned}}

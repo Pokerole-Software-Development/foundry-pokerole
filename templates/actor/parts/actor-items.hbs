@@ -11,7 +11,7 @@
       <a data-action="createItem" title="Create item" data-type="item" class="create-item-link"><i
           class="fas fa-plus"></i> Add</a>
       {{/if}}
-      <select value="{{system.testvarso}}" name="system.testvarso" data-dtype="String" class="inventoryfilterclass filter-button">
+      <select value="{{system.testvarso}}" name="system.testvarso" data-dtype="String" class="inventoryfilterclass filter-button always-interactive">
         <option value="all">All Items</option>
         {{selectOptions customitemdf selected=testvarso labelAttr="catname"}}
       </select>
@@ -29,17 +29,19 @@
           <div class="item-name" data-action="togglePocket" data-group="{{key}}">
             {{custom.catname}}</div>
           <div class="flex-small">Quantity</div>
-          <div class="item-controls-small"></div>
+          {{#if ../editable}}
+          <div class="item-controls control-small"></div>
+          {{/if}}
         </div>
         <div class="flexrow">
           <div class="item-name" data-action="togglePocket" data-group="{{key}}"></div>
           <div class="flex-small">Quantity</div>
           {{#if ../editable}}
-          <div class="item-controls-small"></div>
+          <div class="item-controls control-small"></div>
           {{/if}}
         </div>
       </li>
-      <ul class="inner{{#if custom.hidden}} items-hidden{{/if}} list-{{key}} grid grid-2col">
+      <ul class="inner{{#if custom.hidden}} items-hidden{{/if}} list-{{key}} grid grid-2col grid-compact">
         {{#each custom.customitemlist as |item id|}}
         <li class="item flexrow" data-item-id="{{item.data._id}}">
           <div class="item-name">
@@ -50,7 +52,7 @@
           </div>
           <div class="item-prop flex-small">{{item.data.system.quantity}}</div>
           {{#if ../../editable}}
-          <div class="item-controls-small">
+          <div class="item-controls control-small">
             <a data-action="editItem" title="Edit Item"><i class="fas fa-edit"></i></a>
             <a data-action="deleteItem" title="Delete Item"><i class="fas fa-trash"></i></a>
           </div>
@@ -66,12 +68,12 @@
         <div class="flexrow">
           <div class="item-name">Inventory</div>
           <div class="flex-small">Quantity</div>
-          <div class="item-controls-small"></div>
+          <div class="item-controls control-small"></div>
         </div>
         <div class="flexrow">
           <div class="item-name"></div>
           <div class="flex-small">Quantity</div>
-          <div class="item-controls-small"></div>
+          <div class="item-controls control-small"></div>
         </div>
       </li>
     </ul>

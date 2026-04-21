@@ -8,7 +8,7 @@ import { PokeroleItemItemSheet } from "./sheets/item-item-sheet.mjs";
 import { PokeroleMoveSheet } from "./sheets/item-move-sheet.mjs";
 import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { getAilmentList, POKEROLE } from "./helpers/config.mjs";
-import { rollRecoil, successRollAttributeDialog, successRollFromExpression, chanceDiceRollFromExpression, chanceDiceRoll, createChanceDiceRollMessageData } from "./helpers/roll.mjs";
+import { rollRecoil, successRollAttributeDialog, successRollFromExpression, chanceDiceRollFromExpression, chanceDiceRoll, createChanceDiceRollMessageData, ReSuccessRoll} from "./helpers/roll.mjs";
 import { showClashDialog } from "./helpers/clash.mjs";
 import { bulkApplyDamageValidated, canModifyTokenOrActor } from "./helpers/damage.mjs";
 import { registerIntegrationHooks } from "./helpers/integrations.mjs";
@@ -16,6 +16,8 @@ import { applyEffectToActors, registerEffectHooks } from "./helpers/effects.mjs"
 import { APIdb } from "./API/API.mjs";
 import CheckboxElement from "./components/checkbox.mjs";
 import SlideToggleElement from "./components/slide-toggle.mjs";
+import { ailmentsMenu } from "./helpers/settingsMenu.mjs";
+
 
 /* -------------------------------------------- */
 /*  Init Hook                                   */
@@ -98,6 +100,25 @@ Hooks.on('renderChatLog', (app, html, data) => PokeroleItem.chatListeners(html))
 Hooks.on('renderChatPopout', (app, html, data) => PokeroleItem.chatListeners(html));
 */
 Hooks.on('renderChatMessageHTML', (app, html, data) => PokeroleItem.chatListeners(html));
+
+Hooks.on('getChatMessageContextOptions', (html, options) => {
+  options.push(
+  {
+    name: game.i18n.localize('Reroll'),
+    icon: '<i class="fas fa-redo"></i>',
+    condition: li => {
+      // Only show this context menu if the person is GM or author of the message
+      const message = game.messages.get(li.getAttribute('data-message-id'))
+
+      // Only show this context menu if there are at least a fail dice in the message
+      const dice = li.querySelectorAll('.die:not(.max)').length 
+
+      // All must be true to show the reroll dialog
+      return (game.user.isGM || message.isAuthor) && dice > 0
+    },
+    callback: li => ReSuccessRoll(li)
+  })
+})
 
 PokeroleCombatTracker.registerHooks();
 registerIntegrationHooks();
@@ -391,22 +412,21 @@ function registerSettings() {
     default: false,
     requiresReload: true
   });
-  
- /*
-  game.settings.registerMenu('pokerole', 'battleConst', {
-      name: "Battle Constants",
-      hint: "Allows to change certain numbers of the core mechanics",
-      label: "meow",
+
+  game.settings.registerMenu('pokerole', 'ailmentsConst', {
+      name: "Ailments Constants",
+      hint: "Allows to change certain numbers of the core mechanics related to Ailments",
+      label: "Ailments Settings",
       icon: 'fas fa-wrench',
-      type: AutomationMenu, // Requires an FormApplication
+      type: ailmentsMenu,
       restricted: true
     })
-  */
+
   game.settings.register('pokerole', 'burnConst', {
     name: 'Burn Strength Reduction',
     hint: 'Homebrew option to add Strength reduction to the Burn condition (Default: 0)',
     scope: 'world',
-    config: true,
+    config: false,
     type: Number,
     default: 0,
     range: {min: 0, max: 3},
@@ -417,7 +437,7 @@ function registerSettings() {
     name: 'Frozen Special Reduction',
     hint: 'Homebrew option to add Special reduction to the Frozen condition (Default: 0)',
     scope: 'world',
-    config: true,
+    config: false,
     type: Number,
     default: 0,
     range: {min: 0, max: 3},
@@ -428,7 +448,7 @@ function registerSettings() {
     name: 'Paralysis Dexterity Reduction',
     hint: 'Homebrew option to change the Special reduction to the Paralysis condition (Default: 2)',
     scope: 'world',
-    config: true,
+    config: false,
     type: Number,
     default: 2,
     range: {min: 0, max: 3},
@@ -443,6 +463,17 @@ function registerSettings() {
     type: Boolean,
     default: true
   });
+
+  game.settings.register("pokerole", "customBar", {
+    name: 'BarBrawl: Axoria Custom Bar',
+    hint: 'Enable a Default BarBrawl Bar for Pokerole Tokens',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false,
+    requiresReload: true
+  });
+
 }
 
 /* -------------------------------------------- */

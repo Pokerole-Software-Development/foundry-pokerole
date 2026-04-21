@@ -2,7 +2,7 @@
   <div class="attribute-col">
     <fieldset class="stat-changes pain">
       <legend>Pain Penalization</legend>
-      <select name="system.painPenalty">
+      <select name="system.painPenalty" class="always-interactive">
         {{selectOptions painPenalties selected=system.painPenalty}}
       </select>
     </fieldset>
@@ -123,10 +123,12 @@
       <ol class="items-list effects-list">
         <li class="items-header flexrow" data-effect-type="{{section.type}}">
           <h3 class="item-name flexrow">Custom Effects</h3>
-          <div class="item-controls">
+          {{#if editable}}
+          <div class="item-controls centered">
             <a data-action="createItem" title="Create effect" data-type="effect"><i class="fas fa-plus"></i>
               Add</a>
-          </div>
+          </div>          
+          {{/if}}
         </li>
 
         {{#each customEffects as |effect i|}}
@@ -138,17 +140,19 @@
             </div>
             <h4>{{effect.data.name}}</h4>
           </div>
-          <div class="item-controls">
+          <div class="item-controls centered">
             <a data-action="toggleVisible" title="Toggle visibility">
               <i class="fas {{#if effect.data.system.visible}}fa-eye{{else}}fa-eye-slash{{/if}}"></i>
             </a>
             <a data-action="toggleEffectEnabled" title="Toggle effect">
               <i class="fas {{#if effect.data.system.enabled}}fa-toggle-on{{else}}fa-toggle-off{{/if}}"></i>
             </a>
+            {{#if ../editable}}
             <a data-action="editItem" title="Edit Effect"><i class="fas fa-edit"></i></a>
             <a data-action="deleteItem" title="Remove Effect">
               <i class="fas fa-trash"></i>
             </a>
+            {{/if}}
           </div>
         </li>
         {{/each}}

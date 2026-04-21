@@ -77,11 +77,14 @@
   }
 
   // Control Buttons
-  .item-controls,
-  .item-controls-small {
+  .item-controls {
     display: flex;
-    flex: 0 0 75px;
+    flex: 0 0 110px;
     justify-content: flex-end;
+
+    &.control-small {
+      flex: 0 1 55px;
+    }
 
     a {
       font-size: 12px;
@@ -93,7 +96,7 @@
   // Individual Item
   .inner > .item {
     align-items: center;
-    padding: 0 2px;
+    padding: 2px 2px;
     border-bottom: 1px solid $c-faint;
 
     &:last-child {

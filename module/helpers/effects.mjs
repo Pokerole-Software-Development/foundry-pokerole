@@ -244,7 +244,7 @@ export async function addAilmentWithDialog(actor, category) {
         moves[move.uuid] = move.name;
       }
 
-      const content = await renderTemplate(DISABLE_MOVE_DIALOG_TEMPLATE, {
+      const content = await foundry.applications.handlebars.renderTemplate(DISABLE_MOVE_DIALOG_TEMPLATE, {
         moves
       });
       const result = await new Promise(resolve => {

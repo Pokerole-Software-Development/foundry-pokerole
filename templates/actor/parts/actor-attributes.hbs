@@ -138,14 +138,14 @@
       </div>
       <div class="attribute">
         <label for="system.trainingPoints" class="resource-label flexlarge align-left">Training Points</label>
-        <input type="text" name="system.trainingPoints" value="{{system.trainingPoints}}" data-dtype="Number" />
+        <input class="always-interactive" type="text" name="system.trainingPoints" value="{{system.trainingPoints}}" data-dtype="Number" />
       </div>
     </div>
-    {{#if editable}}
+
     <div class="button-container">
       <button type="button" title="Retrain" data-action="reTrain" class="set-button">Retrain</button>
     </div>
-    {{/if}}
+
     <div class="derived">
       <h3 class="section-header centered">Quick References</h3>
       <div class="derived-attributes">

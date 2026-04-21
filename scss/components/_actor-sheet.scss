@@ -9,16 +9,31 @@
   // ---------------------------------------------------------------------------
   // CSS Variables
   // ---------------------------------------------------------------------------
-  --color-pkmn-header-back: #A21C1C;
-  --color-pkmn-red: #A21C1C;
+  --color-pkmn-header-back: #DB442D;
+  --color-pkmn-red: #DB442D;
   --color-pkmn-outline: #433727;
-  --color-pkmn-orange: #C34231;
+  --color-pkmn-orange: #DB442D;
   --color-pkmn-dkorange: #AB3E2E;
-  --color-pkmn-field-back: #DAECF9;
+  --color-pkmn-field-back: #FFFFFF;
   --color-pkmn-darkfield-back: #841722;
   --color-pkmn-container-bg: #151515;
   --background: #111;
   --color-disposition: #999999;
+  --input-pkmn-text-color: black;
+
+  &:not(.theme-light) {
+    --color-pkmn-header-back: #251915;
+    --color-pkmn-red: #251915;
+    --color-pkmn-outline: #675c59;
+    --color-pkmn-orange: #251915;
+    --color-pkmn-dkorange: #AB3E2E;
+    --color-pkmn-field-back: #3a2e2a;
+    --color-pkmn-darkfield-back: #841722;
+    --color-pkmn-container-bg: #151515;
+    --background: #111;
+    --color-disposition: #999999;
+    --input-pkmn-text-color: white;
+  }
 
   // ---------------------------------------------------------------------------
   // Window Header
@@ -52,6 +67,10 @@
   select,
   input {
     box-shadow: none;
+  }
+
+  .butonable:hover {
+    text-shadow: 0px 0px 5px #5ac0ce;
   }
 
   // ---------------------------------------------------------------------------
@@ -174,7 +193,7 @@
                 background: transparent;
                 font-size: 22px;
                 overflow: clip;
-                color: black;
+                color: var(--input-pkmn-text-color);
               }
 
               .settings-container {
@@ -193,7 +212,7 @@
                   justify-content: flex-start;
                   align-items: center;
                   padding-left: 5px;
-                  color: var(--color-pkmn-field-back);
+                  color: white;
                   font-size: 20px;
                 }
               }
@@ -263,8 +282,8 @@
               width: 100%;
               border: none;
               padding: 0px 3px;
-              background: transparent;
-              color: black;
+              background: inherit;
+              color: var(--input-pkmn-text-color);
               font-size: 22px;
             }
           }
@@ -327,7 +346,7 @@
       height: 21.5938px;
       min-width: 250px;
       padding: 0 32px 0 10px;
-      background: var(--sheet-color-2);
+      background: var(--color-pkmn-red);
 
       .pokedex-info {
         display: flex;
@@ -460,7 +479,7 @@
         min-width: 154px;
         border: none;
         padding: 0 3px;
-        color: black;
+        color: var(--input-pkmn-text-color);
       }
 
       select {
@@ -646,7 +665,8 @@
         }
 
         input {
-          text-align: right;
+          text-align: center;
+          width: 90px;
         }
 
         select {
@@ -715,7 +735,7 @@
         padding: 1px 6px;
         border-radius: 30px;
         background-color: var(--color-pkmn-field-back);
-        color: black;
+        color: var(--input-pkmn-text-color);
       }
     }
   }
@@ -744,6 +764,8 @@
 
       .create-item-link {
         font-size: 14px;
+        display: flex;
+        align-items: center;
       }
     }
 
@@ -898,6 +920,10 @@
       width: 80px;
     }
   }
+
+  .item-controls.centered {
+      margin-bottom: 0px;
+    }
 
   .action-count {
     display: flex;
@@ -1101,6 +1127,7 @@
     justify-content: space-between;
     background-color: var(--color-pkmn-container-bg);
     border: 3px solid var(--color-pkmn-dkorange);
+    min-height: 50px;
 
     legend {
       background: var(--background);
@@ -1177,7 +1204,6 @@
       }
 
       label {
-        color: white;
         width: 60px;
         text-align: center;
         font-size: 1.1em;
@@ -1187,14 +1213,12 @@
   }
 
   .stat-change-label {
-    color: white;
     width: 60px;
     text-align: center;
     font-size: 1.1em;
   }
 
   .accuracy-label {
-    color: white;
     width: 60px;
     text-align: center;
     font-size: 1.1em;
@@ -1239,13 +1263,13 @@
       .disabled-elem {
         width: 18px;
         height: 18px;
+        filter: brightness(40%);
       }
 
       img {
         width: 100%;
         height: 100%;
         border: none;
-        filter: brightness(40%);
       }
 
       .add-ailment img {
@@ -1281,6 +1305,7 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
+    flex: 1;
   }
 
   // .matchups li,
@@ -1428,6 +1453,7 @@
     border-radius: 15px;
     padding: 5px;
 
+
     h4 {
       text-transform: uppercase;
       margin: 3px 0;
@@ -1507,10 +1533,6 @@
     select:not(.always-interactive) {
       appearance: none;
     }
-
-    .item-controls {
-      justify-content: center;
-    }
   }
 }
 
@@ -1539,7 +1561,6 @@ body.theme-light .pokerole.actor.sheet:not(.theme-dark),
       background: #DDD;
     }
   }
-
   // ---------------------------------------------------------------------------
   // Locked/Editable State
   // ---------------------------------------------------------------------------
@@ -1557,4 +1578,13 @@ body.theme-light .pokerole.actor.sheet:not(.theme-dark),
       color: white;
     }
   }
+}
+
+body.theme-light .pokerole.actor.sheet:not(.theme-light),
+.pokerole.actor.sheet.theme-dark {
+  
+  .effects-list .quick-ailment-list {
+    filter: invert(1);
+  }
+
 }
