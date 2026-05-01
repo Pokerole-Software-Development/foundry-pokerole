@@ -39,28 +39,29 @@ export class PokeroleItemItemSheet extends PokeroleItemBaseSheet {
       { id: "properties", group: "primary", icon: "fa-solid fa-list", label: "Properties" }
     ];
 
+    const tabsObject = {};
     for ( const tab of tabs ) {
       tab.active = this.tabGroups[tab.group] === tab.id;
       tab.cssClass = tab.active ? "active" : "";
+      tabsObject[tab.id] = tab;
     }
 
-    return tabs;
+    return tabsObject;
   }
 
   /** @override */
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
-    context.tabs = this._getTabs();
-    
+
     // Item-specific context
     context.pockets = POKEROLE.itemCategory;
     context.healTypes = this._getLocalizedEntriesForSelect('healTypes');
     context.effectTargets = this._getLocalizedEntriesForSelect('effectTargets');
-    
+
     context.healEnabled = context.system.heal?.type !== 'none';
     context.isCustomHeal = context.system.heal?.type === 'custom';
     context.isLeechHeal = context.system.heal?.type === 'leech';
-    
+
     return context;
   }
 
@@ -68,10 +69,12 @@ export class PokeroleItemItemSheet extends PokeroleItemBaseSheet {
   async _preparePartContext(partId, context, options) {
     context = await super._preparePartContext(partId, context, options);
 
-    // Inject tab information into each part
-    if (partId !== "header") {
-      const tab = context.tabs.find(t => t.id === partId);
-      if (tab) context.tab = tab;
+    const tabs = this._getTabs();
+
+    if (partId === "tabs") {
+      context.tabs = Object.values(tabs);
+    } else if (tabs[partId]) {
+      context.tab = tabs[partId];
     }
 
     return context;

@@ -38,25 +38,26 @@ export class PokeroleEffectSheet extends PokeroleItemBaseSheet {
       { id: "rules", group: "primary", icon: "fa-solid fa-gears", label: "Rules" }
     ];
 
+    const tabsObject = {};
     for ( const tab of tabs ) {
       tab.active = this.tabGroups[tab.group] === tab.id;
       tab.cssClass = tab.active ? "active" : "";
+      tabsObject[tab.id] = tab;
     }
 
-    return tabs;
+    return tabsObject;
   }
 
   /** @override */
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
-    context.tabs = this._getTabs();
-    
+
     // Effect-specific context
     context.operators = {
       "add": "Add",
       "replace": "Replace"
     };
-    
+
     return context;
   }
 
@@ -64,10 +65,12 @@ export class PokeroleEffectSheet extends PokeroleItemBaseSheet {
   async _preparePartContext(partId, context, options) {
     context = await super._preparePartContext(partId, context, options);
 
-    // Inject tab information into each part
-    if (partId !== "header") {
-      const tab = context.tabs.find(t => t.id === partId);
-      if (tab) context.tab = tab;
+    const tabs = this._getTabs();
+
+    if (partId === "tabs") {
+      context.tabs = Object.values(tabs);
+    } else if (tabs[partId]) {
+      context.tab = tabs[partId];
     }
 
     return context;
