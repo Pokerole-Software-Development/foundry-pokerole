@@ -286,9 +286,12 @@ POKEROLE.itemCategory = {
   item: "Item", 
   medicine: "Medicine", 
   pokeball: "Pokeball", 
-  ingredient: "Ingredient", 
-  pokedex: "Pokedex", 
-  battle: "Battle Item", 
+  ingredient: "Ingredient",
+  berry: "Berry",
+  pokedex: "Pokedex",
+  heldItem: "Held Item",
+  battle: "Battle Item",
+  medals: "Trophy",
   keyItem: "Key Item",
   miscItem: "Misc Item"
 };

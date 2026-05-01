@@ -1,0 +1,52 @@
+{{!-- Move Tooltip --}}
+<div class="move-tooltip {{cssClass}}">
+  <header>
+    <h2 class="move-name">{{item.name}}</h2>
+    <div class="power-container">
+      <span class="power-label">Power</span>
+      <span class="move-power">{{item.system.power}}</span>
+    </div>
+    {{#if (eq item.system.category "physical")}}
+    <img class="move-category" src="systems/pokerole/images/icons/moves/physical.svg" />
+    {{/if}}
+    {{#if (eq item.system.category "special")}}
+    <img class="move-category" src="systems/pokerole/images/icons/moves/special.svg" />
+    {{/if}}
+    {{#if (eq item.system.category "support")}}
+    <img class="move-category" src="systems/pokerole/images/icons/moves/status.svg" />
+    {{/if}}
+  </header>
+  <section class="description">
+    <div class="move-type">
+      <span class="label type-label">Type<span class="label-colon">:</span></span>
+      <span class="value type-value {{item.system.type}}">{{type}}</span>
+    </div>
+    <div class="move-category">
+      <span class="label category-label">Category<span class="label-colon">:</span></span>
+      <span class="value category-value">{{category}}</span>
+    </div>
+    <div class="move-accuracy">
+      <span class="label accuracy-label">Accuracy<span class="label-colon">:</span></span>
+      <span class="value accuracy-value">{{accuracy}}</span>
+    </div>
+    <div class="move-damage">
+      <span class="label damage-label">Damage<span class="label-colon">:</span></span>
+      <span class="value damage-value">{{damage}}</span>
+    </div>
+    <div class="move-effect">
+      <span class="label effect-label">Added Effect<span class="label-colon">:</span></span>
+      <span class="value effect-value">{{item.system.effect}}</span>
+    </div>
+  </section>
+  <section class="attributes flexcol">
+    {{!-- Attribute Icons --}}
+    {{#each attributes}}
+    <div class="attribute-icon {{#if cssClass}}{{cssClass}}{{/if}}" style="background-image: url('{{icon}}');" data-tooltip="{{tooltip}}">
+      {{#if number}}<span class="number">{{number}}</span>{{/if}}
+    </div>
+    {{/each}}
+  </section>
+  <footer>
+    {{{descriptionHtml}}}
+  </footer>
+</div>

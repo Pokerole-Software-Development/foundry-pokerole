@@ -13,12 +13,14 @@
 @import 'global/grid';
 @import 'global/flex';
 @import 'global/combat';
+@import 'global/color-vars';
 
 /* Styles limited to sheets */
 .pokerole {
-  @import 'components/forms';
-  @import 'components/sheets';
+  @import 'components/shared';
   @import 'components/items';
   @import 'components/effects';
   @import 'components/advancement';
 }
+@import 'components/actor-sheet';
+@import 'components/item-sheet';

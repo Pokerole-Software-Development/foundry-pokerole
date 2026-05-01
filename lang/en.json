@@ -206,5 +206,8 @@
 
   "POKEROLE.CombatResetRound": "Reset Round",
   "POKEROLE.CombatNextRoundDialogTitle": "Start the next round?",
-  "POKEROLE.CombatNextRoundDialogContent": "Start the next round and reset all participants' action counters?"
+  "POKEROLE.CombatNextRoundDialogContent": "Start the next round and reset all participants' action counters?",
+
+  "POKEROLE.SheetModeEdit": "Edit Mode",
+  "POKEROLE.SheetModePlay": "Play Mode"
 }

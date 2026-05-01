@@ -1,0 +1,22 @@
+{{!-- Reusable Description Editor Partial --}}
+{{#if editing}}
+<prose-mirror name="{{ editing.target }}" value="{{ editing.value }}"
+              document-uuid="{{ document.uuid }}" compact></prose-mirror>
+{{else}}
+<div class="multi-editor" data-target="{{key}}">
+  {{#if (or editable label)}}
+  <h4>
+    {{label}}
+    {{#if editable}}
+    <button type="button" class="editor-edit" data-action="editDescription" data-target="{{key}}"
+            aria-label="Edit Description">
+      <i class="fas fa-edit"></i>
+    </button>
+    {{/if}}
+  </h4>
+  {{/if}}
+  <div class="editor">
+    <div class="editor-content">{{{ html }}}</div>
+  </div>
+</div>
+{{/if}}

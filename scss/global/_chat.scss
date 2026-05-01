@@ -107,3 +107,10 @@
 .pokerole.roll-highlight {
   font-size: 1.1em;
 }
+
+.pokerole.actor-settings {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 5px;
+}

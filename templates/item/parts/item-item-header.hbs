@@ -1,0 +1,23 @@
+{{!-- Item (Gear) Header --}}
+<header class="sheet-header">
+  <img class="profile-img" src="{{item.img}}" {{#if editable}}data-action="editImage" data-edit="img" {{/if}}title="{{item.name}}"/>
+  <div class="header-fields">
+    <h1 class="charname"><input name="name" type="text" value="{{item.name}}" placeholder="Name"/></h1>
+    <div class="grid">
+      <div class="resource">
+        <label class="resource-label">Quantity</label>
+        <input type="text" name="system.quantity" value="{{system.quantity}}" data-dtype="Number"/>
+      </div>
+      <div class="resource">
+        <label class="resource-label">Price</label>
+        <input type="text" name="system.price" value="{{system.price}}" data-dtype="Number"/>
+      </div>
+      <div class="resource" style="grid-column: 1 / 3;">
+        <label class="resource-label">Item Category</label>
+        <select name="system.pocket" value="{{system.pocket}}" data-dtype="String">
+          {{selectOptions pockets selected=system.pocket}}
+        </select>
+      </div>
+    </div>
+  </div>
+</header>
