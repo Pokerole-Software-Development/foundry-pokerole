@@ -183,6 +183,7 @@
 
 .sheet-header, .sheet-tabs, .sheet-body {
   min-width: 400px;
+  z-index: 0;
 }
 
 .sheet-body {
