@@ -1,4 +1,4 @@
-name: Build and Pre-Release
+name: Build and Official Release
 
 on:
   workflow_dispatch:
@@ -40,72 +40,50 @@ jobs:
       - name: Install Python Dependencies
         run: pip install fire pyyaml pandas
       - name: Fetch Updated Databases
+        working-directory: ./assets-repo/scripts/databuilder
         run: |
-          # Change directory to where the script expects to be run from
-          cd assets-repo/scripts/databuilder
-          
-          # Run the script (notice we removed the path before builder.py)
           python builder.py buildFoundry --game_version="v3.0"
 
-      # 5. Modify system.json
-      - name: Update system.json Version
-        run: |
-          NEW_VERSION="0.6.${{ github.run_number }}"
-          jq --arg v "$NEW_VERSION" '.version = $v' system.json > temp.json && mv temp.json system.json
-          cat system.json 
-
-      # 6. Reorganize files for deployment
+      # 5. Reorganize files for deployment
       - name: Stage Release Files
         run: |
-          # Create a staging directory
           mkdir release_stage
           
-          # 6a. Copy root files and folders
+          # Copy everything, including the existing system.json without changes
           cp -r css lang module templates images release_stage/
           cp template.json package.json package-lock.json system.json release_stage/
           
-          # 6b. Add the pack folder from the assets repo
-          # (Assuming the source directory is literally named "pack", if it is "packs", adjust here)
+          # Add the packs folder
           cp -r assets-repo/FoundryModule/packs release_stage/
           
-          # 6c. Add items to the main images folder
-          # Ensures the images folder exists, then copies the items folder into it
           mkdir -p release_stage/images/
           cp -r assets-repo/FoundryModule/images/items release_stage/images/
           
-          # 6d. Create pokemon subfolders and copy specific assets
-          # We create the destination folders first
-          mkdir -p release_stage/images/pokemon/book
-          mkdir -p release_stage/images/pokemon/box
-          mkdir -p release_stage/images/pokemon/home
-          mkdir -p release_stage/images/pokemon/items
-          mkdir -p release_stage/images/pokemon/shuffle
+          # Pokemon subfolders
+          mkdir -p release_stage/images/pokemon/{book,box,home,items,shuffle}
           
-          # The '/.' at the end of the source path ensures we copy the *contents* # of the folder directly into our newly created destination folder.
           cp -r assets-repo/FoundryModule/images/book/. release_stage/images/pokemon/book/
           cp -r assets-repo/images/BoxSprites/. release_stage/images/pokemon/box/
           cp -r assets-repo/images/HomeSprites/. release_stage/images/pokemon/home/
           cp -r assets-repo/images/ItemSprites/. release_stage/images/pokemon/items/
           cp -r assets-repo/images/ShuffleTokens/. release_stage/images/pokemon/shuffle/
 
-      # 7. Compile everything into a zip file
+      # 6. Compile everything into a zip file
       - name: Create Zip Archive
         run: |
-          ZIP_NAME="build-v1.0.${{ github.run_number }}.zip"
-          
-          # Navigate INTO the staging directory so the zip file's root 
-          # contains your files directly, rather than a 'release_stage' folder
+          ZIP_NAME="PokeroleModule.zip"
           cd release_stage
           zip -r ../$ZIP_NAME .
           cd ..
-          
           echo "ZIP_FILE_NAME=$ZIP_NAME" >> $GITHUB_ENV
 
-      # 8. Create Pre-Release and Upload Asset
-      - name: Create GitHub Pre-Release
+      # 7. Create GitHub Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.${{ github.run_number }}
-          name: "Pre-Release v1.0.${{ github.run_number }}"
-          prerelease: true
+          # Use the run number or a static tag for the release name
+          tag_name: build-${{ github.run_number }}
+          name: "Release Build ${{ github.run_number }}"
+          prerelease: false
+          make_latest: true
           files: ${{ env.ZIP_FILE_NAME }}
