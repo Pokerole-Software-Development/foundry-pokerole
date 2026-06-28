@@ -1,0 +1,105 @@
+name: Build and Pre-Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write 
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout the main repository
+      - name: Checkout Main Repository
+        uses: actions/checkout@v4
+
+      # 2. Setup Node.js and Run Gulp
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' 
+      - name: Install NPM Dependencies and Run Gulp
+        run: |
+          npm install
+          npx gulp build
+
+      # 3. Download the Pokerole-Data Repository
+      - name: Checkout Assets Repository
+        uses: actions/checkout@v4
+        with:
+          repository: 'Pokerole-Software-Development/Pokerole-Data' 
+          path: 'assets-repo' 
+
+      # 4. Setup Python and Run Script
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11' 
+      - name: Fetch Updated Databases
+        run: |
+          python assets-repo/scripts/databuilder/builder.py buildFoundry --game_version="v3.0"
+
+      # 5. Modify system.json
+      - name: Update system.json Version
+        run: |
+          NEW_VERSION="1.0.${{ github.run_number }}"
+          jq --arg v "$NEW_VERSION" '.version = $v' system.json > temp.json && mv temp.json system.json
+          cat system.json 
+
+      # 6. Reorganize files for deployment
+      - name: Stage Release Files
+        run: |
+          # Create a staging directory
+          mkdir release_stage
+          
+          # 6a. Copy root files and folders
+          cp -r css lang module templates images release_stage/
+          cp template.json package.json package-lock.json system.json release_stage/
+          
+          # 6b. Add the pack folder from the assets repo
+          # (Assuming the source directory is literally named "pack", if it is "packs", adjust here)
+          cp -r assets-repo/FoundryModule/pack release_stage/
+          
+          # 6c. Add items to the main images folder
+          # Ensures the images folder exists, then copies the items folder into it
+          mkdir -p release_stage/images/
+          cp -r assets-repo/FoundryModule/images/items release_stage/images/
+          
+          # 6d. Create pokemon subfolders and copy specific assets
+          # We create the destination folders first
+          mkdir -p release_stage/images/pokemon/book
+          mkdir -p release_stage/images/pokemon/box
+          mkdir -p release_stage/images/pokemon/home
+          mkdir -p release_stage/images/pokemon/items
+          mkdir -p release_stage/images/pokemon/shuffle
+          
+          # The '/.' at the end of the source path ensures we copy the *contents* # of the folder directly into our newly created destination folder.
+          cp -r assets-repo/FoundryModule/images/book/. release_stage/images/pokemon/book/
+          cp -r assets-repo/images/BoxSprites/. release_stage/images/pokemon/box/
+          cp -r assets-repo/images/HomeSprites/. release_stage/images/pokemon/home/
+          cp -r assets-repo/images/ItemSprites/. release_stage/images/pokemon/items/
+          cp -r assets-repo/images/ShuffleTokens/. release_stage/images/pokemon/shuffle/
+
+      # 7. Compile everything into a zip file
+      - name: Create Zip Archive
+        run: |
+          ZIP_NAME="build-v1.0.${{ github.run_number }}.zip"
+          
+          # Navigate INTO the staging directory so the zip file's root 
+          # contains your files directly, rather than a 'release_stage' folder
+          cd release_stage
+          zip -r ../$ZIP_NAME .
+          cd ..
+          
+          echo "ZIP_FILE_NAME=$ZIP_NAME" >> $GITHUB_ENV
+
+      # 8. Create Pre-Release and Upload Asset
+      - name: Create GitHub Pre-Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: "Pre-Release v1.0.${{ github.run_number }}"
+          prerelease: true
+          files: ${{ env.ZIP_FILE_NAME }}
