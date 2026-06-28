@@ -41,12 +41,16 @@ jobs:
         run: pip install fire pyyaml pandas
       - name: Fetch Updated Databases
         run: |
-          python assets-repo/scripts/databuilder/builder.py buildFoundry --game_version="v3.0"
+          # Change directory to where the script expects to be run from
+          cd assets-repo/scripts/databuilder
+          
+          # Run the script (notice we removed the path before builder.py)
+          python builder.py buildFoundry --game_version="v3.0"
 
       # 5. Modify system.json
       - name: Update system.json Version
         run: |
-          NEW_VERSION="1.0.${{ github.run_number }}"
+          NEW_VERSION="0.6.${{ github.run_number }}"
           jq --arg v "$NEW_VERSION" '.version = $v' system.json > temp.json && mv temp.json system.json
           cat system.json 
 
