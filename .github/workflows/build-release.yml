@@ -2,6 +2,11 @@ name: Build and Official Release
 
 on:
   workflow_dispatch:
+    inputs:
+      enable_gulp:
+        description: 'Run Gulp build?'
+        type: boolean
+        default: true
 
 permissions:
   contents: write 
@@ -11,28 +16,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout the main repository
       - name: Checkout Main Repository
         uses: actions/checkout@v4
 
-      # 2. Setup Node.js and Run Gulp
+      # Setup Node
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20' 
+      
+      # Conditional Gulp Step
       - name: Install NPM Dependencies and Run Gulp
+        if: ${{ inputs.enable_gulp == true }}
         run: |
           npm install
           npx gulp build
 
-      # 3. Download the Pokerole-Data Repository
       - name: Checkout Assets Repository
         uses: actions/checkout@v4
         with:
           repository: 'Pokerole-Software-Development/Pokerole-Data' 
           path: 'assets-repo' 
 
-      # 4. Setup Python and Run Script
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -44,31 +49,28 @@ jobs:
         run: |
           python builder.py buildFoundry --game_version="v3.0"
 
-      # 5. Reorganize files for deployment
+      # Extract Version from system.json for the Release Name
+      - name: Get Version
+        id: get_version
+        run: |
+          VERSION=$(jq -r '.version' system.json)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
       - name: Stage Release Files
         run: |
           mkdir release_stage
-          
-          # Copy everything, including the existing system.json without changes
-          cp -r css lang module templates images release_stage/
-          cp template.json package.json package-lock.json system.json release_stage/
-          
-          # Add the packs folder
-          cp -r assets-repo/FoundryModule/packs release_stage/
-          
+          mv css lang module templates images release_stage/
+          mv template.json package.json package-lock.json system.json release_stage/
+          mv assets-repo/FoundryModule/packs release_stage/
           mkdir -p release_stage/images/
-          cp -r assets-repo/FoundryModule/images/items release_stage/images/
-          
-          # Pokemon subfolders
+          mv assets-repo/FoundryModule/images/items release_stage/images/
           mkdir -p release_stage/images/pokemon/{book,box,home,items,shuffle}
-          
-          cp -r assets-repo/FoundryModule/images/book/. release_stage/images/pokemon/book/
-          cp -r assets-repo/images/BoxSprites/. release_stage/images/pokemon/box/
-          cp -r assets-repo/images/HomeSprites/. release_stage/images/pokemon/home/
-          cp -r assets-repo/images/ItemSprites/. release_stage/images/pokemon/items/
-          cp -r assets-repo/images/ShuffleTokens/. release_stage/images/pokemon/shuffle/
+          mv assets-repo/FoundryModule/images/book/. release_stage/images/pokemon/book/
+          mv assets-repo/images/BoxSprites/. release_stage/images/pokemon/box/
+          mv assets-repo/images/HomeSprites/. release_stage/images/pokemon/home/
+          mv assets-repo/images/ItemSprites/. release_stage/images/pokemon/items/
+          mv assets-repo/images/ShuffleTokens/. release_stage/images/pokemon/shuffle/
 
-      # 6. Compile everything into a zip file
       - name: Create Zip Archive
         run: |
           ZIP_NAME="PokeroleModule.zip"
@@ -77,13 +79,12 @@ jobs:
           cd ..
           echo "ZIP_FILE_NAME=$ZIP_NAME" >> $GITHUB_ENV
 
-      # 7. Create GitHub Release
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          # Use the run number or a static tag for the release name
-          tag_name: build-${{ github.run_number }}
-          name: "Release Build ${{ github.run_number }}"
+          tag_name: v${{ env.VERSION }}-${{ github.run_number }}
+          # Custom release name format
+          name: 'Pokerole ${{ env.VERSION }} Build ${{ github.run_number }}'
           prerelease: false
           make_latest: true
           files: ${{ env.ZIP_FILE_NAME }}
