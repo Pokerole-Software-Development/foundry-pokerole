@@ -90,7 +90,7 @@
   "secondaryTokenAttribute": "will",
   "url": "https://github.com/Pokerole-Software-Development/foundry-pokerole",
   "manifest": "https://raw.githubusercontent.com/Pokerole-Software-Development/foundry-pokerole/main/system.json",
-  "download": "https://github.com/Axorum/foundry-pokerole/releases/latest/download/PokeroleModule.zip",
+  "download": "https://github.com/Pokerole-Software-Development/foundry-pokerole/releases/latest/download/PokeroleModule.zip",
   "license": "LICENSE.txt",
   "changelog": "CHANGELOG.md"
 }
