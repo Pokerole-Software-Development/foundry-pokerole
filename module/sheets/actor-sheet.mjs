@@ -1337,7 +1337,8 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
   }
 
   static _sanitizeName(name) {
-    return name.replace(/[\W_]+/g, "").toLowerCase();
+    //return name.replace(/[\W_]+/g, "").toLowerCase();
+    return name.replace(/[^\p{L}\p{N}]+/gu, "").toLowerCase();
   }
 
   static getLocalizedRanks() {
