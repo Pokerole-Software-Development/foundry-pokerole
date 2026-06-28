@@ -7,6 +7,10 @@ on:
         description: 'Run Gulp build?'
         type: boolean
         default: true
+      is_prerelease:
+          description: 'Is this a Pre-Release?'
+          type: boolean
+          default: false
 
 permissions:
   contents: write 
@@ -87,6 +91,17 @@ jobs:
           echo "$NOTES" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
+      - name: Set Release Names
+        id: set_names
+        run: |
+          if [ "${{ inputs.is_prerelease }}" == "true" ]; then
+            echo "TAG_SUFFIX=pre" >> $GITHUB_ENV
+            echo "RELEASE_TYPE=Pre-Release" >> $GITHUB_ENV
+          else
+            echo "TAG_SUFFIX=release" >> $GITHUB_ENV
+            echo "RELEASE_TYPE=Release" >> $GITHUB_ENV
+          fi
+
       - name: Create Zip Archive
         run: |
           ZIP_NAME="PokeroleModule.zip"
@@ -98,11 +113,10 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ env.VERSION }}-${{ github.run_number }}
-          # Custom release name format
-          name: 'Pokerole ${{ env.VERSION }} Build ${{ github.run_number }}'
-          prerelease: false
-          make_latest: true
+          tag_name: v${{ env.VERSION }}-${{ env.TAG_SUFFIX }}.${{ github.run_number }}
+          name: 'Pokerole ${{ env.VERSION }} ${{ env.RELEASE_TYPE }} Build ${{ github.run_number }}'
+          prerelease: ${{ inputs.is_prerelease }}
+          make_latest: ${{ !inputs.is_prerelease }}
           files: ${{ env.ZIP_FILE_NAME }}
           body: "${{ env.RELEASE_NOTES }}"
           generate_release_notes: true
