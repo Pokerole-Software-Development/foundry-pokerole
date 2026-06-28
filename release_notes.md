@@ -1,5 +1,5 @@
-# Release v${VERSION}
-
+# Release v0.6.1
+---
 ## Changelog
 - Automated build via GitHub Actions.
 - Updated Pokerole databases to game_version v3.0.
