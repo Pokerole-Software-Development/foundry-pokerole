@@ -88,6 +88,13 @@ jobs:
           cd ..
           echo "ZIP_FILE_NAME=$ZIP_NAME" >> $GITHUB_ENV
 
+      - name: Load Release Notes
+        run: |
+          NOTES=$(cat release-notes.md)
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+          echo "$NOTES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -97,5 +104,5 @@ jobs:
           prerelease: false
           make_latest: true
           files: ${{ env.ZIP_FILE_NAME }}
-          body_path: release-notes.md
+          body: "${{ env.RELEASE_NOTES }}"
           generate_release_notes: true
