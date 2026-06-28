@@ -37,6 +37,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11' 
+      - name: Install Python Dependencies
+        run: pip install fire
       - name: Fetch Updated Databases
         run: |
           python assets-repo/scripts/databuilder/builder.py buildFoundry --game_version="v3.0"
