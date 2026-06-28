@@ -80,6 +80,13 @@ jobs:
           cp -r assets-repo/images/ItemSprites/. release_stage/images/pokemon/items/
           cp -r assets-repo/images/ShuffleTokens/. release_stage/images/pokemon/shuffle/
 
+      - name: Load Release Notes
+        run: |
+          NOTES=$(cat release_notes.md)
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+          echo "$NOTES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
       - name: Create Zip Archive
         run: |
           ZIP_NAME="PokeroleModule.zip"
@@ -87,13 +94,6 @@ jobs:
           zip -r ../$ZIP_NAME .
           cd ..
           echo "ZIP_FILE_NAME=$ZIP_NAME" >> $GITHUB_ENV
-
-      - name: Load Release Notes
-        run: |
-          NOTES=$(cat release-notes.md)
-          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
-          echo "$NOTES" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
