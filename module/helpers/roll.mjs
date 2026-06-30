@@ -366,6 +366,14 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
   let chatData = { speaker: ChatMessage.implementation.getSpeaker({ actor }) };
   const [rollResult, newChatData] = await createSuccessRollMessageData(dicePool, `Accuracy roll: ${item.name}`, chatData,
     constantBonusWithPainPenalty, rerollBonus);
+
+    // Save constant modifier to read it after
+    newChatData.flags = newChatData.flags || {};
+    newChatData.flags.pokerole = newChatData.flags.pokerole || {};
+    newChatData.flags.pokerole.accuracyData = {
+      constantBonus: constantBonusWithPainPenalty
+    };
+
   chatData = newChatData;
 
   let html = '';
