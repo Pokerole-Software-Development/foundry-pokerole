@@ -1,0 +1,122 @@
+name: Build and Official Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      enable_gulp:
+        description: 'Run Gulp build?'
+        type: boolean
+        default: true
+      is_prerelease:
+          description: 'Is this a Pre-Release?'
+          type: boolean
+          default: false
+
+permissions:
+  contents: write 
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Main Repository
+        uses: actions/checkout@v4
+
+      # Setup Node
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' 
+      
+      # Conditional Gulp Step
+      - name: Install NPM Dependencies and Run Gulp
+        if: ${{ inputs.enable_gulp == true }}
+        run: |
+          npm install
+          npx gulp build
+
+      - name: Checkout Assets Repository
+        uses: actions/checkout@v4
+        with:
+          repository: 'Pokerole-Software-Development/Pokerole-Data' 
+          path: 'assets-repo' 
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11' 
+      - name: Install Python Dependencies
+        run: pip install fire pyyaml pandas
+      - name: Fetch Updated Databases
+        working-directory: ./assets-repo/scripts/databuilder
+        run: |
+          python builder.py buildFoundry --game_version="v3.0"
+
+      # Extract Version from system.json for the Release Name
+      - name: Get Version
+        id: get_version
+        run: |
+          VERSION=$(jq -r '.version' system.json)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Stage Release Files
+        run: |
+          mkdir release_stage
+          
+          # Copy everything into the staging directory
+          cp -r css lang module templates images release_stage/
+          cp template.json package.json package-lock.json system.json release_stage/
+          
+          # Add the packs folder
+          cp -r assets-repo/FoundryModule/packs release_stage/
+          
+          # Setup images structure
+          mkdir -p release_stage/images/
+          cp -r assets-repo/FoundryModule/images/items release_stage/images/
+          
+          # Pokemon subfolders
+          mkdir -p release_stage/images/pokemon/{book,box,home,items,shuffle}
+          
+          cp -r assets-repo/FoundryModule/images/book/. release_stage/images/pokemon/book/
+          cp -r assets-repo/images/BoxSprites/. release_stage/images/pokemon/box/
+          cp -r assets-repo/images/HomeSprites/. release_stage/images/pokemon/home/
+          cp -r assets-repo/images/ItemSprites/. release_stage/images/pokemon/items/
+          cp -r assets-repo/images/ShuffleTokens/. release_stage/images/pokemon/shuffle/
+
+      - name: Load Release Notes
+        run: |
+          NOTES=$(cat release_notes.md)
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+          echo "$NOTES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Set Release Names
+        id: set_names
+        run: |
+          if [ "${{ inputs.is_prerelease }}" == "true" ]; then
+            echo "TAG_SUFFIX=pre" >> $GITHUB_ENV
+            echo "RELEASE_TYPE=Pre-Release" >> $GITHUB_ENV
+          else
+            echo "TAG_SUFFIX=release" >> $GITHUB_ENV
+            echo "RELEASE_TYPE=Release" >> $GITHUB_ENV
+          fi
+
+      - name: Create Zip Archive
+        run: |
+          ZIP_NAME="PokeroleModule.zip"
+          cd release_stage
+          zip -r ../$ZIP_NAME .
+          cd ..
+          echo "ZIP_FILE_NAME=$ZIP_NAME" >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}-${{ env.TAG_SUFFIX }}.${{ github.run_number }}
+          name: 'Pokerole ${{ env.VERSION }} ${{ env.RELEASE_TYPE }} Build ${{ github.run_number }}'
+          prerelease: ${{ inputs.is_prerelease }}
+          make_latest: ${{ !inputs.is_prerelease }}
+          files: ${{ env.ZIP_FILE_NAME }}
+          body: "${{ env.RELEASE_NOTES }}"
+          generate_release_notes: true
