@@ -90,42 +90,54 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
 
   const constantBonusWithPainPenalty = constantBonus - POKEROLE.painPenalties[painPenalty];
   const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonusWithPainPenalty, rerollBonus);
-  let html = messageDataPart.content;
+  const baseHtml = messageDataPart.content;
 
-  if (rollResult >= expectedSuccesses) {    
+  // Helper to build success HTML (includes damage calculation and Apply Damage button)
+  function buildSuccessHtml(base) {
     const damageUpdates = [];
-
-    // Calculate damage to attacker
     let damageAndHtml = calculateClashDamage(move, attacker);
-    html += '<hr>' + damageAndHtml.html + '<hr>';
-    let damageToAttacker = damageAndHtml.damage;
-
-    if (damageToAttacker > 0) {
-      damageUpdates.push({ tokenUuid: attackerTokenDoc?.uuid, actorId: attacker.id, damage: damageToAttacker });
-    }
-
-    // Calculate damage to defender
+    let dmgAtt = damageAndHtml.damage;
+    let htmlAtt = damageAndHtml.html;
     damageAndHtml = calculateClashDamage(attackingMove, actor);
-    html += damageAndHtml.html;
-    let damageToDefender = damageAndHtml.damage;
-    if (damageToDefender > 0) {
-      damageUpdates.push({ tokenUuid: actorToken?.document?.uuid, actorId: actor?.id, damage: damageToDefender });
+    let dmgDef = damageAndHtml.damage;
+    let htmlDef = damageAndHtml.html;
+    let resultHtml = base + '<hr>' + htmlAtt + '<hr>' + htmlDef;
+    if (dmgAtt > 0) {
+      damageUpdates.push({ tokenUuid: attackerTokenDoc?.uuid, actorId: attacker.id, damage: dmgAtt });
     }
-
-    html += `<div class="pokerole"><div class="action-buttons"><button class="chat-action" data-action="applyDamage"
+    if (dmgDef > 0) {
+      damageUpdates.push({ tokenUuid: actorToken?.document?.uuid, actorId: actor?.id, damage: dmgDef });
+    }
+    resultHtml += `<div class="pokerole"><div class="action-buttons"><button class="chat-action" data-action="applyDamage"
       data-damage-updates='${JSON.stringify(damageUpdates)}'>Apply Damage</button></div></div>`;
-  } else {
-    html += '<p>It failed...</p>';
+    return resultHtml;
   }
 
-  let messageData = {
+  // Helper to build failure HTML
+  function buildFailureHtml(base) {
+    return base + '<p>It failed...</p>';
+  }
+
+  const successHtml = buildSuccessHtml(baseHtml);
+  const failureHtml = buildFailureHtml(baseHtml);
+  const html = (rollResult >= expectedSuccesses) ? successHtml : failureHtml;
+
+  const messageData = {
     content: html,
     flavor: `${actor.name} uses ${move.name} to clash ${attacker.name}'s ${attackingMove.name}!`,
     ...chatData
   };
 
-  messageData = ChatMessage.implementation.applyRollMode(messageData, game.settings.get('core', 'rollMode'));
-  await ChatMessage.implementation.create(messageData);
+  // Store clash-specific data in a neutral flag (not tied to any specific module)
+  messageData.flags = messageData.flags || {};
+  messageData.flags.clashData = {
+    expectedSuccesses: expectedSuccesses,
+    successHtml: successHtml,
+    failureHtml: failureHtml
+  };
+
+  const finalMessageData = ChatMessage.implementation.applyRollMode(messageData, game.settings.get('core', 'rollMode'));
+  await ChatMessage.implementation.create(finalMessageData);
   return move;
 }
 

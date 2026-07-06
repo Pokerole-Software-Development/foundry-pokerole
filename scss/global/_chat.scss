@@ -62,6 +62,11 @@
   }
 }
 
+.dice-rolls .maxcd {
+  color: #18520b;
+  filter: sepia(0.5) hue-rotate(60deg);
+}
+
 .dice-roll .dice-total {
   &.success {
     color: inherit;
