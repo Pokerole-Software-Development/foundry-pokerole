@@ -1,3 +1,11 @@
+# Release v0.6.7
+
+## Changelog
+- Fix Foundry v13 compatibility broken by the v0.6.6 QA fixes (`/sc`/`/cd` chat commands and custom attribute/skill deletion both relied on v14-only APIs with no fallback).
+
+## Notes
+Please ensure you backup your existing module folder before updating.
+
 # Release v0.6.6
 
 ## Changelog
