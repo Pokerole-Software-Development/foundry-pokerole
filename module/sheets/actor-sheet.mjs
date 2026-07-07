@@ -1225,11 +1225,18 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
    */
   static #onDeleteValue(event, target) {
     const { attributeKey, skillKey } = target.dataset;
+    const path = attributeKey ? 'system.extra' : skillKey ? 'system.skills' : null;
+    const key = attributeKey ?? skillKey;
+    if (!path) return;
+
     const obj = {};
-    if (attributeKey) {
-      obj[`system.extra.${attributeKey}`] = new foundry.data.operators.ForcedDeletion();
-    } else if (skillKey) {
-      obj[`system.skills.${skillKey}`] = new foundry.data.operators.ForcedDeletion();
+    if (foundry.data.operators?.ForcedDeletion) {
+      obj[`${path}.${key}`] = new foundry.data.operators.ForcedDeletion();
+    } else {
+      // V13 Backwards Compatibility: `foundry.data.operators.ForcedDeletion` doesn't exist before
+      // v14 - fall back to the legacy "-=key" deletion syntax, which isn't deprecated there.
+      // Remove this branch once v13 support is dropped.
+      obj[`${path}.-=${key}`] = null;
     }
     this.actor.update(obj);
   }

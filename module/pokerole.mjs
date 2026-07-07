@@ -817,8 +817,33 @@ async function chanceDiceChatCommand(command, match, chatData) {
 }
 
 const ChatLog = foundry.applications.sidebar.tabs.ChatLog;
-ChatLog.CHAT_COMMANDS.sc = { rgx: /^(\/sc |\/successroll )([^]*)$/i, fn: successRollChatCommand, isRoll: true };
-ChatLog.CHAT_COMMANDS.cd = { rgx: /^(\/cd |\/chancedice )([^]*)$/i, fn: chanceDiceChatCommand, isRoll: true };
+if (ChatLog.CHAT_COMMANDS) {
+  ChatLog.CHAT_COMMANDS.sc = { rgx: /^(\/sc |\/successroll )([^]*)$/i, fn: successRollChatCommand, isRoll: true };
+  ChatLog.CHAT_COMMANDS.cd = { rgx: /^(\/cd |\/chancedice )([^]*)$/i, fn: chanceDiceChatCommand, isRoll: true };
+} else {
+  // V13 Backwards Compatibility: `ChatLog.CHAT_COMMANDS` doesn't exist before v14, so there's no
+  // registry to add our commands to - fall back to patching `processMessage()` directly, the way
+  // this used to work everywhere before the v14 rewrite above. Remove this branch once v13 support
+  // is dropped.
+  const originalProcessMessage = ChatLog.prototype.processMessage;
+  ChatLog.prototype.processMessage = async function (message) {
+    const speaker = ChatMessage.implementation.getSpeaker();
+    const chatData = { user: game.user.id, speaker };
+    const actor = canvas?.tokens.get(speaker?.token)?.actor ?? game.user?.character;
+
+    const split = message.split(' ');
+    const command = split[0]?.toLowerCase();
+    if (command === '/sc' || command === '/successroll') {
+      if (split.length < 2) throw new Error('This command requires 2 or more parameters');
+      return successRollFromExpression(split.slice(1).join(' '), actor, chatData);
+    } else if (command === '/cd' || command === '/chancedice') {
+      if (split.length < 2) throw new Error('This command requires 2 or more parameters');
+      return chanceDiceRollFromExpression(split.slice(1).join(' '), actor, chatData);
+    }
+
+    return originalProcessMessage.call(this, message);
+  };
+}
 
 function successRollEnricher(match, options) {
   const roll = match[1];
