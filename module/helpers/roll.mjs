@@ -358,7 +358,9 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
     newChatData.flags = newChatData.flags || {};
     newChatData.flags.pokerole = newChatData.flags.pokerole || {};
     newChatData.flags.pokerole.accuracyData = {
-      constantBonus: constantBonusWithPainPenalty
+      constantBonus: constantBonusWithPainPenalty,
+      canBeClashed: canBeClashed,
+      canBeEvaded: canBeEvaded
     };
 
   chatData = newChatData;
