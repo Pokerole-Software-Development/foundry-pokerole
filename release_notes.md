@@ -1,11 +1,12 @@
-# Release v0.6.1
+# Release v0.6.5
 
 ## Changelog
-- Automated build via GitHub Actions.
-- Updated Pokerole databases to game_version v3.0.
-- Reorganized image assets for better performance.
-- Fixed some issues with Sheet UI
-- Added support for Clash Reroll module made by Guitarist
+- Migrated the system to Foundry v14 (data layer + remaining UI dialogs).
+- Numerous bug fixes and stability improvements uncovered during the migration.
+- New (prototype) Team management tab for Trainer sheets.
+- Various sheet usability improvements (Play/Edit mode behavior, editable fields).
+- Pokémon and Trainer actors now start with their base maneuver moves automatically.
+- Build pipeline improvements for pre-release and pinned/legacy builds.
 
 ## Notes
 Please ensure you backup your existing module folder before updating.
