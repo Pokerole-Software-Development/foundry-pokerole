@@ -10,6 +10,27 @@ function poolRefField() {
 
 export class PokeroleItemMoveData extends PokeroleItemBaseData {
 
+  /**
+   * Move `target` was renamed during the v14 migration to match the current compendium data
+   * ("User" -> "Self", "One Ally" -> "Ally", etc.) - existing worlds created before that rename
+   * still have Items with the old raw values, which would otherwise fail schema validation and
+   * be silently dropped from their parent Actor entirely.
+   * @override
+   */
+  static migrateData(source) {
+    const targetMigrations = {
+      "User": "Self",
+      "One Ally": "Ally",
+      "User and Allies": "All Allies",
+      "Battlefield (Foes)": "Foe's Battlefield",
+      "Battlefield and Area": "Ally's Battlefield"
+    };
+    if (source.target in targetMigrations) {
+      source.target = targetMigrations[source.target];
+    }
+    return super.migrateData(source);
+  }
+
   static defineSchema() {
     return {
       ...super.defineSchema(),

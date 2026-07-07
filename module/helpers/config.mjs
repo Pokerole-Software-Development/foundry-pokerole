@@ -467,9 +467,9 @@ POKEROLE.moveTargets = [
   'Area', 'Battlefield', "Foe's Battlefield", "Ally's Battlefield"
 ];
 
-// Valid raw values for move.category. Some packs contain composite placeholder values
-// (e.g. 'physical/special' on unfinished Max Moves) which are intentionally NOT included here.
-POKEROLE.moveCategories = ['physical', 'special', 'support'];
+// Valid raw values for move.category. The composite values aren't placeholders - confirmed real
+// moves use them (e.g. Struggle Throw, one of the auto-added maneuvers, is 'physical/special').
+POKEROLE.moveCategories = ['physical', 'special', 'support', 'physical/special', 'support/physical/special'];
 
 // Valid raw values for move.heal.type / item.heal.type
 POKEROLE.healTypes = ['none', 'basic', 'complete', 'leech', 'custom'];
