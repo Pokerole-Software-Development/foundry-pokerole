@@ -1,13 +1,7 @@
 import { PokeroleActor } from "./documents/actor.mjs";
 import { PokeroleItem } from "./documents/item.mjs";
-import { PokeroleActorPokemonData } from "./data/actor-pokemon.mjs";
-import { PokeroleActorTrainerData } from "./data/actor-trainer.mjs";
-import { PokeroleItemItemData } from "./data/item-item.mjs";
-import { PokeroleItemMoveData } from "./data/item-move.mjs";
-import { PokeroleItemAbilityData } from "./data/item-ability.mjs";
-import { PokeroleItemEffectData } from "./data/item-effect.mjs";
 import { PokeroleCombat, PokeroleCombatTracker } from "./documents/combat.mjs";
-import { PokeroleActorSheet, registerActorSheetHooks } from "./sheets/actor-sheet.mjs";
+import { PokeroleActorSheet } from "./sheets/actor-sheet.mjs";
 import { PokeroleAbilitySheet } from "./sheets/item-ability-sheet.mjs";
 import { PokeroleEffectSheet } from "./sheets/item-effect-sheet.mjs";
 import { PokeroleItemItemSheet } from "./sheets/item-item-sheet.mjs";
@@ -22,7 +16,7 @@ import { applyEffectToActors, registerEffectHooks } from "./helpers/effects.mjs"
 import { APIdb } from "./API/API.mjs";
 import CheckboxElement from "./components/checkbox.mjs";
 import SlideToggleElement from "./components/slide-toggle.mjs";
-import { PokeroleAilmentsMenu } from "./helpers/settingsMenu.mjs";
+import { ailmentsMenu } from "./helpers/settingsMenu.mjs";
 
 
 /* -------------------------------------------- */
@@ -51,20 +45,6 @@ Hooks.once('init', async () => {
   // Define custom Document classes
   CONFIG.Actor.documentClass = PokeroleActor;
   CONFIG.Item.documentClass = PokeroleItem;
-
-  // Define DataModels backing each Actor type's `system` data
-  CONFIG.Actor.dataModels = {
-    pokemon: PokeroleActorPokemonData,
-    trainer: PokeroleActorTrainerData
-  };
-
-  // Define DataModels backing each Item type's `system` data
-  CONFIG.Item.dataModels = {
-    item: PokeroleItemItemData,
-    move: PokeroleItemMoveData,
-    ability: PokeroleItemAbilityData,
-    effect: PokeroleItemEffectData
-  };
   CONFIG.Combat.documentClass = PokeroleCombat;
   CONFIG.ActiveEffect.documentClass = PokeroleActiveEffect;
   CONFIG.ui.combat = PokeroleCombatTracker;
@@ -143,7 +123,6 @@ Hooks.on('getChatMessageContextOptions', (html, options) => {
 PokeroleCombatTracker.registerHooks();
 registerIntegrationHooks();
 registerEffectHooks();
-registerActorSheetHooks();
 
 /* -------------------------------------------- */
 /*  Handlebars Helpers                          */
@@ -439,7 +418,7 @@ function registerSettings() {
       hint: "Allows to change certain numbers of the core mechanics related to Ailments",
       label: "Ailments Settings",
       icon: 'fas fa-wrench',
-      type: PokeroleAilmentsMenu,
+      type: ailmentsMenu,
       restricted: true
     })
 
@@ -483,32 +462,6 @@ function registerSettings() {
     config: true,
     type: Boolean,
     default: true
-  });
-
-  game.settings.register('pokerole', 'defaultActorSheetMode', {
-    name: 'Default Actor Sheet Mode',
-    hint: 'Whether Actor sheets (Pokémon and Trainer) open in Play or Edit mode by default',
-    scope: 'user',
-    config: true,
-    type: String,
-    choices: {
-      'play': 'Play',
-      'edit': 'Edit'
-    },
-    default: 'play'
-  });
-
-  game.settings.register('pokerole', 'defaultItemSheetMode', {
-    name: 'Default Item Sheet Mode',
-    hint: 'Whether Item sheets (Move, Item, Ability, Effect) open in Play or Edit mode by default',
-    scope: 'user',
-    config: true,
-    type: String,
-    choices: {
-      'play': 'Play',
-      'edit': 'Edit'
-    },
-    default: 'play'
   });
 
   game.settings.register("pokerole", "customBar", {
@@ -836,21 +789,13 @@ function successRollEnricher(match, options) {
 /** Disable Active Effects (from https://github.com/foundryvtt/pf2e/blob/c1089180064fcfb64069ad323b2d7d522a768c06/src/module/active-effect.ts) */
 export class PokeroleActiveEffect extends ActiveEffect {
   constructor(data, context) {
-    // Effects we build ourselves purely for token-icon display (see effects.mjs,
-    // buildAilmentIconEffectData/buildCustomEffectIconData) are exempt from this -
-    // everything else (status HUD clicks, other modules, manual drag/drop) stays
-    // disabled/non-transferring, same as before.
-    if (!data.flags?.pokerole?.iconOnly) {
-      data.disabled = true;
-      data.transfer = false;
-    }
+    data.disabled = true;
+    data.transfer = false;
     super(data, context);
   }
 
   /** @override */
-  static async createDocuments(data = [], context = {}) {
-    const allowed = data.filter(d => d.flags?.pokerole?.iconOnly);
-    if (!allowed.length) return [];
-    return super.createDocuments(allowed, context);
+  static async createDocuments() {
+    return [];
   }
 }

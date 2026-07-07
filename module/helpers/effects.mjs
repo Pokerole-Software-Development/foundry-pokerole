@@ -33,74 +33,6 @@ export class TokenEffect {
   }
 }
 
-/**
- * ActiveEffect data for a real, but mechanically-inert, effect that exists only so
- * Foundry v14's Token#_drawEffects() (which reads Actor#appliedEffects) draws an icon
- * for this ailment. The actual stat impact is still computed by PokeroleActor#_applyEffects().
- * @param {{type: string}} ailment An entry from actor.system.ailments
- */
-export function buildAilmentIconEffectData(ailment) {
-  const def = POKEROLE.getAilments()[ailment.type];
-  return {
-    name: def.label ?? ailment.type,
-    img: def.icon,
-    tint: def.tint,
-    changes: [],
-    disabled: false,
-    transfer: false,
-    statuses: [ailment.type],
-    showIcon: CONST.ACTIVE_EFFECT_SHOW_ICON.ALWAYS,
-    flags: { pokerole: { iconOnly: true, iconKey: `ailment:${ailment.type}` } }
-  };
-}
-
-/**
- * ActiveEffect data for a real, but mechanically-inert, effect that shows the icon of an
- * active custom 'effect' Item on the token. See buildAilmentIconEffectData() for why.
- * @param {PokeroleItem} item An enabled+visible Item of type 'effect'
- */
-export function buildCustomEffectIconData(item) {
-  return {
-    name: item.name,
-    img: item.img,
-    tint: '#ffffff',
-    changes: [],
-    disabled: false,
-    transfer: false,
-    showIcon: CONST.ACTIVE_EFFECT_SHOW_ICON.ALWAYS,
-    flags: { pokerole: { iconOnly: true, iconKey: `effect:${item.id}` } }
-  };
-}
-
-// Foundry's ActiveEffect#tint is a ColorField that only accepts 6-digit hex (no alpha channel),
-// unlike the old TokenEffect.tint (a plain property with no validation) - trimmed accordingly.
-const STAT_CHANGE_NEGATIVE_TINTS = ["#AAAAAA", "#ffae00", "#ff7b00", "#ff0000"];
-const STAT_CHANGE_POSITIVE_TINTS = ["#AAAAAA", "#0d47e7", "#18a4f7", "#29ecff"];
-
-/**
- * ActiveEffect data for a real, but mechanically-inert, effect that shows a buff/debuff icon
- * for a non-zero statChanges/accuracyMod entry on the token (only used when the 'autoBuff'
- * setting is enabled). See buildAilmentIconEffectData() for why this needs to be a real effect.
- * @param {string} key 'strength'|'dexterity'|'special'|'def'|'spDef'|'accuracyMod'
- * @param {number} value The computed statChanges[key].value (or accuracyMod.value), non-zero
- */
-export function buildStatChangeIconData(key, value) {
-  const isBuff = value > 0;
-  const magnitude = Math.min(Math.abs(value), 3);
-  const label = game.i18n.localize(POKEROLE.i18n.effectStats[key] ?? "Strange");
-  const tints = isBuff ? STAT_CHANGE_POSITIVE_TINTS : STAT_CHANGE_NEGATIVE_TINTS;
-  return {
-    name: `${label} ${isBuff ? "Buff" : "Debuff"}`,
-    img: `systems/pokerole/images/icons/combat/${key}_${isBuff ? "increase" : "decrease"}.svg`,
-    tint: tints[magnitude],
-    changes: [],
-    disabled: false,
-    transfer: false,
-    showIcon: CONST.ACTIVE_EFFECT_SHOW_ICON.ALWAYS,
-    flags: { pokerole: { iconOnly: true, iconKey: `statChange:${key}` } }
-  };
-}
-
 /** Register hooks and monkey-patches related to active effects */
 export function registerEffectHooks() {
   foundry.applications.hud.TokenHUD.prototype._getStatusEffectChoices = function() {
@@ -210,15 +142,27 @@ export async function addAilmentWithDialog(actor, category) {
   const options = {};
   switch (category) {
     case 'burn': {
-      const result = await foundry.applications.api.DialogV2.wait({
-        window: { title: 'Inflict condition' },
-        content: '<p>Select a condition to inflict.</p>',
-        buttons: [
-          { action: 'burn1', label: game.i18n.localize(POKEROLE.i18n.ailments.burn1), default: true, callback: () => 'burn1' },
-          { action: 'burn2', label: game.i18n.localize(POKEROLE.i18n.ailments.burn2), callback: () => 'burn2' },
-          { action: 'burn3', label: game.i18n.localize(POKEROLE.i18n.ailments.burn3), callback: () => 'burn3' },
-        ],
-        rejectClose: false
+      const result = await new Promise(resolve => {
+        new Dialog({
+          title: 'Inflict condition',
+          content: '<p>Select a condition to inflict.</p>',
+          buttons: {
+            burn1: {
+              label: game.i18n.localize(POKEROLE.i18n.ailments.burn1),
+              callback: () => resolve('burn1'),
+            },
+            burn2: {
+              label: game.i18n.localize(POKEROLE.i18n.ailments.burn2),
+              callback: () => resolve('burn2'),
+            },
+            burn3: {
+              label: game.i18n.localize(POKEROLE.i18n.ailments.burn3),
+              callback: () => resolve('burn3'),
+            },
+          },
+          default: 'burn1',
+          close: () => resolve(undefined),
+        }, { popOutModuleDisable: true }).render(true);
       });
       if (!result) {
         return;
@@ -228,14 +172,23 @@ export async function addAilmentWithDialog(actor, category) {
       break;
     }
     case 'poison': {
-      const result = await foundry.applications.api.DialogV2.wait({
-        window: { title: 'Inflict condition' },
-        content: '<p>Select a condition to inflict.</p>',
-        buttons: [
-          { action: 'poison', label: game.i18n.localize(POKEROLE.i18n.ailments.poison), default: true, callback: () => 'poison' },
-          { action: 'badlyPoisoned', label: game.i18n.localize(POKEROLE.i18n.ailments.badlyPoisoned), callback: () => 'badlyPoisoned' },
-        ],
-        rejectClose: false
+      const result = await new Promise(resolve => {
+        new Dialog({
+          title: 'Inflict condition',
+          content: '<p>Select a condition to inflict.</p>',
+          buttons: {
+            poison: {
+              label: game.i18n.localize(POKEROLE.i18n.ailments.poison),
+              callback: () => resolve('poison'),
+            },
+            badlyPoisoned: {
+              label: game.i18n.localize(POKEROLE.i18n.ailments.badlyPoisoned),
+              callback: () => resolve('badlyPoisoned'),
+            },
+          },
+          default: 'poison',
+          close: () => resolve(undefined),
+        }, { popOutModuleDisable: true }).render(true);
       });
       if (!result) {
         return;
@@ -245,40 +198,35 @@ export async function addAilmentWithDialog(actor, category) {
       break;
     }
     case 'infatuated': {
-      const result = await foundry.applications.api.DialogV2.wait({
-        window: { title: 'Inflict condition' },
-        content: '<p>Select the actor who has infaturated this Pokémon with the "Select Targets" tool.</p>',
-        buttons: [
-          {
-            action: 'apply',
-            label: game.i18n.localize('POKEROLE.Apply'),
-            default: true,
-            // NOTE: must return `false` (not leave this undefined) in the error paths - DialogV2
-            // falls back to the button's action id ("apply", a truthy string) if the callback
-            // returns undefined, which would defeat the `if (!result)` check below.
-            callback: () => {
-              const targets = Array.from(game.user.targets);
-              if (targets.length === 1) {
-                const uuid = targets[0].document.uuid;
-                if (uuid !== actor.uuid) {
-                  return uuid;
+      const result = await new Promise(resolve => {
+        new Dialog({
+          title: 'Inflict condition',
+          content: '<p>Select the actor who has infaturated this Pokémon with the "Select Targets" tool.</p>',
+          buttons: {
+            apply: {
+              label: game.i18n.localize('POKEROLE.Apply'),
+              callback: () => {
+                const targets = Array.from(game.user.targets);
+                if (targets.length === 1) {
+                  const uuid = targets[0].document.uuid;
+                  if (uuid !== actor.uuid) {
+                    resolve(uuid);
+                  } else {
+                    ui.notifications.error("A Pokémon can't infatuate itself!");
+                  }
                 } else {
-                  ui.notifications.error("A Pokémon can't infatuate itself!");
-                  return false;
+                  ui.notifications.error('Select exactly one token.');
                 }
-              } else {
-                ui.notifications.error('Select exactly one token.');
-                return false;
-              }
+              },
+            },
+            cancel: {
+              label: game.i18n.localize('Cancel'),
+              callback: () => resolve(undefined),
             },
           },
-          {
-            action: 'cancel',
-            label: game.i18n.localize('Cancel'),
-            callback: () => false,
-          },
-        ],
-        rejectClose: false
+          default: 'apply',
+          close: () => resolve(undefined),
+        }, { popOutModuleDisable: true }).render(true);
       });
       if (!result) {
         return undefined;
@@ -299,28 +247,28 @@ export async function addAilmentWithDialog(actor, category) {
       const content = await foundry.applications.handlebars.renderTemplate(DISABLE_MOVE_DIALOG_TEMPLATE, {
         moves
       });
-      const formData = await foundry.applications.api.DialogV2.wait({
-        window: { title: 'Disable move' },
-        classes: ['standard-form'],
-        content,
-        buttons: [
-          {
-            action: 'select',
-            label: 'Select',
-            default: true,
-            callback: (event, button) => new foundry.applications.ux.FormDataExtended(button.form).object
+      const result = await new Promise(resolve => {
+        new Dialog({
+          title: 'Disable move',
+          content,
+          buttons: {
+            select: {
+              label: 'Select',
+              callback: html => resolve(html),
+            },
+            cancel: {
+              label: 'Cancel',
+              callback: () => resolve(undefined),
+            },
           },
-          {
-            action: 'cancel',
-            label: 'Cancel',
-            callback: () => false,
-          },
-        ],
-        rejectClose: false
+          default: 'select',
+          close: () => resolve(undefined),
+        }, { popOutModuleDisable: true }).render(true);
       });
 
-      if (!formData) return undefined;
-      const { moveUuid } = formData;
+      if (!result) return undefined;
+      const formElement = result[0].querySelector('form');
+      const { moveUuid } = new FormDataExtended(formElement).object;
       options.moveUuid = moveUuid;
 
       break;

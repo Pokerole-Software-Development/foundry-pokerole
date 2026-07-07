@@ -51,25 +51,28 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
     confusionModifier
   });
 
-  const formData = await foundry.applications.api.DialogV2.wait({
-    window: { title: 'Select a move to clash with' },
-    classes: ['standard-form'],
-    content,
-    buttons: [{
-      action: 'clash',
-      label: 'Clash',
-      default: true,
-      callback: (event, button) => new foundry.applications.ux.FormDataExtended(button.form).object
-    }],
-    rejectClose: false
+  const result = await new Promise(resolve => {
+    new Dialog({
+      title: 'Select a move to clash with',
+      content,
+      buttons: {
+        clash: {
+          label: 'Clash',
+          callback: html => resolve(html),
+        },
+      },
+      default: 'clash',
+      close: () => resolve(undefined),
+    }, { popOutModuleDisable: true }).render(true);
   });
 
-  if (!formData) return undefined;
+  if (!result) return undefined;
 
-  let { moveId, painPenalty, poolBonus, constantBonus, confusionPenalty, rerollBonus } = formData;
+  const formElement = result[0].querySelector('form');
+  let { moveId, painPenalty, poolBonus, constantBonus, confusionPenalty, rerollBonus } = new FormDataExtended(formElement).object;
   constantBonus ??= 0;
   if (confusionPenalty) {
-    constantBonus -= confusionModifier;
+    constantBonus =- confusionModifier;
   }
 
   const move = moveList.find(move => move.id === moveId);

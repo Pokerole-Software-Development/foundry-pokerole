@@ -130,8 +130,8 @@ export class PokeroleItem extends Item {
 
     // Create the ChatMessage data object
     let chatData = {
-      author: game.user.id,
-      style: CONST.CHAT_MESSAGE_STYLES.OTHER,
+      user: game.user.id,
+      type: CONST.CHAT_MESSAGE_STYLES.OTHER,
       content: html,
       flavor,
       speaker: ChatMessage.getSpeaker({actor: this.actor, token}),

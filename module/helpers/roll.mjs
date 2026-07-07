@@ -123,20 +123,25 @@ export async function successRollAttributeDialog(attribute, options, chatData, s
     });
 
     // Create the Dialog window and await submission of the form
-    const formData = await foundry.applications.api.DialogV2.wait({
-      window: { title: `Attribute roll: ${attribute.name}` },
-      classes: ['standard-form'],
-      content,
-      buttons: [{
-        action: 'roll',
-        label: 'Roll',
-        default: true,
-        callback: (event, button) => new foundry.applications.ux.FormDataExtended(button.form).object
-      }],
-      rejectClose: false
+    const result = await new Promise(resolve => {
+      new Dialog({
+        title: `Attribute roll: ${attribute.name}`,
+        content,
+        buttons: {
+          roll: {
+            label: "Roll",
+            callback: html => resolve(html),
+          },
+        },
+        default: 'roll',
+        close: () => resolve(undefined),
+      }, { popOutModuleDisable: true }).render(true);
     });
 
-    if (!formData) return false;
+    if (!result) return false;
+
+    const formElement = result[0].querySelector('form');
+    const formData = new foundry.applications.ux.FormDataExtended(formElement).object;
 
     poolBonus = formData.poolBonus ?? 0;
     constantBonus = formData.constantBonus ?? 0;
@@ -179,32 +184,36 @@ export async function successRollSkillDialog(skill, attributes, options, chatDat
   });
 
   // Create the Dialog window and await submission of the form
-  const formData = await foundry.applications.api.DialogV2.wait({
-    window: { title: `Skill roll: ${skill.name}` },
-    classes: ['standard-form'],
-    content,
-    buttons: [{
-      action: 'roll',
-      label: 'Roll',
-      default: true,
-      callback: (event, button) => new foundry.applications.ux.FormDataExtended(button.form).object
-    }],
-    rejectClose: false,
-    render: (event, dialog) => {
-      // Hide pain penalty `select` on certain attributes
-      const html = $(dialog.element);
-      const formGroup = html.find('select[name=painPenalty]').closest('.form-group');
-      html.find('select[name=attribute]').change(evt => {
-        if (POKEROLE.painPenaltyExcludedAttributes.includes(evt.target.value)) {
-          $(formGroup).slideUp({ duration: 200 });
-        } else {
-          $(formGroup).slideDown({ duration: 200 });
-        }
-      });
-    },
+  const result = await new Promise(resolve => {
+    new Dialog({
+      title: `Skill roll: ${skill.name}`,
+      content,
+      buttons: {
+        roll: {
+          label: "Roll",
+          callback: html => resolve(html),
+        },
+      },
+      default: 'roll',
+      close: () => resolve(undefined),
+      render: html => {
+        // Hide pain penalty `select` on certain attributes
+        const formGroup = html.find('select[name=painPenalty]').closest('.form-group');
+        html.find('select[name=attribute]').change(evt => {
+          if (POKEROLE.painPenaltyExcludedAttributes.includes(evt.target.value)) {
+            $(formGroup).slideUp({ duration: 200 });
+          } else {
+            $(formGroup).slideDown({ duration: 200 });
+          }
+        });
+      },
+    }, { popOutModuleDisable: true }).render(true);
   });
 
-  if (!formData) return;
+  if (!result) return;
+
+  const formElement = result[0].querySelector('form');
+  const formData = new foundry.applications.ux.FormDataExtended(formElement).object;
 
   let attributeName = formData.attribute;
   let poolBonus = formData.poolBonus ?? 0;
@@ -306,21 +315,25 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
     });
 
     // Create the Dialog window and await submission of the form
-    const formData = await foundry.applications.api.DialogV2.wait({
-      window: { title: `Accuracy roll: ${item.name}` },
-      classes: ['standard-form'],
-      content,
-      buttons: [{
-        action: 'roll',
-        label: 'Roll',
-        default: true,
-        callback: (event, button) => new foundry.applications.ux.FormDataExtended(button.form).object
-      }],
-      rejectClose: false
+    const result = await new Promise(resolve => {
+      new Dialog({
+        title: `Accuracy roll: ${item.name}`,
+        content,
+        buttons: {
+          roll: {
+            label: "Roll",
+            callback: html => resolve(html),
+          },
+        },
+        default: 'roll',
+        close: () => resolve(undefined),
+      }, { popOutModuleDisable: true }).render(true);
     });
 
-    if (!formData) return false;
+    if (!result) return false;
 
+    const formElement = result[0].querySelector('form');
+    const formData = new foundry.applications.ux.FormDataExtended(formElement).object;
     poolBonus = formData.poolBonus ?? 0;
     constantBonus = formData.constantBonus ?? 0;
     painPenalty = formData.painPenalty ?? 'none';
@@ -473,34 +486,33 @@ export async function rollDamage(item, actor, token) {
   });
 
   // Create the Dialog window and await submission of the form
-  const [formData, damageType] = await foundry.applications.api.DialogV2.wait({
-    window: { title: `Damage roll: ${item.name}` },
-    classes: ['standard-form'],
-    content,
-    buttons: [
-      {
-        action: 'holdBack',
-        label: 'Hold Back',
-        callback: (event, button) => [new foundry.applications.ux.FormDataExtended(button.form).object, 'holdBack']
+  const [result, damageType] = await new Promise(resolve => {
+    new Dialog({
+      title: `Damage roll: ${item.name}`,
+      content,
+      buttons: {
+        holdBack: {
+          label: "Hold Back",
+          callback: html => resolve([html, 'holdBack']),
+        },
+        normal: {
+          label: "Normal",
+          callback: html => resolve([html, 'normal']),
+        },
+        crit: {
+          label: "Critical Hit",
+          callback: html => resolve([html, 'crit']),
+        },
       },
-      {
-        action: 'normal',
-        label: 'Normal',
-        default: true,
-        callback: (event, button) => [new foundry.applications.ux.FormDataExtended(button.form).object, 'normal']
-      },
-      {
-        action: 'crit',
-        label: 'Critical Hit',
-        callback: (event, button) => [new foundry.applications.ux.FormDataExtended(button.form).object, 'crit']
-      },
-    ],
-    close: () => [undefined, false],
-    rejectClose: false
+      default: 'normal',
+      close: () => resolve([undefined, false]),
+    }, { popOutModuleDisable: true }).render(true);
   });
 
-  if (!formData) return false;
+  if (!result) return false;
 
+  const formElement = result[0].querySelector('form');
+  const formData = new foundry.applications.ux.FormDataExtended(formElement).object;
   let { enemyDef, stab, effectiveness, painPenalty, poolBonus, constantBonus, applyLeechHeal, rerollBonus } = formData;
   poolBonus ??= 0;
   constantBonus ??= 0;

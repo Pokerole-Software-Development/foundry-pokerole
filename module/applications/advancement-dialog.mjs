@@ -97,7 +97,8 @@ export class AdvancementDialog extends foundry.applications.api.DialogV2 {
         }
       ],
       render: (event, dialog) => this._setupDialogListeners(dialog.element, dialogueProgression),
-      rejectClose: false
+      rejectClose: false,
+      modal: true
     });
 
     if (result === 'skip') {

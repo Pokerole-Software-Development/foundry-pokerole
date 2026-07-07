@@ -132,8 +132,8 @@
         </li>
 
         {{#each customEffects as |effect i|}}
-        <li class="item flexrow draggable {{#unless effect.data.system.enabled}} translucent {{/unless}}"
-          draggable="true" data-item-id="{{effect.data._id}}">
+        <li class="item flexrow {{#unless effect.data.system.enabled}} translucent {{/unless}}"
+          data-item-id="{{effect.data._id}}">
           <div class="item-name">
             <div class="item-image">
               <img src="{{effect.data.img}}" title="{{effect.data.name}}" width="30" height="30" /></a>

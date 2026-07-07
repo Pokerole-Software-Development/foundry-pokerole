@@ -43,7 +43,7 @@
 
         <ul class="inner{{#if moves.hidden}} items-hidden{{/if}} list-{{key}}">
           {{#each moves.moveList as |item id|}}
-          <li class="item flexrow draggable {{#unless item.usable}}translucent{{/unless}}" draggable="true" data-item-id="{{item.data._id}}">
+          <li class="item flexrow {{#unless item.usable}}translucent{{/unless}}" data-item-id="{{item.data._id}}">
             <div class="item-name-container flexrow">
               <a class="item-image move-image" data-action="roll" data-roll-type="item"><img src="{{item.data.img}}" title="{{itemdata.data.name}}" width="30" height="30"/></a>
               {{#if item.data.system.learned}}

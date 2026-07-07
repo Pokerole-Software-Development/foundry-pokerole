@@ -1,6 +1,5 @@
 import { POKEROLE } from "../helpers/config.mjs";
-import { buildAilmentIconEffectData, buildCustomEffectIconData, buildStatChangeIconData } from "../helpers/effects.mjs";
-import { MANEUVER_MOVES } from "../helpers/maneuvers.mjs";
+import { TokenEffect } from "../helpers/effects.mjs";
 
 /**
  * Extend the base Actor document by defining a custom roll data structure which is ideal for the Simple system.
@@ -17,41 +16,154 @@ export class PokeroleActor extends Actor {
     super.prepareData();
   }
 
+  /** @override */
+  prepareBaseData() {
+    // Data modifications in this step occur before processing embedded
+    // documents or derived data
+
+    this.system.statChanges = foundry.utils.mergeObject(this.system.statChanges ?? {}, {
+      strength: {
+        stat: 'system.attributes.strength.value',
+      },
+      dexterity: {
+        stat: 'system.attributes.dexterity.value',
+      },
+      special: {
+        stat: 'system.attributes.special.value',
+      },
+      def: {
+        stat: 'system.derived.def.value',
+      },
+      spDef: {
+        stat: 'system.derived.spDef.value',
+      }
+    });
+
+
+    if (this.system.source == "Core v2.0" &&
+      (this._stats.systemVersion.split('.')[0] <= 0 &&
+        this._stats.systemVersion.split('.')[1] <= 4 &&
+        this._stats.systemVersion.split('.')[2] <= 4) &&
+      this._stats.systemVersion != '0.3.1'
+    ) {
+      console.log(this.name, this._stats.systemVersion, "Updating to 0.4.3 - v3.0")
+      if (this.system.skills.allure) {
+        this.system.skills.charm = this.system.skills.allure;
+        this.update({ 'system.skills.-=allure': null });
+        console.log("Allure updated");
+      }
+      if (this.system.rank == 'beginner') {
+        this.update({ 'system.rank': 'rookie' });
+      } else if (this.system.rank == 'amateur') {
+        this.update({ 'system.rank': 'standard' });
+      } else if (this.system.rank == 'ace') {
+        this.update({ 'system.rank': 'advanced' });
+      } else if (this.system.rank == 'pro') {
+        this.update({ 'system.rank': 'expert' });
+      };
+      this.update({ 'system.source': "Core v3.0" });
+    };
+
+
+    for (const statChange of Object.values(this.system.statChanges)) {
+      statChange.plus ??= 0;
+      statChange.minus ??= 0;
+      statChange.value = statChange.plus - statChange.minus;
+      statChange.value ??= 0;
+    }
+    this.system.accuracyMod = foundry.utils.mergeObject(this.system.accuracyMod ?? {})
+    this.system.accuracyMod.plus ??= 0;
+    this.system.accuracyMod.minus ??= 0;
+    this.system.accuracyMod.value = this.system.accuracyMod.plus - this.system.accuracyMod.minus;
+  }
+
   /**
    * @override
    * Augment the basic actor data with additional dynamic data. Typically,
    * you'll want to handle most of your calculated/derived data in this step.
-   * Data calculated in this step should generally not exist in the DataModel schema
+   * Data calculated in this step should generally not exist in template.json
    * (such as attribute modifiers rather than attribute scores) and should be
    * available both inside and outside of character sheets (such as if an actor
    * is queried and has a roll executed directly from it).
-   *
-   * Note: `system.prepareBaseData()`/`system.prepareDerivedData()` (hp/will/skill caps,
-   * `system.derived.*` - see PokeroleActorBaseData) already run automatically before
-   * this method, as part of Foundry's generic Document#prepareData() cycle. We don't
-   * need to (and shouldn't) call them again here.
    */
   prepareDerivedData() {
+    this._prepareCharacterData(this);
     this._applyEffects();
 
     super.prepareDerivedData();
   }
 
   /**
-   * Give brand-new Pokémon/Trainer actors the standard set of maneuver moves (Struggle, Clash,
-   * Evasion, Run Away, etc.) that every actor in the Pokédex compendium already has. Sourced from
-   * the static `MANEUVER_MOVES` reference (not the compendium - world builders can freely edit or
-   * delete compendium content, so it isn't a reliable source of truth for core data). Only fires
-   * when the actor has no items yet, so duplicating an actor or importing one that already has a
-   * movepool is left untouched.
-   * @override
+   * Prepare Character type specific data
    */
-  async _preCreate(data, options, user) {
-    const allowed = await super._preCreate(data, options, user);
-    if (allowed === false) return false;
+  _prepareCharacterData(actorData) {
+    const system = actorData.system;
+    const { totalPassiveIncrease, skillLimit } = POKEROLE.rankProgression[system.rank ?? 'none'] ?? [0, 0];
 
-    if (["pokemon", "trainer"].includes(this.type) && this.items.size === 0) {
-      this.updateSource({ items: foundry.utils.deepClone(MANEUVER_MOVES) });
+    for (const skill of Object.values(system.skills)) {
+      skill.max = skillLimit;
+    }
+
+    if (game.settings.get('pokerole', 'forceAttributeHP') === 'vitality') { // Force Vitality
+      system.hp.max = system.baseHp + system.attributes.vitality.value + totalPassiveIncrease;
+
+    } else if (game.settings.get('pokerole', 'forceAttributeHP') === 'insight') { // Force Insight
+      system.hp.max = system.baseHp + system.attributes.insight.value + totalPassiveIncrease;
+
+    } else if (game.settings.get('pokerole', 'forceAttributeHP') === 'higher') { // Force Vitality
+      system.hp.max = system.baseHp + Math.max(system.attributes.vitality.value, system.attributes.insight.value) + totalPassiveIncrease;
+
+    } else {
+      if (game.settings.get('pokerole', 'specialDefenseStat') === 'insight') { // Fallback to Base Rule
+        system.hp.max = system.baseHp + Math.max(system.attributes.vitality.value, system.attributes.insight.value) + totalPassiveIncrease;
+      } else {
+        system.hp.max = system.baseHp + system.attributes.vitality.value + totalPassiveIncrease;
+      };
+    }
+    
+
+    // TP Support Will+
+    system.will.max = (system.willbonus ?? 0) + system.attributes.insight.value + POKEROLE.CONST.MAX_WILL_BONUS + totalPassiveIncrease;
+
+    // Stat changes need to be applied manually here because derived stats are created
+    // before `applyEffects` is called
+    const strength = Math.max(system.attributes.strength.value + system.statChanges.strength.value, 1);
+    const dexterity = Math.max(system.attributes.dexterity.value + system.statChanges.dexterity.value, 1);
+
+    const special = Math.max(system.attributes.special.value + system.statChanges.special.value, 1);
+
+    system.derived ??= {};
+    system.derived.initiative = {
+      value: dexterity
+        + system.skills.alert.value
+        + system.customInitiativeMod
+        + totalPassiveIncrease
+    };
+    system.derived.evade = {
+      value: dexterity + system.skills.evasion.value
+    };
+
+    system.derived.clashPhysical = {
+      value: strength + (system.skills?.clash?.value ?? 0)
+    };
+    system.derived.clashSpecial = {
+      value: special + (system.skills?.clash?.value ?? 0)
+    };
+
+
+
+    if (system.skills?.medicine?.value !== undefined) { // Pokémon don't have Medicine
+      system.derived.useItem = { value: system.social.clever.value + system.skills.medicine.value };
+    }
+    system.derived.searchForCover = { value: system.attributes.insight.value + system.skills.alert.value };
+    system.derived.runAway = { value: system.attributes.dexterity.value + system.skills.athletic.value };
+
+    system.derived.def = { value: system.attributes.vitality.value + totalPassiveIncrease };
+
+    if (game.settings.get('pokerole', 'specialDefenseStat') === 'insight') {
+      system.derived.spDef = { value: system.attributes.insight.value + totalPassiveIncrease };
+    } else {
+      system.derived.spDef = { value: system.attributes.vitality.value + totalPassiveIncrease };
     }
   }
 
@@ -138,9 +250,7 @@ export class PokeroleActor extends Actor {
    * Override getRollData() that's supplied to rolls.
    */
   getRollData() {
-    // super.getRollData() returns `this.system` directly (not a copy), so we shallow-copy it
-    // here before mutating - otherwise _getCharacterRollData() would pollute the live actor data.
-    const data = { ...super.getRollData() };
+    const data = super.getRollData();
 
     // Prepare character roll data.
     this._getCharacterRollData(data);
@@ -167,25 +277,6 @@ export class PokeroleActor extends Actor {
 
   getLearnedMoves() {
     return this.getMoves().filter(move => move.system.learned);
-  }
-
-  /**
-   * The Item (type 'item') this actor currently has equipped/held, if any.
-   * Persisted as an id in `system.activeItem` - use this getter rather than reading that
-   * raw id directly, so other code can reference the actual Item document.
-   * @returns {PokeroleItem | undefined}
-   */
-  get activeItem() {
-    return this.items.get(this.system.activeItem);
-  }
-
-  /**
-   * The Item (type 'ability') this actor currently has active, if any.
-   * Persisted as an id in `system.activeAbility` - see activeItem above.
-   * @returns {PokeroleItem | undefined}
-   */
-  get activeAbility() {
-    return this.items.get(this.system.activeAbility);
   }
 
   getAttributeOrSkill(name) {
@@ -423,92 +514,88 @@ export class PokeroleActor extends Actor {
     return this.system.ailments.some(a => a.type === 'disabled' && a.moveUuid === move.uuid);
   }
 
-  /** @override */
-  async _onUpdate(changed, options, userId) {
-    super._onUpdate(changed, options, userId);
-    if (foundry.utils.hasProperty(changed, 'system.ailments')
-      || foundry.utils.hasProperty(changed, 'system.statChanges')
-      || foundry.utils.hasProperty(changed, 'system.accuracyMod')) {
-      this._syncIconEffects();
-    }
-  }
-
-  /** @override */
-  _onCreateDescendantDocuments(parent, collection, documents, data, options, userId) {
-    super._onCreateDescendantDocuments(parent, collection, documents, data, options, userId);
-    if (collection === 'items') this._syncIconEffects();
-  }
-
-  /** @override */
-  _onUpdateDescendantDocuments(parent, collection, documents, changes, options, userId) {
-    super._onUpdateDescendantDocuments(parent, collection, documents, changes, options, userId);
-    if (collection === 'items') this._syncIconEffects();
-  }
-
-  /** @override */
-  _onDeleteDescendantDocuments(parent, collection, documents, ids, options, userId) {
-    super._onDeleteDescendantDocuments(parent, collection, documents, ids, options, userId);
-    if (collection === 'items') this._syncIconEffects();
-  }
-
   /**
-   * Keep one mechanically-inert ActiveEffect per ailment/active custom effect Item in sync,
-   * so Foundry v14's token rendering (which reads Actor#appliedEffects) draws the right icons.
-   * See buildAilmentIconEffectData()/buildCustomEffectIconData() in helpers/effects.mjs.
-   *
-   * Callers (e.g. two updates fired back-to-back, like resetStatChange()'s negative+positive
-   * update pair) may trigger this more than once in quick succession. Since each call reads
-   * a snapshot of `this.effects`, running two calls concurrently can make both try to delete
-   * the same already-deleted ActiveEffect. Serialize via a queue so each call sees the result
-   * of the previous one before computing its own diff.
+   * @override
+   * Add effect icons to the combat tracker
    */
-  _syncIconEffects() {
-    this._iconSyncQueue = (this._iconSyncQueue ?? Promise.resolve())
-      .then(() => this._doSyncIconEffects())
-      .catch(err => console.error("Pokerole | Failed to sync token icon effects", err));
-    return this._iconSyncQueue;
-  }
+  get temporaryEffects() {
+    const ailments = POKEROLE.getAilments();
+    const ailmentTokenEffects = this.system.ailments.map(ailment => new TokenEffect(
+      ailment.type,
+      ailments[ailment.type].icon,
+      ailments[ailment.type].tint,
+      ailments[ailment.type].overlay ?? false,
+      ailments[ailment.type].tooltip ?? "null",
+    ));
 
-  async _doSyncIconEffects() {
-    const desired = new Map();
-    for (const ailment of this.system.ailments) {
-      desired.set(`ailment:${ailment.type}`, buildAilmentIconEffectData(ailment));
-    }
-    for (const item of this.items.filter(i => i.type === 'effect' && i.system.enabled && (i.system.visible ?? true))) {
-      desired.set(`effect:${item.id}`, buildCustomEffectIconData(item));
-    }
+    let negativeColor = ["#AAAAAA", "#ffae00ff", "#ff7b00ff", "#ff0000ff"]
+    let positiveColor = ["#AAAAAA", "#0d47e7ff", "#18a4f7", "#29ecff"]
+
+    const effectspush = []
     if (game.settings.get('pokerole', 'autoBuff') ?? false) {
       for (const [key, statChange] of Object.entries(this.system.statChanges)) {
-        if (statChange.value !== 0) {
-          desired.set(`statChange:${key}`, buildStatChangeIconData(key, statChange.value));
+        if (statChange.value != 0) {
+          let statlabel = game.i18n.localize(POKEROLE.i18n.effectStats[key] ?? "Strange");
+          let statimage = `systems/pokerole/images/icons/combat/${key}_increase.svg`
+          let stattint = "#AAAAAA"
+          let stattooltip = `Character ${statlabel} `
+          let absolute = Math.abs(statChange.value)
+          if (statChange.value > 0) {
+            statlabel += " Buff"
+            stattint = positiveColor[Math.min(absolute, 3)]
+            stattooltip += `is increased by ${absolute}.`
+          } else {
+            statlabel += " Debuff"
+            statimage = `systems/pokerole/images/icons/combat/${key}_decrease.svg`
+            stattint = negativeColor[Math.min(absolute, 3)]
+            stattooltip += `is decreased by ${absolute}.`
+          }
+          effectspush.push(new TokenEffect(
+            statlabel,
+            statimage,
+            stattint,
+            false,
+            stattooltip
+          ))
         }
       }
-      if (this.system.accuracyMod.value !== 0) {
-        desired.set('statChange:accuracyMod', buildStatChangeIconData('accuracyMod', this.system.accuracyMod.value));
+
+      if (this.system.accuracyMod.value != 0) {
+        let statlabel = game.i18n.localize(POKEROLE.i18n.effectStats["accuracyMod"] ?? "Accuracy")
+        let statimage = `systems/pokerole/images/icons/combat/accuracyMod_increase.svg`
+        let stattint = `systems/pokerole/images/icons/combat/accuracyMod_increase.svg`
+        let stattooltip = `Character ${statlabel} `
+        let absolute = Math.abs(this.system.accuracyMod.value)
+        if (this.system.accuracyMod.value > 0) {
+          statlabel += " Buff"
+          stattint = positiveColor[Math.min(absolute, 3)]
+          stattooltip += `is increased by ${absolute}.`
+        } else {
+          statlabel += " Debuff"
+          statimage = `systems/pokerole/images/icons/combat/accuracyMod_decrease.svg`
+          stattint = negativeColor[Math.min(absolute, 3)]
+          stattooltip += `is decreased by ${absolute}.`
+        }
+        effectspush.push(new TokenEffect(
+          statlabel,
+          statimage,
+          stattint,
+          false,
+          stattooltip
+        ))
       }
     }
 
-    const existing = this.effects.filter(e => e.getFlag('pokerole', 'iconOnly'));
-    const existingByKey = new Map(existing.map(e => [e.getFlag('pokerole', 'iconKey'), e]));
 
-    const toDelete = existing.filter(e => !desired.has(e.getFlag('pokerole', 'iconKey')));
-    const toCreate = [];
-    const toUpdate = [];
-
-    for (const [key, data] of desired) {
-      const current = existingByKey.get(key);
-      if (!current) {
-        toCreate.push(data);
-      } else if (current.name !== data.name || current.img !== data.img || current.tint !== data.tint) {
-        // Keep the icon in sync if the source Item/ailment definition changes after creation
-        // (e.g. a GM swaps the effect Item's image) - creation alone only handles first-time sync.
-        toUpdate.push({ _id: current.id, name: data.name, img: data.img, tint: data.tint });
-      }
-    }
-
-    if (toDelete.length) await this.deleteEmbeddedDocuments('ActiveEffect', toDelete.map(e => e.id));
-    if (toCreate.length) await this.createEmbeddedDocuments('ActiveEffect', toCreate);
-    if (toUpdate.length) await this.updateEmbeddedDocuments('ActiveEffect', toUpdate);
+    const customTokenEffects = this.items.filter(i => i.type === 'effect' && i.system.enabled && (i.system.visible ?? true))
+      .map(i => new TokenEffect(
+        i.name,
+        i.img,
+        '#ffffff00',
+        false,
+        i.system.description
+      ));
+    return [...ailmentTokenEffects, ...effectspush, ...customTokenEffects];
   }
 
   /**
@@ -543,7 +630,7 @@ export class PokeroleActor extends Actor {
       throw new Error(`Unknown stat '${stat}'`);
     }
 
-    const currentValue = foundry.utils.getProperty(this, key) ?? 0;
+    const currentValue = getProperty(this, key) ?? 0;
 
     // Check if the signs of current value and amount are different
     if ((currentValue < 0 && amount > 0) || (currentValue > 0 && amount < 0)) {

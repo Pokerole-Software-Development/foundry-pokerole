@@ -44,9 +44,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       toggleCanClash: PokeroleActorSheet.#onToggleCanClash,
       toggleCanEvade: PokeroleActorSheet.#onToggleCanEvade,
       toggleEffectEnabled: PokeroleActorSheet.#onToggleEffectEnabled,
-      toggleVisible: PokeroleActorSheet.#onToggleVisible,
-      clearTeamMember: PokeroleActorSheet.#onClearTeamMember,
-      openTeamMember: PokeroleActorSheet.#onOpenTeamMember
+      toggleVisible: PokeroleActorSheet.#onToggleVisible
     },
     form: {
       submitOnChange: true
@@ -83,10 +81,6 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     biography: {
       template: "systems/pokerole/templates/actor/parts/actor-biography.hbs",
       scrollable: [""]
-    },
-    team: {
-      template: "systems/pokerole/templates/actor/parts/actor-team.hbs",
-      scrollable: [""]
     }
   };
 
@@ -94,13 +88,6 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
   tabGroups = {
     primary: "attributes"
   };
-
-  /**
-   * The currently selected inventory category filter (".inventoryfilterclass" select).
-   * Tracked here instead of on `system` - it's pure UI state, not actor data.
-   * @type {string}
-   */
-  _inventoryFilter = "all";
 
   /**
    * Available sheet modes.
@@ -142,14 +129,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     // Set initial mode
     let { mode, renderContext } = options;
     if ( (mode === undefined) && (renderContext === "createItem") ) mode = this.constructor.MODES.EDIT;
-    const defaultMode = game.settings.get('pokerole', 'defaultActorSheetMode') === 'edit'
-      ? this.constructor.MODES.EDIT : this.constructor.MODES.PLAY;
-    this._mode = mode ?? this._mode ?? defaultMode;
-
-    // The "team" tab is still a prototype - only show it to trainers while Developer Options are enabled.
-    if ( this.actor.type !== "trainer" || !game.settings.get('pokerole', 'developmentOption') ) {
-      options.parts = options.parts.filter(part => part !== "team");
-    }
+    this._mode = mode ?? this._mode ?? this.constructor.MODES.PLAY;
   }
 
   /* -------------------------------------------- */
@@ -173,10 +153,6 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       await this._prepareAttributesContext(context, options);
     }
     
-    if (partId === "team") {
-      context.team = await this._prepareTeamContext();
-    }
-
     // Prepare enriched biography HTML for the biography part
     if (partId === "biography") {
       // Check if we're editing a description field
@@ -235,32 +211,6 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     return context;
   }
 
-  /* -------------------------------------------- */
-
-  /**
-   * Resolve the Trainer's `system.team` UUIDs into displayable data for the Team tab.
-   * @returns {Promise<Object[]>}
-   */
-  async _prepareTeamContext() {
-    const members = [];
-    for (const uuid of this.actor.system.team) {
-      const pokemon = await fromUuid(uuid);
-      if (!pokemon) {
-        members.push({ uuid, missing: true, name: "(missing actor)" });
-        continue;
-      }
-      members.push({
-        uuid,
-        name: pokemon.name,
-        img: pokemon.img,
-        hp: pokemon.system.hp,
-        will: pokemon.system.will,
-        rank: game.i18n.localize(POKEROLE.i18n.ranks[pokemon.system.rank]) ?? pokemon.system.rank
-      });
-    }
-    return members;
-  }
-
 
   /* -------------------------------------------- */
 
@@ -270,11 +220,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
 
     // Add actor data to context
     context.actor = this.actor;
-    // Shallow copy so display-only annotations added below (labels, overridden flags,
-    // displayValue, etc.) don't get written onto the live actor DataModel instance.
-    // Nested objects (attributes, skills, statChanges, etc.) are still shared with the
-    // live actor unless a helper below explicitly replaces them with its own copy first.
-    context.system = { ...this.actor.system };
+    context.system = this.actor.system;
     context.flags = this.actor.flags;
     context.owner = this.document.isOwner;
     context.locked = !this.isEditable;
@@ -296,8 +242,9 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     context.gender = {neutral: "None", male: "Male", female: "Female", genderless: "Genderless"};
     context.addedvitamin = {None: "None", strength: "Strength", dexterity: "Dexterity", def: "Defense", vitality: "Vitality", special: "Special", spDef: "Special Def.", insight: "Insight", hp: "HP", willpower: "WP"};
 
-    // Inventory category filter (see _inventoryFilter / the .inventoryfilterclass change listener in _onRender)
-    context.testvarso = this._inventoryFilter;
+    // TP Test Variable
+    context.testvarso = this.element?.querySelector('.inventoryfilterclass')?.value ?? "all";
+    context.system.testvarso = "reset";
 
     // TP support.
     context.ranks = this.constructor.getLocalizedRanks();
@@ -377,10 +324,6 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       { id: "biography", group: "primary", icon: "fa-solid fa-book", label: "Biography" }
     ];
 
-    if ( this.actor.type === "trainer" && game.settings.get('pokerole', 'developmentOption') ) {
-      tabs.push({ id: "team", group: "primary", icon: "fa-solid fa-people-group", label: "Team" });
-    }
-
     const tabsObject = {};
     for ( const tab of tabs ) {
       tab.active = this.tabGroups[tab.group] === tab.id;
@@ -397,73 +340,6 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     if ( group !== "primary" ) return;
     this.element.className = this.element.className.replace(/tab-\w+/g, "");
     this.element.classList.add(`tab-${tab}`);
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Handle starting a drag from a Team tab portrait, so a team member can be dragged onto the
-   * canvas to create a token, same as dragging it from the Actors directory.
-   * @override
-   */
-  async _onDragStart(event) {
-    const target = event.currentTarget;
-    if (target.classList.contains("team-member-portrait")) {
-      const pokemon = await fromUuid(target.dataset.uuid);
-      if (pokemon) {
-        event.dataTransfer.setData("text/plain", JSON.stringify(pokemon.toDragData()));
-        return;
-      }
-    }
-    return super._onDragStart(event);
-  }
-
-  /**
-   * Only allow reordering between items rendered in the same list (Items are grouped by pocket,
-   * Moves by rank/group, and each type has its own separate list) - dropping across lists would
-   * otherwise silently reassign the dragged item's `sort` into an unrelated group's sort range.
-   * @override
-   */
-  _onSortItem(event, item) {
-    const dropTarget = event.target.closest("[data-item-id]");
-    if (!dropTarget) return;
-    const sameList = Array.from(dropTarget.parentElement.children)
-      .some(el => el.dataset.itemId === item.id);
-    if (!sameList) return;
-    return super._onSortItem(event, item);
-  }
-
-  /**
-   * Handle dropping a Pokémon Actor onto a Trainer's sheet to add it to the Team tab.
-   * @override
-   */
-  async _onDropActor(event, actor) {
-    if (this.actor.type !== "trainer") return null;
-    // Only act if the drop actually landed inside the Team tab's container - otherwise
-    // dragging something onto another part of the sheet (e.g. by accident) should do nothing.
-    if (!event.target.closest(".team-list")) return null;
-    if (!this.actor.isOwner || !this.isEditable) return null;
-
-    if (!actor.isOwner) {
-      ui.notifications.warn("You don't own this actor.");
-      return null;
-    }
-    if (actor.type !== "pokemon") {
-      ui.notifications.warn("Only Pokémon can be added to a Trainer's team.");
-      return null;
-    }
-    if (actor.uuid === this.actor.uuid) return null;
-    if (this.actor.system.team.includes(actor.uuid)) {
-      ui.notifications.warn(`${actor.name} is already on this Trainer's team.`);
-      return null;
-    }
-    if (this.actor.system.team.length >= 6) {
-      ui.notifications.warn("This Trainer's team is already full (6/6).");
-      return null;
-    }
-
-    await this.actor.update({ "system.team": [...this.actor.system.team, actor.uuid] });
-    return actor;
   }
 
   /* -------------------------------------------- */
@@ -548,13 +424,6 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     this.element.classList.toggle("editable", this.isEditable && (this._mode === this.constructor.MODES.EDIT));
     this.element.classList.toggle("interactable", this.isEditable && (this._mode === this.constructor.MODES.PLAY));
     this.element.classList.toggle("locked", !this.isEditable);
-
-    // Inventory category filter: just UI state, re-render the items part on change
-    // instead of round-tripping a fake field through the actor (see _inventoryFilter).
-    this.element.querySelector(".inventoryfilterclass")?.addEventListener("change", event => {
-      this._inventoryFilter = event.target.value;
-      this.render({ parts: ["items"] });
-    });
   }
 
   /* -------------------------------------------- */
@@ -649,10 +518,8 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     
     let learnedMoveNum = 0;
 
-    // Iterate through items, allocating to containers.
-    // Sorted by `.sort` first so drag-to-reorder (_onSortItem) is reflected visually.
-    const sortedItems = [...this.actor.items].sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
-    for (let i of sortedItems) {
+    // Iterate through items, allocating to containers
+    for (let i of this.actor.items) {
       i.img = i.img || DEFAULT_TOKEN;
       // Append to gear.
       if (i.type === 'item') {
@@ -805,29 +672,18 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     }
   }
 
-  /**
-   * Add whether stat changes are positive or negative.
-   * Replaces (rather than mutates in place) statChanges/accuracyMod with annotated copies,
-   * since context.system.attributes/skills/etc. are still shared with the live actor - see
-   * the shallow copy note in _prepareContext().
-   */
+  /** Add whether stat changes are positive or negative */
   _prepareStatChanges(context) {
-    context.system.statChanges = Object.fromEntries(
-      Object.entries(context.system.statChanges).map(([key, change]) => [key, {
-        ...change,
-        // Omit the "-" sign
-        displayValue: Math.abs(change.value),
-        isPositive: change.value > 0,
-        isNegative: change.value < 0
-      }])
-    );
+    for (const change of Object.values(context.system.statChanges)) {
+      // Omit the "-" sign
+      change.displayValue = Math.abs(change.value);
+      change.isPositive = change.value > 0;
+      change.isNegative = change.value < 0;
+    }
 
-    context.system.accuracyMod = {
-      ...context.system.accuracyMod,
-      displayValue: Math.abs(context.system.accuracyMod.value),
-      isNegative: context.system.accuracyMod.value < 0,
-      isPositive: context.system.accuracyMod.value > 0
-    };
+    context.system.accuracyMod.displayValue = Math.abs(context.system.accuracyMod.value);
+    context.system.accuracyMod.isNegative = context.system.accuracyMod.value < 0;
+    context.system.accuracyMod.isPositive = context.system.accuracyMod.value > 0;
   }
 
   /** Populate the list of ailments that can be added via icons on the character sheet */
@@ -1031,29 +887,6 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
   static async #onAddAilment(event, target) {
     await addAilmentWithDialog(this.actor, target.dataset.ailment);
     this._refreshTokenAndHud();
-  }
-
-  /**
-   * Handle clearing a Pokémon from a Trainer's team.
-   * @this {PokeroleActorSheet}
-   * @param {PointerEvent} event  The triggering event.
-   * @param {HTMLElement} target  The action target.
-   */
-  static async #onClearTeamMember(event, target) {
-    const uuid = target.dataset.uuid;
-    const team = this.actor.system.team.filter(u => u !== uuid);
-    await this.actor.update({ "system.team": team });
-  }
-
-  /**
-   * Handle opening a team member's own Actor sheet.
-   * @this {PokeroleActorSheet}
-   * @param {PointerEvent} event  The triggering event.
-   * @param {HTMLElement} target  The action target.
-   */
-  static async #onOpenTeamMember(event, target) {
-    const pokemon = await fromUuid(target.dataset.uuid);
-    pokemon?.sheet?.render(true);
   }
 
   /**
@@ -1424,7 +1257,8 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
           return new foundry.applications.ux.FormDataExtended(formElement).object;
         }
       },
-      rejectClose: false
+      rejectClose: false,
+      modal: true
     });
 
     if (!result) return;
@@ -1458,7 +1292,8 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
           return new foundry.applications.ux.FormDataExtended(formElement).object;
         }
       },
-      rejectClose: false
+      rejectClose: false,
+      modal: true
     });
 
     if (!result) return;
@@ -1474,7 +1309,8 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
         title: "Re Train"
       },
       content: "<p>The Attributes and skills will be set to initial ones and you will be able to assign points by your actual Rank</p><p>Other changes will be lost, Are you sure you want to Re-train?</p>",
-      rejectClose: false
+      rejectClose: false,
+      modal: true
     });
 
     if (!question) return;
@@ -1520,21 +1356,4 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     }
     return ranks;
   }
-}
-
-/**
- * A Trainer's Team tab shows live data (HP/Will/rank) for other Actors, resolved by UUID.
- * Foundry only auto-refreshes a sheet when its OWN actor updates, not when some other actor
- * it merely references changes - so without this, the Team tab shows stale data until the
- * Trainer sheet happens to re-render for an unrelated reason. Re-render any open Trainer sheet
- * whose team includes the actor that just updated.
- */
-export function registerActorSheetHooks() {
-  Hooks.on("updateActor", (actor) => {
-    for (const app of foundry.applications.instances.values()) {
-      if (app instanceof PokeroleActorSheet && app.actor.type === "trainer" && app.actor.system.team.includes(actor.uuid)) {
-        app.render();
-      }
-    }
-  });
 }
