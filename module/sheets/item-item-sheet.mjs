@@ -55,12 +55,6 @@ export class PokeroleItemItemSheet extends PokeroleItemBaseSheet {
 
     // Item-specific context
     context.pockets = POKEROLE.itemCategory;
-    context.healTypes = this._getLocalizedEntriesForSelect('healTypes');
-    context.effectTargets = this._getLocalizedEntriesForSelect('effectTargets');
-
-    context.healEnabled = context.system.heal?.type !== 'none';
-    context.isCustomHeal = context.system.heal?.type === 'custom';
-    context.isLeechHeal = context.system.heal?.type === 'leech';
 
     return context;
   }

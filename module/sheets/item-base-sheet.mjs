@@ -58,7 +58,9 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
     // Set initial mode
     let { mode, renderContext } = options;
     if ( (mode === undefined) && (renderContext === "createItem") ) mode = this.constructor.MODES.EDIT;
-    this._mode = mode ?? this._mode ?? this.constructor.MODES.PLAY;
+    const defaultMode = game.settings.get('pokerole', 'defaultItemSheetMode') === 'edit'
+      ? this.constructor.MODES.EDIT : this.constructor.MODES.PLAY;
+    this._mode = mode ?? this._mode ?? defaultMode;
   }
 
   /* -------------------------------------------- */
@@ -95,7 +97,7 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
     } else if (this.item.system?.description) {
       let modDescription = this.item.system.description.trim();
       if (modDescription.at(0) != "<") {
-        modDescription = `<p>${escapeHTML(modDescription)}</p>`;
+        modDescription = `<p>${foundry.utils.escapeHTML(modDescription)}</p>`;
       }
       context.descriptionHtml = await foundry.applications.ux.TextEditor.implementation.enrichHTML(modDescription, {
         secrets: this.document.isOwner,

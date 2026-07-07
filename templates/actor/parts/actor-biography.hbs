@@ -93,7 +93,7 @@
     {{#unless limitedPermissions}}
     <fieldset class="biography">
       <legend>Biography</legend>
-      {{> pokerole.multi-editor editing=editingDescription html=biographyHtml key="system.biography" editable=editable}}
+      {{> pokerole.multi-editor editing=editingDescription html=biographyHtml key="system.biography" editable=(not locked)}}
     </fieldset>
     {{/unless}}
   </div>

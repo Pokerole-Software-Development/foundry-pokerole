@@ -7,10 +7,14 @@ on:
         description: 'Run Gulp build?'
         type: boolean
         default: true
-      is_prerelease:
-          description: 'Is this a Pre-Release?'
-          type: boolean
-          default: false
+      release_type:
+          description: 'What kind of build is this?'
+          type: choice
+          options:
+            - release
+            - prerelease
+            - legacy
+          default: release
 
 permissions:
   contents: write 
@@ -60,6 +64,40 @@ jobs:
           VERSION=$(jq -r '.version' system.json)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
+      - name: Set Release Names
+        id: set_names
+        run: |
+          case "${{ inputs.release_type }}" in
+            prerelease)
+              # Fixed tag/asset names so the manifest URL below never changes between pre-release builds.
+              echo "RELEASE_TYPE=Pre-Release" >> $GITHUB_ENV
+              echo "RELEASE_TAG=prerelease" >> $GITHUB_ENV
+              echo "IS_PRERELEASE=true" >> $GITHUB_ENV
+              echo "MAKE_LATEST=false" >> $GITHUB_ENV
+              echo "PIN_MANIFEST=true" >> $GITHUB_ENV
+              echo "MANIFEST_URL=https://github.com/${{ github.repository }}/releases/download/prerelease/system.json" >> $GITHUB_ENV
+              echo "DOWNLOAD_URL=https://github.com/${{ github.repository }}/releases/download/prerelease/PokeroleModule.zip" >> $GITHUB_ENV
+              ;;
+            legacy)
+              # Version-pinned tag that's never touched by "release" or "prerelease" builds, so this
+              # exact version stays permanently installable at the same manifest URL.
+              echo "RELEASE_TYPE=Legacy" >> $GITHUB_ENV
+              echo "RELEASE_TAG=v${VERSION}-legacy" >> $GITHUB_ENV
+              echo "IS_PRERELEASE=false" >> $GITHUB_ENV
+              echo "MAKE_LATEST=false" >> $GITHUB_ENV
+              echo "PIN_MANIFEST=true" >> $GITHUB_ENV
+              echo "MANIFEST_URL=https://github.com/${{ github.repository }}/releases/download/v${VERSION}-legacy/system.json" >> $GITHUB_ENV
+              echo "DOWNLOAD_URL=https://github.com/${{ github.repository }}/releases/download/v${VERSION}-legacy/PokeroleModule.zip" >> $GITHUB_ENV
+              ;;
+            *)
+              echo "RELEASE_TYPE=Release" >> $GITHUB_ENV
+              echo "RELEASE_TAG=v${VERSION}-release.${{ github.run_number }}" >> $GITHUB_ENV
+              echo "IS_PRERELEASE=false" >> $GITHUB_ENV
+              echo "MAKE_LATEST=true" >> $GITHUB_ENV
+              echo "PIN_MANIFEST=false" >> $GITHUB_ENV
+              ;;
+          esac
+
       - name: Stage Release Files
         run: |
           mkdir release_stage
@@ -84,23 +122,24 @@ jobs:
           cp -r assets-repo/images/ItemSprites/. release_stage/images/pokemon/items/
           cp -r assets-repo/images/ShuffleTokens/. release_stage/images/pokemon/shuffle/
 
+      # Point the staged manifest at the fixed/pinned download location for this build, so the
+      # same manifest URL keeps working and matches the zip's own system.json.
+      - name: Patch Manifest for Pinned Build
+        if: ${{ env.PIN_MANIFEST == 'true' }}
+        run: |
+          jq --arg m "$MANIFEST_URL" --arg d "$DOWNLOAD_URL" \
+            '.manifest = $m | .download = $d' release_stage/system.json > release_stage/system.tmp.json
+          mv release_stage/system.tmp.json release_stage/system.json
+
       - name: Load Release Notes
         run: |
           NOTES=$(cat release_notes.md)
+          if [ "$PIN_MANIFEST" == "true" ]; then
+            NOTES=$(printf '%s\n\n## Installing this %s Build\nPaste this Manifest URL into the Foundry Install System dialog:\n`%s`\n' "$NOTES" "$RELEASE_TYPE" "$MANIFEST_URL")
+          fi
           echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
           echo "$NOTES" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-
-      - name: Set Release Names
-        id: set_names
-        run: |
-          if [ "${{ inputs.is_prerelease }}" == "true" ]; then
-            echo "TAG_SUFFIX=pre" >> $GITHUB_ENV
-            echo "RELEASE_TYPE=Pre-Release" >> $GITHUB_ENV
-          else
-            echo "TAG_SUFFIX=release" >> $GITHUB_ENV
-            echo "RELEASE_TYPE=Release" >> $GITHUB_ENV
-          fi
 
       - name: Create Zip Archive
         run: |
@@ -110,13 +149,26 @@ jobs:
           cd ..
           echo "ZIP_FILE_NAME=$ZIP_NAME" >> $GITHUB_ENV
 
+      - name: Determine Release Files
+        run: |
+          if [ "$PIN_MANIFEST" == "true" ]; then
+            {
+              echo "RELEASE_FILES<<EOF"
+              echo "$ZIP_FILE_NAME"
+              echo "release_stage/system.json"
+              echo "EOF"
+            } >> $GITHUB_ENV
+          else
+            echo "RELEASE_FILES=$ZIP_FILE_NAME" >> $GITHUB_ENV
+          fi
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ env.VERSION }}-${{ env.TAG_SUFFIX }}.${{ github.run_number }}
+          tag_name: ${{ env.RELEASE_TAG }}
           name: 'Pokerole ${{ env.VERSION }} ${{ env.RELEASE_TYPE }} Build ${{ github.run_number }}'
-          prerelease: ${{ inputs.is_prerelease }}
-          make_latest: ${{ !inputs.is_prerelease }}
-          files: ${{ env.ZIP_FILE_NAME }}
+          prerelease: ${{ env.IS_PRERELEASE == 'true' }}
+          make_latest: ${{ env.MAKE_LATEST == 'true' }}
+          files: ${{ env.RELEASE_FILES }}
           body: "${{ env.RELEASE_NOTES }}"
           generate_release_notes: true
