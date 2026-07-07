@@ -1,5 +1,5 @@
 <form class="pokerole advancement">
-  {{#gt progression.attributePoints 0}}
+  {{#gtpk progression.attributePoints 0}}
   <fieldset>
     <legend>Attributes</legend>
     <p class="hint">Increase {{progression.attributePoints}} attributes (<span class="pointsleft attributes">{{progression.attributePoints}}</span> left).</p>
@@ -16,9 +16,9 @@
     {{/each}}
     </div>
   </fieldset>
-  {{/gt}}
+  {{/gtpk}}
 
-  {{#gt progression.socialPoints 0}}
+  {{#gtpk progression.socialPoints 0}}
   <fieldset>
     <legend>Social attributes</legend>
     <p class="hint">Increase {{progression.socialPoints}} social attributes (<span class="pointsleft social">{{progression.socialPoints}}</span> left).</p>
@@ -36,9 +36,9 @@
     {{/each}}
     </div>
   </fieldset>
-  {{/gt}}
+  {{/gtpk}}
 
-  {{#gt progression.skillPoints 0}}
+  {{#gtpk progression.skillPoints 0}}
   <fieldset>
     <legend>Skills</legend>
     <p class="hint">Increase {{progression.skillPoints}} skills (<span class="pointsleft skills">{{progression.skillPoints}}</span> left).</p>
@@ -55,7 +55,7 @@
     {{/each}}
     </div>
   </fieldset>
-  {{/gt}}
+  {{/gtpk}}
   
   <fieldset>
     <legend>Other Stat Changes</legend>

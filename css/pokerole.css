@@ -3405,6 +3405,16 @@ body.theme-light .pokerole.item.sheet:not(.theme-dark),
   color: inherit;
   opacity: 0.6;
 }
+/* Foundry's core Token HUD status-effects grid reserves a fixed 8-row height (assumes a large
+   default CONFIG.statusEffects catalog). Pokerole replaces that catalog with a much shorter
+   curated ailment list, so the grid's default row-stretch behavior leaves large gaps between
+   rows. Size the panel to its actual content instead, keeping the original height as a scroll cap. */
+#token-hud .status-effects {
+  height: auto;
+  max-height: calc(8 * (var(--effect-size) + var(--effect-gap)) + 2 * var(--effect-gap));
+  align-content: start;
+}
+
 .pokerole .team-member-clear:hover {
   opacity: 1;
   color: #ff0000;

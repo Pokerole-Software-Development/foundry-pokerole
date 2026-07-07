@@ -1225,11 +1225,11 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
    */
   static #onDeleteValue(event, target) {
     const { attributeKey, skillKey } = target.dataset;
-    let obj = {};
+    const obj = {};
     if (attributeKey) {
-      obj[`system.extra.-=${attributeKey}`] = null;
+      obj[`system.extra.${attributeKey}`] = new foundry.data.operators.ForcedDeletion();
     } else if (skillKey) {
-      obj[`system.skills.-=${skillKey}`] = null;
+      obj[`system.skills.${skillKey}`] = new foundry.data.operators.ForcedDeletion();
     }
     this.actor.update(obj);
   }

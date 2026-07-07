@@ -149,8 +149,10 @@ registerActorSheetHooks();
 /*  Handlebars Helpers                          */
 /* -------------------------------------------- */
 
-// If you need to add Handlebars helpers, here are a few useful examples:
-Handlebars.registerHelper('concat', function () {
+// Legacy code, unused by any of our own templates - kept under a renamed key so it doesn't shadow
+// Foundry core's own `concat` helper (which supports `join=` and returns a SafeString). Remove in
+// the future once confirmed nothing external depends on it.
+Handlebars.registerHelper('concatpk', function () {
   var outStr = '';
   for (var arg in arguments) {
     if (typeof arguments[arg] != 'object') {
@@ -160,15 +162,16 @@ Handlebars.registerHelper('concat', function () {
   return outStr;
 });
 
-// greater than
-Handlebars.registerHelper('gt', function (a, b) {
+// greater than (block helper - named distinctly from core's own subexpression `gt` helper,
+// which returns a plain boolean and would silently break if we overrode it)
+Handlebars.registerHelper('gtpk', function (a, b) {
   var next = arguments[arguments.length - 1];
   // HACK: `next.inverse` is not defined when using Simple Calender for some reason
   return (a > b) ? (next.fn && next.fn(this)) : (next.inverse && next.inverse(this));
 });
 
-// less than
-Handlebars.registerHelper('lt', function (a, b) {
+// less than (block helper - see gtpk above)
+Handlebars.registerHelper('ltpk', function (a, b) {
   var next = arguments[arguments.length - 1];
   return (a < b) ? (next.fn && next.fn(this)) : (next.inverse && next.inverse(this));
 });
@@ -794,38 +797,28 @@ async function onInlineRollClick(event) {
   }
 }
 
-let originalProcessMessage = foundry.applications.sidebar.tabs.ChatLog.prototype.processMessage;
-foundry.applications.sidebar.tabs.ChatLog.prototype.processMessage = async function (message) {
-  const speaker = ChatMessage.implementation.getSpeaker();
-  const chatData = {
-    user: game.user.id,
-    speaker
-  };
-  
-  const actor = canvas?.tokens.get(speaker?.token)?.actor ?? game.user?.character;
-  const split = message.split(' ');
-  if (split.length < 1) {
-    return originalProcessMessage.call(this, message);
-  }
+/**
+ * Custom `/sc`/`/successroll` and `/cd`/`/chancedice` chat commands, registered via Foundry's
+ * `ChatLog.CHAT_COMMANDS` registry (the same mechanism core uses for `/roll`, `/whisper`, etc.),
+ * rather than replacing `processMessage()` wholesale. `isRoll: true` makes Foundry match against
+ * the already-HTML-stripped plain text of the message, which matters since v14's chat input is a
+ * ProseMirror editor - the raw message can arrive as e.g. "<p>/sc 3d6</p>" instead of plain text.
+ */
+async function successRollChatCommand(command, match, chatData) {
+  const actor = canvas?.tokens.get(chatData.speaker?.token)?.actor ?? game.user?.character;
+  await successRollFromExpression(match[2], actor, chatData);
+  return false; // successRollFromExpression creates its own chat message - skip the default one
+}
 
-  const command = split[0].toLowerCase();
-  if (command === '/sc' || command === '/successroll') {
-    if (split.length < 2) {
-      throw new Error('This command requires 2 or more parameters');
-    }
+async function chanceDiceChatCommand(command, match, chatData) {
+  const actor = canvas?.tokens.get(chatData.speaker?.token)?.actor ?? game.user?.character;
+  await chanceDiceRollFromExpression(match[2], actor, chatData);
+  return false;
+}
 
-    return successRollFromExpression(split.slice(1).join(' '), actor, chatData);
-  } else if (command === '/cd' || command === '/chancedice') {
-    const split = message.split(' ');
-    if (split.length < 2) {
-      throw new Error('This command requires 2 or more parameters');
-    }
-
-    return chanceDiceRollFromExpression(split.slice(1).join(' '), actor, chatData);
-  }
-
-  return originalProcessMessage.call(this, message);
-};
+const ChatLog = foundry.applications.sidebar.tabs.ChatLog;
+ChatLog.CHAT_COMMANDS.sc = { rgx: /^(\/sc |\/successroll )([^]*)$/i, fn: successRollChatCommand, isRoll: true };
+ChatLog.CHAT_COMMANDS.cd = { rgx: /^(\/cd |\/chancedice )([^]*)$/i, fn: chanceDiceChatCommand, isRoll: true };
 
 function successRollEnricher(match, options) {
   const roll = match[1];

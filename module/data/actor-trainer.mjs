@@ -1,8 +1,8 @@
 import { POKEROLE } from "../helpers/config.mjs";
 import { PokeroleActorBaseData } from "./actor-base.mjs";
-import { attributeField, scaleField } from "./fields.mjs";
+import { attributeField } from "./fields.mjs";
 
-const { SchemaField, NumberField, StringField, BooleanField, ArrayField, DocumentUUIDField } = foundry.data.fields;
+const { SchemaField, NumberField, StringField, BooleanField, ArrayField, ObjectField, DocumentUUIDField } = foundry.data.fields;
 
 export class PokeroleActorTrainerData extends PokeroleActorBaseData {
 
@@ -38,15 +38,24 @@ export class PokeroleActorTrainerData extends PokeroleActorBaseData {
       painPenalty: new StringField({ required: true, initial: "none", choices: Object.keys(POKEROLE.painPenalties) }),
       sheetskin: new StringField({ required: true, initial: "skinOld" }),
 
-      skills: new SchemaField(
-        Object.fromEntries(POKEROLE.trainerSkills.map(key => [key, scaleField(0, 5)]))
-      ),
+      // Kept as loose objects (not a strict SchemaField) so players can add custom skills/attributes
+      // via the sheet UI - see prepareBaseData() below, which backfills the standard keys.
+      skills: new ObjectField({ required: true, initial: {} }),
 
-      // Trainers don't have Happiness/Loyalty, but the key is kept for parity with Pokémon
-      extra: new SchemaField({}),
+      // Trainers don't have Happiness/Loyalty, but custom entries can still be added via the sheet UI.
+      extra: new ObjectField({ required: true, initial: {} }),
 
       // UUIDs of up to 6 owned Pokémon Actors that make up this Trainer's team (Team tab)
       team: new ArrayField(new DocumentUUIDField({ type: "Actor", embedded: false }), { max: 6 })
     };
+  }
+
+  /** @override */
+  prepareBaseData() {
+    super.prepareBaseData();
+
+    for (const key of POKEROLE.trainerSkills) {
+      this.skills[key] ??= { value: 0, min: 0, max: 5 };
+    }
   }
 }

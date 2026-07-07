@@ -270,7 +270,15 @@ POKEROLE.getAilments = () => ({
 });
 
 export function getAilmentList() {
-  return Object.entries(POKEROLE.getAilments()).map(([id, ailment]) => ({ id, ...ailment }));
+  // ActiveEffect.fromStatusEffect() (Token HUD status clicks) reads `name`/`img` directly - v14
+  // renamed these from the `label`/`icon` fields our ailments use everywhere else in the codebase,
+  // so they're aliased here rather than renamed at the source.
+  return Object.entries(POKEROLE.getAilments()).map(([id, ailment]) => ({
+    id,
+    ...ailment,
+    name: ailment.label,
+    img: ailment.icon
+  }));
 }
 
 POKEROLE.specialStatusEffects = {
