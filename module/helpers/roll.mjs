@@ -418,7 +418,7 @@ export async function rollDamage(item, actor, token) {
   let baseFormula = `${item.system.power}-[def/sp.def]`;
   let highermod = "";
   if (item.system.dmgMod1 && item.system.dmgMod1var) {
-    if (actor.getAnyAttribute(item.system.dmgMod1)?.value ?? 0 < actor.getAnyAttribute(item.system.dmgMod1var)?.value ?? 0) {
+    if ((actor.getAnyAttribute(item.system.dmgMod1)?.value ?? 0) < (actor.getAnyAttribute(item.system.dmgMod1var)?.value ?? 0)) {
       highermod = item.system.dmgMod1var
     } else {
       highermod = item.system.dmgMod1
@@ -545,7 +545,8 @@ export async function rollDamage(item, actor, token) {
   let damage;
   let damageBeforeEffectiveness;
   if (selectedTokens.length === 0) {
-    let rollCount = rollCountBeforeDef - enemyDef;
+    // A damaging move's dice pool is always at least 1, even if power+stat doesn't exceed the defense.
+    let rollCount = Math.max(rollCountBeforeDef - enemyDef, 1);
 
     const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus, rerollBonus);
     html += '<hr>' + messageDataPart.content;
@@ -613,7 +614,8 @@ export async function rollDamage(item, actor, token) {
           ? defender.system.derived.spDef.value
           : defender.system.derived.def.value;
       }
-      const rollCount = rollCountBeforeDef - defStat;
+      // A damaging move's dice pool is always at least 1, even if power+stat doesn't exceed the defense.
+      const rollCount = Math.max(rollCountBeforeDef - defStat, 1);
 
       const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus, rerollBonus);
       html += '<hr>' + messageDataPart.content;
