@@ -14,7 +14,16 @@
     },
     {
       "name": "Axorum",
-      "url": "https://github.com/Axorum"
+      "url": "https://github.com/Axorum",
+      "discord": "axoria"
+    },
+    {
+      "name": "Guitarist",
+      "url": "https://github.com/p4vl0-dev"
+    },
+    {
+      "name": "DylanIsSuperOK",
+      "url": "https://github.com/righthandofvecna"
     }
   ],
   "esmodules": [
