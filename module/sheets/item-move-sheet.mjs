@@ -42,7 +42,7 @@ export class PokeroleMoveSheet extends PokeroleItemBaseSheet {
   /** @override */
   _configureRenderOptions(options) {
     super._configureRenderOptions(options);
-    
+
     // Determine which parts to show based on mode
     if (this._mode === this.constructor.MODES.PLAY) {
       // Play mode: only show the tooltip part
@@ -51,6 +51,12 @@ export class PokeroleMoveSheet extends PokeroleItemBaseSheet {
       // Edit mode: show all editing parts
       options.parts = ['header', 'tabs', 'attributes', 'description', 'effects'];
     }
+
+    // Auto-size to content when read-only (Play mode, or not owned) - the fixed default height
+    // is reserved for the full edit form, which needs stable room to work with.
+    const isEditMode = this.isEditable && (this._mode === this.constructor.MODES.EDIT);
+    options.position ??= {};
+    options.position.height = isEditMode ? this.constructor.DEFAULT_OPTIONS.position.height : "auto";
   }
 
   /** @override */

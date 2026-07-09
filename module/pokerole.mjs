@@ -149,9 +149,7 @@ registerActorSheetHooks();
 /*  Handlebars Helpers                          */
 /* -------------------------------------------- */
 
-// Legacy code, unused by any of our own templates - kept under a renamed key so it doesn't shadow
-// Foundry core's own `concat` helper (which supports `join=` and returns a SafeString). Remove in
-// the future once confirmed nothing external depends on it.
+// Legacy/unused - renamed so it doesn't shadow core's own `concat` helper. Remove eventually.
 Handlebars.registerHelper('concatpk', function () {
   var outStr = '';
   for (var arg in arguments) {
@@ -162,8 +160,7 @@ Handlebars.registerHelper('concatpk', function () {
   return outStr;
 });
 
-// greater than (block helper - named distinctly from core's own subexpression `gt` helper,
-// which returns a plain boolean and would silently break if we overrode it)
+// greater than (renamed so it doesn't shadow core's own `gt` subexpression helper)
 Handlebars.registerHelper('gtpk', function (a, b) {
   var next = arguments[arguments.length - 1];
   // HACK: `next.inverse` is not defined when using Simple Calender for some reason
@@ -179,9 +176,12 @@ Handlebars.registerHelper('ltpk', function (a, b) {
 // getProperty
 Handlebars.registerHelper('getProperty', function (...args) {
   const options = args.pop(); // remove Handlebars options arguments
+  // Fallback for the final path segment only - varies per field, so callers pass their own default.
+  const defaultValue = options.hash?.default ?? 0;
   var next = args.shift();
-  for (const a of args) {
-    next = foundry.utils.getProperty(next, a) ?? {};
+  for (let i = 0; i < args.length; i++) {
+    const isLast = i === args.length - 1;
+    next = foundry.utils.getProperty(next, args[i]) ?? (isLast ? defaultValue : {});
   }
   return next;
 });
@@ -797,13 +797,7 @@ async function onInlineRollClick(event) {
   }
 }
 
-/**
- * Custom `/sc`/`/successroll` and `/cd`/`/chancedice` chat commands, registered via Foundry's
- * `ChatLog.CHAT_COMMANDS` registry (the same mechanism core uses for `/roll`, `/whisper`, etc.),
- * rather than replacing `processMessage()` wholesale. `isRoll: true` makes Foundry match against
- * the already-HTML-stripped plain text of the message, which matters since v14's chat input is a
- * ProseMirror editor - the raw message can arrive as e.g. "<p>/sc 3d6</p>" instead of plain text.
- */
+/** Custom `/sc` and `/cd` chat commands, registered via Foundry's `ChatLog.CHAT_COMMANDS`. */
 async function successRollChatCommand(command, match, chatData) {
   const actor = canvas?.tokens.get(chatData.speaker?.token)?.actor ?? game.user?.character;
   await successRollFromExpression(match[2], actor, chatData);
@@ -821,10 +815,7 @@ if (ChatLog.CHAT_COMMANDS) {
   ChatLog.CHAT_COMMANDS.sc = { rgx: /^(\/sc |\/successroll )([^]*)$/i, fn: successRollChatCommand, isRoll: true };
   ChatLog.CHAT_COMMANDS.cd = { rgx: /^(\/cd |\/chancedice )([^]*)$/i, fn: chanceDiceChatCommand, isRoll: true };
 } else {
-  // V13 Backwards Compatibility: `ChatLog.CHAT_COMMANDS` doesn't exist before v14, so there's no
-  // registry to add our commands to - fall back to patching `processMessage()` directly, the way
-  // this used to work everywhere before the v14 rewrite above. Remove this branch once v13 support
-  // is dropped.
+  // V13 Backwards Compatibility: no CHAT_COMMANDS registry before v14 - patch processMessage() instead.
   const originalProcessMessage = ChatLog.prototype.processMessage;
   ChatLog.prototype.processMessage = async function (message) {
     const speaker = ChatMessage.implementation.getSpeaker();

@@ -418,12 +418,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     return super._onDragStart(event);
   }
 
-  /**
-   * Only allow reordering between items rendered in the same list (Items are grouped by pocket,
-   * Moves by rank/group, and each type has its own separate list) - dropping across lists would
-   * otherwise silently reassign the dragged item's `sort` into an unrelated group's sort range.
-   * @override
-   */
+  /** Only allow reordering within the same rendered list (pocket/rank/type). @override */
   _onSortItem(event, item) {
     const dropTarget = event.target.closest("[data-item-id]");
     if (!dropTarget) return;
@@ -1233,9 +1228,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     if (foundry.data.operators?.ForcedDeletion) {
       obj[`${path}.${key}`] = new foundry.data.operators.ForcedDeletion();
     } else {
-      // V13 Backwards Compatibility: `foundry.data.operators.ForcedDeletion` doesn't exist before
-      // v14 - fall back to the legacy "-=key" deletion syntax, which isn't deprecated there.
-      // Remove this branch once v13 support is dropped.
+      // V13 Backwards Compatibility: no ForcedDeletion before v14 - use legacy "-=key" syntax.
       obj[`${path}.-=${key}`] = null;
     }
     this.actor.update(obj);

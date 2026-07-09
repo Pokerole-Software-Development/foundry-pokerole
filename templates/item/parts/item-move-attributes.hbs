@@ -27,6 +27,7 @@
   {{/unless}}
   {{/if}}
 
+  <h3>Move Data</h3>
   <div class="form-group">
     <label class="resource-label">Type</label>
     <select name="system.type" value="{{system.type}}" data-dtype="String">
@@ -47,7 +48,7 @@
   </div>
   <div class="form-group">
     <label class="resource-label">Power</label>
-    <input type="text" name="system.power" value="{{system.power}}" data-dtype="Number"/>
+    <input type="number" name="system.power" value="{{system.power}}" data-dtype="Number"/>
   </div>
   <div class="form-group alternative-stat">
     <label class="resource-label">Accuracy Modifiers (Attribute)</label>
@@ -61,8 +62,8 @@
     <label>/</label>
     <input type="text" name="system.accSkill1var" value="{{system.accSkill1var}}" data-dtype="String">
   </div>
-  <div class="form-group">
-    <label class="resource-label alternative-stat">Damage Modifiers</label>
+  <div class="form-group alternative-stat">
+    <label class="resource-label">Damage Modifiers</label>
     <input type="text" name="system.dmgMod1" value="{{system.dmgMod1}}" data-dtype="String">
     <label>/</label>
     <input type="text" name="system.dmgMod1var" value="{{system.dmgMod1var}}" data-dtype="String">
@@ -74,31 +75,69 @@
 
   <hr>
 
-  <div class="form-group">
-    <label class="resource-label">Accuracy Reduction</label>
-    <input type="text" name="system.attributes.accuracyReduction" value="{{system.attributes.accuracyReduction}}" data-dtype="Number"/>
-  </div>
+  {{!-- Kept apart from the flag grid - more abstract implications than a simple tag --}}
   <div class="form-group">
     <label class="resource-label">Typeless Maneuver?</label>
     <input type="checkbox" name="system.attributes.maneuver" {{checked system.attributes.maneuver}} data-dtype="Boolean">
   </div>
   <div class="form-group">
-    <label class="resource-label">Never Fail?</label>
-    <input type="checkbox" name="system.attributes.neverFail" {{checked system.attributes.neverFail}} data-dtype="Boolean">
+    <label class="resource-label">Lethal?</label>
+    <input type="checkbox" name="system.attributes.lethal" {{checked system.attributes.lethal}} data-dtype="Boolean">
+  </div>
+
+  <div class="form-group">
+    <label class="resource-label">Accuracy Reduction</label>
+    <input type="number" name="system.attributes.accuracyReduction" value="{{system.attributes.accuracyReduction}}" data-dtype="Number"/>
   </div>
   <div class="form-group">
-    <label class="resource-label">Ignore Defenses?</label>
-    <input type="checkbox" name="system.attributes.ignoreDefenses" {{checked system.attributes.ignoreDefenses}} data-dtype="Boolean">
+    <label class="resource-label">Reaction Move</label>
+    <input type="number" name="system.attributes.reactionMove" value="{{system.attributes.reactionMove}}" data-dtype="Number"/>
   </div>
   <div class="form-group">
-    <label class="resource-label">Recoil?</label>
-    <input type="checkbox" name="system.attributes.recoil" {{checked system.attributes.recoil}} data-dtype="Boolean">
+    <label class="resource-label">Late Reaction Move</label>
+    <input type="number" name="system.attributes.lateReactionMove" value="{{system.attributes.lateReactionMove}}" data-dtype="Number"/>
   </div>
-  <div class="form-group">
-    <label class="resource-label">Special move resisted with defense?</label>
-    <input type="checkbox" name="system.attributes.resistedWithDefense" {{checked system.attributes.resistedWithDefense}} data-dtype="Boolean">
+
+  <h3>Turn/Action Economy</h3>
+  <div class="flag-grid">
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.charge" {{checked system.attributes.charge}} data-dtype="Boolean"> Charge</label>
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.mustRecharge" {{checked system.attributes.mustRecharge}} data-dtype="Boolean"> Must Recharge</label>
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.doubleAction" {{checked system.attributes.doubleAction}} data-dtype="Boolean"> Double Action</label>
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.tripleAction" {{checked system.attributes.tripleAction}} data-dtype="Boolean"> Triple Action</label>
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.successiveActions" {{checked system.attributes.successiveActions}} data-dtype="Boolean"> Successive Actions</label>
   </div>
-  
+
+  <h3>Combat Resolution</h3>
+  <div class="flag-grid">
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.neverFail" {{checked system.attributes.neverFail}} data-dtype="Boolean"> Never Fail</label>
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.highCritical" {{checked system.attributes.highCritical}} data-dtype="Boolean"> High Critical</label>
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.alwaysCrit" {{checked system.attributes.alwaysCrit}} data-dtype="Boolean"> Always Crit</label>
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.ignoreDefenses" {{checked system.attributes.ignoreDefenses}} data-dtype="Boolean"> Ignore Defenses</label>
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.resistedWithDefense" {{checked system.attributes.resistedWithDefense}} data-dtype="Boolean"> Resisted With Defense</label>
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.recoil" {{checked system.attributes.recoil}} data-dtype="Boolean"> Recoil</label>
+  </div>
+
+  <h3>Move Type Tags</h3>
+  <div class="flag-grid">
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.fistBased" {{checked system.attributes.fistBased}} data-dtype="Boolean"> Fist Based</label>
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.soundBased" {{checked system.attributes.soundBased}} data-dtype="Boolean"> Sound Based</label>
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.cutterMove" {{checked system.attributes.cutterMove}} data-dtype="Boolean"> Cutter Move</label>
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.windMove" {{checked system.attributes.windMove}} data-dtype="Boolean"> Wind Move</label>
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.biteMove" {{checked system.attributes.biteMove}} data-dtype="Boolean"> Bite Move</label>
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.powderMove" {{checked system.attributes.powderMove}} data-dtype="Boolean"> Powder Move</label>
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.physicalRanged" {{checked system.attributes.physicalRanged}} data-dtype="Boolean"> Physical Ranged</label>
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.projectileMove" {{checked system.attributes.projectileMove}} data-dtype="Boolean"> Projectile Move</label>
+  </div>
+
+  <h3>Field &amp; Special Conditions</h3>
+  <div class="flag-grid">
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.shieldMove" {{checked system.attributes.shieldMove}} data-dtype="Boolean"> Shield Move</label>
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.destroyShield" {{checked system.attributes.destroyShield}} data-dtype="Boolean"> Destroy Shield</label>
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.resetTerrain" {{checked system.attributes.resetTerrain}} data-dtype="Boolean"> Reset Terrain</label>
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.rampage" {{checked system.attributes.rampage}} data-dtype="Boolean"> Rampage</label>
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.switcherMove" {{checked system.attributes.switcherMove}} data-dtype="Boolean"> Switcher Move</label>
+    <label class="flag-checkbox"><input type="checkbox" name="system.attributes.userFaints" {{checked system.attributes.userFaints}} data-dtype="Boolean"> User Faints</label>
+  </div>
 
   <hr>
 
@@ -123,7 +162,7 @@
 
   <div class="form-group">
     <label class="resource-label">Will Point Cost</label>
-    <input type="text" name="system.heal.willPointCost" value="{{system.heal.willPointCost}}" data-dtype="Number"/>
+    <input type="number" name="system.heal.willPointCost" value="{{system.heal.willPointCost}}" data-dtype="Number"/>
   </div>
   {{/unless}}
   {{/if}}
@@ -131,14 +170,14 @@
   {{#if isCustomHeal}}
   <div class="form-group">
     <label class="resource-label">Healed HP</label>
-    <input type="text" name="system.heal.amount" value="{{system.heal.amount}}" data-dtype="Number"/>
+    <input type="number" name="system.heal.amount" value="{{system.heal.amount}}" data-dtype="Number"/>
   </div>
   {{/if}}
 
   {{#if isLeechHeal}}
   <div class="form-group">
     <label class="resource-label">Leech Percentage (0.0 - 1.0)</label>
-    <input type="text" name="system.heal.amount" value="{{system.heal.amount}}" data-dtype="Number" min="0" max="1"/>
+    <input type="number" name="system.heal.amount" value="{{system.heal.amount}}" data-dtype="Number" min="0" max="1"/>
   </div>
   {{/if}}
 

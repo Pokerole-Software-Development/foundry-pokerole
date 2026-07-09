@@ -429,26 +429,26 @@ export class PokeroleActor extends Actor {
     if (foundry.utils.hasProperty(changed, 'system.ailments')
       || foundry.utils.hasProperty(changed, 'system.statChanges')
       || foundry.utils.hasProperty(changed, 'system.accuracyMod')) {
-      this._syncIconEffects();
+      this._syncIconEffects(userId);
     }
   }
 
   /** @override */
   _onCreateDescendantDocuments(parent, collection, documents, data, options, userId) {
     super._onCreateDescendantDocuments(parent, collection, documents, data, options, userId);
-    if (collection === 'items') this._syncIconEffects();
+    if (collection === 'items') this._syncIconEffects(userId);
   }
 
   /** @override */
   _onUpdateDescendantDocuments(parent, collection, documents, changes, options, userId) {
     super._onUpdateDescendantDocuments(parent, collection, documents, changes, options, userId);
-    if (collection === 'items') this._syncIconEffects();
+    if (collection === 'items') this._syncIconEffects(userId);
   }
 
   /** @override */
   _onDeleteDescendantDocuments(parent, collection, documents, ids, options, userId) {
     super._onDeleteDescendantDocuments(parent, collection, documents, ids, options, userId);
-    if (collection === 'items') this._syncIconEffects();
+    if (collection === 'items') this._syncIconEffects(userId);
   }
 
   /**
@@ -461,8 +461,12 @@ export class PokeroleActor extends Actor {
    * a snapshot of `this.effects`, running two calls concurrently can make both try to delete
    * the same already-deleted ActiveEffect. Serialize via a queue so each call sees the result
    * of the previous one before computing its own diff.
+   * @param {string} userId  The user who triggered the underlying change.
    */
-  _syncIconEffects() {
+  _syncIconEffects(userId) {
+    // Only the originating client should act - avoids duplicate/racing writes across clients.
+    if (userId !== game.user.id) return;
+
     this._iconSyncQueue = (this._iconSyncQueue ?? Promise.resolve())
       .then(() => this._doSyncIconEffects())
       .catch(err => console.error("Pokerole | Failed to sync token icon effects", err));

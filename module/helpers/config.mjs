@@ -270,9 +270,7 @@ POKEROLE.getAilments = () => ({
 });
 
 export function getAilmentList() {
-  // ActiveEffect.fromStatusEffect() (Token HUD status clicks) reads `name`/`img` directly - v14
-  // renamed these from the `label`/`icon` fields our ailments use everywhere else in the codebase,
-  // so they're aliased here rather than renamed at the source.
+  // Aliased to name/img here (not renamed at the source) since fromStatusEffect() needs those keys.
   return Object.entries(POKEROLE.getAilments()).map(([id, ailment]) => ({
     id,
     ...ailment,
@@ -456,7 +454,8 @@ POKEROLE.moveFlags = [
   'soundBased', 'shieldMove', 'neverFail', 'switcherMove', 'recoil', 'rampage',
   'doubleAction', 'alwaysCrit', 'destroyShield', 'successiveActions', 'userFaints',
   'resetTerrain', 'resistedWithDefense', 'ignoreDefenses', 'cutterMove', 'windMove',
-  'biteMove', 'powderMove', 'maneuver'
+  'biteMove', 'powderMove', 'maneuver',
+  'projectileMove', 'tripleAction' // not in any pack data yet (issue #97), schema ready for later
 ];
 
 // Valid raw values for move.target (used by the Move DataSchema and by target-based game
@@ -467,8 +466,7 @@ POKEROLE.moveTargets = [
   'Area', 'Battlefield', "Foe's Battlefield", "Ally's Battlefield"
 ];
 
-// Valid raw values for move.category. The composite values aren't placeholders - confirmed real
-// moves use them (e.g. Struggle Throw, one of the auto-added maneuvers, is 'physical/special').
+// Composite values are real (e.g. Struggle Throw is 'physical/special'), not placeholders.
 POKEROLE.moveCategories = ['physical', 'special', 'support', 'physical/special', 'support/physical/special'];
 
 // Valid raw values for move.heal.type / item.heal.type

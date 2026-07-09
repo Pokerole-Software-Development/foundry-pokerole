@@ -38,11 +38,8 @@ export class PokeroleActorTrainerData extends PokeroleActorBaseData {
       painPenalty: new StringField({ required: true, initial: "none", choices: Object.keys(POKEROLE.painPenalties) }),
       sheetskin: new StringField({ required: true, initial: "skinOld" }),
 
-      // Kept as loose objects (not a strict SchemaField) so players can add custom skills/attributes
-      // via the sheet UI - see prepareBaseData() below, which backfills the standard keys.
+      // Loose objects (not SchemaField) so custom skills/attributes can be added - see prepareBaseData().
       skills: new ObjectField({ required: true, initial: {} }),
-
-      // Trainers don't have Happiness/Loyalty, but custom entries can still be added via the sheet UI.
       extra: new ObjectField({ required: true, initial: {} }),
 
       // UUIDs of up to 6 owned Pokémon Actors that make up this Trainer's team (Team tab)

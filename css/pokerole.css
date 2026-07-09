@@ -3004,6 +3004,28 @@ body.theme-light .pokerole.actor.sheet:not(.theme-light) .effects-list .quick-ai
   gap: 10px;
   margin: 3px 0;
 }
+.pokerole.item.sheet .flag-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 4px 10px;
+  margin: 3px 0;
+}
+.pokerole.item.sheet .flag-checkbox {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: right;
+  gap: 6px;
+  cursor: pointer;
+  line-height: 16px;
+}
+.pokerole.item.sheet .flag-checkbox input[type=checkbox] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex: 0 0 auto;
+}
 .pokerole.item.sheet .tab[data-tab=attributes] h3, .pokerole.item.sheet .tab[data-tab=rules] h3 {
   margin: 10px 0 5px 0;
   padding: 3px 8px;
@@ -3117,28 +3139,31 @@ body.theme-light .pokerole.actor.sheet:not(.theme-light) .effects-list .quick-ai
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 3px;
 }
+.pokerole.item.sheet .effects-list .rule-row {
+  flex-wrap: nowrap;
+}
 .pokerole.item.sheet .effects-list .rule-attribute,
 .pokerole.item.sheet .effects-list .rule-operator,
 .pokerole.item.sheet .effects-list .rule-value {
   margin: 0 2px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  min-width: 60px;
 }
 .pokerole.item.sheet .effects-list .rule-attribute {
-  -webkit-box-flex: 2;
-  -ms-flex: 2;
-  flex: 2;
-  min-width: 200px;
+  flex: 2 1 30px;
 }
 .pokerole.item.sheet .effects-list .rule-operator {
-  -webkit-box-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  min-width: 100px;
+  flex: 1 1 30px;
 }
 .pokerole.item.sheet .effects-list .rule-value {
-  -webkit-box-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  min-width: 80px;
+  flex: 1 1 30px;
+}
+/* Fixed (not content-sized) so the header's "+Add" and the data rows' trash icon share the same
+   column width - overrides the shared 110px .item-controls rule (pokerole.css ~885). */
+.pokerole.item.sheet .effects-list .rule-row .item-controls {
+  flex: 0 0 60px;
 }
 .pokerole.item.sheet .effects-list input, .pokerole.item.sheet .effects-list select {
   height: 30px;
@@ -3405,10 +3430,7 @@ body.theme-light .pokerole.item.sheet:not(.theme-dark),
   color: inherit;
   opacity: 0.6;
 }
-/* Foundry's core Token HUD status-effects grid reserves a fixed 8-row height (assumes a large
-   default CONFIG.statusEffects catalog). Pokerole replaces that catalog with a much shorter
-   curated ailment list, so the grid's default row-stretch behavior leaves large gaps between
-   rows. Size the panel to its actual content instead, keeping the original height as a scroll cap. */
+/* Size the status-effects panel to its content instead of stretching to fill core's fixed 8-row height. */
 #token-hud .status-effects {
   height: auto;
   max-height: calc(8 * (var(--effect-size) + var(--effect-gap)) + 2 * var(--effect-gap));
