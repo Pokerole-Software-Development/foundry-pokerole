@@ -479,6 +479,24 @@ function registerSettings() {
     requiresReload: true
   });
 
+  game.settings.register('pokerole', 'enforceTargetLimit', {
+    name: 'Enforce Rank Target Limit',
+    hint: 'Block a damage roll (with a warning) if more targets are selected than the attacker\'s rank allows, for multi-target moves (Area, All Foes, Battlefield, etc.)',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false
+  });
+
+  game.settings.register('pokerole', 'enforceSingleTargetLimit', {
+    name: 'Enforce Single-Target Move Limit',
+    hint: 'Block a damage roll (with a warning) if more than one target is selected for a single-target move (Foe, Random Foe, Ally). Takes priority over Enforce Rank Target Limit for these moves.',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false
+  });
+
   game.settings.register('pokerole', 'showBubbles', {
     name: 'Show Bubbles on Attributes',
     hint: 'In "Play" mode on the character sheet, display bubbles for attributes instead of numbers (similar to the PDF)',

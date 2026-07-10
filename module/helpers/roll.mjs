@@ -441,6 +441,20 @@ export async function rollDamage(item, actor, token) {
     selectedTokens = selectedTokens.filter(token => token.actor._id !== actor.id);
   }
 
+  const isSingleTargetMove = ['Foe', 'Random Foe', 'Ally'].includes(item.system.target);
+  if (isSingleTargetMove && game.settings.get('pokerole', 'enforceSingleTargetLimit')) {
+    if (selectedTokens.length > 1) {
+      ui.notifications.warn(`${item.name} can only target a single Pokémon - you have ${selectedTokens.length} selected.`);
+      return false;
+    }
+  } else if (game.settings.get('pokerole', 'enforceTargetLimit')) {
+    const maxTargets = Math.max(POKEROLE.rankProgression[actor.system.rank]?.maxTargets ?? 0, 1);
+    if (selectedTokens.length > maxTargets) {
+      ui.notifications.warn(`${actor.name}'s rank (${actor.system.rank}) only allows targeting up to ${maxTargets} target(s) at once - you have ${selectedTokens.length} selected.`);
+      return false;
+    }
+  }
+
   let shouldApplyLeechHeal = false;
   let leechHealPercent = 0;
   if (item.system.heal?.type === 'leech') {
