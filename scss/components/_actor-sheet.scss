@@ -1286,10 +1286,22 @@
       justify-content: flex-end;
       margin: 0 5px;
 
-      .add-ailment,
+      // The ailment icons are plain white silhouettes with no tint of their own (unlike the
+      // active-ailment list, which colors them via --ailment-tint) - .items-header's background
+      // (--color-pkmn-container-bg) turns white in Light theme, so without their own dark
+      // backing these become invisible white-on-white.
+      a[data-action="addAilment"],
       .disabled-elem {
         width: 18px;
         height: 18px;
+        border-radius: 50%;
+        background-color: var(--color-pkmn-darkfield-back);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .disabled-elem {
         filter: brightness(40%);
       }
 
