@@ -692,25 +692,20 @@ async function onChatActionClick(event) {
         await bulkApplyDamageValidated(updates);
         break;
       }
-      case 'painPenalty': {
-        const { painPenalty } = event.target.dataset;
-        const { actor, token } = await getActorAndTokenFromEvent(event);
-        if (canModifyTokenOrActor(token, actor)) {
-          await actor.update({ 'system.painPenalty': painPenalty });
-          await ChatMessage.implementation.create({
-            content: 'Applied the pain penalization.',
-            speaker: ChatMessage.implementation.getSpeaker({ token, actor })
-          });
-        }
-        break;
-      }
       case 'ignorePainPenalty': {
         const { actor, token } = await getActorAndTokenFromEvent(event);
         if (canModifyTokenOrActor(token, actor)) {
+          const { level, ignored } = actor.system.derived.painPenalty;
+          if (ignored >= level) {
+            return ui.notifications.warn("There's no more pain left to ignore.");
+          }
           if (actor.system.will.value < 1) {
             return ui.notifications.error("You don't have any Will left.");
           }
-          await actor.update({ 'system.will.value': actor.system.will.value - 1 });
+          await actor.update({
+            'system.will.value': actor.system.will.value - 1,
+            'system.painPenaltyIgnored': actor.system.painPenaltyIgnored + 1
+          });
           await ChatMessage.implementation.create({
             content: 'It toughed through the pain with its Will power!',
             speaker: ChatMessage.implementation.getSpeaker({ token, actor })

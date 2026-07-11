@@ -1,3 +1,5 @@
+import { computePainPenaltyLevel } from "./config.mjs";
+
 /**
  * Helper for creating chat messages related to healing
  * @param {string} name The actor name
@@ -84,7 +86,6 @@ export async function bulkApplyDamageValidated(damageUpdates) {
     const newHp = Math.max(oldHp - update.damage, 0);
     hpUpdates.push({ token, actor, hp: newHp });
 
-    const painPenalty = token?.actor?.system?.painPenalty ?? actor.system.painPenalty;
     const dataTokenUuid = token ? `data-token-uuid="${token.uuid}"` : '';
 
     html += `<p>Applied ${update.damage} damage to ${name}.</p>`;
@@ -102,31 +103,14 @@ export async function bulkApplyDamageValidated(damageUpdates) {
           canvas.tokens?.hud?.refreshStatusIcons();
         }
       } else {
-        if (newHp < maxHp / 2 && oldHp > maxHp / 2 && painPenalty !== 'minus1') {
-          // Pain penalty 1
-          html += `<p><b>${name} is in pain!</b></p>
+        const oldLevel = computePainPenaltyLevel(oldHp, maxHp);
+        const newLevel = computePainPenaltyLevel(newHp, maxHp);
+        if (newLevel > oldLevel) {
+          html += `<p><b>${name} is in pain! (Pain Penalization: -${newLevel} SCs)</b></p>
   <div class="action-buttons">
-    <button class="chat-action" data-action="painPenalty" data-pain-penalty='minus1'
-        data-actor-id="${actor.id}" ${dataTokenUuid}>
-      Apply Pain Penalization (-1 successes)
-    </button>
     <button class="chat-action" data-action="ignorePainPenalty"
         data-actor-id="${actor.id}" ${dataTokenUuid}>
-        Spend 1 Will to Avoid Penalization
-    </button>
-  </div>`;
-        }
-        if (newHp === 1 && oldHp !== 1 && painPenalty !== 'minus2') {
-          // Pain penalty 2
-          html += `<p><b>${name} is about to faint!</b></p>
-  <div class="action-buttons">
-    <button class="chat-action" data-action="painPenalty" data-pain-penalty='minus2'
-        data-actor-id="${actor.id}" ${dataTokenUuid}>
-      Apply Pain Penalization (-2 successes)
-    </button>
-    <button class="chat-action" data-action="ignorePainPenalty"
-        data-actor-id="${actor.id}" ${dataTokenUuid}>
-      Spend 1 Will to Avoid Penalization
+      Spend 1 Will to Ignore 1 Success
     </button>
   </div>`;
         }
