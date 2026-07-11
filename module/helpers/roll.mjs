@@ -94,7 +94,7 @@ export async function rerollFailedDice(message, count) {
   const rollData = message.getFlag('pokerole', 'rollData');
   if (!rollData || rollData.rerolled) return;
 
-  const { rolls, modifier } = rollData;
+  const { rolls, modifier, type, context } = rollData;
   const failedCount = rolls.filter(roll => roll < 4).length;
   count = Math.max(0, Math.min(count, failedCount));
   if (count === 0) return;
@@ -106,10 +106,15 @@ export async function rerollFailedDice(message, count) {
   const contentSuccess = `<b>${successCount} successes (${count} Reroll${count === 1 ? '' : 's'})</b><p><i>(Rerolled)</i></p>`;
   const diceHtml = buildDiceHtml(rolls, stylingFunction, rollsRE);
 
+  let content = contentSuccess + diceHtml;
+  if (type === 'accuracy') {
+    content += await buildAccuracyRerollContent(successCount, context);
+  }
+
   await animateDiceRoll(rollsRE, message.whisper);
 
   await message.update({
-    content: contentSuccess + diceHtml,
+    content,
     'flags.pokerole.rollData': {
       ...rollData,
       rolls: [...rolls, ...rollsRE],
@@ -390,21 +395,35 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
 
   const constantBonusWithPainPenalty = constantBonus - painPenalty;
 
+  const rerollContext = {
+    actorUuid: actor.uuid,
+    itemUuid: item.uuid,
+    actorTokenUuid: actorToken?.uuid,
+    requiredSuccesses,
+    canBeClashed,
+    canBeEvaded
+  };
+
   let chatData = { speaker: ChatMessage.implementation.getSpeaker({ actor }) };
   const [rollResult, newChatData] = await createSuccessRollMessageData(dicePool, `Accuracy roll: ${item.name}`, chatData,
-    constantBonusWithPainPenalty, rerollBonus);
-
-    // Save constant modifier to read it after
-    newChatData.flags = newChatData.flags || {};
-    newChatData.flags.pokerole = newChatData.flags.pokerole || {};
-    newChatData.flags.pokerole.accuracyData = {
-      constantBonus: constantBonusWithPainPenalty,
-      canBeClashed: canBeClashed,
-      canBeEvaded: canBeEvaded
-    };
+    constantBonusWithPainPenalty, rerollBonus, 'accuracy', rerollContext);
 
   chatData = newChatData;
 
+  newChatData.content += buildAccuracyResultHtml({
+    rollResult, requiredSuccesses, canBeClashed, canBeEvaded, actor, item, actorToken
+  });
+
+  await ChatMessage.create(newChatData);
+  return true;
+}
+
+/**
+ * Builds the requirement text + action-buttons HTML that follows an accuracy roll's dice
+ * block - shared between the initial roll and a post-hoc chat reroll so both stay in sync.
+ * @param {{rollResult: number, requiredSuccesses: number, canBeClashed: boolean, canBeEvaded: boolean, actor: Actor, item: PokeroleItem, actorToken: TokenDocument | undefined}} params
+ */
+function buildAccuracyResultHtml({ rollResult, requiredSuccesses, canBeClashed, canBeEvaded, actor, item, actorToken }) {
   let html = '';
   if (requiredSuccesses === 1) {
     html += `<p>(1 success required)</p>`;
@@ -440,11 +459,22 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
   }
 
   html += '</div></div>';
+  return html;
+}
 
-  newChatData.content += html;
-
-  await ChatMessage.create(newChatData);
-  return true;
+/**
+ * Re-derives an accuracy roll's follow-up HTML for a reroll, from the actor/item UUIDs
+ * stored in rollData.context. Returns '' if either document no longer exists.
+ * @param {number} rollResult
+ * @param {Object} context See buildAccuracyResultHtml() minus rollResult/actor/item/actorToken.
+ */
+async function buildAccuracyRerollContent(rollResult, context) {
+  const { actorUuid, itemUuid, actorTokenUuid, requiredSuccesses, canBeClashed, canBeEvaded } = context;
+  const actor = await fromUuid(actorUuid);
+  const item = await fromUuid(itemUuid);
+  if (!actor || !item) return '';
+  const actorToken = actorTokenUuid ? await fromUuid(actorTokenUuid) : undefined;
+  return buildAccuracyResultHtml({ rollResult, requiredSuccesses, canBeClashed, canBeEvaded, actor, item, actorToken });
 }
 
 const DAMAGE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/damage-roll.html";
@@ -916,7 +946,7 @@ export async function chanceDiceRoll(rollCount, flavor, chatData) {
  * @param {number} modifier Constant number added to the result
  * @returns {Promise<[result: number, chatMessageData: object]>}
  */
-export async function createSuccessRollMessageData(rollCount, flavor, chatData, modifier = 0, reRolls = 0, rerollType = null) {
+export async function createSuccessRollMessageData(rollCount, flavor, chatData, modifier = 0, reRolls = 0, rerollType = null, rerollContext = null) {
   if (rollCount > 999) {
     throw new Error('You cannot roll for successes with more than 999 dice');
   }
@@ -952,7 +982,8 @@ export async function createSuccessRollMessageData(rollCount, flavor, chatData, 
       type: rerollType,
       rolls: [...rolls, ...rollsRE],
       modifier,
-      rerolled: false
+      rerolled: false,
+      ...(rerollContext ? { context: rerollContext } : {})
     };
   }
 
