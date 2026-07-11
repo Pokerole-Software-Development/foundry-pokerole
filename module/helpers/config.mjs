@@ -650,13 +650,7 @@ POKEROLE.healAmounts = {
   }
 }
 
-/**
- * Raw Pain Penalization level (0-3) from current/max HP.
- * -1 at half HP (rounded down), an additional -2 (stacking to -3) at exactly 1 HP.
- * @param {number} hpValue
- * @param {number} hpMax
- * @returns {number}
- */
+/** Raw Pain Penalization level (0-3): -1 at half HP, stacking to -3 at exactly 1 HP. */
 export function computePainPenaltyLevel(hpValue, hpMax) {
   if (hpValue === 1) return 3;
   if (hpValue > 0 && hpValue <= Math.floor(hpMax / 2)) return 1;
@@ -901,11 +895,7 @@ export function getLocalizedTypesForSelect() {
   return obj;
 }
 
-/**
- * Get a localized classification string for a Pain Penalty level (0-3), e.g. "Half HP (-1)".
- * @param {number} level
- * @returns {string}
- */
+/** Localized classification string for a Pain Penalty level (0-3), e.g. "Half HP (-1)". */
 export function getLocalizedPainPenaltyLevel(level) {
   return game.i18n.localize(POKEROLE.i18n.painPenaltyLevels[level] ?? POKEROLE.i18n.painPenaltyLevels[0]);
 }

@@ -102,13 +102,7 @@ export function buildStatChangeIconData(key, value) {
   };
 }
 
-/**
- * ActiveEffect data for a real, but mechanically-inert, effect that shows the Pain Penalty
- * level/ignored state on the token. Only meant to be shown while level > 0 - see
- * PokeroleActor#_doSyncIconEffects().
- * @param {number} level Raw HP-derived Pain Penalty level (1-3)
- * @param {number} ignored How many of those points are currently covered by spent Willpower (0-level)
- */
+/** Mechanically-inert ActiveEffect data showing the Pain Penalty level/ignored state on the token. */
 export function buildPainPenaltyIconData(level, ignored) {
   const effective = level - ignored;
   const tooltip = ignored > 0
