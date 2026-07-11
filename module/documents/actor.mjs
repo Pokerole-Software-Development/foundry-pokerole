@@ -1,5 +1,5 @@
 import { POKEROLE } from "../helpers/config.mjs";
-import { buildAilmentIconEffectData, buildCustomEffectIconData, buildStatChangeIconData } from "../helpers/effects.mjs";
+import { buildAilmentIconEffectData, buildCustomEffectIconData, buildStatChangeIconData, buildPainPenaltyIconData } from "../helpers/effects.mjs";
 import { MANEUVER_MOVES } from "../helpers/maneuvers.mjs";
 
 /**
@@ -477,6 +477,10 @@ export class PokeroleActor extends Actor {
     const desired = new Map();
     for (const ailment of this.system.ailments) {
       desired.set(`ailment:${ailment.type}`, buildAilmentIconEffectData(ailment));
+    }
+    const { level, ignored } = this.system.derived.painPenalty;
+    if (level > 0) {
+      desired.set('painPenalty', buildPainPenaltyIconData(level, ignored));
     }
     for (const item of this.items.filter(i => i.type === 'effect' && i.system.enabled && (i.system.visible ?? true))) {
       desired.set(`effect:${item.id}`, buildCustomEffectIconData(item));

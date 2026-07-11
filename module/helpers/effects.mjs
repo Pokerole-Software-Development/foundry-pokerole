@@ -102,6 +102,30 @@ export function buildStatChangeIconData(key, value) {
   };
 }
 
+/**
+ * ActiveEffect data for a real, but mechanically-inert, effect that shows the Pain Penalty
+ * level/ignored state on the token. Only meant to be shown while level > 0 - see
+ * PokeroleActor#_doSyncIconEffects().
+ * @param {number} level Raw HP-derived Pain Penalty level (1-3)
+ * @param {number} ignored How many of those points are currently covered by spent Willpower (0-level)
+ */
+export function buildPainPenaltyIconData(level, ignored) {
+  const effective = level - ignored;
+  const tooltip = ignored > 0
+    ? game.i18n.format("POKEROLE.PainPenaltyTooltipIgnored", { effective, ignored })
+    : game.i18n.format("POKEROLE.PainPenaltyTooltip", { effective });
+  return {
+    name: tooltip,
+    img: `systems/pokerole/images/icons/combat/pain-penalty/${level}-${ignored}.svg`,
+    tint: '#ffffff',
+    changes: [],
+    disabled: false,
+    transfer: false,
+    showIcon: CONST.ACTIVE_EFFECT_SHOW_ICON.ALWAYS,
+    flags: { pokerole: { iconOnly: true, iconKey: 'painPenalty' } }
+  };
+}
+
 /** Register hooks and monkey-patches related to active effects */
 export function registerEffectHooks() {
   foundry.applications.hud.TokenHUD.prototype._getStatusEffectChoices = function() {
