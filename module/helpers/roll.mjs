@@ -109,6 +109,9 @@ export async function rerollFailedDice(message, count) {
   let content = contentSuccess + diceHtml;
   if (type === 'accuracy') {
     content += await buildAccuracyRerollContent(successCount, context);
+  } else if (type === 'clash') {
+    const { expectedSuccesses, successResultHtml, failureResultHtml } = context;
+    content += successCount >= expectedSuccesses ? successResultHtml : failureResultHtml;
   }
 
   await animateDiceRoll(rollsRE, message.whisper);
