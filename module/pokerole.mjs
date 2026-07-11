@@ -667,7 +667,7 @@ async function onChatActionClick(event) {
           name: 'Evade',
           value: actor.system.derived.evade.value
         }, {
-          painPenalty: actor.system.painPenalty,
+          painPenalty: actor.system.derived.painPenalty.effective,
           confusionPenalty: actor.hasAilment('confused'),
           userRank: actor.system.rank
         },

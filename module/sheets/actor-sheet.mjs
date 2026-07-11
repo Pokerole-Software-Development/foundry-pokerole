@@ -1,4 +1,4 @@
-import { getTripleTypeMatchups, getDualTypeMatchups, getLocalizedEntriesForSelect, getLocalizedType, getLocalizedTypesForSelect, POKEROLE } from "../helpers/config.mjs";
+import { getTripleTypeMatchups, getDualTypeMatchups, getLocalizedType, getLocalizedTypesForSelect, POKEROLE } from "../helpers/config.mjs";
 import { successRollAttributeDialog, successRollSkillDialog } from "../helpers/roll.mjs";
 import { addAilmentWithDialog } from "../helpers/effects.mjs";
 import { AdvancementDialog } from "../applications/advancement-dialog.mjs";
@@ -351,8 +351,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     context.weightImperial = Math.round(weightImperial);
     
     context.hasAvailableActions = this.actor.hasAvailableActions();
-    context.painPenalties = getLocalizedEntriesForSelect('painPenaltiesShort');
-    
+
     this._prepareStatChanges(context);
     this._populateAilmentList(context);
     
@@ -1082,7 +1081,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       speaker: ChatMessage.implementation.getSpeaker({ actor: this.actor })
     };
     const rollOptions = {
-      painPenalty: this.actor.system.painPenalty,
+      painPenalty: this.actor.system.derived.painPenalty.effective,
       confusionPenalty: this.actor.hasAilment('confused'),
       userRank: this.actor.system.rank,
     };

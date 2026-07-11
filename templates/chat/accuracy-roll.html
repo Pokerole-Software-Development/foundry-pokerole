@@ -18,15 +18,6 @@
   </div>
   {{/if}}
 
-  {{#if enablePainPenalty}}
-  <div class="form-group">
-    <label>Pain Penalization</label>
-    <select name="painPenalty">
-      {{selectOptions painPenalties selected=painPenalty}}
-     </select>
-  </div>
-  {{/if}}
-
   {{#if confusionPenalty}}
   <div class="form-group">
     <label>Confusion (-{{confusionModifier}} successes)</label>

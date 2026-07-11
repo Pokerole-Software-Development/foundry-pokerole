@@ -2,9 +2,14 @@
   <div class="attribute-col">
     <fieldset class="stat-changes pain">
       <legend>Pain Penalization</legend>
-      <select name="system.painPenalty" class="always-interactive">
-        {{selectOptions painPenalties selected=system.painPenalty}}
-      </select>
+      <div class="pain-penalty-status">
+        <span class="pain-penalty-level">Level {{system.derived.painPenalty.level}} (-{{system.derived.painPenalty.effective}} SCs)</span>
+        <label class="pain-penalty-ignored">
+          Ignored
+          <input type="number" name="system.painPenaltyIgnored" value="{{system.painPenaltyIgnored}}"
+                 min="0" max="3" class="always-interactive" />
+        </label>
+      </div>
     </fieldset>
     <fieldset class="stat-changes stat-changes-panel">
       <legend>Increases/Reductions</legend>

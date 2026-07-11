@@ -1,4 +1,4 @@
-import { calcDualTypeMatchupScore, calcTripleTypeMatchupScore, getLocalizedPainPenaltiesForSelect, POKEROLE, getConfusionModifier} from "./config.mjs";
+import { calcDualTypeMatchupScore, calcTripleTypeMatchupScore, getConfusionModifier} from "./config.mjs";
 import { getEffectivenessText, createSuccessRollMessageData } from "./roll.mjs";
 import { PokeroleActor } from "../documents/actor.mjs";
 
@@ -41,12 +41,9 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
     moves[move.id] = move.name;
   }
 
-  let defaultPainPenalty = actor.system.painPenalty ?? 'none';
   let confusionModifier = getConfusionModifier(actor.system.rank) ?? 1;
   const content = await foundry.applications.handlebars.renderTemplate(CLASH_DIALOGUE_TEMPLATE, {
     moves,
-    painPenalty: defaultPainPenalty,
-    painPenalties: getLocalizedPainPenaltiesForSelect(),
     confusionPenalty: actor.hasAilment('confused'),
     confusionModifier
   });
@@ -66,7 +63,7 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
 
   if (!formData) return undefined;
 
-  let { moveId, painPenalty, poolBonus, constantBonus, confusionPenalty, rerollBonus } = formData;
+  let { moveId, poolBonus, constantBonus, confusionPenalty, rerollBonus } = formData;
   constantBonus ??= 0;
   if (confusionPenalty) {
     constantBonus -= confusionModifier;
@@ -85,7 +82,7 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
     + (attributeVal ?? 0)
     + (actor.system.skills.clash?.value ?? 0);
 
-  const constantBonusWithPainPenalty = constantBonus - POKEROLE.painPenalties[painPenalty];
+  const constantBonusWithPainPenalty = constantBonus - actor.system.derived.painPenalty.effective;
   const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonusWithPainPenalty, rerollBonus);
   const baseHtml = messageDataPart.content;
 

@@ -1141,6 +1141,27 @@
       border: 1px solid var(--color-pkmn-dkorange);
     }
   }
+  .stat-changes.pain {
+    .pain-penalty-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.85em;
+    }
+
+    .pain-penalty-ignored {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+
+      input[type="number"] {
+        width: 40px;
+        text-align: center;
+      }
+    }
+  }
   .stat-changes.stat-changes-panel {
     margin-top: 5px;
 

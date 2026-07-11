@@ -2,7 +2,6 @@ import { PokeroleItem } from "../documents/item.mjs";
 import {
   calcDualTypeMatchupScore,
   calcTripleTypeMatchupScore,
-  getLocalizedPainPenaltiesForSelect,
   getConfusionModifier,
   POKEROLE
 } from "./config.mjs";
@@ -104,20 +103,14 @@ export async function successRollAttributeDialog(attribute, options, chatData, s
   // Pain penalties aren't applied to certain attributes
   const enablePainPenalty = !POKEROLE.painPenaltyExcludedAttributes
     .includes(attribute.name);
-  let painPenalty = 'none';
+  const painPenalty = enablePainPenalty ? (options?.painPenalty ?? 0) : 0;
   let confusionModifier = getConfusionModifier(options.userRank) ?? 1;
   let confusionPenalty = options.confusionPenalty ?? false;
   let rerollBonus = 0;
-  if (enablePainPenalty && options?.painPenalty) {
-    painPenalty = options?.painPenalty;
-  }
 
   if (showPopup) {
     const content = await foundry.applications.handlebars.renderTemplate(ATTRIBUTE_ROLL_DIALOGUE_TEMPLATE, {
       attribute: `${attribute.name} (${attribute.value})`,
-      enablePainPenalty,
-      painPenalty,
-      painPenalties: getLocalizedPainPenaltiesForSelect(),
       confusionPenalty,
       confusionModifier
     });
@@ -140,7 +133,6 @@ export async function successRollAttributeDialog(attribute, options, chatData, s
 
     poolBonus = formData.poolBonus ?? 0;
     constantBonus = formData.constantBonus ?? 0;
-    painPenalty = formData.painPenalty ?? 'none';
     confusionPenalty = formData.confusionPenalty ?? false;
     rerollBonus = formData.rerollBonus ?? 0;
   }
@@ -149,7 +141,7 @@ export async function successRollAttributeDialog(attribute, options, chatData, s
     constantBonus -= confusionModifier;
   }
 
-  const constantBonusWithPainPenalty = constantBonus - POKEROLE.painPenalties[painPenalty];
+  const constantBonusWithPainPenalty = constantBonus - painPenalty;
   await successRoll(attribute.value + poolBonus, attribute.name, chatData, constantBonusWithPainPenalty, rerollBonus);
 
   return true;
@@ -172,8 +164,6 @@ export async function successRollSkillDialog(skill, attributes, options, chatDat
       curr[name] = name;
       return curr;
     }, {}),
-    painPenalty: options?.painPenalty ?? 'none',
-    painPenalties: getLocalizedPainPenaltiesForSelect(),
     confusionPenalty: options.confusionPenalty,
     confusionModifier: getConfusionModifier(options.userRank)
   });
@@ -189,19 +179,7 @@ export async function successRollSkillDialog(skill, attributes, options, chatDat
       default: true,
       callback: (event, button) => new foundry.applications.ux.FormDataExtended(button.form).object
     }],
-    rejectClose: false,
-    render: (event, dialog) => {
-      // Hide pain penalty `select` on certain attributes
-      const html = $(dialog.element);
-      const formGroup = html.find('select[name=painPenalty]').closest('.form-group');
-      html.find('select[name=attribute]').change(evt => {
-        if (POKEROLE.painPenaltyExcludedAttributes.includes(evt.target.value)) {
-          $(formGroup).slideUp({ duration: 200 });
-        } else {
-          $(formGroup).slideDown({ duration: 200 });
-        }
-      });
-    },
+    rejectClose: false
   });
 
   if (!formData) return;
@@ -215,13 +193,11 @@ export async function successRollSkillDialog(skill, attributes, options, chatDat
     constantBonus -= getConfusionModifier(options.userRank);
   }
 
-  let painPenalty = formData.painPenalty;
   // Certain attributes are exempt from pain penalties
-  if (POKEROLE.painPenaltyExcludedAttributes.includes(attributeName)) {
-    painPenalty = 'none';
-  }
+  const painPenalty = POKEROLE.painPenaltyExcludedAttributes.includes(attributeName)
+    ? 0 : (options?.painPenalty ?? 0);
 
-  const constantBonusWithPainPenalty = constantBonus - POKEROLE.painPenalties[painPenalty];
+  const constantBonusWithPainPenalty = constantBonus - painPenalty;
   await successRollAttributeSkill(
     { name: attributeName, value: attributes[attributeName].value },
     skill,
@@ -286,10 +262,7 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
   let constantBonus = 0;
   let rerollBonus = 0;
   let enablePainPenalty = !(POKEROLE.painPenaltyExcludedAttributes.includes(accAttr1) || POKEROLE.painPenaltyExcludedAttributes.includes(accAttr1var));
-  let painPenalty = actor.system.painPenalty ?? 'none';
-  if (!enablePainPenalty) {
-    painPenalty = 'none';
-  }
+  const painPenalty = enablePainPenalty ? actor.system.derived.painPenalty.effective : 0;
   let requiredSuccesses = Math.max(actor.system.actionCount.value + 1, 0);
 
   if (showPopup) {
@@ -298,9 +271,6 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
       accuracyMod: actor.system.accuracyMod.value,
       accuracyReduction: item.system.attributes.accuracyReduction,
       requiredSuccesses,
-      enablePainPenalty,
-      painPenalty,
-      painPenalties: getLocalizedPainPenaltiesForSelect(),
       confusionPenalty: actor.hasAilment('confused'),
       confusionModifier: getConfusionModifier(actor.system.rank)
     });
@@ -323,7 +293,6 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
 
     poolBonus = formData.poolBonus ?? 0;
     constantBonus = formData.constantBonus ?? 0;
-    painPenalty = formData.painPenalty ?? 'none';
     rerollBonus = formData.rerollBonus ?? 0;
 
     if (formData.requiredSuccesses !== undefined) {
@@ -348,7 +317,7 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
     }
   }
 
-  const constantBonusWithPainPenalty = constantBonus - POKEROLE.painPenalties[painPenalty];
+  const constantBonusWithPainPenalty = constantBonus - painPenalty;
 
   let chatData = { speaker: ChatMessage.implementation.getSpeaker({ actor }) };
   const [rollResult, newChatData] = await createSuccessRollMessageData(dicePool, `Accuracy roll: ${item.name}`, chatData,
@@ -465,7 +434,6 @@ export async function rollDamage(item, actor, token) {
   }
 
   const targetNames = selectedTokens.map(token => token.actor.name).join(', ');
-  const defaultPainPenalty = actor.system.painPenalty ?? 'none';
 
   const content = await foundry.applications.handlebars.renderTemplate(DAMAGE_ROLL_DIALOGUE_TEMPLATE, {
     baseFormula,
@@ -484,8 +452,6 @@ export async function rollDamage(item, actor, token) {
     },
     targetNames,
     hasLeechHeal: shouldApplyLeechHeal,
-    painPenalty: defaultPainPenalty,
-    painPenalties: getLocalizedPainPenaltiesForSelect(),
   });
 
   // Create the Dialog window and await submission of the form
@@ -517,13 +483,10 @@ export async function rollDamage(item, actor, token) {
 
   if (!formData) return false;
 
-  let { enemyDef, stab, effectiveness, painPenalty, poolBonus, constantBonus, applyLeechHeal, rerollBonus } = formData;
+  let { enemyDef, stab, effectiveness, poolBonus, constantBonus, applyLeechHeal, rerollBonus } = formData;
   poolBonus ??= 0;
   constantBonus ??= 0;
-
-  if (painPenalty) {
-    constantBonus -= POKEROLE.painPenalties[painPenalty];
-  }
+  constantBonus -= actor.system.derived.painPenalty.effective;
 
   if (stab) {
     poolBonus += POKEROLE.CONST.STAB_BONUS;
