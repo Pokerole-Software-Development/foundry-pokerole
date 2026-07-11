@@ -5,7 +5,7 @@ import {
   getConfusionModifier,
   POKEROLE
 } from "./config.mjs";
-import { bulkApplyDamageValidated, bulkApplyHp, createHealMessage } from "./damage.mjs";
+import { bulkApplyDamageValidated } from "./damage.mjs";
 
 /**
  * Utility function to parse the expression, calculate the roll count, and extract the comment.
@@ -627,6 +627,7 @@ export async function rollDamage(item, actor, token) {
   let damageUpdates = [];
   let damage;
   let damageBeforeEffectiveness;
+  let leechHealHp = 0;
   if (selectedTokens.length === 0) {
     // A damaging move's dice pool is always at least 1, even if power+stat doesn't exceed the defense.
     let rollCount = Math.max(rollCountBeforeDef - enemyDef, 1);
@@ -687,8 +688,6 @@ export async function rollDamage(item, actor, token) {
     html += `<p>${damageTypeText}The attack deals ${damage} damage!</p>`;
   } else {
     // One or more tokens to apply damage to are selected
-    let leechHealHp = 0;
-
     for (let defenderToken of selectedTokens) {
       const defender = defenderToken.actor;
       let defStat = 0;
@@ -748,17 +747,13 @@ export async function rollDamage(item, actor, token) {
         leechHealHp += healAmount;
       }
     }
-
-    if (applyLeechHeal && leechHealHp > 0) {
-      const oldHp = actor.system.hp.value;
-      const newHp = Math.min(oldHp + leechHealHp, actor.system.hp.max);
-      await bulkApplyHp([{ actor, token, hp: newHp }]);
-
-      html += createHealMessage(token?.name ?? actor.name, oldHp, newHp, actor.system.hp.max);
-    }
   }
 
-  if (damage > 0) {
+  // Leech Heal is applied via its own deferred button (like Apply Damage) instead of
+  // immediately here - otherwise a later chat reroll that changes the damage dealt would
+  // need to retroactively undo/adjust HP that's already been healed.
+  const hasActionButtons = damageUpdates.length > 0 || item.system.attributes.recoil || leechHealHp > 0;
+  if (hasActionButtons) {
     html += `<div class="pokerole"><div class="action-buttons">`;
     if (damageUpdates.length > 0) {
       html += `<button class="chat-action" data-action="applyDamage"
@@ -768,6 +763,11 @@ export async function rollDamage(item, actor, token) {
       const dataTokenUuid = token ? `data-token-uuid="${token.uuid}"` : '';
       html += `<button class="chat-action" data-action="recoil" data-actor-id="${actor.id}"
           ${dataTokenUuid} data-damage-before-effectiveness="${damageBeforeEffectiveness}">Roll Recoil Damage</button>`;
+    }
+    if (leechHealHp > 0) {
+      const dataTokenUuid = token ? `data-token-uuid="${token.uuid}"` : '';
+      html += `<button class="chat-action" data-action="applyHealing" data-actor-id="${actor.id}"
+          ${dataTokenUuid} data-heal-amount="${leechHealHp}">Apply Healing (${actor.name})</button>`;
     }
     html += `</div></div>`;
   }

@@ -16,7 +16,7 @@ import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { getAilmentList, POKEROLE } from "./helpers/config.mjs";
 import { rollRecoil, successRollAttributeDialog, successRollFromExpression, chanceDiceRollFromExpression, chanceDiceRoll, createChanceDiceRollMessageData, ReSuccessRoll} from "./helpers/roll.mjs";
 import { showClashDialog } from "./helpers/clash.mjs";
-import { bulkApplyDamageValidated, canModifyTokenOrActor } from "./helpers/damage.mjs";
+import { bulkApplyDamageValidated, bulkApplyHp, createHealMessage, canModifyTokenOrActor } from "./helpers/damage.mjs";
 import { registerIntegrationHooks } from "./helpers/integrations.mjs";
 import { applyEffectToActors, registerEffectHooks } from "./helpers/effects.mjs";
 import { APIdb } from "./API/API.mjs";
@@ -702,6 +702,20 @@ async function onChatActionClick(event) {
       case 'applyDamage': {
         const updates = JSON.parse(event.target.dataset.damageUpdates);
         await bulkApplyDamageValidated(updates);
+        break;
+      }
+      case 'applyHealing': {
+        const { actor, token } = await getActorAndTokenFromEvent(event);
+        if (canModifyTokenOrActor(token, actor)) {
+          const healAmount = parseInt(event.target.dataset.healAmount, 10) || 0;
+          const oldHp = actor.system.hp.value;
+          const newHp = Math.min(oldHp + healAmount, actor.system.hp.max);
+          await bulkApplyHp([{ actor, token, hp: newHp }]);
+          await ChatMessage.implementation.create({
+            content: createHealMessage(token?.name ?? actor.name, oldHp, newHp, actor.system.hp.max),
+            speaker: ChatMessage.implementation.getSpeaker({ token, actor })
+          });
+        }
         break;
       }
       case 'ignorePainPenalty': {
