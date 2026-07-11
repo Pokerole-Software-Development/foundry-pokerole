@@ -134,7 +134,9 @@ Hooks.on('getChatMessageContextOptions', (html, options) => {
       // Only for roll types that support it, not already used, and only if there's
       // at least one failed die left to reroll
       if (!rollData || rollData.rerolled) return false;
-      const failedCount = rollData.rolls.filter(roll => roll < 4).length;
+      const failedCount = rollData.type === 'damage'
+        ? rollData.targets.reduce((sum, t) => sum + t.rolls.filter(roll => roll < 4).length, 0)
+        : rollData.rolls.filter(roll => roll < 4).length;
 
       return (game.user.isGM || message.isAuthor) && failedCount > 0;
     },

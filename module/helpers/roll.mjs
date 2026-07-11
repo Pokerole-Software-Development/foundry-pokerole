@@ -137,6 +137,10 @@ export async function ReSuccessRoll(li) {
   const rollData = message?.getFlag('pokerole', 'rollData');
   if (!rollData || rollData.rerolled) return;
 
+  if (rollData.type === 'damage') {
+    return rerollDamageDialog(message, rollData);
+  }
+
   const failedCount = rollData.rolls.filter(roll => roll < 4).length;
   if (failedCount === 0) {
     return ui.notifications.warn("There are no failed dice to reroll.");
@@ -162,6 +166,107 @@ export async function ReSuccessRoll(li) {
   if (!Number.isFinite(count) || count <= 0) return;
 
   await rerollFailedDice(message, count);
+}
+
+const REROLL_DAMAGE_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/reroll-damage.html";
+
+/**
+ * Reroll flow for Damage messages - each target has its own independent dice pool, so the
+ * dialog shows one row per target (with failed dice left) instead of a single count.
+ */
+async function rerollDamageDialog(message, rollData) {
+  const targets = rollData.targets
+    .map((t, index) => ({ index, name: t.name, failedCount: t.rolls.filter(roll => roll < 4).length }))
+    .filter(t => t.failedCount > 0);
+
+  if (targets.length === 0) {
+    return ui.notifications.warn("There are no failed dice to reroll.");
+  }
+
+  const content = await foundry.applications.handlebars.renderTemplate(REROLL_DAMAGE_DIALOGUE_TEMPLATE, { targets });
+
+  const formData = await foundry.applications.api.DialogV2.wait({
+    window: { title: 'Reroll Failed Dice' },
+    classes: ['standard-form'],
+    content,
+    buttons: [{
+      action: 'reroll',
+      label: 'Reroll',
+      default: true,
+      callback: (event, button) => new foundry.applications.ux.FormDataExtended(button.form).object
+    }],
+    rejectClose: false
+  });
+  if (!formData) return;
+
+  const countsByIndex = {};
+  for (const t of targets) {
+    const count = parseInt(formData[`count_${t.index}`], 10);
+    if (Number.isFinite(count) && count > 0) {
+      countsByIndex[t.index] = count;
+    }
+  }
+  if (Object.keys(countsByIndex).length === 0) return;
+
+  await rerollDamageTargets(message, countsByIndex);
+}
+
+/**
+ * Reroll up to `countsByIndex[i]` failed dice for the i-th target of a damage roll message,
+ * recomputing that target's damage and the shared action-buttons block (Apply Damage totals,
+ * Leech Heal amount). Locks the whole message to one reroll, like the other roll types -
+ * targets left out of `countsByIndex` this time can't be revisited later.
+ * @param {ChatMessage} message
+ * @param {Object<number, number>} countsByIndex Target array index -> dice to reroll
+ */
+export async function rerollDamageTargets(message, countsByIndex) {
+  const rollData = message.getFlag('pokerole', 'rollData');
+  if (!rollData || rollData.rerolled || rollData.type !== 'damage') return;
+
+  const targets = rollData.targets;
+  const stylingFunction = roll => roll > 3 ? 'max' : '';
+  let anyRerolled = false;
+
+  for (const [indexStr, requestedCount] of Object.entries(countsByIndex)) {
+    const target = targets[parseInt(indexStr, 10)];
+    if (!target) continue;
+
+    const failedCount = target.rolls.filter(roll => roll < 4).length;
+    const count = Math.max(0, Math.min(requestedCount, failedCount));
+    if (count === 0) continue;
+
+    const rollsRE = await rollDice(count);
+    await animateDiceRoll(rollsRE, message.whisper);
+
+    const successCount = Math.min(
+      target.rolls.filter(roll => roll > 3).length + rollsRE.filter(roll => roll > 3).length,
+      target.rolls.length
+    ) + target.modifier;
+
+    const { damageBeforeEffectiveness, damage } = computeDamageFromRoll(successCount, rollData.context.damageFactor, target.effectivenessLevel);
+
+    const diceHtml = `<b>${successCount} successes (${count} Reroll${count === 1 ? '' : 's'})</b><p><i>(Rerolled)</i></p>`
+      + buildDiceHtml(target.rolls, stylingFunction, rollsRE);
+
+    target.rolls = [...target.rolls, ...rollsRE];
+    target.damageBeforeEffectiveness = damageBeforeEffectiveness;
+    target.damage = damage;
+    target.html = buildDamageTargetHtml({
+      diceHtml, name: target.name, damageTypeText: rollData.context.damageTypeText,
+      effectivenessLevel: target.effectivenessLevel, damage, isNoTarget: target.defenderTokenUuid === null
+    });
+    anyRerolled = true;
+  }
+
+  if (!anyRerolled) return;
+
+  const content = await buildDamageRerollContent(targets, rollData.context);
+  if (!content) return;
+
+  await message.update({
+    content,
+    'flags.pokerole.rollData': { ...rollData, targets, rerolled: true }
+  });
 }
 
 const ATTRIBUTE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/attribute-roll.html";
@@ -480,6 +585,115 @@ async function buildAccuracyRerollContent(rollResult, context) {
   return buildAccuracyResultHtml({ rollResult, requiredSuccesses, canBeClashed, canBeEvaded, actor, item, actorToken });
 }
 
+/**
+ * Converts the manually-selected effectiveness dropdown value (no-target damage rolls) to the
+ * same numeric level type-matchup calculations already use, so both paths share the damage
+ * math below.
+ * @param {string} effectiveness
+ * @returns {number}
+ */
+function effectivenessSelectToLevel(effectiveness) {
+  switch (effectiveness) {
+    case 'superEffective': return 1;
+    case 'doubleSuperEffective': return 2;
+    case 'tripleSuperEffective': return 3;
+    case 'notVeryEffective': return -1;
+    case 'doubleNotVeryEffective': return -2;
+    case 'tripleNotVeryEffective': return -3;
+    case 'immune': return -Infinity;
+    default: return 0;
+  }
+}
+
+/**
+ * Applies a rolled success count + type effectiveness to get final damage - a positive
+ * (advantage) effectiveness only applies if at least one success was rolled, disadvantage
+ * always applies. Shared between the initial damage roll and a reroll's recompute.
+ * @returns {{damageBeforeEffectiveness: number, damage: number}}
+ */
+function computeDamageFromRoll(rollResult, damageFactor, effectivenessLevel) {
+  const damageBeforeEffectiveness = rollResult > 0 ? Math.max(Math.floor(rollResult * damageFactor), 1) : 1;
+  const appliedEffectiveness = (rollResult <= 0 && effectivenessLevel > 0) ? 0 : effectivenessLevel;
+  const damage = Math.max(damageBeforeEffectiveness + appliedEffectiveness, 0);
+  return { damageBeforeEffectiveness, damage };
+}
+
+/**
+ * Builds one damage target's "<hr> + dice + effectiveness text + damage text" block - shared
+ * between the initial roll and a reroll's recompute for that target.
+ */
+function buildDamageTargetHtml({ diceHtml, name, damageTypeText, effectivenessLevel, damage, isNoTarget }) {
+  let html = '<hr>' + diceHtml;
+  if (effectivenessLevel !== 0) {
+    html += `<p><b>${getEffectivenessText(effectivenessLevel)}</b></p>`;
+  }
+  if (isNoTarget) {
+    html += `<p>${damageTypeText}The attack deals ${damage} damage!</p>`;
+  } else if (damage > 0) {
+    html += `<p>${damageTypeText}${name} took ${damage} damage!</p>`;
+  } else {
+    html += `<p>${damageTypeText}${name} didn't take any damage.</p>`;
+  }
+  return html;
+}
+
+/**
+ * Builds the Apply Damage/Roll Recoil/Apply Healing action-buttons block from the current
+ * (possibly post-reroll) per-target damage totals - shared between the initial roll and reroll.
+ * Recoil's damage-before-effectiveness intentionally comes from the *last* target, matching
+ * the pre-existing behavior for multi-target rolls (not changed here).
+ */
+function buildDamageActionButtonsHtml({ actor, token, targets, hasRecoil, applyLeechHeal }) {
+  const damageUpdates = targets
+    .filter(t => t.defenderTokenUuid && t.damage > 0)
+    .map(t => ({ actorId: t.defenderActorId, tokenUuid: t.defenderTokenUuid, damage: t.damage }));
+
+  const leechHealHp = applyLeechHeal
+    ? targets.reduce((sum, t) => sum + Math.floor(t.damage / 2), 0)
+    : 0;
+
+  if (damageUpdates.length === 0 && !hasRecoil && leechHealHp === 0) return '';
+
+  let html = `<div class="pokerole"><div class="action-buttons">`;
+  if (damageUpdates.length > 0) {
+    html += `<button class="chat-action" data-action="applyDamage"
+      data-damage-updates='${JSON.stringify(damageUpdates)}'>Apply Damage</button>`;
+  }
+  if (hasRecoil) {
+    const dataTokenUuid = token ? `data-token-uuid="${token.uuid}"` : '';
+    const lastTarget = targets[targets.length - 1];
+    html += `<button class="chat-action" data-action="recoil" data-actor-id="${actor.id}"
+        ${dataTokenUuid} data-damage-before-effectiveness="${lastTarget.damageBeforeEffectiveness}">Roll Recoil Damage</button>`;
+  }
+  if (leechHealHp > 0) {
+    const dataTokenUuid = token ? `data-token-uuid="${token.uuid}"` : '';
+    html += `<button class="chat-action" data-action="applyHealing" data-actor-id="${actor.id}"
+        ${dataTokenUuid} data-heal-amount="${leechHealHp}">Apply Healing (${actor.name})</button>`;
+  }
+  html += `</div></div>`;
+  return html;
+}
+
+/**
+ * Re-derives a damage roll's per-target result HTML for a reroll, from context/target data
+ * (no document lookups needed - effectiveness and names are cached, since neither depends on
+ * the dice). Returns '' (and leaves the roll unusable further) if the actor/item are gone.
+ */
+async function buildDamageRerollContent(targets, context) {
+  const { actorUuid, itemUuid, tokenUuid, damageTypeText, hasRecoil, applyLeechHeal } = context;
+  const actor = await fromUuid(actorUuid);
+  const item = await fromUuid(itemUuid);
+  if (!actor || !item) return '';
+  const token = tokenUuid ? await fromUuid(tokenUuid) : undefined;
+
+  let html = '';
+  for (const target of targets) {
+    html += target.html;
+  }
+  html += buildDamageActionButtonsHtml({ actor, token, targets, hasRecoil, applyLeechHeal });
+  return html;
+}
+
 const DAMAGE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/damage-roll.html";
 
 /**
@@ -624,68 +838,26 @@ export async function rollDamage(item, actor, token) {
 
   let damageFactor = damageType === 'holdBack' ? 0.5 : 1;
 
-  let damageUpdates = [];
-  let damage;
-  let damageBeforeEffectiveness;
-  let leechHealHp = 0;
+  const hasRecoil = !!item.system.attributes.recoil;
+  const targets = [];
+
   if (selectedTokens.length === 0) {
     // A damaging move's dice pool is always at least 1, even if power+stat doesn't exceed the defense.
     let rollCount = Math.max(rollCountBeforeDef - enemyDef, 1);
 
-    const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus, rerollBonus);
-    html += '<hr>' + messageDataPart.content;
+    const [rollResult, messageDataPart, rolls, rollsRE] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus, rerollBonus);
+    const effectivenessLevel = effectivenessSelectToLevel(effectiveness);
+    const { damageBeforeEffectiveness, damage } = computeDamageFromRoll(rollResult, damageFactor, effectivenessLevel);
 
-    damage = 1;
+    const targetHtml = buildDamageTargetHtml({
+      diceHtml: messageDataPart.content, name: actor.name, damageTypeText, effectivenessLevel, damage, isNoTarget: true
+    });
 
-    if (rollResult > 0) {
-      damage = rollResult;
-      damage = Math.max(Math.floor(damage * damageFactor), 1);
-    }
-
-    damageBeforeEffectiveness = damage;
-    let effectivenessLevel = 0;
-
-    switch (effectiveness) {
-      case 'superEffective':
-        effectivenessLevel = 1;
-        break;
-      case 'doubleSuperEffective':
-        effectivenessLevel = 2;
-        break;
-      case 'tripleSuperEffective':
-        effectivenessLevel = 3;
-        break;
-      case 'notVeryEffective':
-        effectivenessLevel = -1;
-        break;
-      case 'doubleNotVeryEffective':
-        effectivenessLevel = -2;
-        break;
-      case 'tripleNotVeryEffective':
-        effectivenessLevel = -3;
-        break;
-      case 'immune':
-        effectivenessLevel = -Infinity;
-        break;
-      default:
-        effectivenessLevel = 0;
-        break;
-    }
-
-    if (effectivenessLevel !== 0) {
-      html += `<p><b>${getEffectivenessText(effectivenessLevel)}</b></p>`;
-    }
-
-    if (rollResult <= 0 && effectivenessLevel > 0) {
-      // Type advantages are only applied if one or more successes are rolled,
-      // but disadvantage is always applied
-      effectiveness = 0;
-    }
-
-    damage += effectivenessLevel;
-    damage = Math.max(damage, 0); // Dealt damage is always at least 0
-
-    html += `<p>${damageTypeText}The attack deals ${damage} damage!</p>`;
+    targets.push({
+      name: actor.name, rolls: [...rolls, ...rollsRE], modifier: constantBonus,
+      effectivenessLevel, damageBeforeEffectiveness, damage, html: targetHtml,
+      defenderTokenUuid: null, defenderActorId: null
+    });
   } else {
     // One or more tokens to apply damage to are selected
     for (let defenderToken of selectedTokens) {
@@ -699,18 +871,8 @@ export async function rollDamage(item, actor, token) {
       // A damaging move's dice pool is always at least 1, even if power+stat doesn't exceed the defense.
       const rollCount = Math.max(rollCountBeforeDef - defStat, 1);
 
-      const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus, rerollBonus);
-      html += '<hr>' + messageDataPart.content;
-
-      damage = 1;
-
-      if (rollResult > 0) {
-        damage = rollResult;
-        damage = Math.max(Math.floor(damage * damageFactor), 1);
-      }
-
-      damageBeforeEffectiveness = damage;
-      let effectiveness = defender.system.hasThirdType ? calcTripleTypeMatchupScore(
+      const [rollResult, messageDataPart, rolls, rollsRE] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus, rerollBonus);
+      const effectivenessLevel = defender.system.hasThirdType ? calcTripleTypeMatchupScore(
         item.system.type,
         defender.system.type1,
         defender.system.type2,
@@ -720,62 +882,48 @@ export async function rollDamage(item, actor, token) {
         defender.system.type1,
         defender.system.type2
       );
+      const { damageBeforeEffectiveness, damage } = computeDamageFromRoll(rollResult, damageFactor, effectivenessLevel);
 
-      if (rollResult <= 0 && effectiveness > 0) {
-        // Type advantages are only applied if one or more successes are rolled,
-        // but disadvantage is always applied
-        effectiveness = 0;
-      }
+      const targetHtml = buildDamageTargetHtml({
+        diceHtml: messageDataPart.content, name: defender.name, damageTypeText, effectivenessLevel, damage, isNoTarget: false
+      });
 
-      damage += effectiveness;
-      if (effectiveness !== 0) {
-        html += `<p><b>${getEffectivenessText(effectiveness)}</b></p>`;
-      }
-
-      // Damage is always at least 0
-      damage = Math.max(damage, 0);
-      if (damage > 0) {
-        damageUpdates.push({ actorId: defender.id, tokenUuid: defenderToken.document.uuid, damage });
-
-        html += `<p>${damageTypeText}${defender.name} took ${damage} damage!</p>`;
-      } else {
-        html += `<p>${damageTypeText}${defender.name} didn't take any damage.</p>`;
-      }
-
-      if (applyLeechHeal) {
-        const healAmount = Math.floor(damage / 2);
-        leechHealHp += healAmount;
-      }
+      targets.push({
+        name: defender.name, rolls: [...rolls, ...rollsRE], modifier: constantBonus,
+        effectivenessLevel, damageBeforeEffectiveness, damage, html: targetHtml,
+        defenderTokenUuid: defenderToken.document.uuid, defenderActorId: defender.id
+      });
     }
   }
 
   // Leech Heal is applied via its own deferred button (like Apply Damage) instead of
   // immediately here - otherwise a later chat reroll that changes the damage dealt would
   // need to retroactively undo/adjust HP that's already been healed.
-  const hasActionButtons = damageUpdates.length > 0 || item.system.attributes.recoil || leechHealHp > 0;
-  if (hasActionButtons) {
-    html += `<div class="pokerole"><div class="action-buttons">`;
-    if (damageUpdates.length > 0) {
-      html += `<button class="chat-action" data-action="applyDamage"
-        data-damage-updates='${JSON.stringify(damageUpdates)}'>Apply Damage</button>`;
-    }
-    if (item.system.attributes.recoil) {
-      const dataTokenUuid = token ? `data-token-uuid="${token.uuid}"` : '';
-      html += `<button class="chat-action" data-action="recoil" data-actor-id="${actor.id}"
-          ${dataTokenUuid} data-damage-before-effectiveness="${damageBeforeEffectiveness}">Roll Recoil Damage</button>`;
-    }
-    if (leechHealHp > 0) {
-      const dataTokenUuid = token ? `data-token-uuid="${token.uuid}"` : '';
-      html += `<button class="chat-action" data-action="applyHealing" data-actor-id="${actor.id}"
-          ${dataTokenUuid} data-heal-amount="${leechHealHp}">Apply Healing (${actor.name})</button>`;
-    }
-    html += `</div></div>`;
-  }
+  html += targets.map(t => t.html).join('');
+  html += buildDamageActionButtonsHtml({ actor, token, targets, hasRecoil, applyLeechHeal: !!applyLeechHeal });
 
   await ChatMessage.create({
     ...chatData,
     content: html,
-    flavor: `Damage roll: ${item.name}`
+    flavor: `Damage roll: ${item.name}`,
+    flags: {
+      pokerole: {
+        rollData: {
+          type: 'damage',
+          rerolled: false,
+          targets,
+          context: {
+            itemUuid: item.uuid,
+            actorUuid: actor.uuid,
+            tokenUuid: token?.uuid,
+            damageTypeText,
+            damageFactor,
+            hasRecoil,
+            applyLeechHeal: !!applyLeechHeal
+          }
+        }
+      }
+    }
   });
   return true;
 }
@@ -947,7 +1095,7 @@ export async function chanceDiceRoll(rollCount, flavor, chatData) {
  * @param {string} flavor Displayed flavor text
  * @param {Object} chatData Chat message settings that will be merged with the resulting HTML
  * @param {number} modifier Constant number added to the result
- * @returns {Promise<[result: number, chatMessageData: object]>}
+ * @returns {Promise<[result: number, chatMessageData: object, rolls: Array<number>, rollsRE: Array<number>]>}
  */
 export async function createSuccessRollMessageData(rollCount, flavor, chatData, modifier = 0, reRolls = 0, rerollType = null, rerollContext = null) {
   if (rollCount > 999) {
@@ -990,7 +1138,7 @@ export async function createSuccessRollMessageData(rollCount, flavor, chatData, 
     };
   }
 
-  return [successCount, messageData];
+  return [successCount, messageData, rolls, rollsRE];
 }
 
 /**
