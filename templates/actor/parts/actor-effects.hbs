@@ -95,13 +95,11 @@
           <div class="quick-ailment-list">
             {{#each quickAilmentList as |ailment|}}
             {{#if ailment.buttonDisabled}}
-            <span class="disabled-elem">
-              <img src="{{ailment.icon}}"></img>
-            </span>
+            <span class="disabled-elem" title="{{ailment.label}}"
+                  style="--ailment-tint: {{ailment.tint}}; --ailment-icon: url('{{ailment.icon}}');"></span>
             {{else}}
-            <a data-action="addAilment" title="{{ailment.label}}" data-ailment="{{ailment.key}}">
-              <img src="{{ailment.icon}}"></img>
-            </a>
+            <a data-action="addAilment" title="{{ailment.label}}" data-ailment="{{ailment.key}}"
+               style="--ailment-tint: {{ailment.tint}}; --ailment-icon: url('{{ailment.icon}}');"></a>
             {{/if}}
             {{/each}}
           </div>
