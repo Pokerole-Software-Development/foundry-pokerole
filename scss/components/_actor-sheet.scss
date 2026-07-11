@@ -1150,6 +1150,12 @@
       font-size: 0.85em;
     }
 
+    .pain-penalty-level {
+      font-weight: bold;
+      font-size: 1.15em;
+      color: var(--color-pkmn-red);
+    }
+
     .pain-penalty-resisted {
       display: flex;
       align-items: center;
