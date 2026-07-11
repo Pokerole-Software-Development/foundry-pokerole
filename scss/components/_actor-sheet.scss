@@ -825,6 +825,11 @@
       .section-header {
         color: white;
       }
+
+      .quick-ailment-list img {
+        width: 18px;
+        height: 18px;
+      }
     }
 
     .item-image.ailment {
@@ -1281,28 +1286,29 @@
       justify-content: flex-end;
       margin: 0 5px;
 
-      // The ailment icons are plain white silhouettes - painted here via a CSS mask so the
-      // actual visible color comes from --ailment-tint (set inline per-icon) instead of the
-      // white pixels, which would be invisible against .items-header's background
-      // (--color-pkmn-container-bg turns white in Light theme).
+      // The ailment icons are plain white silhouettes with no tint of their own (unlike the
+      // active-ailment list, which colors them via --ailment-tint) - .items-header's background
+      // (--color-pkmn-container-bg) turns white in Light theme, so without their own dark
+      // backing these become invisible white-on-white.
       a[data-action="addAilment"],
       .disabled-elem {
-        display: block;
         width: 18px;
         height: 18px;
-        background-color: var(--ailment-tint, white);
-        -webkit-mask-image: var(--ailment-icon);
-        mask-image: var(--ailment-icon);
-        -webkit-mask-size: contain;
-        mask-size: contain;
-        -webkit-mask-repeat: no-repeat;
-        mask-repeat: no-repeat;
-        -webkit-mask-position: center;
-        mask-position: center;
+        border-radius: 50%;
+        background-color: var(--color-pkmn-darkfield-back);
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       .disabled-elem {
         filter: brightness(40%);
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        border: none;
       }
 
       .add-ailment img {

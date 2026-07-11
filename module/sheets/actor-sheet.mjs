@@ -852,7 +852,6 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       context.quickAilmentList.unshift({
         key: 'burn',
         icon: allAilments.burn1.icon,
-        tint: allAilments.burn1.tint,
         label: game.i18n.localize('POKEROLE.StatusBurn'),
         buttonDisabled: this.actor.isBurned()
       })
