@@ -35,7 +35,6 @@ export class PokeroleActorTrainerData extends PokeroleActorBaseData {
       height: new NumberField({ required: true, initial: 0, min: 0 }),
       weight: new NumberField({ required: true, initial: 0, min: 0 }),
       recommendedRank: new StringField({ required: true, initial: "none", choices: POKEROLE.ranks }),
-      painPenalty: new StringField({ required: true, initial: "none", choices: Object.keys(POKEROLE.painPenalties) }),
       sheetskin: new StringField({ required: true, initial: "skinOld" }),
 
       // Loose objects (not SchemaField) so custom skills/attributes can be added - see prepareBaseData().

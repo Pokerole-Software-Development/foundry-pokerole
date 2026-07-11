@@ -650,13 +650,18 @@ POKEROLE.healAmounts = {
   }
 }
 
-/** Number of dice to reduce for each pain penalty */
-POKEROLE.painPenalties = {
-  'none': 0,
-  'minus1': 1,
-  'minus2': 2,
-  'minus3': 3
-};
+/**
+ * Raw Pain Penalization level (0-3) from current/max HP.
+ * -1 at half HP (rounded down), an additional -2 (stacking to -3) at exactly 1 HP.
+ * @param {number} hpValue
+ * @param {number} hpMax
+ * @returns {number}
+ */
+export function computePainPenaltyLevel(hpValue, hpMax) {
+  if (hpValue === 1) return 3;
+  if (hpValue > 0 && hpValue <= Math.floor(hpMax / 2)) return 1;
+  return 0;
+}
 
 POKEROLE.i18n = {
   attributes: {
@@ -825,20 +830,6 @@ POKEROLE.i18n = {
     "targets": "POKEROLE.EffectTargetTargets",
   },
 
-  painPenalties: {
-    "none": "POKEROLE.PainPenaltyNone",
-    "minus1": "POKEROLE.PainPenaltyMinus1",
-    "minus2": "POKEROLE.PainPenaltyMinus2",
-    "minus3": "POKEROLE.PainPenaltyMinus3",
-  },
-
-  painPenaltiesShort: {
-    "none": "POKEROLE.PainPenaltyNoneShort",
-    "minus1": "POKEROLE.PainPenaltyMinus1Short",
-    "minus2": "POKEROLE.PainPenaltyMinus2Short",
-    "minus3": "POKEROLE.PainPenaltyMinus3Short",
-  },
-
   ailments: {
     "fainted": "POKEROLE.StatusFainted",
     "paralysis": "POKEROLE.StatusParalysis",
@@ -901,13 +892,5 @@ export function getLocalizedTypesForSelect() {
     obj[type] = getLocalizedType(type);
   }
   return obj;
-}
-
-/**
- * Get an object with key-value pairs of pain penalty keys and their translations
- * @returns {Object}
- */
-export function getLocalizedPainPenaltiesForSelect() {
-  return getLocalizedEntriesForSelect('painPenalties');
 }
 

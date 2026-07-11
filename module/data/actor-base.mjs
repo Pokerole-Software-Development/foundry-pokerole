@@ -1,4 +1,4 @@
-import { POKEROLE } from "../helpers/config.mjs";
+import { POKEROLE, computePainPenaltyLevel } from "../helpers/config.mjs";
 import { resourceField, attributeField, scaleField, plusMinusField } from "./fields.mjs";
 
 const { SchemaField, NumberField, StringField, BooleanField, ArrayField, ObjectField, HTMLField } = foundry.data.fields;
@@ -14,6 +14,9 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
     return {
       hp: resourceField(0, 0),
       will: resourceField(0, 3),
+      // Willpower spent to ignore points of the HP-derived Pain Penalty level below. Persists
+      // across HP changes within a scene - see computePainPenaltyLevel() in helpers/config.mjs.
+      painPenaltyIgnored: new NumberField({ required: true, integer: true, initial: 0, min: 0, max: 3 }),
       rank: new StringField({ required: true, initial: "none", choices: POKEROLE.ranks }),
       personality: new StringField({ required: true, initial: "hardy", choices: Object.keys(POKEROLE.natureConfidence) }),
       gender: new StringField({ required: true, initial: "neutral", choices: POKEROLE.genders }),
@@ -116,6 +119,11 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
       this.hp.max = this.baseHp + this.attributes.vitality.value + totalPassiveIncrease;
     }
 
+    const painPenaltyLevel = computePainPenaltyLevel(this.hp.value, this.hp.max);
+    // Can't visually/mechanically ignore more pain than currently exists, but the stored value
+    // isn't clamped - it stays "banked" if the level later rises again within the same scene.
+    const painPenaltyIgnored = Math.min(this.painPenaltyIgnored ?? 0, painPenaltyLevel);
+
     // TP Support Will+
     this.will.max = (this.willbonus ?? 0) + this.attributes.insight.value + POKEROLE.CONST.MAX_WILL_BONUS + totalPassiveIncrease;
 
@@ -146,6 +154,11 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
       },
       def: {
         value: this.attributes.vitality.value + totalPassiveIncrease
+      },
+      painPenalty: {
+        level: painPenaltyLevel,
+        ignored: painPenaltyIgnored,
+        effective: painPenaltyLevel - painPenaltyIgnored
       }
     };
 
