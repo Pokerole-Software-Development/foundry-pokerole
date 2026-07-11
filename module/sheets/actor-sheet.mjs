@@ -491,9 +491,8 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       const toggle = document.createElement("slide-toggle");
       toggle.checked = this._mode === this.constructor.MODES.EDIT;
       toggle.classList.add("mode-slider");
-      const toggleLabel = game.i18n.localize("POKEROLE.SheetModeToggle");
-      toggle.dataset.tooltip = toggleLabel;
-      toggle.setAttribute("aria-label", toggleLabel);
+      toggle.dataset.tooltip = "POKEROLE.SheetModeEdit";
+      toggle.setAttribute("aria-label", game.i18n.localize("POKEROLE.SheetModeEdit"));
       toggle.addEventListener("change", this._onChangeSheetMode.bind(this));
       toggle.addEventListener("dblclick", event => event.stopPropagation());
       toggle.addEventListener("pointerdown", event => event.stopPropagation());
@@ -563,6 +562,9 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
   async _onChangeSheetMode(event) {
     const { MODES } = this.constructor;
     const toggle = event.currentTarget;
+    const label = game.i18n.localize(`POKEROLE.SheetMode${toggle.checked ? "Play" : "Edit"}`);
+    toggle.dataset.tooltip = label;
+    toggle.setAttribute("aria-label", label);
     this._mode = toggle.checked ? MODES.EDIT : MODES.PLAY;
     await this.submit();
     this.render();
