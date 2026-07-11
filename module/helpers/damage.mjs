@@ -110,7 +110,7 @@ export async function bulkApplyDamageValidated(damageUpdates) {
   <div class="action-buttons">
     <button class="chat-action" data-action="ignorePainPenalty"
         data-actor-id="${actor.id}" ${dataTokenUuid}>
-      Spend 1 Will to Ignore 1 Success
+      Spend 1 Will to Resist 1 Point of Pain
     </button>
   </div>`;
         }

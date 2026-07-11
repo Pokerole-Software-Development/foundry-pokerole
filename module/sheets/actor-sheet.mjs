@@ -1,4 +1,4 @@
-import { getTripleTypeMatchups, getDualTypeMatchups, getLocalizedType, getLocalizedTypesForSelect, POKEROLE } from "../helpers/config.mjs";
+import { getTripleTypeMatchups, getDualTypeMatchups, getLocalizedType, getLocalizedTypesForSelect, getLocalizedPainPenaltyLevel, POKEROLE } from "../helpers/config.mjs";
 import { successRollAttributeDialog, successRollSkillDialog } from "../helpers/roll.mjs";
 import { addAilmentWithDialog } from "../helpers/effects.mjs";
 import { AdvancementDialog } from "../applications/advancement-dialog.mjs";
@@ -351,6 +351,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     context.weightImperial = Math.round(weightImperial);
     
     context.hasAvailableActions = this.actor.hasAvailableActions();
+    context.painPenaltyLevelLabel = getLocalizedPainPenaltyLevel(this.actor.system.derived.painPenalty.level);
 
     this._prepareStatChanges(context);
     this._populateAilmentList(context);

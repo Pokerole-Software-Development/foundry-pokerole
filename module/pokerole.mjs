@@ -697,7 +697,7 @@ async function onChatActionClick(event) {
         if (canModifyTokenOrActor(token, actor)) {
           const { level, ignored } = actor.system.derived.painPenalty;
           if (ignored >= level) {
-            return ui.notifications.warn("There's no more pain left to ignore.");
+            return ui.notifications.warn("There's no more pain left to resist.");
           }
           if (actor.system.will.value < 1) {
             return ui.notifications.error("You don't have any Will left.");

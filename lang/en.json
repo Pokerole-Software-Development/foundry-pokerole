@@ -178,7 +178,12 @@
   "POKEROLE.NatureQuirky": "Quirky",
 
   "POKEROLE.PainPenaltyTooltip": "Pain Penalization: -{effective} SCs",
-  "POKEROLE.PainPenaltyTooltipIgnored": "Pain Penalization: -{effective} SCs ({ignored} Ignored)",
+  "POKEROLE.PainPenaltyTooltipIgnored": "Pain Penalization: -{effective} SCs ({ignored} Pain Resisted)",
+
+  "POKEROLE.PainPenaltyLevelNone": "None",
+  "POKEROLE.PainPenaltyLevelHalfHp": "Half HP (-1)",
+  "POKEROLE.PainPenaltyLevel1Hp2": "1 HP (-2)",
+  "POKEROLE.PainPenaltyLevel1Hp3": "1 HP (-3)",
 
   "POKEROLE.Add": "Add",
   "POKEROLE.ActionWarningNoItem": "The item doesn't exist.",

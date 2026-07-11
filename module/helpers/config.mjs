@@ -830,6 +830,13 @@ POKEROLE.i18n = {
     "targets": "POKEROLE.EffectTargetTargets",
   },
 
+  painPenaltyLevels: {
+    0: "POKEROLE.PainPenaltyLevelNone",
+    1: "POKEROLE.PainPenaltyLevelHalfHp",
+    2: "POKEROLE.PainPenaltyLevel1Hp2",
+    3: "POKEROLE.PainPenaltyLevel1Hp3",
+  },
+
   ailments: {
     "fainted": "POKEROLE.StatusFainted",
     "paralysis": "POKEROLE.StatusParalysis",
@@ -892,5 +899,14 @@ export function getLocalizedTypesForSelect() {
     obj[type] = getLocalizedType(type);
   }
   return obj;
+}
+
+/**
+ * Get a localized classification string for a Pain Penalty level (0-3), e.g. "Half HP (-1)".
+ * @param {number} level
+ * @returns {string}
+ */
+export function getLocalizedPainPenaltyLevel(level) {
+  return game.i18n.localize(POKEROLE.i18n.painPenaltyLevels[level] ?? POKEROLE.i18n.painPenaltyLevels[0]);
 }
 
