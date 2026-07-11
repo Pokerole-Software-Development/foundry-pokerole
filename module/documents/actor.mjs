@@ -480,9 +480,11 @@ export class PokeroleActor extends Actor {
     for (const ailment of this.system.ailments) {
       desired.set(`ailment:${ailment.type}`, buildAilmentIconEffectData(ailment));
     }
-    const { level, ignored } = this.system.derived.painPenalty;
-    if (level > 0) {
-      desired.set('painPenalty', buildPainPenaltyIconData(level, ignored));
+    if (game.settings.get('pokerole', 'showPainPenaltyIcon') ?? true) {
+      const { level, ignored } = this.system.derived.painPenalty;
+      if (level > 0) {
+        desired.set('painPenalty', buildPainPenaltyIconData(level, ignored));
+      }
     }
     for (const item of this.items.filter(i => i.type === 'effect' && i.system.enabled && (i.system.visible ?? true))) {
       desired.set(`effect:${item.id}`, buildCustomEffectIconData(item));

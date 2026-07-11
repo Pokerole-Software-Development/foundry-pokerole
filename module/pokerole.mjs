@@ -397,6 +397,16 @@ function registerSettings() {
     requiresReload: true
   });
 
+  game.settings.register('pokerole', 'showPainPenaltyIcon', {
+    name: 'Display Pain Penalization',
+    hint: 'Show the Pain Penalization level (and how much is Resisted) as an icon on the token',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: true,
+    requiresReload: true
+  });
+
   game.settings.register('pokerole', 'vitaminOption', {
     name: 'Enable Vitamin Tracker',
     hint: 'Add a new section on the Biography tab to keeptrack of the vitamin you are giving to a pokemon and add a visual reminder on the attribute tab',
