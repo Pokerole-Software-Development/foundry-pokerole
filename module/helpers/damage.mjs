@@ -10,7 +10,7 @@ import { computePainPenaltyLevel } from "./config.mjs";
  */
 export function createHealMessage(name, oldHp, newHp, maxHp) {
   const amount = newHp - oldHp;
-  if (oldHp + amount >= maxHp) {
+  if (oldHp >= maxHp) {
     return `<p>${name} already has full HP.</p>`;
   } else if (amount === 0) {
     return `<p>${name} didn't heal any HP.</p>`;
