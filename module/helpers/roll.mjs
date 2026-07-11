@@ -91,7 +91,7 @@ const ATTRIBUTE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/attrib
 /**
  * Roll an attribute for successes with an optional dialog.
  * @param {{name: string, value: string}} attribute
- * @param {{painPenalty: string, confusionPenalty: bool, userRank: string}} options
+ * @param {{painPenalty: number, confusionPenalty: bool, userRank: string}} options
  * @param {boolean} showPopup If `false`, the popup is skipped and default values are assumed
  * @param {Object} chatData
  * @returns {boolean} `true` if the user has rolled, `false` if cancelled
@@ -153,7 +153,7 @@ const SKILL_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/skill-roll
  * Show a dialog for rolling successes based on a skill.
  * @param {{name: string, value: string}} skill
  * @param {Object} attributes The list of attributes to choose from
- * @param {{painPenalty: string, confusionPenalty: bool}} options
+ * @param {{painPenalty: number, confusionPenalty: bool}} options
  * @param {Object} chatData
  * @returns {boolean} `true` if accuracy was rolled, `false` if cancelled
  */
