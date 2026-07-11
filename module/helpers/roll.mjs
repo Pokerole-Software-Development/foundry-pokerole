@@ -73,17 +73,87 @@ export async function successRollAttribute(attribute, chatData) {
 }
 
 // attribute, skill = { name: String, value: number };
-export async function successRollAttributeSkill(attribute, skill, chatData, poolModifier = 0, constantModifier = 0, rerollBonus = 0) {
+export async function successRollAttributeSkill(attribute, skill, chatData, poolModifier = 0, constantModifier = 0, rerollBonus = 0, rerollType = null) {
   if (poolModifier != 0) {
     let sign = poolModifier >= 0 ? '+' : '';
-    return successRoll(attribute.value + skill.value + poolModifier, `${attribute.name}+${skill.name}${sign}${poolModifier}`, chatData, constantModifier, rerollBonus);
+    return successRoll(attribute.value + skill.value + poolModifier, `${attribute.name}+${skill.name}${sign}${poolModifier}`, chatData, constantModifier, rerollBonus, rerollType);
   } else {
-    return successRoll(attribute.value + skill.value, `${attribute.name}+${skill.name}`, chatData, constantModifier, rerollBonus);
+    return successRoll(attribute.value + skill.value, `${attribute.name}+${skill.name}`, chatData, constantModifier, rerollBonus, rerollType);
   }
 }
 
+/**
+ * Reroll up to `count` of the failed (<4) dice in an existing roll chat message, appending
+ * fresh dice the same way the pre-roll "Reroll" bonus already does (see buildDiceHtml()).
+ * Only usable once per message (rollData.rerolled) and only for roll types whose entire
+ * content is the dice block - see ROLL_TYPES_SUPPORTING_FULL_CONTENT_REROLL.
+ * @param {ChatMessage} message
+ * @param {number} count
+ */
+export async function rerollFailedDice(message, count) {
+  const rollData = message.getFlag('pokerole', 'rollData');
+  if (!rollData || rollData.rerolled) return;
+
+  const { rolls, modifier } = rollData;
+  const failedCount = rolls.filter(roll => roll < 4).length;
+  count = Math.max(0, Math.min(count, failedCount));
+  if (count === 0) return;
+
+  const rollsRE = await rollDice(count);
+  const successCount = Math.min(rolls.filter(roll => roll > 3).length + rollsRE.filter(roll => roll > 3).length, rolls.length) + modifier;
+
+  const stylingFunction = roll => roll > 3 ? 'max' : '';
+  const contentSuccess = `<b>${successCount} successes (${count} Reroll${count === 1 ? '' : 's'})</b><p><i>(Rerolled)</i></p>`;
+  const diceHtml = buildDiceHtml(rolls, stylingFunction, rollsRE);
+
+  await animateDiceRoll(rollsRE, message.whisper);
+
+  await message.update({
+    content: contentSuccess + diceHtml,
+    'flags.pokerole.rollData': {
+      ...rollData,
+      rolls: [...rolls, ...rollsRE],
+      rerolled: true
+    }
+  });
+}
+
+const REROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/reroll.html";
+
+/**
+ * Chat message context menu callback: asks how many failed dice to reroll, then applies it.
+ * @param {HTMLElement} li The chat message's list item element
+ */
 export async function ReSuccessRoll(li) {
-  console.log(li)
+  const message = game.messages.get(li.getAttribute('data-message-id'));
+  const rollData = message?.getFlag('pokerole', 'rollData');
+  if (!rollData || rollData.rerolled) return;
+
+  const failedCount = rollData.rolls.filter(roll => roll < 4).length;
+  if (failedCount === 0) {
+    return ui.notifications.warn("There are no failed dice to reroll.");
+  }
+
+  const content = await foundry.applications.handlebars.renderTemplate(REROLL_DIALOGUE_TEMPLATE, { failedCount });
+
+  const formData = await foundry.applications.api.DialogV2.wait({
+    window: { title: 'Reroll Failed Dice' },
+    classes: ['standard-form'],
+    content,
+    buttons: [{
+      action: 'reroll',
+      label: 'Reroll',
+      default: true,
+      callback: (event, button) => new foundry.applications.ux.FormDataExtended(button.form).object
+    }],
+    rejectClose: false
+  });
+  if (!formData) return;
+
+  const count = parseInt(formData.count, 10);
+  if (!Number.isFinite(count) || count <= 0) return;
+
+  await rerollFailedDice(message, count);
 }
 
 const ATTRIBUTE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/attribute-roll.html";
@@ -142,7 +212,7 @@ export async function successRollAttributeDialog(attribute, options, chatData, s
   }
 
   const constantBonusWithPainPenalty = constantBonus - painPenalty;
-  await successRoll(attribute.value + poolBonus, attribute.name, chatData, constantBonusWithPainPenalty, rerollBonus);
+  await successRoll(attribute.value + poolBonus, attribute.name, chatData, constantBonusWithPainPenalty, rerollBonus, 'attribute');
 
   return true;
 }
@@ -204,7 +274,8 @@ export async function successRollSkillDialog(skill, attributes, options, chatDat
     chatData,
     poolBonus,
     constantBonusWithPainPenalty,
-    rerollBonus
+    rerollBonus,
+    'skill'
   );
 }
 
@@ -718,15 +789,16 @@ async function rollDice(rollCount) {
 }
 
 /**
- * Utility function to create a chat message for dice rolls with specific styling.
- * @param {Array<number>} rolls Array of dice roll results
- * @param {string} content Content to display in the chat message
- * @param {string} flavor Displayed flavor text
- * @param {Object} chatData Chat message settings
+ * Builds the dice-tooltip HTML for a set of dice results. `rollsRE` (already-rerolled dice,
+ * either from the pre-roll "Reroll" bonus or a post-hoc chat reroll) are appended after
+ * `rolls`, with the first `rollsRE.length` failed dice in `rolls` marked with a "rerolled"
+ * class to show they've been superseded.
+ * @param {Array<number>} rolls
  * @param {Function} stylingFunction Function to apply specific styling to each roll
- * @returns {Object} Formatted chat message data
+ * @param {Array<number>} rollsRE
+ * @returns {string}
  */
-async function createDiceRollChatMessage(rolls, content, flavor, chatData, stylingFunction, rollsRE = []) {
+function buildDiceHtml(rolls, stylingFunction, rollsRE = []) {
   let text = '<div class="dice-tooltip"><div class="dice"><ol class="dice-rolls">';
   let RRcounter = 1
   rolls.forEach(roll => {
@@ -742,18 +814,17 @@ async function createDiceRollChatMessage(rolls, content, flavor, chatData, styli
     text += `<li class="roll die d6 ${classes}">${rollRE}</li>`;
   });
   text += '</ol></div></div>';
+  return text;
+}
 
-  let messageData = {
-    content: content + text,
-    flavor,
-    ...chatData
-  };
-
-  const rollMode = game.settings.get('core', 'rollMode');
-  messageData = ChatMessage.implementation.applyRollMode(messageData, rollMode);
-
-  // 3D Dice Animation
-  if (game.dice3d?.show && rolls.length <= 50) {
+/**
+ * Plays the 3D Dice Animation (if the module is active) for the given dice results only -
+ * callers pass just the newly-rolled dice, not ones already shown in a previous animation.
+ * @param {Array<number>} rolls
+ * @param {Array<string> | undefined} whisper
+ */
+async function animateDiceRoll(rolls, whisper) {
+  if (game.dice3d?.show && rolls.length > 0 && rolls.length <= 50) {
     const data = {
       throws: [{
         dice: rolls.map(roll => ({
@@ -765,12 +836,32 @@ async function createDiceRollChatMessage(rolls, content, flavor, chatData, styli
         }))
       }]
     };
-    await game.dice3d.show(
-      data,
-      game.user,
-      true,
-      messageData.whisper?.length > 0 ? messageData.whisper : undefined);
+    await game.dice3d.show(data, game.user, true, whisper?.length > 0 ? whisper : undefined);
   }
+}
+
+/**
+ * Utility function to create a chat message for dice rolls with specific styling.
+ * @param {Array<number>} rolls Array of dice roll results
+ * @param {string} content Content to display in the chat message
+ * @param {string} flavor Displayed flavor text
+ * @param {Object} chatData Chat message settings
+ * @param {Function} stylingFunction Function to apply specific styling to each roll
+ * @returns {Object} Formatted chat message data
+ */
+async function createDiceRollChatMessage(rolls, content, flavor, chatData, stylingFunction, rollsRE = []) {
+  const text = buildDiceHtml(rolls, stylingFunction, rollsRE);
+
+  let messageData = {
+    content: content + text,
+    flavor,
+    ...chatData
+  };
+
+  const rollMode = game.settings.get('core', 'rollMode');
+  messageData = ChatMessage.implementation.applyRollMode(messageData, rollMode);
+
+  await animateDiceRoll(rolls, messageData.whisper);
 
   return messageData;
 }
@@ -785,12 +876,12 @@ async function createDiceRollChatMessage(rolls, content, flavor, chatData, styli
  * @param {number} modifier Constant number added to the result
  * @returns {Promise<number>} The number of successes
  */
-export async function successRoll(rollCount, flavor, chatData, modifier = 0, rerollBonus = 0) {
+export async function successRoll(rollCount, flavor, chatData, modifier = 0, rerollBonus = 0, rerollType = null) {
   if (rollCount > 999) {
     throw new Error('You cannot roll more than 999 dice');
   }
 
-  const [successCount, messageData] = await createSuccessRollMessageData(rollCount, flavor, chatData, modifier, rerollBonus);
+  const [successCount, messageData] = await createSuccessRollMessageData(rollCount, flavor, chatData, modifier, rerollBonus, rerollType);
 
   await ChatMessage.implementation.create(messageData);
   return successCount;
@@ -825,7 +916,7 @@ export async function chanceDiceRoll(rollCount, flavor, chatData) {
  * @param {number} modifier Constant number added to the result
  * @returns {Promise<[result: number, chatMessageData: object]>}
  */
-export async function createSuccessRollMessageData(rollCount, flavor, chatData, modifier = 0, reRolls = 0) {
+export async function createSuccessRollMessageData(rollCount, flavor, chatData, modifier = 0, reRolls = 0, rerollType = null) {
   if (rollCount > 999) {
     throw new Error('You cannot roll for successes with more than 999 dice');
   }
@@ -853,6 +944,17 @@ export async function createSuccessRollMessageData(rollCount, flavor, chatData, 
     stylingFunction,
     rollsRE
   );
+
+  if (rerollType) {
+    messageData.flags ??= {};
+    messageData.flags.pokerole ??= {};
+    messageData.flags.pokerole.rollData = {
+      type: rerollType,
+      rolls: [...rolls, ...rollsRE],
+      modifier,
+      rerolled: false
+    };
+  }
 
   return [successCount, messageData];
 }

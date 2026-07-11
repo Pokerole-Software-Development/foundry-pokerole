@@ -128,13 +128,15 @@ Hooks.on('getChatMessageContextOptions', (html, options) => {
     icon: '<i class="fas fa-redo"></i>',
     condition: li => {
       // Only show this context menu if the person is GM or author of the message
-      const message = game.messages.get(li.getAttribute('data-message-id'))
+      const message = game.messages.get(li.getAttribute('data-message-id'));
+      const rollData = message?.getFlag('pokerole', 'rollData');
 
-      // Only show this context menu if there are at least a fail dice in the message
-      const dice = li.querySelectorAll('.die:not(.max)').length 
+      // Only for roll types that support it, not already used, and only if there's
+      // at least one failed die left to reroll
+      if (!rollData || rollData.rerolled) return false;
+      const failedCount = rollData.rolls.filter(roll => roll < 4).length;
 
-      // All must be true to show the reroll dialog
-      return (game.user.isGM || message.isAuthor) && dice > 0
+      return (game.user.isGM || message.isAuthor) && failedCount > 0;
     },
     callback: li => ReSuccessRoll(li)
   })

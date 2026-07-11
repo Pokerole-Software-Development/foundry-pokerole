@@ -67,6 +67,13 @@
   filter: sepia(0.5) hue-rotate(60deg);
 }
 
+// A failed die that's been superseded by a reroll (pre-roll "Reroll" bonus or a post-hoc
+// chat reroll) - kept visible for the record, but visually marked as no longer counted.
+.dice-rolls .rerolled {
+  opacity: 0.35;
+  text-decoration: line-through;
+}
+
 .dice-roll .dice-total {
   &.success {
     color: inherit;
