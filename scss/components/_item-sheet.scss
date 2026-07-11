@@ -124,6 +124,34 @@
   }
 
   // ---------------------------------------------------------------------------
+  // Flag Grid (checkbox flags like Typeless Maneuver / Lethal)
+  // ---------------------------------------------------------------------------
+  .flag-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 4px 10px;
+    margin: 3px 0;
+  }
+
+  .flag-checkbox {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: right;
+    gap: 6px;
+    cursor: pointer;
+    line-height: 16px;
+
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      margin: 0;
+      flex: 0 0 auto;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
   // Move Attributes Tab Styles
   // ---------------------------------------------------------------------------
   .tab[data-tab="attributes"], .tab[data-tab="rules"] {
@@ -257,25 +285,36 @@
   // Effect Rules Tab Styles (Effect Items)
   // ---------------------------------------------------------------------------
   .effects-list {
+    .rule-row {
+      flex-wrap: nowrap;
+    }
+
     .rule-attribute,
     .rule-operator,
     .rule-value {
       margin: 0 2px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      min-width: 60px;
     }
 
     .rule-attribute {
-      flex: 2;
-      min-width: 200px;
+      flex: 2 1 30px;
     }
 
     .rule-operator {
-      flex: 1;
-      min-width: 100px;
+      flex: 1 1 30px;
     }
 
     .rule-value {
-      flex: 1;
-      min-width: 80px;
+      flex: 1 1 30px;
+    }
+
+    .rule-row .item-controls {
+      /* Fixed (not content-sized) so the header's "+Add" and the data rows' trash icon share the same
+         column width - overrides the shared 110px .item-controls rule (pokerole.css ~885). */
+      flex: 0 0 60px;
     }
 
     input, select {

@@ -1582,9 +1582,76 @@ body.theme-light .pokerole.actor.sheet:not(.theme-dark),
 
 body.theme-light .pokerole.actor.sheet:not(.theme-light),
 .pokerole.actor.sheet.theme-dark {
-  
+
   .effects-list .quick-ailment-list {
     filter: invert(1);
   }
 
+}
+
+/* Team tab */
+.pokerole .team-list {
+  column-count: 2;
+  column-gap: 12px;
+}
+
+.pokerole .team-member {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  break-inside: avoid;
+}
+
+.pokerole .team-member-portrait {
+  height: 90px;
+  width: 90px;
+  flex: 0 0 90px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 90px;
+  background-color: rgba(244, 244, 244, 0.231372549);
+  border-radius: 50%;
+  border: 2px solid var(--color-disposition);
+  margin: 0;
+  cursor: pointer;
+}
+
+.pokerole .team-member-img {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+}
+
+.pokerole .team-member-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.pokerole .team-member-header {
+  display: flex;
+  gap: 4px;
+  font-weight: bold;
+}
+
+.pokerole .team-member-separator {
+  width: 100%;
+  margin: 2px 0;
+}
+
+.pokerole .team-member-clear {
+  margin-left: auto;
+  flex: 0 0 auto;
+  align-self: flex-start;
+  color: inherit;
+  opacity: 0.6;
+
+  &:hover {
+    opacity: 1;
+    color: #ff0000;
+  }
 }
