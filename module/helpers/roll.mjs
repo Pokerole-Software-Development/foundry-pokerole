@@ -83,10 +83,7 @@ export async function successRollAttributeSkill(attribute, skill, chatData, pool
 }
 
 /**
- * Reroll up to `count` of the failed (<4) dice in an existing roll chat message, appending
- * fresh dice the same way the pre-roll "Reroll" bonus already does (see buildDiceHtml()).
- * Only usable once per message (rollData.rerolled) and only for roll types whose entire
- * content is the dice block - see ROLL_TYPES_SUPPORTING_FULL_CONTENT_REROLL.
+ * Rerolls up to `count` failed dice in an existing roll message (skill/attribute/accuracy/clash).
  * @param {ChatMessage} message
  * @param {number} count
  */
@@ -170,10 +167,7 @@ export async function ReSuccessRoll(li) {
 
 const REROLL_DAMAGE_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/reroll-damage.html";
 
-/**
- * Reroll flow for Damage messages - each target has its own independent dice pool, so the
- * dialog shows one row per target (with failed dice left) instead of a single count.
- */
+/** Reroll dialog for Damage messages - one row per target, since each has its own dice pool. */
 async function rerollDamageDialog(message, rollData) {
   const targets = rollData.targets
     .map((t, index) => ({ index, name: t.name, failedCount: t.rolls.filter(roll => roll < 4).length }))
@@ -212,10 +206,7 @@ async function rerollDamageDialog(message, rollData) {
 }
 
 /**
- * Reroll up to `countsByIndex[i]` failed dice for the i-th target of a damage roll message,
- * recomputing that target's damage and the shared action-buttons block (Apply Damage totals,
- * Leech Heal amount). Locks the whole message to one reroll, like the other roll types -
- * targets left out of `countsByIndex` this time can't be revisited later.
+ * Rerolls failed dice per-target for a damage roll message and recomputes its content.
  * @param {ChatMessage} message
  * @param {Object<number, number>} countsByIndex Target array index -> dice to reroll
  */
@@ -527,9 +518,7 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
 }
 
 /**
- * Builds the requirement text + action-buttons HTML that follows an accuracy roll's dice
- * block - shared between the initial roll and a post-hoc chat reroll so both stay in sync.
- * @param {{rollResult: number, requiredSuccesses: number, canBeClashed: boolean, canBeEvaded: boolean, actor: Actor, item: PokeroleItem, actorToken: TokenDocument | undefined}} params
+ * Builds an accuracy roll's requirement text + action-buttons HTML (shared with reroll).
  */
 function buildAccuracyResultHtml({ rollResult, requiredSuccesses, canBeClashed, canBeEvaded, actor, item, actorToken }) {
   let html = '';
@@ -570,12 +559,7 @@ function buildAccuracyResultHtml({ rollResult, requiredSuccesses, canBeClashed, 
   return html;
 }
 
-/**
- * Re-derives an accuracy roll's follow-up HTML for a reroll, from the actor/item UUIDs
- * stored in rollData.context. Returns '' if either document no longer exists.
- * @param {number} rollResult
- * @param {Object} context See buildAccuracyResultHtml() minus rollResult/actor/item/actorToken.
- */
+/** Re-derives an accuracy reroll's follow-up HTML from rollData.context. */
 async function buildAccuracyRerollContent(rollResult, context) {
   const { actorUuid, itemUuid, actorTokenUuid, requiredSuccesses, canBeClashed, canBeEvaded } = context;
   const actor = await fromUuid(actorUuid);
@@ -585,13 +569,7 @@ async function buildAccuracyRerollContent(rollResult, context) {
   return buildAccuracyResultHtml({ rollResult, requiredSuccesses, canBeClashed, canBeEvaded, actor, item, actorToken });
 }
 
-/**
- * Converts the manually-selected effectiveness dropdown value (no-target damage rolls) to the
- * same numeric level type-matchup calculations already use, so both paths share the damage
- * math below.
- * @param {string} effectiveness
- * @returns {number}
- */
+/** Converts the no-target damage roll's effectiveness dropdown value to a numeric level. */
 function effectivenessSelectToLevel(effectiveness) {
   switch (effectiveness) {
     case 'superEffective': return 1;
@@ -605,12 +583,7 @@ function effectivenessSelectToLevel(effectiveness) {
   }
 }
 
-/**
- * Applies a rolled success count + type effectiveness to get final damage - a positive
- * (advantage) effectiveness only applies if at least one success was rolled, disadvantage
- * always applies. Shared between the initial damage roll and a reroll's recompute.
- * @returns {{damageBeforeEffectiveness: number, damage: number}}
- */
+/** Applies a rolled success count + type effectiveness to get final damage (shared with reroll). */
 function computeDamageFromRoll(rollResult, damageFactor, effectivenessLevel) {
   const damageBeforeEffectiveness = rollResult > 0 ? Math.max(Math.floor(rollResult * damageFactor), 1) : 1;
   const appliedEffectiveness = (rollResult <= 0 && effectivenessLevel > 0) ? 0 : effectivenessLevel;
@@ -618,10 +591,7 @@ function computeDamageFromRoll(rollResult, damageFactor, effectivenessLevel) {
   return { damageBeforeEffectiveness, damage };
 }
 
-/**
- * Builds one damage target's "<hr> + dice + effectiveness text + damage text" block - shared
- * between the initial roll and a reroll's recompute for that target.
- */
+/** Builds one damage target's result HTML block (shared between initial roll and reroll). */
 function buildDamageTargetHtml({ diceHtml, name, damageTypeText, effectivenessLevel, damage, isNoTarget }) {
   let html = '<hr>' + diceHtml;
   if (effectivenessLevel !== 0) {
@@ -637,12 +607,7 @@ function buildDamageTargetHtml({ diceHtml, name, damageTypeText, effectivenessLe
   return html;
 }
 
-/**
- * Builds the Apply Damage/Roll Recoil/Apply Healing action-buttons block from the current
- * (possibly post-reroll) per-target damage totals - shared between the initial roll and reroll.
- * Recoil's damage-before-effectiveness intentionally comes from the *last* target, matching
- * the pre-existing behavior for multi-target rolls (not changed here).
- */
+/** Builds the Apply Damage/Roll Recoil/Apply Healing buttons from the current per-target totals. */
 function buildDamageActionButtonsHtml({ actor, token, targets, hasRecoil, applyLeechHeal }) {
   const damageUpdates = targets
     .filter(t => t.defenderTokenUuid && t.damage > 0)
@@ -674,11 +639,7 @@ function buildDamageActionButtonsHtml({ actor, token, targets, hasRecoil, applyL
   return html;
 }
 
-/**
- * Re-derives a damage roll's per-target result HTML for a reroll, from context/target data
- * (no document lookups needed - effectiveness and names are cached, since neither depends on
- * the dice). Returns '' (and leaves the roll unusable further) if the actor/item are gone.
- */
+/** Rebuilds a damage roll's full content from its (possibly rerolled) targets + context. */
 async function buildDamageRerollContent(targets, context) {
   const { actorUuid, itemUuid, tokenUuid, damageTypeText, hasRecoil, applyLeechHeal } = context;
   const actor = await fromUuid(actorUuid);
@@ -896,9 +857,7 @@ export async function rollDamage(item, actor, token) {
     }
   }
 
-  // Leech Heal is applied via its own deferred button (like Apply Damage) instead of
-  // immediately here - otherwise a later chat reroll that changes the damage dealt would
-  // need to retroactively undo/adjust HP that's already been healed.
+  // Leech Heal is a deferred button (like Apply Damage), not applied immediately here.
   html += targets.map(t => t.html).join('');
   html += buildDamageActionButtonsHtml({ actor, token, targets, hasRecoil, applyLeechHeal: !!applyLeechHeal });
 
@@ -969,16 +928,7 @@ async function rollDice(rollCount) {
   return rolls;
 }
 
-/**
- * Builds the dice-tooltip HTML for a set of dice results. `rollsRE` (already-rerolled dice,
- * either from the pre-roll "Reroll" bonus or a post-hoc chat reroll) are appended after
- * `rolls`, with the first `rollsRE.length` failed dice in `rolls` marked with a "rerolled"
- * class to show they've been superseded.
- * @param {Array<number>} rolls
- * @param {Function} stylingFunction Function to apply specific styling to each roll
- * @param {Array<number>} rollsRE
- * @returns {string}
- */
+/** Builds the dice-tooltip HTML; `rollsRE` dice are appended and mark superseded failures. */
 function buildDiceHtml(rolls, stylingFunction, rollsRE = []) {
   let text = '<div class="dice-tooltip"><div class="dice"><ol class="dice-rolls">';
   let RRcounter = 1
@@ -998,12 +948,7 @@ function buildDiceHtml(rolls, stylingFunction, rollsRE = []) {
   return text;
 }
 
-/**
- * Plays the 3D Dice Animation (if the module is active) for the given dice results only -
- * callers pass just the newly-rolled dice, not ones already shown in a previous animation.
- * @param {Array<number>} rolls
- * @param {Array<string> | undefined} whisper
- */
+/** Plays the 3D Dice Animation, if active, for just the given (e.g. newly-rolled) dice. */
 async function animateDiceRoll(rolls, whisper) {
   if (game.dice3d?.show && rolls.length > 0 && rolls.length <= 50) {
     const data = {

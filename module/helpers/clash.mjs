@@ -84,8 +84,7 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
 
   const constantBonusWithPainPenalty = constantBonus - actor.system.derived.painPenalty.effective;
 
-  // Damage from a clash only depends on type matchups, not on the roll's success count -
-  // safe to compute once and reuse as-is if the roll is later rerolled.
+  // Damage only depends on type matchups, not the roll - safe to compute once and reuse on reroll.
   const successResultHtml = buildClashSuccessResultHtml(move, attacker, attackerTokenDoc, attackingMove, actor, actorToken);
   const failureResultHtml = '<p>It failed...</p>';
 
@@ -112,10 +111,7 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
   return move;
 }
 
-/**
- * Builds the "<hr> + per-side damage text + Apply Damage button" HTML shown after a
- * successful clash - shared between the initial roll and a post-hoc chat reroll.
- */
+/** Builds the damage/Apply Damage HTML for a successful clash (shared with reroll). */
 function buildClashSuccessResultHtml(move, attacker, attackerTokenDoc, attackingMove, actor, actorToken) {
   const damageUpdates = [];
   let damageAndHtml = calculateClashDamage(move, attacker);

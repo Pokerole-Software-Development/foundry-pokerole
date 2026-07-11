@@ -131,8 +131,7 @@ Hooks.on('getChatMessageContextOptions', (html, options) => {
       const message = game.messages.get(li.getAttribute('data-message-id'));
       const rollData = message?.getFlag('pokerole', 'rollData');
 
-      // Only for roll types that support it, not already used, and only if there's
-      // at least one failed die left to reroll
+      // Only if not already rerolled and there's at least one failed die left
       if (!rollData || rollData.rerolled) return false;
       const failedCount = rollData.type === 'damage'
         ? rollData.targets.reduce((sum, t) => sum + t.rolls.filter(roll => roll < 4).length, 0)
