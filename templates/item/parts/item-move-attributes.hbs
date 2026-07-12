@@ -70,7 +70,7 @@
   </div>
   <div class="form-group">
     <label class="resource-label">Added Effect</label>
-    <textarea name="system.effect" data-dtype="String">{{system.effect}}</textarea>
+    <textarea name="system.effect" data-dtype="String" {{#unless editable}}readonly{{/unless}}>{{system.effect}}</textarea>
   </div>
 
   <hr>

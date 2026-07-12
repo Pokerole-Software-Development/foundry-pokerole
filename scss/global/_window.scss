@@ -78,13 +78,19 @@ slide-toggle[checked] .slide-toggle-thumb {
   input[type="text"],
   input[type="number"],
   input[type="checkbox"],
-  select,
-  textarea {
+  select {
     &:not(.always-interactive) {
       pointer-events: none;
       border: none;
       background: transparent;
     }
+  }
+
+  // Textareas keep pointer-events (blocked from editing via the readonly attribute instead),
+  // so their content can still be scrolled/resized to read in full - see issue #100.
+  textarea:not(.always-interactive) {
+    border: none;
+    background: transparent;
   }
 }
 
@@ -94,9 +100,13 @@ slide-toggle[checked] .slide-toggle-thumb {
   input[type="text"],
   input[type="number"],
   input[type="checkbox"],
-  select,
-  textarea {
+  select {
     pointer-events: none;
+    border: none;
+    background: transparent;
+  }
+
+  textarea {
     border: none;
     background: transparent;
   }
