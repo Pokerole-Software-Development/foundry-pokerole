@@ -435,6 +435,40 @@ POKEROLE.skills = ['brawl', 'channel', 'clash', 'evasion', 'alert', 'athletic', 
 POKEROLE.socialAttributes = ['tough', 'cool', 'beauty', 'cute', 'clever'];
 POKEROLE.extraAttributes = ['happiness', 'loyalty'];
 
+// Skill sets differ between Actor types (used by the Actor DataSchemas)
+POKEROLE.pokemonSkills = ['brawl', 'channel', 'clash', 'evasion', 'alert', 'athletic', 'nature', 'stealth', 'charm', 'etiquette', 'intimidate', 'perform'];
+POKEROLE.trainerSkills = ['brawl', 'throw', 'weapon', 'evasion', 'alert', 'athletic', 'nature', 'stealth', 'empathy', 'etiquette', 'intimidate', 'perform', 'crafts', 'lore', 'medicine', 'science'];
+
+// Raw gender keys (labels are localized/looked up in the sheet, e.g. actor-sheet.mjs)
+POKEROLE.genders = ['neutral', 'male', 'female', 'genderless'];
+
+// Boolean flags on move.attributes (used by the Move DataSchema)
+POKEROLE.moveFlags = [
+  'highCritical', 'lethal', 'physicalRanged', 'charge', 'mustRecharge', 'fistBased',
+  'soundBased', 'shieldMove', 'neverFail', 'switcherMove', 'recoil', 'rampage',
+  'doubleAction', 'alwaysCrit', 'destroyShield', 'successiveActions', 'userFaints',
+  'resetTerrain', 'resistedWithDefense', 'ignoreDefenses', 'cutterMove', 'windMove',
+  'biteMove', 'powderMove', 'maneuver'
+];
+
+// Valid raw values for move.target (used by the Move DataSchema and by target-based game
+// logic in item.mjs/roll.mjs). Kept separate from POKEROLE.i18n.targets, which is only for
+// display labels - these are the actual values stored/compared against.
+POKEROLE.moveTargets = [
+  'Foe', 'Random Foe', 'All Foes', 'Self', 'Ally', 'All Allies',
+  'Area', 'Battlefield', "Foe's Battlefield", "Ally's Battlefield"
+];
+
+// Valid raw values for move.category. Some packs contain composite placeholder values
+// (e.g. 'physical/special' on unfinished Max Moves) which are intentionally NOT included here.
+POKEROLE.moveCategories = ['physical', 'special', 'support'];
+
+// Valid raw values for move.heal.type / item.heal.type
+POKEROLE.healTypes = ['none', 'basic', 'complete', 'leech', 'custom'];
+
+// Valid raw values for move.heal.target and effect "affects" targeting
+POKEROLE.effectTargets = ['user', 'targets'];
+
 // TODO
 POKEROLE.natureConfidence = {
   "hardy": 0,
@@ -702,13 +736,13 @@ POKEROLE.i18n = {
     "Foe": "POKEROLE.TargetFoe",
     "Random Foe": "POKEROLE.TargetRandomFoe",
     "All Foes": "POKEROLE.TargetAllFoes",
-    "User": "POKEROLE.TargetUser",
-    "One Ally": "POKEROLE.TargetAlly",
-    "User and Allies": "POKEROLE.TargetUserAndAllies",
+    "Self": "POKEROLE.TargetUser",
+    "Ally": "POKEROLE.TargetAlly",
+    "All Allies": "POKEROLE.TargetUserAndAllies",
     "Area": "POKEROLE.TargetArea",
     "Battlefield": "POKEROLE.TargetBattlefield",
-    "Battlefield (Foes)": "POKEROLE.TargetBattlefieldFoes",
-    "Battlefield and Area": "POKEROLE.TargetBattlefieldAndArea",
+    "Foe's Battlefield": "POKEROLE.TargetBattlefieldFoes",
+    "Ally's Battlefield": "POKEROLE.TargetBattlefieldAndArea",
   },
 
   moveCategories: {

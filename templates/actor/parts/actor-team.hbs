@@ -1,0 +1,35 @@
+{{!-- Team Tab --}}
+<section class="tab {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
+  <div class="Geoboxer">
+    <ul class="items-list team-list">
+      {{#each team as |member|}}
+      <li class="item team-member{{#if member.missing}} missing{{/if}}" data-uuid="{{member.uuid}}">
+        {{#unless member.missing}}
+        <div class="team-member-portrait draggable" draggable="true" data-action="openTeamMember" data-uuid="{{member.uuid}}" title="Open {{member.name}}'s sheet">
+          <img class="team-member-img" src="{{member.img}}" alt="{{member.name}}"/>
+        </div>
+        {{/unless}}
+        <div class="team-member-info">
+          <div class="team-member-header">
+            <span class="team-member-name">{{member.name}}</span>
+            {{#unless member.missing}}
+            <span class="team-member-rank">- {{member.rank}}</span>
+            {{/unless}}
+          </div>
+          {{#unless member.missing}}
+          <hr class="team-member-separator"/>
+          <span class="team-member-hp">HP: {{member.hp.value}}/{{member.hp.max}}</span>
+          <span class="team-member-will">Will: {{member.will.value}}/{{member.will.max}}</span>
+          {{/unless}}
+        </div>
+        {{#if ../editable}}
+        <a class="team-member-clear" data-action="clearTeamMember" data-uuid="{{member.uuid}}" title="Remove from team">
+          <i class="fas fa-times"></i>
+        </a>
+        {{/if}}
+      </li>
+      {{/each}}
+    </ul>
+  </div>
+  <p class="hint">Drag an owned Pokémon actor here to add it to this Trainer's team (up to 6).</p>
+</section>

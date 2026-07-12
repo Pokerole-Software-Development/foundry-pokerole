@@ -11,7 +11,7 @@
       <a data-action="createItem" title="Create item" data-type="item" class="create-item-link"><i
           class="fas fa-plus"></i> Add</a>
       {{/if}}
-      <select value="{{system.testvarso}}" name="system.testvarso" data-dtype="String" class="inventoryfilterclass filter-button always-interactive">
+      <select class="inventoryfilterclass filter-button always-interactive">
         <option value="all">All Items</option>
         {{selectOptions customitemdf selected=testvarso labelAttr="catname"}}
       </select>
@@ -43,7 +43,7 @@
       </li>
       <ul class="inner{{#if custom.hidden}} items-hidden{{/if}} list-{{key}} grid grid-2col grid-compact">
         {{#each custom.customitemlist as |item id|}}
-        <li class="item flexrow" data-item-id="{{item.data._id}}">
+        <li class="item flexrow draggable" draggable="true" data-item-id="{{item.data._id}}">
           <div class="item-name">
             <div class="item-image">
               <a data-action="roll" data-roll-type="item"><img src="{{item.data.img}}" title="{{item.data.name}}"/></a>
