@@ -149,8 +149,8 @@ registerActorSheetHooks();
 /*  Handlebars Helpers                          */
 /* -------------------------------------------- */
 
-// If you need to add Handlebars helpers, here are a few useful examples:
-Handlebars.registerHelper('concat', function () {
+// Legacy/unused - renamed so it doesn't shadow core's own `concat` helper. Remove eventually.
+Handlebars.registerHelper('concatpk', function () {
   var outStr = '';
   for (var arg in arguments) {
     if (typeof arguments[arg] != 'object') {
@@ -160,15 +160,15 @@ Handlebars.registerHelper('concat', function () {
   return outStr;
 });
 
-// greater than
-Handlebars.registerHelper('gt', function (a, b) {
+// greater than (renamed so it doesn't shadow core's own `gt` subexpression helper)
+Handlebars.registerHelper('gtpk', function (a, b) {
   var next = arguments[arguments.length - 1];
   // HACK: `next.inverse` is not defined when using Simple Calender for some reason
   return (a > b) ? (next.fn && next.fn(this)) : (next.inverse && next.inverse(this));
 });
 
-// less than
-Handlebars.registerHelper('lt', function (a, b) {
+// less than (block helper - see gtpk above)
+Handlebars.registerHelper('ltpk', function (a, b) {
   var next = arguments[arguments.length - 1];
   return (a < b) ? (next.fn && next.fn(this)) : (next.inverse && next.inverse(this));
 });
@@ -176,9 +176,12 @@ Handlebars.registerHelper('lt', function (a, b) {
 // getProperty
 Handlebars.registerHelper('getProperty', function (...args) {
   const options = args.pop(); // remove Handlebars options arguments
+  // Fallback for the final path segment only - varies per field, so callers pass their own default.
+  const defaultValue = options.hash?.default ?? 0;
   var next = args.shift();
-  for (const a of args) {
-    next = foundry.utils.getProperty(next, a) ?? {};
+  for (let i = 0; i < args.length; i++) {
+    const isLast = i === args.length - 1;
+    next = foundry.utils.getProperty(next, args[i]) ?? (isLast ? defaultValue : {});
   }
   return next;
 });
@@ -474,6 +477,24 @@ function registerSettings() {
     default: 2,
     range: {min: 0, max: 3},
     requiresReload: true
+  });
+
+  game.settings.register('pokerole', 'enforceTargetLimit', {
+    name: 'Enforce Rank Target Limit',
+    hint: 'Block a damage roll (with a warning) if more targets are selected than the attacker\'s rank allows, for multi-target moves (Area, All Foes, Battlefield, etc.)',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false
+  });
+
+  game.settings.register('pokerole', 'enforceSingleTargetLimit', {
+    name: 'Enforce Single-Target Move Limit',
+    hint: 'Block a damage roll (with a warning) if more than one target is selected for a single-target move (Foe, Random Foe, Ally). Takes priority over Enforce Rank Target Limit for these moves.',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false
   });
 
   game.settings.register('pokerole', 'showBubbles', {
@@ -794,38 +815,44 @@ async function onInlineRollClick(event) {
   }
 }
 
-let originalProcessMessage = foundry.applications.sidebar.tabs.ChatLog.prototype.processMessage;
-foundry.applications.sidebar.tabs.ChatLog.prototype.processMessage = async function (message) {
-  const speaker = ChatMessage.implementation.getSpeaker();
-  const chatData = {
-    user: game.user.id,
-    speaker
-  };
-  
-  const actor = canvas?.tokens.get(speaker?.token)?.actor ?? game.user?.character;
-  const split = message.split(' ');
-  if (split.length < 1) {
-    return originalProcessMessage.call(this, message);
-  }
+/** Custom `/sc` and `/cd` chat commands, registered via Foundry's `ChatLog.CHAT_COMMANDS`. */
+async function successRollChatCommand(command, match, chatData) {
+  const actor = canvas?.tokens.get(chatData.speaker?.token)?.actor ?? game.user?.character;
+  await successRollFromExpression(match[2], actor, chatData);
+  return false; // successRollFromExpression creates its own chat message - skip the default one
+}
 
-  const command = split[0].toLowerCase();
-  if (command === '/sc' || command === '/successroll') {
-    if (split.length < 2) {
-      throw new Error('This command requires 2 or more parameters');
-    }
+async function chanceDiceChatCommand(command, match, chatData) {
+  const actor = canvas?.tokens.get(chatData.speaker?.token)?.actor ?? game.user?.character;
+  await chanceDiceRollFromExpression(match[2], actor, chatData);
+  return false;
+}
 
-    return successRollFromExpression(split.slice(1).join(' '), actor, chatData);
-  } else if (command === '/cd' || command === '/chancedice') {
+const ChatLog = foundry.applications.sidebar.tabs.ChatLog;
+if (ChatLog.CHAT_COMMANDS) {
+  ChatLog.CHAT_COMMANDS.sc = { rgx: /^(\/sc |\/successroll )([^]*)$/i, fn: successRollChatCommand, isRoll: true };
+  ChatLog.CHAT_COMMANDS.cd = { rgx: /^(\/cd |\/chancedice )([^]*)$/i, fn: chanceDiceChatCommand, isRoll: true };
+} else {
+  // V13 Backwards Compatibility: no CHAT_COMMANDS registry before v14 - patch processMessage() instead.
+  const originalProcessMessage = ChatLog.prototype.processMessage;
+  ChatLog.prototype.processMessage = async function (message) {
+    const speaker = ChatMessage.implementation.getSpeaker();
+    const chatData = { user: game.user.id, speaker };
+    const actor = canvas?.tokens.get(speaker?.token)?.actor ?? game.user?.character;
+
     const split = message.split(' ');
-    if (split.length < 2) {
-      throw new Error('This command requires 2 or more parameters');
+    const command = split[0]?.toLowerCase();
+    if (command === '/sc' || command === '/successroll') {
+      if (split.length < 2) throw new Error('This command requires 2 or more parameters');
+      return successRollFromExpression(split.slice(1).join(' '), actor, chatData);
+    } else if (command === '/cd' || command === '/chancedice') {
+      if (split.length < 2) throw new Error('This command requires 2 or more parameters');
+      return chanceDiceRollFromExpression(split.slice(1).join(' '), actor, chatData);
     }
 
-    return chanceDiceRollFromExpression(split.slice(1).join(' '), actor, chatData);
-  }
-
-  return originalProcessMessage.call(this, message);
-};
+    return originalProcessMessage.call(this, message);
+  };
+}
 
 function successRollEnricher(match, options) {
   const roll = match[1];

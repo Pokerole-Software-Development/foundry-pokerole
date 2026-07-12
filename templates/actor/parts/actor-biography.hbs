@@ -19,7 +19,7 @@
       <fieldset>
         <legend>Pokédex Entry</legend>
         <textarea class="pokedex-description"
-          name="system.pokedexDescription">{{ system.pokedexDescription }}</textarea>
+          name="system.pokedexDescription" {{#unless editable}}readonly{{/unless}}>{{ system.pokedexDescription }}</textarea>
       </fieldset>
       <div class="inner-list">
         <fieldset>

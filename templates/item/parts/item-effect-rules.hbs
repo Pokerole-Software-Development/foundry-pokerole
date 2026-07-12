@@ -21,16 +21,16 @@
   <p>Please note that broken rules might cause issues with the system.</p>
 
   <ol class="items-list effects-list">
-    <li class="item flexrow items-header">
-      <div>Attribute Key</div>
-      <div>Change Mode</div>
-      <div>Effect Value</div>
+    <li class="item flexrow items-header rule-row">
+      <div class="rule-attribute">Attribute Key</div>
+      <div class="rule-operator">Change Mode</div>
+      <div class="rule-value">Effect Value</div>
       <div class="item-controls">
         <a class="item-control" title="Add rule" data-action="addRule" data-type="rule"><i class="fas fa-plus"></i>Add</a>
       </div>
     </li>
     {{#each system.rules as |rule i|}}
-    <li class="flexrow">
+    <li class="flexrow rule-row">
       <input class="rule-attribute" data-index="{{i}}" type="text" value="{{rule.attribute}}" placeholder="system.attributes.strength.value" data-dtype="String"/>
       <select class="rule-operator" data-index="{{i}}" value="{{rule.operator}}" data-dtype="String">
         {{selectOptions ../operators selected=rule.operator}}

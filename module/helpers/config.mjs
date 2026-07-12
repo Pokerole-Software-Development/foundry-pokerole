@@ -270,7 +270,13 @@ POKEROLE.getAilments = () => ({
 });
 
 export function getAilmentList() {
-  return Object.entries(POKEROLE.getAilments()).map(([id, ailment]) => ({ id, ...ailment }));
+  // Aliased to name/img here (not renamed at the source) since fromStatusEffect() needs those keys.
+  return Object.entries(POKEROLE.getAilments()).map(([id, ailment]) => ({
+    id,
+    ...ailment,
+    name: ailment.label,
+    img: ailment.icon
+  }));
 }
 
 POKEROLE.specialStatusEffects = {
@@ -448,7 +454,8 @@ POKEROLE.moveFlags = [
   'soundBased', 'shieldMove', 'neverFail', 'switcherMove', 'recoil', 'rampage',
   'doubleAction', 'alwaysCrit', 'destroyShield', 'successiveActions', 'userFaints',
   'resetTerrain', 'resistedWithDefense', 'ignoreDefenses', 'cutterMove', 'windMove',
-  'biteMove', 'powderMove', 'maneuver'
+  'biteMove', 'powderMove', 'maneuver',
+  'projectileMove', 'tripleAction' // not in any pack data yet (issue #97), schema ready for later
 ];
 
 // Valid raw values for move.target (used by the Move DataSchema and by target-based game
@@ -459,9 +466,8 @@ POKEROLE.moveTargets = [
   'Area', 'Battlefield', "Foe's Battlefield", "Ally's Battlefield"
 ];
 
-// Valid raw values for move.category. Some packs contain composite placeholder values
-// (e.g. 'physical/special' on unfinished Max Moves) which are intentionally NOT included here.
-POKEROLE.moveCategories = ['physical', 'special', 'support'];
+// Composite values are real (e.g. Struggle Throw is 'physical/special'), not placeholders.
+POKEROLE.moveCategories = ['physical', 'special', 'support', 'physical/special', 'support/physical/special'];
 
 // Valid raw values for move.heal.type / item.heal.type
 POKEROLE.healTypes = ['none', 'basic', 'complete', 'leech', 'custom'];

@@ -187,7 +187,7 @@
 {{#* inline "dicePool"}}
   {{#if @root/editable}}
     <input id="{{@root/id}}-system-{{type}}-{{key}}-value" type="text" class="value-input {{#if pool.overridden}}overridden{{/if}}"
-      name="system.{{type}}.{{key}}.value" value="{{getProperty @root/actor._source.system type key "value"}}" data-dtype="Number" />
+      name="system.{{type}}.{{key}}.value" value="{{getProperty @root/actor._source.system type key "value" default=pool.value}}" data-dtype="Number" />
     <span> / </span>
     <input type="text" class="value-input" name="system.{{type}}.{{key}}.max" value="{{pool.max}}"
       data-dtype="Number" {{#if maxReadonly}}disabled{{/if}} />

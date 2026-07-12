@@ -50,7 +50,8 @@ export function buildAilmentIconEffectData(ailment) {
     transfer: false,
     statuses: [ailment.type],
     showIcon: CONST.ACTIVE_EFFECT_SHOW_ICON.ALWAYS,
-    flags: { pokerole: { iconOnly: true, iconKey: `ailment:${ailment.type}` } }
+    // Token#_drawEffects() reads flags.core.overlay directly, not CONFIG.statusEffects.overlay.
+    flags: { core: { overlay: !!def.overlay }, pokerole: { iconOnly: true, iconKey: `ailment:${ailment.type}` } }
   };
 }
 

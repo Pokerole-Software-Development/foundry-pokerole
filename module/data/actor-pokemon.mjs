@@ -1,8 +1,7 @@
 import { POKEROLE } from "../helpers/config.mjs";
 import { PokeroleActorBaseData } from "./actor-base.mjs";
-import { scaleField } from "./fields.mjs";
 
-const { SchemaField, NumberField, StringField, BooleanField } = foundry.data.fields;
+const { NumberField, StringField, BooleanField, ObjectField } = foundry.data.fields;
 
 export class PokeroleActorPokemonData extends PokeroleActorBaseData {
 
@@ -27,13 +26,21 @@ export class PokeroleActorPokemonData extends PokeroleActorBaseData {
       painPenalty: new StringField({ required: true, initial: "none", choices: Object.keys(POKEROLE.painPenalties) }),
       sheetskin: new StringField({ required: true, initial: "skinOld" }),
 
-      skills: new SchemaField(
-        Object.fromEntries(POKEROLE.pokemonSkills.map(key => [key, scaleField(0, 5)]))
-      ),
-
-      extra: new SchemaField(
-        Object.fromEntries(POKEROLE.extraAttributes.map(key => [key, scaleField(2, 5)]))
-      )
+      // Loose objects (not SchemaField) so custom skills/attributes can be added - see prepareBaseData().
+      skills: new ObjectField({ required: true, initial: {} }),
+      extra: new ObjectField({ required: true, initial: {} })
     };
+  }
+
+  /** @override */
+  prepareBaseData() {
+    super.prepareBaseData();
+
+    for (const key of POKEROLE.pokemonSkills) {
+      this.skills[key] ??= { value: 0, min: 0, max: 5 };
+    }
+    for (const key of POKEROLE.extraAttributes) {
+      this.extra[key] ??= { value: 2, min: 0, max: 5 };
+    }
   }
 }

@@ -10,6 +10,21 @@ function poolRefField() {
 
 export class PokeroleItemMoveData extends PokeroleItemBaseData {
 
+  /** Migrate pre-v14 raw `target` values (e.g. "User" -> "Self") to their current equivalents. */
+  static migrateData(source) {
+    const targetMigrations = {
+      "User": "Self",
+      "One Ally": "Ally",
+      "User and Allies": "All Allies",
+      "Battlefield (Foes)": "Foe's Battlefield",
+      "Battlefield and Area": "Ally's Battlefield"
+    };
+    if (source.target in targetMigrations) {
+      source.target = targetMigrations[source.target];
+    }
+    return super.migrateData(source);
+  }
+
   static defineSchema() {
     return {
       ...super.defineSchema(),

@@ -358,7 +358,9 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
     newChatData.flags = newChatData.flags || {};
     newChatData.flags.pokerole = newChatData.flags.pokerole || {};
     newChatData.flags.pokerole.accuracyData = {
-      constantBonus: constantBonusWithPainPenalty
+      constantBonus: constantBonusWithPainPenalty,
+      canBeClashed: canBeClashed,
+      canBeEvaded: canBeEvaded
     };
 
   chatData = newChatData;
@@ -418,7 +420,7 @@ export async function rollDamage(item, actor, token) {
   let baseFormula = `${item.system.power}-[def/sp.def]`;
   let highermod = "";
   if (item.system.dmgMod1 && item.system.dmgMod1var) {
-    if (actor.getAnyAttribute(item.system.dmgMod1)?.value ?? 0 < actor.getAnyAttribute(item.system.dmgMod1var)?.value ?? 0) {
+    if ((actor.getAnyAttribute(item.system.dmgMod1)?.value ?? 0) < (actor.getAnyAttribute(item.system.dmgMod1var)?.value ?? 0)) {
       highermod = item.system.dmgMod1var
     } else {
       highermod = item.system.dmgMod1
@@ -437,6 +439,20 @@ export async function rollDamage(item, actor, token) {
   ) {
     // Exclude the current actor from the list if it can't target itself
     selectedTokens = selectedTokens.filter(token => token.actor._id !== actor.id);
+  }
+
+  const isSingleTargetMove = ['Foe', 'Random Foe', 'Ally'].includes(item.system.target);
+  if (isSingleTargetMove && game.settings.get('pokerole', 'enforceSingleTargetLimit')) {
+    if (selectedTokens.length > 1) {
+      ui.notifications.warn(`${item.name} can only target a single Pokémon - you have ${selectedTokens.length} selected.`);
+      return false;
+    }
+  } else if (game.settings.get('pokerole', 'enforceTargetLimit')) {
+    const maxTargets = Math.max(POKEROLE.rankProgression[actor.system.rank]?.maxTargets ?? 0, 1);
+    if (selectedTokens.length > maxTargets) {
+      ui.notifications.warn(`${actor.name}'s rank (${actor.system.rank}) only allows targeting up to ${maxTargets} target(s) at once - you have ${selectedTokens.length} selected.`);
+      return false;
+    }
   }
 
   let shouldApplyLeechHeal = false;
@@ -545,7 +561,8 @@ export async function rollDamage(item, actor, token) {
   let damage;
   let damageBeforeEffectiveness;
   if (selectedTokens.length === 0) {
-    let rollCount = rollCountBeforeDef - enemyDef;
+    // A damaging move's dice pool is always at least 1, even if power+stat doesn't exceed the defense.
+    let rollCount = Math.max(rollCountBeforeDef - enemyDef, 1);
 
     const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus, rerollBonus);
     html += '<hr>' + messageDataPart.content;
@@ -613,7 +630,8 @@ export async function rollDamage(item, actor, token) {
           ? defender.system.derived.spDef.value
           : defender.system.derived.def.value;
       }
-      const rollCount = rollCountBeforeDef - defStat;
+      // A damaging move's dice pool is always at least 1, even if power+stat doesn't exceed the defense.
+      const rollCount = Math.max(rollCountBeforeDef - defStat, 1);
 
       const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus, rerollBonus);
       html += '<hr>' + messageDataPart.content;
