@@ -86,9 +86,7 @@ export class PokeroleItemMoveData extends PokeroleItemBaseData {
       // with different sub-fields each) - kept loose like Actor#ailments rather than a strict schema.
       effectGroups: new ArrayField(new ObjectField()),
 
-      // These 4 fields aren't declared in the legacy template.json at all, but are read/written
-      // throughout actor-sheet.mjs and item.mjs (learning moves, tracking round usage, rank grouping).
-      // They MUST be declared here or a strict schema would silently drop them.
+      // Not in the legacy template.json - must be declared or a strict schema silently drops them.
       rank: new StringField({ required: true, initial: "starter", choices: [...POKEROLE.ranks.slice(1), "maneuver"] }),
       learned: new BooleanField({ initial: false }),
       usedInRound: new BooleanField({ initial: false }),

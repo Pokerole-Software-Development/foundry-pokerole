@@ -59,9 +59,7 @@ export async function bulkApplyHp(healthUpdates) {
 }
 
 /**
- * Applies a single actor/token's HP-decrease side effects (fainted ailment, pain penalty
- * crossing) and returns the chat message HTML for it. Shared between the "Apply Damage" chat
- * button (bulkApplyDamageValidated) and PokeroleActor#modifyTokenAttribute (native token HP bar).
+ * Applies HP-decrease side effects (fainted, Pain Penalty crossing) and returns the chat HTML - shared by bulkApplyDamageValidated and modifyTokenAttribute.
  * @param {TokenDocument | undefined} token
  * @param {PokeroleActor} actor
  * @param {string} name
@@ -106,8 +104,7 @@ export async function applyDamageEffectsHtml(token, actor, name, damage, oldHp, 
 }
 
 /**
- * Attempt to apply damage to each actor, providing a friendly error if
- * the user doesn't have permission to do so.
+ * Applies damage to each actor, showing a friendly error if the user lacks permission.
  * @param {Array<{ actorId?: string, tokenUuid?: string, damage: number }>} damageUpdates
  */
 export async function bulkApplyDamageValidated(damageUpdates) {

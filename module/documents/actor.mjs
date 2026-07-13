@@ -11,42 +11,17 @@ export class PokeroleActor extends Actor {
 
   /** @override */
   prepareData() {
-    // Prepare data for the actor. Calling the super version of this executes
-    // the following, in order: data reset (to clear active effects),
-    // prepareBaseData(), prepareEmbeddedDocuments() (including active effects),
-    // prepareDerivedData().
     super.prepareData();
   }
 
-  /**
-   * @override
-   * Augment the basic actor data with additional dynamic data. Typically,
-   * you'll want to handle most of your calculated/derived data in this step.
-   * Data calculated in this step should generally not exist in the DataModel schema
-   * (such as attribute modifiers rather than attribute scores) and should be
-   * available both inside and outside of character sheets (such as if an actor
-   * is queried and has a roll executed directly from it).
-   *
-   * Note: `system.prepareBaseData()`/`system.prepareDerivedData()` (hp/will/skill caps,
-   * `system.derived.*` - see PokeroleActorBaseData) already run automatically before
-   * this method, as part of Foundry's generic Document#prepareData() cycle. We don't
-   * need to (and shouldn't) call them again here.
-   */
+  /** @override Runs after system.prepareBaseData()/prepareDerivedData(), which already handle hp/will/skill caps and system.derived.*. */
   prepareDerivedData() {
     this._applyEffects();
 
     super.prepareDerivedData();
   }
 
-  /**
-   * Give brand-new Pokémon/Trainer actors the standard set of maneuver moves (Struggle, Clash,
-   * Evasion, Run Away, etc.) that every actor in the Pokédex compendium already has. Sourced from
-   * the static `MANEUVER_MOVES` reference (not the compendium - world builders can freely edit or
-   * delete compendium content, so it isn't a reliable source of truth for core data). Only fires
-   * when the actor has no items yet, so duplicating an actor or importing one that already has a
-   * movepool is left untouched.
-   * @override
-   */
+  /** @override Gives brand-new Pokémon/Trainer actors the standard maneuver moves, sourced from MANEUVER_MOVES (not the compendium, which world builders can edit/delete) - skipped if the actor already has items. */
   async _preCreate(data, options, user) {
     const allowed = await super._preCreate(data, options, user);
     if (allowed === false) return false;
@@ -170,21 +145,12 @@ export class PokeroleActor extends Actor {
     return this.getMoves().filter(move => move.system.learned);
   }
 
-  /**
-   * The Item (type 'item') this actor currently has equipped/held, if any.
-   * Persisted as an id in `system.activeItem` - use this getter rather than reading that
-   * raw id directly, so other code can reference the actual Item document.
-   * @returns {PokeroleItem | undefined}
-   */
+  /** The equipped/held Item, resolved from the `system.activeItem` id. @returns {PokeroleItem | undefined} */
   get activeItem() {
     return this.items.get(this.system.activeItem);
   }
 
-  /**
-   * The Item (type 'ability') this actor currently has active, if any.
-   * Persisted as an id in `system.activeAbility` - see activeItem above.
-   * @returns {PokeroleItem | undefined}
-   */
+  /** The active Ability, resolved from the `system.activeAbility` id. @returns {PokeroleItem | undefined} */
   get activeAbility() {
     return this.items.get(this.system.activeAbility);
   }
@@ -424,13 +390,7 @@ export class PokeroleActor extends Actor {
     return this.system.ailments.some(a => a.type === 'disabled' && a.moveUuid === move.uuid);
   }
 
-  /**
-   * @override
-   * Routes the HP bar (native token bar drag, or any third-party module calling this Foundry-standard
-   * API) through the same damage/heal logic as the "Apply Damage"/"Apply Healing" chat buttons, so
-   * fainting, Pain Penalty crossings, and heal messages aren't exclusive to our own UI. Every other
-   * attribute (e.g. Will) keeps Foundry's default behavior untouched.
-   */
+  /** @override Routes the HP bar (native drag, or any third-party modifyTokenAttribute call) through the same damage/heal logic as our chat buttons. Other attributes keep Foundry's default. */
   async modifyTokenAttribute(attribute, value, isDelta = false, isBar = true) {
     if (attribute !== 'hp') {
       return super.modifyTokenAttribute(attribute, value, isDelta, isBar);
@@ -493,18 +453,7 @@ export class PokeroleActor extends Actor {
     if (collection === 'items') this._syncIconEffects(userId);
   }
 
-  /**
-   * Keep one mechanically-inert ActiveEffect per ailment/active custom effect Item in sync,
-   * so Foundry v14's token rendering (which reads Actor#appliedEffects) draws the right icons.
-   * See buildAilmentIconEffectData()/buildCustomEffectIconData() in helpers/effects.mjs.
-   *
-   * Callers (e.g. two updates fired back-to-back, like resetStatChange()'s negative+positive
-   * update pair) may trigger this more than once in quick succession. Since each call reads
-   * a snapshot of `this.effects`, running two calls concurrently can make both try to delete
-   * the same already-deleted ActiveEffect. Serialize via a queue so each call sees the result
-   * of the previous one before computing its own diff.
-   * @param {string} userId  The user who triggered the underlying change.
-   */
+  /** Syncs mechanically-inert ActiveEffects for ailment/custom-effect icons (see effects.mjs); queued since concurrent calls could race-delete the same effect. @param {string} userId */
   _syncIconEffects(userId) {
     // Only the originating client should act - avoids duplicate/racing writes across clients.
     if (userId !== game.user.id) return;
@@ -564,12 +513,7 @@ export class PokeroleActor extends Actor {
   }
 
   /**
-   * Applies a stat change to the actor.
-   * 
-   * Note that stat changes do not stack, so the new value will replace the old one
-   * if its absolute value is higher. If the signs of the current and new values differ,
-   * the new value is added to the current value.
-   * 
+   * Applies a stat change - doesn't stack, replaces the old value if higher (or adds if signs differ).
    * @param {string} stat The stat to be changed.
    * @param {number} amount The amount by which the stat should be changed.
    * @throws {Error} If the stat is unknown.

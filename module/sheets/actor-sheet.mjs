@@ -95,11 +95,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     primary: "attributes"
   };
 
-  /**
-   * The currently selected inventory category filter (".inventoryfilterclass" select).
-   * Tracked here instead of on `system` - it's pure UI state, not actor data.
-   * @type {string}
-   */
+  /** Currently selected inventory category filter - UI state, not actor data. @type {string} */
   _inventoryFilter = "all";
 
   /**
@@ -270,10 +266,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
 
     // Add actor data to context
     context.actor = this.actor;
-    // Shallow copy so display-only annotations added below (labels, overridden flags,
-    // displayValue, etc.) don't get written onto the live actor DataModel instance.
-    // Nested objects (attributes, skills, statChanges, etc.) are still shared with the
-    // live actor unless a helper below explicitly replaces them with its own copy first.
+    // Shallow copy so display-only annotations below don't write onto the live actor DataModel.
     context.system = { ...this.actor.system };
     context.flags = this.actor.flags;
     context.owner = this.document.isOwner;
@@ -331,10 +324,6 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     if (matchups.immune) {
       context.matchups.immune = matchups.immune.map(getLocalizedType).join(', ');
     }
-
-    // TP support.
-     // context.system.typechart = matchups;
-    // TP support.
 
     // m -> ft
     let heightImperial = (context.system.height ?? 0) * 3.28084;
@@ -401,11 +390,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
 
   /* -------------------------------------------- */
 
-  /**
-   * Handle starting a drag from a Team tab portrait, so a team member can be dragged onto the
-   * canvas to create a token, same as dragging it from the Actors directory.
-   * @override
-   */
+  /** @override Lets a Team tab portrait be dragged onto the canvas to create a token, like from the Actors directory. */
   async _onDragStart(event) {
     const target = event.currentTarget;
     if (target.classList.contains("team-member-portrait")) {
@@ -699,9 +684,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
           continue;
         }
 
-        // HACK: We're operating on a clone created by `toObject` here, but it doesn't
-        // include the UUID. PokeroleActor.isMoveDisabled operates on the UUID, so retrieve
-        // the actual move.
+        // HACK: this is a toObject() clone with no UUID - isMoveDisabled needs the real move.
         const actualMove = this.actor.items.find(item => item.id === i._id);
         const disabled = actualMove ? this.actor.isMoveDisabled(actualMove) : false;
 
@@ -800,12 +783,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     }
   }
 
-  /**
-   * Add whether stat changes are positive or negative.
-   * Replaces (rather than mutates in place) statChanges/accuracyMod with annotated copies,
-   * since context.system.attributes/skills/etc. are still shared with the live actor - see
-   * the shallow copy note in _prepareContext().
-   */
+  /** Replaces (not mutates) statChanges/accuracyMod with copies annotated positive/negative. */
   _prepareStatChanges(context) {
     context.system.statChanges = Object.fromEntries(
       Object.entries(context.system.statChanges).map(([key, change]) => [key, {
@@ -1522,13 +1500,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
   }
 }
 
-/**
- * A Trainer's Team tab shows live data (HP/Will/rank) for other Actors, resolved by UUID.
- * Foundry only auto-refreshes a sheet when its OWN actor updates, not when some other actor
- * it merely references changes - so without this, the Team tab shows stale data until the
- * Trainer sheet happens to re-render for an unrelated reason. Re-render any open Trainer sheet
- * whose team includes the actor that just updated.
- */
+/** Re-renders any open Trainer sheet whose Team tab references the actor that just updated (Foundry only auto-refreshes a sheet's own actor). */
 export function registerActorSheetHooks() {
   Hooks.on("updateActor", (actor) => {
     for (const app of foundry.applications.instances.values()) {

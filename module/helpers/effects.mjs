@@ -34,9 +34,7 @@ export class TokenEffect {
 }
 
 /**
- * ActiveEffect data for a real, but mechanically-inert, effect that exists only so
- * Foundry v14's Token#_drawEffects() (which reads Actor#appliedEffects) draws an icon
- * for this ailment. The actual stat impact is still computed by PokeroleActor#_applyEffects().
+ * Mechanically-inert ActiveEffect data so Token#_drawEffects() draws an icon for this ailment.
  * @param {{type: string}} ailment An entry from actor.system.ailments
  */
 export function buildAilmentIconEffectData(ailment) {
@@ -56,8 +54,7 @@ export function buildAilmentIconEffectData(ailment) {
 }
 
 /**
- * ActiveEffect data for a real, but mechanically-inert, effect that shows the icon of an
- * active custom 'effect' Item on the token. See buildAilmentIconEffectData() for why.
+ * Mechanically-inert ActiveEffect data showing an active custom 'effect' Item's icon on the token.
  * @param {PokeroleItem} item An enabled+visible Item of type 'effect'
  */
 export function buildCustomEffectIconData(item) {
@@ -79,9 +76,7 @@ const STAT_CHANGE_NEGATIVE_TINTS = ["#AAAAAA", "#ffae00", "#ff7b00", "#ff0000"];
 const STAT_CHANGE_POSITIVE_TINTS = ["#AAAAAA", "#0d47e7", "#18a4f7", "#29ecff"];
 
 /**
- * ActiveEffect data for a real, but mechanically-inert, effect that shows a buff/debuff icon
- * for a non-zero statChanges/accuracyMod entry on the token (only used when the 'autoBuff'
- * setting is enabled). See buildAilmentIconEffectData() for why this needs to be a real effect.
+ * Mechanically-inert ActiveEffect data showing a buff/debuff icon (only used when 'autoBuff' is enabled).
  * @param {string} key 'strength'|'dexterity'|'special'|'def'|'spDef'|'accuracyMod'
  * @param {number} value The computed statChanges[key].value (or accuracyMod.value), non-zero
  */
@@ -272,9 +267,7 @@ export async function addAilmentWithDialog(actor, category) {
             action: 'apply',
             label: game.i18n.localize('POKEROLE.Apply'),
             default: true,
-            // NOTE: must return `false` (not leave this undefined) in the error paths - DialogV2
-            // falls back to the button's action id ("apply", a truthy string) if the callback
-            // returns undefined, which would defeat the `if (!result)` check below.
+            // Must return `false` in error paths - undefined falls back to the truthy action id.
             callback: () => {
               const targets = Array.from(game.user.targets);
               if (targets.length === 1) {

@@ -3,11 +3,7 @@ import { resourceField, attributeField, scaleField, plusMinusField } from "./fie
 
 const { SchemaField, NumberField, StringField, BooleanField, ArrayField, ObjectField, HTMLField } = foundry.data.fields;
 
-/**
- * Fields shared by both `pokemon` and `trainer` actors.
- * Type-specific subclasses (PokeroleActorPokemonData, PokeroleActorTrainerData)
- * extend this and override individual keys as needed (e.g. attribute caps, skills).
- */
+/** Fields shared by `pokemon`/`trainer` actors - subclasses override individual keys as needed. */
 export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
 
   static defineSchema() {
@@ -46,16 +42,11 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
       biography: new HTMLField({ required: true, initial: "" }),
       source: new StringField({ required: true, initial: "Homebrew" }),
 
-      // IDs of the currently equipped/active Item (type 'item') and Ability (type 'ability').
-      // No `choices` possible (they're per-actor Item ids) - resolve via PokeroleActor#activeItem/
-      // #activeAbility getters rather than reading this raw id directly.
+      // IDs of the equipped Item/Ability - resolve via PokeroleActor#activeItem/#activeAbility.
       activeItem: new StringField({ required: false, blank: true, initial: "" }),
       activeAbility: new StringField({ required: false, blank: true, initial: "" }),
 
-      // Which attribute/derived stat received a "permanent" vitamin boost - display-only
-      // indicator (the star icon in actor-attributes.hbs), doesn't affect any real calculation,
-      // so no `choices` restriction (the two places that compare against this aren't even
-      // consistent with each other about what the valid set is).
+      // Display-only "vitamin boost" indicator (star icon in actor-attributes.hbs), no real effect.
       avitamin: new StringField({ required: false, blank: true, initial: "" }),
       bvitamin: new StringField({ required: false, blank: true, initial: "" }),
 

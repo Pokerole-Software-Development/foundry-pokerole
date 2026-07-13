@@ -458,9 +458,7 @@ POKEROLE.moveFlags = [
   'projectileMove', 'tripleAction' // not in any pack data yet (issue #97), schema ready for later
 ];
 
-// Valid raw values for move.target (used by the Move DataSchema and by target-based game
-// logic in item.mjs/roll.mjs). Kept separate from POKEROLE.i18n.targets, which is only for
-// display labels - these are the actual values stored/compared against.
+// Valid raw values for move.target - separate from POKEROLE.i18n.targets, which is just display labels.
 POKEROLE.moveTargets = [
   'Foe', 'Random Foe', 'All Foes', 'Self', 'Ally', 'All Allies',
   'Area', 'Battlefield', "Foe's Battlefield", "Ally's Battlefield"

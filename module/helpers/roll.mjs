@@ -530,10 +530,7 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
   return true;
 }
 
-/**
- * Builds an accuracy roll's action-buttons HTML (shared with reroll). The required-successes
- * count itself is shown as part of the totals line, not here.
- */
+/** Builds an accuracy roll's action-buttons HTML (shared with reroll); required-successes shows in the totals line, not here. */
 function buildAccuracyResultHtml({ rollResult, requiredSuccesses, canBeClashed, canBeEvaded, actor, item, actorToken }) {
   let html = '<div class="pokerole"><div class="action-buttons">';
   if (rollResult >= requiredSuccesses) {
@@ -1123,9 +1120,7 @@ async function createDiceRollChatMessage(rolls, content, flavor, chatData) {
 }
 
 /**
- * Roll for successes. Each of the rolled d6 count as a success if they show up as 4 or higher.
- * Also creates a chat message with the results.
- *
+ * Rolls for successes (d6 >= 4) and creates a chat message with the results.
  * @param {number} rollCount The number of dice to roll
  * @param {string} flavor Displayed flavor text
  * @param {Object} chatData Settings passed to `ChatMessage.create`
@@ -1144,9 +1139,7 @@ export async function successRoll(rollCount, flavor, chatData, modifier = 0, rer
 }
 
 /**
- * Roll for chance dice success. It's considered a success if at least one die comes out as a 6.
- * Also creates a chat message with the results.
- *
+ * Rolls chance dice (success if any die is a 6) and creates a chat message with the results.
  * @param {number} rollCount The number of dice to roll
  * @param {string} flavor Displayed flavor text
  * @param {Object} chatData Settings passed to `ChatMessage.create`
@@ -1225,8 +1218,7 @@ export async function createSuccessRollMessageData(rollCount, flavor, chatData, 
 }
 
 /**
- * Rolls for a chance dice success and returns the formatted chat message data.
- * A success is considered if at least one die rolls a 6.
+ * Rolls chance dice (success if any die is a 6) and returns the formatted chat message data.
  * @param {number} rollCount The number of dice to roll
  * @param {string} flavor Displayed flavor text
  * @param {Object} chatData Chat message settings that will be merged with the resulting HTML

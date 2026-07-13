@@ -562,8 +562,7 @@ function registerSettings() {
 /* -------------------------------------------- */
 
 /**
- * Create a Macro from an Item drop.
- * Get an existing item macro if one exists, otherwise create a new one.
+ * Assigns an existing item macro to the hotbar, or creates one, from a dropped Item.
  * @param {Object} data     The dropped data
  * @param {number} slot     The hotbar slot to use
  * @returns {Promise}
@@ -591,11 +590,7 @@ async function createItemMacro(dropData, slot) {
   game.user.assignHotbarMacro(macro, slot);
 }
 
-/**
- * Create a Macro from an Item drop.
- * Get an existing item macro if one exists, otherwise create a new one.
- * @param {string} itemUuid
- */
+/** Uses an item macro by re-fetching the Item via its uuid. @param {string} itemUuid */
 async function useItemMacro(itemUuid) {
   // Reconstruct the drop data so that we can load the item.
   const dropData = {
@@ -887,10 +882,7 @@ function successRollEnricher(match, options) {
 /** Disable Active Effects (from https://github.com/foundryvtt/pf2e/blob/c1089180064fcfb64069ad323b2d7d522a768c06/src/module/active-effect.ts) */
 export class PokeroleActiveEffect extends ActiveEffect {
   constructor(data, context) {
-    // Effects we build ourselves purely for token-icon display (see effects.mjs,
-    // buildAilmentIconEffectData/buildCustomEffectIconData) are exempt from this -
-    // everything else (status HUD clicks, other modules, manual drag/drop) stays
-    // disabled/non-transferring, same as before.
+    // Our own icon-only effects (see effects.mjs) are exempt - everything else stays disabled.
     if (!data.flags?.pokerole?.iconOnly) {
       data.disabled = true;
       data.transfer = false;
