@@ -394,7 +394,7 @@ POKEROLE.rankProgression = {
     skillPoints: 3,
     socialPoints: 2,
     skillLimit: 4,
-    maxTargets: 5,
+    maxTargets: 4,
     totalPassiveIncrease: 0,
     confusionPenalty: 2,
   },
