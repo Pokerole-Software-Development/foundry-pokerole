@@ -410,6 +410,16 @@ function registerSettings() {
     requiresReload: true
   });
 
+  game.settings.register('pokerole', 'disablePainPenalty', {
+    name: 'Disable Pain Penalization',
+    hint: 'Turns off the Pain Penalization mechanic entirely - no calculations, no sheet section, no Willpower-resist prompt.',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false,
+    requiresReload: true
+  });
+
   game.settings.register('pokerole', 'vitaminOption', {
     name: 'Enable Vitamin Tracker',
     hint: 'Add a new section on the Biography tab to keeptrack of the vitamin you are giving to a pokemon and add a visual reminder on the attribute tab',

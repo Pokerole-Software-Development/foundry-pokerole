@@ -1,16 +1,29 @@
 <section class="tab {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
   <div class="attribute-col">
+    {{#unless painPenaltyDisabled}}
     <fieldset class="stat-changes pain">
       <legend>Pain Penalization</legend>
       <div class="pain-penalty-status">
-        <span class="pain-penalty-level">{{painPenaltyLevelLabel}}</span>
-        <label class="pain-penalty-resisted">
-          Pain Resisted
-          <input type="number" name="system.painPenaltyIgnored" value="{{system.painPenaltyIgnored}}"
-                 min="0" max="3" class="always-interactive" />
-        </label>
+        {{#if system.painPenaltyOverrideEnabled}}
+        <select name="system.painPenaltyOverrideLevel" class="pain-penalty-level always-interactive">
+          {{selectOptions painPenaltyLevelChoices selected=system.painPenaltyOverrideLevel}}
+        </select>
+        {{else}}
+        <select class="pain-penalty-level" disabled>
+          {{selectOptions painPenaltyLevelChoices selected=system.derived.painPenalty.level}}
+        </select>
+        {{/if}}
+        <select name="system.painPenaltyIgnored" class="pain-penalty-resisted always-interactive">
+          {{selectOptions painPenaltyResistedChoices selected=system.painPenaltyIgnored}}
+        </select>
       </div>
+      <label class="pain-penalty-override-toggle">
+        Override
+        <input type="checkbox" name="system.painPenaltyOverrideEnabled"
+               {{checked system.painPenaltyOverrideEnabled}} class="always-interactive" />
+      </label>
     </fieldset>
+    {{/unless}}
     <fieldset class="stat-changes stat-changes-panel">
       <legend>Increases/Reductions</legend>
       <div class="button-container">

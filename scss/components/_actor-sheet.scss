@@ -14,6 +14,7 @@
   --color-pkmn-outline: #433727;
   --color-pkmn-orange: #DB442D;
   --color-pkmn-dkorange: #AB3E2E;
+  --color-pkmn-blue: #0095db;
   --color-pkmn-field-back: #FFFFFF;
   --color-pkmn-darkfield-back: #841722;
   --color-pkmn-container-bg: #151515;
@@ -27,6 +28,7 @@
     --color-pkmn-outline: #675c59;
     --color-pkmn-orange: #251915;
     --color-pkmn-dkorange: #AB3E2E;
+    --color-pkmn-blue: #0095db;
     --color-pkmn-field-back: #3a2e2a;
     --color-pkmn-darkfield-back: #841722;
     --color-pkmn-container-bg: #151515;
@@ -1154,18 +1156,33 @@
       font-weight: bold;
       font-size: 1.15em;
       color: var(--color-pkmn-dkorange);
+      background: rgb(48, 40, 49);
+      border-radius: 4px;
+      padding: 2px 8px;
+      display: flex;
+      align-items: center;
+
+      &:disabled {
+        opacity: 1;
+        color: var(--color-pkmn-dkorange);
+        -webkit-text-fill-color: var(--color-pkmn-dkorange);
+        background: rgb(48, 40, 49);
+      }
     }
 
     .pain-penalty-resisted {
+      font-weight: bold;
+      font-size: 1.15em;
+      color: var(--color-pkmn-blue);
+      white-space: nowrap;
+    }
+
+    .pain-penalty-override-toggle {
       display: flex;
       align-items: center;
       gap: 4px;
       white-space: nowrap;
-
-      input[type="number"] {
-        width: 40px;
-        text-align: center;
-      }
+      margin-top: 4px;
     }
   }
   .stat-changes.stat-changes-panel {
@@ -1615,6 +1632,15 @@ body.theme-light .pokerole.actor.sheet:not(.theme-dark),
     .type-selector select {
       appearance: none;
       color: white;
+    }
+  }
+
+  .stat-changes.pain .pain-penalty-level {
+    background: none;
+    border: 1px solid rgb(102, 102, 102);
+
+    &:disabled {
+      background: none;
     }
   }
 }

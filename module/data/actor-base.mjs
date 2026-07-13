@@ -13,6 +13,9 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
       // Willpower spent to ignore points of the HP-derived Pain Penalty level below. Persists
       // across HP changes within a scene - see computePainPenaltyLevel() in helpers/config.mjs.
       painPenaltyIgnored: new NumberField({ required: true, integer: true, initial: 0, min: 0, max: 3 }),
+      // Manually forces the Pain Penalty level below instead of deriving it from HP.
+      painPenaltyOverrideEnabled: new BooleanField({ initial: false }),
+      painPenaltyOverrideLevel: new NumberField({ required: true, integer: true, initial: 0, min: 0, max: 3 }),
       rank: new StringField({ required: true, initial: "none", choices: POKEROLE.ranks }),
       personality: new StringField({ required: true, initial: "hardy", choices: Object.keys(POKEROLE.natureConfidence) }),
       gender: new StringField({ required: true, initial: "neutral", choices: POKEROLE.genders }),
@@ -110,7 +113,11 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
       this.hp.max = this.baseHp + this.attributes.vitality.value + totalPassiveIncrease;
     }
 
-    const painPenaltyLevel = computePainPenaltyLevel(this.hp.value, this.hp.max);
+    let painPenaltyLevel = computePainPenaltyLevel(this.hp.value, this.hp.max);
+    // Override never resurrects the mechanic if the world setting disabled it entirely.
+    if (this.painPenaltyOverrideEnabled && !game.settings.get('pokerole', 'disablePainPenalty')) {
+      painPenaltyLevel = this.painPenaltyOverrideLevel;
+    }
     // Can't visually/mechanically ignore more pain than currently exists, but the stored value
     // isn't clamped - it stays "banked" if the level later rises again within the same scene.
     const painPenaltyIgnored = Math.min(this.painPenaltyIgnored ?? 0, painPenaltyLevel);

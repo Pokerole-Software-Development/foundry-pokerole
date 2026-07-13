@@ -673,8 +673,9 @@ POKEROLE.healAmounts = {
   }
 }
 
-/** Raw Pain Penalization level (0-3): -1 at half HP, stacking to -3 at exactly 1 HP. */
+/** Raw Pain Penalization level (0-3): -1 at half HP, stacking to -3 at exactly 1 HP. 0 if disabled world-wide. */
 export function computePainPenaltyLevel(hpValue, hpMax) {
+  if (game.settings.get('pokerole', 'disablePainPenalty')) return 0;
   if (hpValue === 1) return 3;
   if (hpValue > 0 && hpValue <= Math.floor(hpMax / 2)) return 1;
   return 0;

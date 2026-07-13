@@ -430,7 +430,9 @@ export class PokeroleActor extends Actor {
       || foundry.utils.hasProperty(changed, 'system.statChanges')
       || foundry.utils.hasProperty(changed, 'system.accuracyMod')
       || foundry.utils.hasProperty(changed, 'system.hp')
-      || foundry.utils.hasProperty(changed, 'system.painPenaltyIgnored')) {
+      || foundry.utils.hasProperty(changed, 'system.painPenaltyIgnored')
+      || foundry.utils.hasProperty(changed, 'system.painPenaltyOverrideEnabled')
+      || foundry.utils.hasProperty(changed, 'system.painPenaltyOverrideLevel')) {
       this._syncIconEffects(userId);
     }
   }
