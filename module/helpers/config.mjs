@@ -455,7 +455,8 @@ POKEROLE.moveFlags = [
   'doubleAction', 'alwaysCrit', 'destroyShield', 'successiveActions', 'userFaints',
   'resetTerrain', 'resistedWithDefense', 'ignoreDefenses', 'cutterMove', 'windMove',
   'biteMove', 'powderMove', 'maneuver',
-  'projectileMove', 'tripleAction' // not in any pack data yet (issue #97), schema ready for later
+  'projectileMove', 'tripleAction', // not in any pack data yet (issue #97), schema ready for later
+  'unlimitedUses' // issue #88: exempt from the once-per-Round usedInRound block (accuracy + clash)
 ];
 
 // Valid raw values for move.target - separate from POKEROLE.i18n.targets, which is just display labels.

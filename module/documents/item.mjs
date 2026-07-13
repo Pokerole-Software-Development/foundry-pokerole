@@ -406,7 +406,7 @@ export class PokeroleItem extends Item {
           return ui.notifications.error("You can't take any more actions this round.");
         }
 
-        if (item.system.usedInRound) {
+        if (item.system.usedInRound && !item.system.attributes.unlimitedUses) {
           button.disabled = false;
           return ui.notifications.error("You have already used this move in the current round.");
         }
@@ -419,7 +419,9 @@ export class PokeroleItem extends Item {
         if (await rollAccuracy(item, actor, token, canBeClashed, canBeEvaded, !event.shiftKey)
             && game.settings.get('pokerole', 'combatResourceAutomation')) {
           actor.increaseActionCount();
-          item.update({'system.usedInRound': true});
+          if (!item.system.attributes.unlimitedUses) {
+            item.update({'system.usedInRound': true});
+          }
         }
         break;
       case 'damage':

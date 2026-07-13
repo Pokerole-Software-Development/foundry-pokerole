@@ -662,7 +662,9 @@ async function onChatActionClick(event) {
         const clashMove = await showClashDialog(actor, token, attacker, move, expectedSuccesses ?? 1, chatData);
         if (clashMove && game.settings.get('pokerole', 'combatResourceAutomation')) {
           actor.increaseActionCount({ 'system.canClash': false });
-          clashMove.update({ 'system.usedInRound': true });
+          if (!clashMove.system.attributes.unlimitedUses) {
+            clashMove.update({ 'system.usedInRound': true });
+          }
         }
         break;
       }
