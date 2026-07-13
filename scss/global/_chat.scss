@@ -74,6 +74,19 @@
   text-decoration: line-through;
 }
 
+.pain-penalty-note {
+  color: #6e0000;
+}
+
+.modifier-extra-note {
+  &.negative {
+    color: #6e0000;
+  }
+  &.positive {
+    color: #006c00;
+  }
+}
+
 .dice-roll .dice-total {
   &.success {
     color: inherit;

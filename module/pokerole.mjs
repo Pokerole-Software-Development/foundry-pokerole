@@ -676,6 +676,8 @@ async function onChatActionClick(event) {
           return ui.notifications.error("You can only evade once per round.");
         }
 
+        const { expectedSuccesses } = event.target.dataset;
+        const requiredSuccesses = expectedSuccesses !== undefined ? parseInt(expectedSuccesses, 10) : null;
         const hasEvaded = await successRollAttributeDialog({
           name: 'Evade',
           value: actor.system.derived.evade.value
@@ -684,7 +686,7 @@ async function onChatActionClick(event) {
           confusionPenalty: actor.hasAilment('confused'),
           userRank: actor.system.rank
         },
-          chatData, !event.shiftKey);
+          chatData, !event.shiftKey, requiredSuccesses);
 
         if (hasEvaded && game.settings.get('pokerole', 'combatResourceAutomation')) {
           actor.increaseActionCount({ 'system.canEvade': false });

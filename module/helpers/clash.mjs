@@ -82,7 +82,8 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
     + (attributeVal ?? 0)
     + (actor.system.skills.clash?.value ?? 0);
 
-  const constantBonusWithPainPenalty = constantBonus - actor.system.derived.painPenalty.effective;
+  const painPenalty = actor.system.derived.painPenalty.effective;
+  const constantBonusWithPainPenalty = constantBonus - painPenalty;
 
   // Damage only depends on type matchups, not the roll - safe to compute once and reuse on reroll.
   const successResultHtml = buildClashSuccessResultHtml(move, attacker, attackerTokenDoc, attackingMove, actor, actorToken);
@@ -90,7 +91,7 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
 
   const rerollContext = { expectedSuccesses, successResultHtml, failureResultHtml };
   const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData,
-    constantBonusWithPainPenalty, rerollBonus, 'clash', rerollContext);
+    constantBonusWithPainPenalty, rerollBonus, 'clash', rerollContext, painPenalty);
   const baseHtml = messageDataPart.content;
 
   const html = baseHtml + ((rollResult >= expectedSuccesses) ? successResultHtml : failureResultHtml);

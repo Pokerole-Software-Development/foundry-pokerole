@@ -73,12 +73,12 @@ export async function successRollAttribute(attribute, chatData) {
 }
 
 // attribute, skill = { name: String, value: number };
-export async function successRollAttributeSkill(attribute, skill, chatData, poolModifier = 0, constantModifier = 0, rerollBonus = 0, rerollType = null) {
+export async function successRollAttributeSkill(attribute, skill, chatData, poolModifier = 0, constantModifier = 0, rerollBonus = 0, rerollType = null, painPenalty = 0) {
   if (poolModifier != 0) {
     let sign = poolModifier >= 0 ? '+' : '';
-    return successRoll(attribute.value + skill.value + poolModifier, `${attribute.name}+${skill.name}${sign}${poolModifier}`, chatData, constantModifier, rerollBonus, rerollType);
+    return successRoll(attribute.value + skill.value + poolModifier, `${attribute.name}+${skill.name}${sign}${poolModifier}`, chatData, constantModifier, rerollBonus, rerollType, painPenalty);
   } else {
-    return successRoll(attribute.value + skill.value, `${attribute.name}+${skill.name}`, chatData, constantModifier, rerollBonus, rerollType);
+    return successRoll(attribute.value + skill.value, `${attribute.name}+${skill.name}`, chatData, constantModifier, rerollBonus, rerollType, painPenalty);
   }
 }
 
@@ -91,7 +91,7 @@ export async function rerollFailedDice(message, count) {
   const rollData = message.getFlag('pokerole', 'rollData');
   if (!rollData || rollData.rerolled) return;
 
-  const { rolls, modifier, type, context } = rollData;
+  const { rolls, modifier, type, context, painPenalty = 0, requiredSuccesses = null } = rollData;
   const failedCount = rolls.filter(roll => roll < 4).length;
   count = Math.max(0, Math.min(count, failedCount));
   if (count === 0) return;
@@ -100,15 +100,23 @@ export async function rerollFailedDice(message, count) {
   const successCount = Math.min(rolls.filter(roll => roll > 3).length + rollsRE.filter(roll => roll > 3).length, rolls.length) + modifier;
 
   const stylingFunction = roll => roll > 3 ? 'max' : '';
-  const contentSuccess = `<b>${successCount} successes (${count} Reroll${count === 1 ? '' : 's'})</b><p><i>(Rerolled)</i></p>`;
   const diceHtml = buildDiceHtml(rolls, stylingFunction, rollsRE);
+  const modifierNoteHtml = buildModifierNoteHtml(modifier, painPenalty);
 
-  let content = contentSuccess + diceHtml;
+  let totalsText = `${successCount} Total Successes (${count} Reroll${count === 1 ? '' : 's'})`;
+  if (requiredSuccesses !== null) {
+    totalsText += ` (${requiredSuccesses} required)`;
+  }
+  const totalsLineHtml = `<p><b>${totalsText}</b></p><p><i>(Rerolled)</i></p>`;
+
+  let content = diceHtml + modifierNoteHtml + totalsLineHtml;
   if (type === 'accuracy') {
     content += await buildAccuracyRerollContent(successCount, context);
   } else if (type === 'clash') {
     const { expectedSuccesses, successResultHtml, failureResultHtml } = context;
     content += successCount >= expectedSuccesses ? successResultHtml : failureResultHtml;
+  } else if (type === 'evade') {
+    content += buildEvadeResultHtml(successCount, requiredSuccesses, message.speaker?.alias);
   }
 
   await animateDiceRoll(rollsRE, message.whisper);
@@ -236,8 +244,10 @@ export async function rerollDamageTargets(message, countsByIndex) {
 
     const { damageBeforeEffectiveness, damage } = computeDamageFromRoll(successCount, rollData.context.damageFactor, target.effectivenessLevel);
 
-    const diceHtml = `<b>${successCount} successes (${count} Reroll${count === 1 ? '' : 's'})</b><p><i>(Rerolled)</i></p>`
-      + buildDiceHtml(target.rolls, stylingFunction, rollsRE);
+    const targetPainPenalty = rollData.context.painPenalty ?? 0;
+    const diceHtml = buildDiceHtml(target.rolls, stylingFunction, rollsRE)
+      + buildModifierNoteHtml(target.modifier, targetPainPenalty)
+      + `<p><b>${successCount} Total Successes (${count} Reroll${count === 1 ? '' : 's'})</b></p><p><i>(Rerolled)</i></p>`;
 
     target.rolls = [...target.rolls, ...rollsRE];
     target.damageBeforeEffectiveness = damageBeforeEffectiveness;
@@ -270,7 +280,7 @@ const ATTRIBUTE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/attrib
  * @param {Object} chatData
  * @returns {boolean} `true` if the user has rolled, `false` if cancelled
  */
-export async function successRollAttributeDialog(attribute, options, chatData, showPopup = true) {
+export async function successRollAttributeDialog(attribute, options, chatData, showPopup = true, requiredSuccesses = null) {
   let poolBonus = 0;
   let constantBonus = 0;
 
@@ -316,7 +326,8 @@ export async function successRollAttributeDialog(attribute, options, chatData, s
   }
 
   const constantBonusWithPainPenalty = constantBonus - painPenalty;
-  await successRoll(attribute.value + poolBonus, attribute.name, chatData, constantBonusWithPainPenalty, rerollBonus, 'attribute');
+  const rerollType = requiredSuccesses !== null ? 'evade' : 'attribute';
+  await successRoll(attribute.value + poolBonus, attribute.name, chatData, constantBonusWithPainPenalty, rerollBonus, rerollType, painPenalty, requiredSuccesses);
 
   return true;
 }
@@ -379,7 +390,8 @@ export async function successRollSkillDialog(skill, attributes, options, chatDat
     poolBonus,
     constantBonusWithPainPenalty,
     rerollBonus,
-    'skill'
+    'skill',
+    painPenalty
   );
 }
 
@@ -505,7 +517,7 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
 
   let chatData = { speaker: ChatMessage.implementation.getSpeaker({ actor }) };
   const [rollResult, newChatData] = await createSuccessRollMessageData(dicePool, `Accuracy roll: ${item.name}`, chatData,
-    constantBonusWithPainPenalty, rerollBonus, 'accuracy', rerollContext);
+    constantBonusWithPainPenalty, rerollBonus, 'accuracy', rerollContext, painPenalty, requiredSuccesses);
 
   chatData = newChatData;
 
@@ -518,16 +530,11 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
 }
 
 /**
- * Builds an accuracy roll's requirement text + action-buttons HTML (shared with reroll).
+ * Builds an accuracy roll's action-buttons HTML (shared with reroll). The required-successes
+ * count itself is shown as part of the totals line, not here.
  */
 function buildAccuracyResultHtml({ rollResult, requiredSuccesses, canBeClashed, canBeEvaded, actor, item, actorToken }) {
-  let html = '';
-  if (requiredSuccesses === 1) {
-    html += `<p>(1 success required)</p>`;
-  } else {
-    html += `<p>(${requiredSuccesses} successes required)</p>`;
-  }
-  html += '<div class="pokerole"><div class="action-buttons">';
+  let html = '<div class="pokerole"><div class="action-buttons">';
   if (rollResult >= requiredSuccesses) {
     if (canBeClashed) {
       html += `<button class="chat-action" data-action="clash"
@@ -535,7 +542,7 @@ function buildAccuracyResultHtml({ rollResult, requiredSuccesses, canBeClashed, 
         >Clash</button>`;
     }
     if (canBeEvaded) {
-      html += `<button class="chat-action" data-action="evade">Evade</button>`;
+      html += `<button class="chat-action" data-action="evade" data-expected-successes="${rollResult}">Evade</button>`;
     }
   }
 
@@ -765,7 +772,8 @@ export async function rollDamage(item, actor, token) {
   let { enemyDef, stab, effectiveness, poolBonus, constantBonus, applyLeechHeal, rerollBonus } = formData;
   poolBonus ??= 0;
   constantBonus ??= 0;
-  constantBonus -= actor.system.derived.painPenalty.effective;
+  const painPenalty = actor.system.derived.painPenalty.effective;
+  constantBonus -= painPenalty;
 
   if (stab) {
     poolBonus += POKEROLE.CONST.STAB_BONUS;
@@ -806,7 +814,7 @@ export async function rollDamage(item, actor, token) {
     // A damaging move's dice pool is always at least 1, even if power+stat doesn't exceed the defense.
     let rollCount = Math.max(rollCountBeforeDef - enemyDef, 1);
 
-    const [rollResult, messageDataPart, rolls, rollsRE] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus, rerollBonus);
+    const [rollResult, messageDataPart, rolls, rollsRE] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus, rerollBonus, null, null, painPenalty);
     const effectivenessLevel = effectivenessSelectToLevel(effectiveness);
     const { damageBeforeEffectiveness, damage } = computeDamageFromRoll(rollResult, damageFactor, effectivenessLevel);
 
@@ -832,7 +840,7 @@ export async function rollDamage(item, actor, token) {
       // A damaging move's dice pool is always at least 1, even if power+stat doesn't exceed the defense.
       const rollCount = Math.max(rollCountBeforeDef - defStat, 1);
 
-      const [rollResult, messageDataPart, rolls, rollsRE] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus, rerollBonus);
+      const [rollResult, messageDataPart, rolls, rollsRE] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus, rerollBonus, null, null, painPenalty);
       const effectivenessLevel = defender.system.hasThirdType ? calcTripleTypeMatchupScore(
         item.system.type,
         defender.system.type1,
@@ -878,7 +886,8 @@ export async function rollDamage(item, actor, token) {
             damageTypeText,
             damageFactor,
             hasRecoil,
-            applyLeechHeal: !!applyLeechHeal
+            applyLeechHeal: !!applyLeechHeal,
+            painPenalty
           }
         }
       }
@@ -928,6 +937,27 @@ async function rollDice(rollCount) {
   return rolls;
 }
 
+/** Builds the "(-X subtracted by pain) (+Y Extra)" note shown under a roll's success count, if applicable. */
+function buildModifierNoteHtml(modifier, painPenalty) {
+  const bonusModifier = modifier + painPenalty;
+  const spans = [];
+  if (painPenalty > 0) {
+    spans.push(`<span class="pain-penalty-note">(-${painPenalty} subtracted by pain)</span>`);
+  }
+  if (bonusModifier !== 0) {
+    const sign = bonusModifier > 0 ? 'positive' : 'negative';
+    spans.push(`<span class="modifier-extra-note ${sign}">(${bonusModifier > 0 ? '+' : ''}${bonusModifier} Extra)</span>`);
+  }
+  return spans.length > 0 ? `<p>${spans.join(' ')}</p>` : '';
+}
+
+/** Builds an Evade roll's hit/miss result line, shown when the roll was triggered from an accuracy roll's Evade button. */
+function buildEvadeResultHtml(successCount, requiredSuccesses, name) {
+  return successCount >= requiredSuccesses
+    ? `<p>${name} evade the attack!</p>`
+    : `<p>It Failed....</p>`;
+}
+
 /** Builds the dice-tooltip HTML; `rollsRE` dice are appended and mark superseded failures. */
 function buildDiceHtml(rolls, stylingFunction, rollsRE = []) {
   let text = '<div class="dice-tooltip"><div class="dice"><ol class="dice-rolls">';
@@ -967,19 +997,16 @@ async function animateDiceRoll(rolls, whisper) {
 }
 
 /**
- * Utility function to create a chat message for dice rolls with specific styling.
- * @param {Array<number>} rolls Array of dice roll results
+ * Wraps pre-built content (caller includes dice HTML wherever it belongs) into chat message data.
+ * @param {Array<number>} rolls Array of dice roll results, used to trigger the 3D dice animation
  * @param {string} content Content to display in the chat message
  * @param {string} flavor Displayed flavor text
  * @param {Object} chatData Chat message settings
- * @param {Function} stylingFunction Function to apply specific styling to each roll
  * @returns {Object} Formatted chat message data
  */
-async function createDiceRollChatMessage(rolls, content, flavor, chatData, stylingFunction, rollsRE = []) {
-  const text = buildDiceHtml(rolls, stylingFunction, rollsRE);
-
+async function createDiceRollChatMessage(rolls, content, flavor, chatData) {
   let messageData = {
-    content: content + text,
+    content,
     flavor,
     ...chatData
   };
@@ -1002,12 +1029,12 @@ async function createDiceRollChatMessage(rolls, content, flavor, chatData, styli
  * @param {number} modifier Constant number added to the result
  * @returns {Promise<number>} The number of successes
  */
-export async function successRoll(rollCount, flavor, chatData, modifier = 0, rerollBonus = 0, rerollType = null) {
+export async function successRoll(rollCount, flavor, chatData, modifier = 0, rerollBonus = 0, rerollType = null, painPenalty = 0, requiredSuccesses = null) {
   if (rollCount > 999) {
     throw new Error('You cannot roll more than 999 dice');
   }
 
-  const [successCount, messageData] = await createSuccessRollMessageData(rollCount, flavor, chatData, modifier, rerollBonus, rerollType);
+  const [successCount, messageData] = await createSuccessRollMessageData(rollCount, flavor, chatData, modifier, rerollBonus, rerollType, null, painPenalty, requiredSuccesses);
 
   await ChatMessage.implementation.create(messageData);
   return successCount;
@@ -1042,7 +1069,7 @@ export async function chanceDiceRoll(rollCount, flavor, chatData) {
  * @param {number} modifier Constant number added to the result
  * @returns {Promise<[result: number, chatMessageData: object, rolls: Array<number>, rollsRE: Array<number>]>}
  */
-export async function createSuccessRollMessageData(rollCount, flavor, chatData, modifier = 0, reRolls = 0, rerollType = null, rerollContext = null) {
+export async function createSuccessRollMessageData(rollCount, flavor, chatData, modifier = 0, reRolls = 0, rerollType = null, rerollContext = null, painPenalty = 0, requiredSuccesses = null) {
   if (rollCount > 999) {
     throw new Error('You cannot roll for successes with more than 999 dice');
   }
@@ -1054,21 +1081,27 @@ export async function createSuccessRollMessageData(rollCount, flavor, chatData, 
   const successCount = Math.min(rolls.filter(roll => roll > 3).length + rollsRE.filter(roll => roll > 3).length, rolls.length) + modifier;
 
   const stylingFunction = roll => roll > 3 ? 'max' : '';
+  const diceHtml = buildDiceHtml(rolls, stylingFunction, rollsRE);
+  const modifierNoteHtml = buildModifierNoteHtml(modifier, painPenalty);
 
-  let contentSuccess = `<b>${successCount} successes`
+  let totalsText = `${successCount} Total Successes`;
   if (rerollCount > 0) {
-    contentSuccess += ` (${rerollCount} Rerolls of ${reRolls})</b>`
-  } else {
-    contentSuccess += `</b>`
+    totalsText += ` (${rerollCount} Rerolls of ${reRolls})`
   }
+  if (requiredSuccesses !== null) {
+    totalsText += ` (${requiredSuccesses} required)`;
+  }
+  const totalsLineHtml = `<p><b>${totalsText}</b></p>`;
+
+  const evadeResultHtml = rerollType === 'evade'
+    ? buildEvadeResultHtml(successCount, requiredSuccesses, chatData?.speaker?.alias)
+    : '';
 
   const messageData = await createDiceRollChatMessage(
     rolls,
-    contentSuccess,
+    diceHtml + modifierNoteHtml + totalsLineHtml + evadeResultHtml,
     flavor,
-    chatData,
-    stylingFunction,
-    rollsRE
+    chatData
   );
 
   if (rerollType) {
@@ -1078,6 +1111,8 @@ export async function createSuccessRollMessageData(rollCount, flavor, chatData, 
       type: rerollType,
       rolls: [...rolls, ...rollsRE],
       modifier,
+      painPenalty,
+      requiredSuccesses,
       rerolled: false,
       ...(rerollContext ? { context: rerollContext } : {})
     };
@@ -1102,16 +1137,11 @@ export async function createChanceDiceRollMessageData(rollCount, flavor, chatDat
   const rolls = await rollDice(rollCount);
 
   const hasSix = rolls.some(roll => roll === 6);
-  const content = hasSix ? `<b>Chance Roll Success!</b>` : `<b>Chance Roll Failure</b>`;
   const stylingFunction = roll => roll === 6 ? 'maxcd' : 'failcd';
+  const content = (hasSix ? `<b>Chance Roll Success!</b>` : `<b>Chance Roll Failure</b>`)
+    + buildDiceHtml(rolls, stylingFunction);
 
-  const messageData = await createDiceRollChatMessage(
-    rolls,
-    content,
-    flavor,
-    chatData,
-    stylingFunction
-  );
+  const messageData = await createDiceRollChatMessage(rolls, content, flavor, chatData);
 
   return [hasSix, messageData];
 }
