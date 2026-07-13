@@ -148,6 +148,29 @@
   "POKEROLE.HealLeech": "Leech",
   "POKEROLE.HealCustom": "Custom",
 
+  "POKEROLE.DamagePoolFormulaStandard": "Standard (Power + Stat vs Defense)",
+  "POKEROLE.DamagePoolFormulaHpBased": "Based on HP",
+  "POKEROLE.DamagePoolFormulaStatDiff": "Based on Stat Comparison",
+  "POKEROLE.DamagePoolFormulaFixed": "Fixed Amount",
+
+  "POKEROLE.DamagePoolHpModeRemaining": "Remaining HP",
+  "POKEROLE.DamagePoolHpModeMissing": "Missing HP",
+  "POKEROLE.DamagePoolHpModeMax": "Max HP",
+
+  "POKEROLE.DamagePoolResultAsDiceToRoll": "Roll Dice",
+  "POKEROLE.DamagePoolResultAsDirectDamage": "Direct Damage (No Roll)",
+
+  "POKEROLE.DamagePoolDiceModeOverride": "Override Normal Pool",
+  "POKEROLE.DamagePoolDiceModeAdd": "Add to Normal Pool",
+
+  "POKEROLE.DamagePoolDirectionTarget": "Target's Stat",
+  "POKEROLE.DamagePoolDirectionUser": "User's Stat",
+  "POKEROLE.DamagePoolDirectionUserAbove": "User Above Target",
+  "POKEROLE.DamagePoolDirectionTargetAbove": "Target Above User",
+
+  "POKEROLE.Weight": "Weight",
+  "POKEROLE.Rank": "Rank",
+
   "POKEROLE.EffectTargetTargets": "Move Targets",
   "POKEROLE.EffectTargetUser": "User",
 

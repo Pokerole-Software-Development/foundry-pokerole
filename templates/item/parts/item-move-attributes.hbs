@@ -73,6 +73,97 @@
     <textarea name="system.effect" data-dtype="String" {{#unless editable}}readonly{{/unless}}>{{system.effect}}</textarea>
   </div>
 
+  {{!-- Damage Pool Formula - placed right below Added Effect so the description above explains
+        why a move needs one of these before the reader reaches the fields that implement it. --}}
+  <h3>Damage Pool Formula</h3>
+  <div class="form-group">
+    <label class="resource-label">Formula</label>
+    <select name="system.damagePool.formula" value="{{system.damagePool.formula}}" data-dtype="String">
+      {{selectOptions damagePoolFormulas selected=system.damagePool.formula}}
+    </select>
+  </div>
+
+  {{#if isHpBased}}
+  <div class="form-group">
+    <label class="resource-label">HP Source</label>
+    <select name="system.damagePool.hpMode" value="{{system.damagePool.hpMode}}" data-dtype="String">
+      {{selectOptions damagePoolHpModes selected=system.damagePool.hpMode}}
+    </select>
+  </div>
+  <div class="form-group">
+    <label class="resource-label">Fraction (%, rounded down)</label>
+    <input type="number" name="system.damagePool.fraction" value="{{system.damagePool.fraction}}" min="0" max="100" data-dtype="Number"/>
+  </div>
+  <div class="form-group">
+    <label class="resource-label">Plus Amount</label>
+    <input type="number" name="system.damagePool.plusAmount" value="{{system.damagePool.plusAmount}}" data-dtype="Number"/>
+  </div>
+  <div class="form-group">
+    <label class="resource-label">Result</label>
+    <select name="system.damagePool.resultAs" value="{{system.damagePool.resultAs}}" data-dtype="String">
+      {{selectOptions damagePoolResultAs selected=system.damagePool.resultAs}}
+    </select>
+  </div>
+  {{#if isDicePool}}
+  <div class="form-group">
+    <label class="resource-label">Dice Mode</label>
+    <select name="system.damagePool.diceMode" value="{{system.damagePool.diceMode}}" data-dtype="String">
+      {{selectOptions damagePoolDiceModes selected=system.damagePool.diceMode}}
+    </select>
+  </div>
+  {{/if}}
+  {{/if}}
+
+  {{#if isStatDiff}}
+  <div class="form-group">
+    <label class="resource-label">Stat</label>
+    <select name="system.damagePool.stat" value="{{system.damagePool.stat}}" data-dtype="String">
+      {{selectOptions damagePoolStats selected=system.damagePool.stat}}
+    </select>
+  </div>
+  {{#if isRankStat}}
+  <div class="form-group">
+    <label class="resource-label">Rank Table</label>
+    <input type="text" name="system.damagePool.rankTable" value="{{system.damagePool.rankTable}}" data-dtype="String"/>
+  </div>
+  {{else}}
+  <div class="form-group">
+    <label class="resource-label">Direction</label>
+    <select name="system.damagePool.direction" value="{{system.damagePool.direction}}" data-dtype="String">
+      {{selectOptions damagePoolDirections selected=system.damagePool.direction}}
+    </select>
+  </div>
+  <div class="form-group">
+    <label class="resource-label">Dice Per Unit</label>
+    <input type="number" name="system.damagePool.perUnit" value="{{system.damagePool.perUnit}}" min="0" data-dtype="Number"/>
+  </div>
+  {{/if}}
+  <div class="form-group">
+    <label class="resource-label">Dice Mode</label>
+    <select name="system.damagePool.diceMode" value="{{system.damagePool.diceMode}}" data-dtype="String">
+      {{selectOptions damagePoolDiceModes selected=system.damagePool.diceMode}}
+    </select>
+  </div>
+  {{/if}}
+
+  {{#if (or isHpBased isStatDiff)}}
+  <div class="form-group">
+    <label class="resource-label">Max Dice (blank = no cap)</label>
+    <input type="number" name="system.damagePool.maxDice" value="{{system.damagePool.maxDice}}" min="0" data-dtype="Number"/>
+  </div>
+  {{/if}}
+
+  {{#if isFixedDamagePool}}
+  <div class="form-group">
+    <label class="resource-label">Fixed Damage Amount</label>
+    <input type="number" name="system.damagePool.amount" value="{{system.damagePool.amount}}" min="0" data-dtype="Number"/>
+  </div>
+  <div class="form-group">
+    <label class="resource-label">Ignore Type Effectiveness</label>
+    <input type="checkbox" name="system.damagePool.ignoreTypeEffectiveness" {{checked system.damagePool.ignoreTypeEffectiveness}} data-dtype="Boolean">
+  </div>
+  {{/if}}
+
   <hr>
 
   {{!-- Kept apart from the flag grid - more abstract implications than a simple tag --}}

@@ -119,6 +119,22 @@ export class PokeroleMoveSheet extends PokeroleItemBaseSheet {
     context.isCustomHeal = context.system.heal?.type === 'custom';
     context.isLeechHeal = context.system.heal?.type === 'leech';
 
+    context.damagePoolFormulas = getLocalizedEntriesForSelect('damagePoolFormulas');
+    context.damagePoolHpModes = getLocalizedEntriesForSelect('damagePoolHpModes');
+    context.damagePoolResultAs = getLocalizedEntriesForSelect('damagePoolResultAs');
+    context.damagePoolDiceModes = getLocalizedEntriesForSelect('damagePoolDiceModes');
+    context.damagePoolDirections = getLocalizedEntriesForSelect('damagePoolDirections');
+    context.damagePoolStats = {
+      ...getLocalizedEntriesForSelect('attributes'),
+      weight: game.i18n.localize('POKEROLE.Weight'),
+      rank: game.i18n.localize('POKEROLE.Rank')
+    };
+    context.isHpBased = context.system.damagePool?.formula === 'hpBased';
+    context.isStatDiff = context.system.damagePool?.formula === 'statDiff';
+    context.isFixedDamagePool = context.system.damagePool?.formula === 'fixed';
+    context.isDicePool = context.system.damagePool?.resultAs === 'diceToRoll';
+    context.isRankStat = context.system.damagePool?.stat === 'rank';
+
     return context;
   }
 

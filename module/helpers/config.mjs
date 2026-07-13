@@ -638,6 +638,30 @@ export function getConfusionModifier(rank) {
   return POKEROLE.rankProgression[rank]?.confusionPenalty ?? 0;
 }
 
+// Named per-rank dice-count tables for moves whose damage pool scales with the user's Rank
+// (e.g. Seismic Toss, Night Shade, Psywave). Ranks not listed in a tag fall back to 0.
+POKEROLE.rankDiceTables = {
+  standard: {
+    starter: 1,
+    rookie: 2,
+    standard: 4,
+    advanced: 6,
+    expert: 8,
+    ace: 10,
+    master: 10,
+    champion: 10
+  }
+};
+
+/**
+ * @param {string} tag Table name (key into POKEROLE.rankDiceTables)
+ * @param {string} rank
+ * @returns {number} Dice count for that rank in the given table, or 0 if unlisted
+ */
+export function getRankDiceCount(tag, rank) {
+  return POKEROLE.rankDiceTables[tag]?.[rank] ?? 0;
+}
+
 /** How many regular and Lethal damage are healed from basic and complete heals */
 POKEROLE.healAmounts = {
   basic: {
@@ -817,6 +841,36 @@ POKEROLE.i18n = {
     "complete": "POKEROLE.HealComplete",
     "leech": "POKEROLE.HealLeech",
     "custom": "POKEROLE.HealCustom",
+  },
+
+  damagePoolFormulas: {
+    "standard": "POKEROLE.DamagePoolFormulaStandard",
+    "hpBased": "POKEROLE.DamagePoolFormulaHpBased",
+    "statDiff": "POKEROLE.DamagePoolFormulaStatDiff",
+    "fixed": "POKEROLE.DamagePoolFormulaFixed",
+  },
+
+  damagePoolHpModes: {
+    "remaining": "POKEROLE.DamagePoolHpModeRemaining",
+    "missing": "POKEROLE.DamagePoolHpModeMissing",
+    "max": "POKEROLE.DamagePoolHpModeMax",
+  },
+
+  damagePoolResultAs: {
+    "diceToRoll": "POKEROLE.DamagePoolResultAsDiceToRoll",
+    "directDamage": "POKEROLE.DamagePoolResultAsDirectDamage",
+  },
+
+  damagePoolDiceModes: {
+    "override": "POKEROLE.DamagePoolDiceModeOverride",
+    "add": "POKEROLE.DamagePoolDiceModeAdd",
+  },
+
+  damagePoolDirections: {
+    "target": "POKEROLE.DamagePoolDirectionTarget",
+    "user": "POKEROLE.DamagePoolDirectionUser",
+    "userAbove": "POKEROLE.DamagePoolDirectionUserAbove",
+    "targetAbove": "POKEROLE.DamagePoolDirectionTargetAbove",
   },
 
   effectTargets: {

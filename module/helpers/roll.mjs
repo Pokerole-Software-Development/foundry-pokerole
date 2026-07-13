@@ -3,6 +3,7 @@ import {
   calcDualTypeMatchupScore,
   calcTripleTypeMatchupScore,
   getConfusionModifier,
+  getRankDiceCount,
   POKEROLE
 } from "./config.mjs";
 import { bulkApplyDamageValidated } from "./damage.mjs";
@@ -590,12 +591,77 @@ function effectivenessSelectToLevel(effectiveness) {
   }
 }
 
+/**
+ * Resolves a Move's `system.damagePool` formula (if not 'standard') against a specific defender.
+ * @param {Item} item The move
+ * @param {Actor} actor The user
+ * @param {Actor | null} defender The target, or null for a no-target damage roll
+ * @returns {null | 'needsTarget' | {mode: 'directDamage'|'diceToRoll', amount: number, diceMode: 'override'|'add', applyEffectiveness: boolean}}
+ *   `null` means formula is 'standard' - no change to the normal power+stat pipeline.
+ */
+function resolveDamagePoolFormula(item, actor, defender) {
+  const pool = item.system.damagePool;
+  if (!pool || pool.formula === 'standard') return null;
+
+  if (pool.formula === 'fixed') {
+    return { mode: 'directDamage', amount: pool.amount, diceMode: 'override', applyEffectiveness: !pool.ignoreTypeEffectiveness };
+  }
+
+  if (!defender) return 'needsTarget';
+
+  let amount;
+  if (pool.formula === 'hpBased') {
+    const hp = defender.system.hp;
+    const base = pool.hpMode === 'missing' ? hp.max - hp.value : pool.hpMode === 'max' ? hp.max : hp.value;
+    amount = Math.floor(base * pool.fraction / 100) + pool.plusAmount;
+  } else {
+    // statDiff
+    if (pool.stat === 'rank') {
+      amount = getRankDiceCount(pool.rankTable, actor.system.rank);
+    } else {
+      const userVal = pool.stat === 'weight' ? actor.system.weight : (actor.getAnyAttribute(pool.stat)?.value ?? 0);
+      const targetVal = pool.stat === 'weight' ? defender.system.weight : (defender.getAnyAttribute(pool.stat)?.value ?? 0);
+      let diff;
+      if (pool.direction === 'target') diff = targetVal;
+      else if (pool.direction === 'user') diff = userVal;
+      else if (pool.direction === 'userAbove') diff = Math.max(userVal - targetVal, 0);
+      else diff = Math.max(targetVal - userVal, 0); // targetAbove
+      amount = pool.perUnit > 0 ? Math.floor(diff / pool.perUnit) : 0;
+    }
+  }
+
+  if (pool.maxDice !== null && pool.maxDice !== undefined) {
+    amount = Math.min(amount, pool.maxDice);
+  }
+
+  return pool.formula === 'hpBased'
+    // Direct-damage hpBased moves (Horn Drill, Guillotine...) are OHKO mechanics - never affected by
+    // type effectiveness, unlike 'fixed' which defaults to respecting it (see ignoreTypeEffectiveness).
+    ? { mode: pool.resultAs, amount, diceMode: pool.diceMode, applyEffectiveness: false }
+    : { mode: 'diceToRoll', amount, diceMode: pool.diceMode, applyEffectiveness: true };
+}
+
 /** Applies a rolled success count + type effectiveness to get final damage (shared with reroll). */
 function computeDamageFromRoll(rollResult, damageFactor, effectivenessLevel) {
   const damageBeforeEffectiveness = rollResult > 0 ? Math.max(Math.floor(rollResult * damageFactor), 1) : 1;
   const appliedEffectiveness = (rollResult <= 0 && effectivenessLevel > 0) ? 0 : effectivenessLevel;
   const damage = Math.max(damageBeforeEffectiveness + appliedEffectiveness, 0);
   return { damageBeforeEffectiveness, damage };
+}
+
+/** Applies additive type effectiveness to a flat (non-rolled) damage amount, e.g. a Fixed damage pool. */
+function applyEffectivenessToAmount(amount, effectivenessLevel) {
+  const appliedEffectiveness = (amount <= 0 && effectivenessLevel > 0) ? 0 : effectivenessLevel;
+  return Math.max(amount + appliedEffectiveness, 0);
+}
+
+/** Type-matchup effectiveness level of a move against a specific defender. */
+function computeEffectivenessLevel(item, defender) {
+  return defender.system.hasThirdType ? calcTripleTypeMatchupScore(
+    item.system.type, defender.system.type1, defender.system.type2, defender.system.type3
+  ) : calcDualTypeMatchupScore(
+    item.system.type, defender.system.type1, defender.system.type2
+  );
 }
 
 /** Builds one damage target's result HTML block (shared between initial roll and reroll). */
@@ -710,6 +776,11 @@ export async function rollDamage(item, actor, token) {
     }
   }
 
+  if (selectedTokens.length === 0 && resolveDamagePoolFormula(item, actor, null) === 'needsTarget') {
+    ui.notifications.warn(`${item.name}'s damage formula needs a target - select one first.`);
+    return false;
+  }
+
   let shouldApplyLeechHeal = false;
   let leechHealPercent = 0;
   if (item.system.heal?.type === 'leech') {
@@ -812,45 +883,77 @@ export async function rollDamage(item, actor, token) {
 
   if (selectedTokens.length === 0) {
     // A damaging move's dice pool is always at least 1, even if power+stat doesn't exceed the defense.
-    let rollCount = Math.max(rollCountBeforeDef - enemyDef, 1);
+    const formulaResult = resolveDamagePoolFormula(item, actor, null);
 
-    const [rollResult, messageDataPart, rolls, rollsRE] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus, rerollBonus, null, null, painPenalty);
-    const effectivenessLevel = effectivenessSelectToLevel(effectiveness);
-    const { damageBeforeEffectiveness, damage } = computeDamageFromRoll(rollResult, damageFactor, effectivenessLevel);
+    if (formulaResult?.mode === 'directDamage') {
+      // Only 'fixed' can reach here without a target - 'hpBased'/'statDiff' already got blocked above.
+      const effectivenessLevel = formulaResult.applyEffectiveness ? effectivenessSelectToLevel(effectiveness) : 0;
+      const damage = applyEffectivenessToAmount(formulaResult.amount, effectivenessLevel);
+      const targetHtml = buildDamageTargetHtml({
+        diceHtml: `<p><b>${formulaResult.amount} Direct Damage</b></p>`, name: actor.name, damageTypeText, effectivenessLevel, damage, isNoTarget: true
+      });
+      targets.push({
+        name: actor.name, rolls: [], modifier: constantBonus,
+        effectivenessLevel, damageBeforeEffectiveness: formulaResult.amount, damage, html: targetHtml,
+        defenderTokenUuid: null, defenderActorId: null
+      });
+    } else {
+      const rollCount = Math.max(rollCountBeforeDef - enemyDef, 1);
 
-    const targetHtml = buildDamageTargetHtml({
-      diceHtml: messageDataPart.content, name: actor.name, damageTypeText, effectivenessLevel, damage, isNoTarget: true
-    });
+      const [rollResult, messageDataPart, rolls, rollsRE] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus, rerollBonus, null, null, painPenalty);
+      const effectivenessLevel = effectivenessSelectToLevel(effectiveness);
+      const { damageBeforeEffectiveness, damage } = computeDamageFromRoll(rollResult, damageFactor, effectivenessLevel);
 
-    targets.push({
-      name: actor.name, rolls: [...rolls, ...rollsRE], modifier: constantBonus,
-      effectivenessLevel, damageBeforeEffectiveness, damage, html: targetHtml,
-      defenderTokenUuid: null, defenderActorId: null
-    });
+      const targetHtml = buildDamageTargetHtml({
+        diceHtml: messageDataPart.content, name: actor.name, damageTypeText, effectivenessLevel, damage, isNoTarget: true
+      });
+
+      targets.push({
+        name: actor.name, rolls: [...rolls, ...rollsRE], modifier: constantBonus,
+        effectivenessLevel, damageBeforeEffectiveness, damage, html: targetHtml,
+        defenderTokenUuid: null, defenderActorId: null
+      });
+    }
   } else {
     // One or more tokens to apply damage to are selected
     for (let defenderToken of selectedTokens) {
       const defender = defenderToken.actor;
+      const formulaResult = resolveDamagePoolFormula(item, actor, defender);
+
+      if (formulaResult?.mode === 'directDamage') {
+        const effectivenessLevel = formulaResult.applyEffectiveness ? computeEffectivenessLevel(item, defender) : 0;
+        const damage = applyEffectivenessToAmount(formulaResult.amount, effectivenessLevel);
+        const targetHtml = buildDamageTargetHtml({
+          diceHtml: `<p><b>${formulaResult.amount} Direct Damage</b></p>`, name: defender.name, damageTypeText, effectivenessLevel, damage, isNoTarget: false
+        });
+        targets.push({
+          name: defender.name, rolls: [], modifier: constantBonus,
+          effectivenessLevel, damageBeforeEffectiveness: formulaResult.amount, damage, html: targetHtml,
+          defenderTokenUuid: defenderToken.document.uuid, defenderActorId: defender.id
+        });
+        continue;
+      }
+
       let defStat = 0;
       if (!item.system.attributes?.ignoreDefenses) {
         defStat = item.system.category === 'special' && !item.system.attributes.resistedWithDefense
           ? defender.system.derived.spDef.value
           : defender.system.derived.def.value;
       }
+
+      // Formula-driven pool for this target, if any (falls back to the standard power+stat pool otherwise).
+      let effectiveRollCountBeforeDef = rollCountBeforeDef;
+      if (formulaResult) {
+        effectiveRollCountBeforeDef = formulaResult.diceMode === 'override'
+          ? formulaResult.amount
+          : rollCountBeforeDef + formulaResult.amount;
+      }
+
       // A damaging move's dice pool is always at least 1, even if power+stat doesn't exceed the defense.
-      const rollCount = Math.max(rollCountBeforeDef - defStat, 1);
+      const rollCount = Math.max(effectiveRollCountBeforeDef - defStat, 1);
 
       const [rollResult, messageDataPart, rolls, rollsRE] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus, rerollBonus, null, null, painPenalty);
-      const effectivenessLevel = defender.system.hasThirdType ? calcTripleTypeMatchupScore(
-        item.system.type,
-        defender.system.type1,
-        defender.system.type2,
-        defender.system.type3
-      ) : calcDualTypeMatchupScore(
-        item.system.type,
-        defender.system.type1,
-        defender.system.type2
-      );
+      const effectivenessLevel = computeEffectivenessLevel(item, defender);
       const { damageBeforeEffectiveness, damage } = computeDamageFromRoll(rollResult, damageFactor, effectivenessLevel);
 
       const targetHtml = buildDamageTargetHtml({

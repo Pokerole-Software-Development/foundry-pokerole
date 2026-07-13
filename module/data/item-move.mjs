@@ -56,6 +56,32 @@ export class PokeroleItemMoveData extends PokeroleItemBaseData {
         target: new StringField({ required: true, initial: "targets", choices: POKEROLE.effectTargets })
       }),
 
+      // Alternative ways to compute a Damage roll's dice pool, for moves that don't follow the
+      // standard power+stat-vs-defense formula (e.g. Super Fang, Dragon Rage, Heavy Slam).
+      damagePool: new SchemaField({
+        formula: new StringField({ required: true, initial: "standard", choices: ["standard", "hpBased", "statDiff", "fixed"] }),
+
+        // formula === 'hpBased'
+        hpMode: new StringField({ required: true, initial: "remaining", choices: ["remaining", "missing", "max"] }),
+        fraction: new NumberField({ required: true, integer: true, initial: 100, min: 0, max: 100 }),
+        resultAs: new StringField({ required: true, initial: "diceToRoll", choices: ["diceToRoll", "directDamage"] }),
+        diceMode: new StringField({ required: true, initial: "override", choices: ["override", "add"] }),
+        plusAmount: new NumberField({ required: true, integer: true, initial: 0 }),
+
+        // formula === 'statDiff'
+        stat: new StringField({ required: true, initial: "strength", choices: [...POKEROLE.attributes, "weight", "rank"] }),
+        direction: new StringField({ required: true, initial: "target", choices: ["target", "user", "userAbove", "targetAbove"] }),
+        perUnit: new NumberField({ required: true, initial: 1, min: 0 }),
+        rankTable: new StringField({ required: true, initial: "standard" }),
+
+        // formula === 'hpBased' or 'statDiff'
+        maxDice: new NumberField({ required: false, nullable: true, integer: true, initial: null, min: 0 }),
+
+        // formula === 'fixed'
+        amount: new NumberField({ required: true, integer: true, initial: 0, min: 0 }),
+        ignoreTypeEffectiveness: new BooleanField({ initial: false })
+      }),
+
       // Heterogeneous shapes (condition.type: 'none'|'chanceDice', effects[].type: 'ailment'|'statChange'
       // with different sub-fields each) - kept loose like Actor#ailments rather than a strict schema.
       effectGroups: new ArrayField(new ObjectField()),
