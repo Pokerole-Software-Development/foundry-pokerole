@@ -252,6 +252,19 @@
         justify-self: start;
       }
     }
+
+    // 2-column layout for paired checkboxes (Typeless Maneuver/Lethal/Learned/Overrank) -
+    // own class so it doesn't collide with the tab's .grid rule above (auto-fit + 0px min
+    // packs everything onto one row instead of a fixed 2 columns).
+    .checkbox-pair-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 4px 10px;
+
+      .form-group {
+        margin-bottom: 0;
+      }
+    }
   }
 
   
