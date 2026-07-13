@@ -1,6 +1,7 @@
 import { POKEROLE } from "../helpers/config.mjs";
 import { buildAilmentIconEffectData, buildCustomEffectIconData, buildStatChangeIconData, buildPainPenaltyIconData } from "../helpers/effects.mjs";
 import { MANEUVER_MOVES } from "../helpers/maneuvers.mjs";
+import { applyDamageEffectsHtml, createHealMessage } from "../helpers/damage.mjs";
 
 /**
  * Extend the base Actor document by defining a custom roll data structure which is ideal for the Simple system.
@@ -421,6 +422,45 @@ export class PokeroleActor extends Actor {
    */
   isMoveDisabled(move) {
     return this.system.ailments.some(a => a.type === 'disabled' && a.moveUuid === move.uuid);
+  }
+
+  /**
+   * @override
+   * Routes the HP bar (native token bar drag, or any third-party module calling this Foundry-standard
+   * API) through the same damage/heal logic as the "Apply Damage"/"Apply Healing" chat buttons, so
+   * fainting, Pain Penalty crossings, and heal messages aren't exclusive to our own UI. Every other
+   * attribute (e.g. Will) keeps Foundry's default behavior untouched.
+   */
+  async modifyTokenAttribute(attribute, value, isDelta = false, isBar = true) {
+    if (attribute !== 'hp') {
+      return super.modifyTokenAttribute(attribute, value, isDelta, isBar);
+    }
+
+    const attr = this.system.hp;
+    const current = isBar ? attr.value : attr;
+    const target = Math.clamp(isDelta ? current + value : value, 0, attr.max);
+    if (target === current) return this;
+
+    const updates = { 'system.hp.value': target };
+
+    // Same hook Foundry's default implementation fires - lets other modules veto/adjust the change.
+    const allowed = Hooks.call('modifyTokenAttribute', { attribute, value, isDelta, isBar }, updates, this);
+    if (allowed === false) return this;
+
+    const token = this.token ?? this.getActiveTokens(true, true)[0]?.document;
+    const name = token?.name ?? this.name;
+
+    if (target < current) {
+      const html = await applyDamageEffectsHtml(token, this, name, current - target, current, target, attr.max);
+      await ChatMessage.implementation.create({ content: `<div class="pokerole">${html}</div>` });
+    } else {
+      await ChatMessage.implementation.create({
+        content: createHealMessage(name, current, target, attr.max),
+        speaker: ChatMessage.implementation.getSpeaker({ token, actor: this })
+      });
+    }
+
+    return this.update(updates);
   }
 
   /** @override */

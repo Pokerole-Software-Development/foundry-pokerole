@@ -59,9 +59,56 @@ export async function bulkApplyHp(healthUpdates) {
 }
 
 /**
+ * Applies a single actor/token's HP-decrease side effects (fainted ailment, pain penalty
+ * crossing) and returns the chat message HTML for it. Shared between the "Apply Damage" chat
+ * button (bulkApplyDamageValidated) and PokeroleActor#modifyTokenAttribute (native token HP bar).
+ * @param {TokenDocument | undefined} token
+ * @param {PokeroleActor} actor
+ * @param {string} name
+ * @param {number} damage
+ * @param {number} oldHp
+ * @param {number} newHp
+ * @param {number} maxHp
+ * @returns {Promise<string>} Chat message HTML
+ */
+export async function applyDamageEffectsHtml(token, actor, name, damage, oldHp, newHp, maxHp) {
+  const dataTokenUuid = token ? `data-token-uuid="${token.uuid}"` : '';
+
+  let html = `<p>Applied ${damage} damage to ${name}.</p>`;
+  if (oldHp > 0) {
+    if (newHp === 0) {
+      // Handle fainting
+      html += `<p><b>${name} fainted!</b></p>`;
+      await (token?.actor ?? actor).applyAilment('fainted');
+
+      // Refresh token overlay effects
+      token?.object?.drawEffects();
+
+      // Refresh status effect HUD
+      if (canvas.hud?.token._statusEffects) {
+        canvas.tokens?.hud?.refreshStatusIcons();
+      }
+    } else {
+      const oldLevel = computePainPenaltyLevel(oldHp, maxHp);
+      const newLevel = computePainPenaltyLevel(newHp, maxHp);
+      if (newLevel > oldLevel) {
+        html += `<p><b>${name} is in pain! (Pain Penalization: -${newLevel} SCs)</b></p>
+  <div class="action-buttons">
+    <button class="chat-action" data-action="ignorePainPenalty"
+        data-actor-id="${actor.id}" ${dataTokenUuid}>
+      Spend 1 Will to Resist 1 Point of Pain
+    </button>
+  </div>`;
+      }
+    }
+  }
+  return html;
+}
+
+/**
  * Attempt to apply damage to each actor, providing a friendly error if
  * the user doesn't have permission to do so.
- * @param {Array<{ actorId?: string, tokenUuid?: string, damage: number }>} damageUpdates 
+ * @param {Array<{ actorId?: string, tokenUuid?: string, damage: number }>} damageUpdates
  */
 export async function bulkApplyDamageValidated(damageUpdates) {
   const hpUpdates = [];
@@ -86,36 +133,7 @@ export async function bulkApplyDamageValidated(damageUpdates) {
     const newHp = Math.max(oldHp - update.damage, 0);
     hpUpdates.push({ token, actor, hp: newHp });
 
-    const dataTokenUuid = token ? `data-token-uuid="${token.uuid}"` : '';
-
-    html += `<p>Applied ${update.damage} damage to ${name}.</p>`;
-    if (oldHp > 0) {
-      if (newHp === 0) {
-        // Handle fainting
-        html += `<p><b>${name} fainted!</b></p>`;
-        await (token?.actor ?? actor).applyAilment('fainted');
-
-        // Refresh token overlay effects
-        token?.object?.drawEffects();
-
-        // Refresh status effect HUD
-        if (canvas.hud?.token._statusEffects) {
-          canvas.tokens?.hud?.refreshStatusIcons();
-        }
-      } else {
-        const oldLevel = computePainPenaltyLevel(oldHp, maxHp);
-        const newLevel = computePainPenaltyLevel(newHp, maxHp);
-        if (newLevel > oldLevel) {
-          html += `<p><b>${name} is in pain! (Pain Penalization: -${newLevel} SCs)</b></p>
-  <div class="action-buttons">
-    <button class="chat-action" data-action="ignorePainPenalty"
-        data-actor-id="${actor.id}" ${dataTokenUuid}>
-      Spend 1 Will to Resist 1 Point of Pain
-    </button>
-  </div>`;
-        }
-      }
-    }
+    html += await applyDamageEffectsHtml(token, actor, name, update.damage, oldHp, newHp, maxHp);
   }
   html += '</div>';
 
