@@ -289,9 +289,9 @@ POKEROLE.ranks = ['none', 'starter', 'rookie', 'standard', 'advanced', 'expert',
 POKEROLE.moveGroups = ['learned', ...POKEROLE.ranks.slice(1), 'maneuver'];
 
 POKEROLE.itemCategory = {
-  item: "Item", 
-  medicine: "Medicine", 
-  pokeball: "Pokeball", 
+  item: "Item",
+  medicine: "Medicine",
+  pokeball: "Pokeball",
   ingredient: "Ingredient",
   berry: "Berry",
   pokedex: "Pokedex",
@@ -299,7 +299,9 @@ POKEROLE.itemCategory = {
   battle: "Battle Item",
   medals: "Trophy",
   keyItem: "Key Item",
-  miscItem: "Misc Item"
+  miscItem: "Misc Item",
+  evolutionItem: "Evolution Item",
+  technicalMachine: "Technical Machine"
 };
 
 POKEROLE.styleImages = {

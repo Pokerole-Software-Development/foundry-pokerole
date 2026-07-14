@@ -11,7 +11,9 @@ export class PokeroleItemItemData extends PokeroleItemBaseData {
 
       quantity: new NumberField({ required: true, integer: true, initial: 1, min: 0 }),
       weight: new NumberField({ required: true, initial: 0, min: 0 }),
-      price: new NumberField({ required: true, integer: true, initial: 0, min: 0 }),
+      // null means no fixed gold price (e.g. "Not for Sale") - see rarity for the source's rarity tier instead.
+      price: new NumberField({ required: true, integer: true, initial: 0, min: 0, nullable: true }),
+      rarity: new StringField({ required: false, blank: true, initial: "" }),
       pocket: new StringField({ required: true, initial: "item", choices: Object.keys(POKEROLE.itemCategory) }),
 
       enabled: new BooleanField({ initial: true }),
