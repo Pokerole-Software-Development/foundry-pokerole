@@ -16,6 +16,11 @@ packs/pokedex/
 packs/items/
 packs/macros/
 
+# Generated pack databases - rebuilt from the assets repo during the release build.
+# macros.db is hand-authored, not generated, so it stays tracked.
+packs/*.db
+!packs/macros.db
+
 css/
 images/pokemon/
 images/items/
