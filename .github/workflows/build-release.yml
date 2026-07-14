@@ -15,9 +15,23 @@ on:
             - prerelease
             - legacy
           default: release
+      asset_repo:
+          description: 'Which assets repository to build from?'
+          type: choice
+          options:
+            - POKEROLE DATA
+            - AXORUM DEV
+          default: POKEROLE DATA
 
 permissions:
-  contents: write 
+  contents: write
+
+env:
+  ASSET_REPOS: |
+    {
+      "POKEROLE DATA": "https://github.com/Pokerole-Software-Development/Pokerole-Data",
+      "AXORUM DEV": "https://github.com/Axorum/Pokerole-Data.git"
+    }
 
 jobs:
   build-and-release:
@@ -40,11 +54,19 @@ jobs:
           npm install
           npx gulp build
 
+      - name: Resolve Assets Repository
+        run: |
+          URL="${{ fromJSON(env.ASSET_REPOS)[inputs.asset_repo] }}"
+          # Strip the https://github.com/ prefix and an optional trailing .git suffix - actions/checkout
+          # wants a plain owner/repo slug, not a full URL.
+          SLUG="${URL#https://github.com/}"
+          echo "ASSETS_REPO_SLUG=${SLUG%.git}" >> $GITHUB_ENV
+
       - name: Checkout Assets Repository
         uses: actions/checkout@v4
         with:
-          repository: 'Pokerole-Software-Development/Pokerole-Data' 
-          path: 'assets-repo' 
+          repository: ${{ env.ASSETS_REPO_SLUG }}
+          path: 'assets-repo'
 
       - name: Setup Python
         uses: actions/setup-python@v5
