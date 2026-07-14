@@ -20,6 +20,9 @@ export class PokeroleItemItemSheet extends PokeroleItemBaseSheet {
     },
     properties: {
       template: "systems/pokerole/templates/item/parts/item-item-properties.hbs"
+    },
+    rules: {
+      template: "systems/pokerole/templates/item/parts/item-rules.hbs"
     }
   };
 
@@ -36,7 +39,8 @@ export class PokeroleItemItemSheet extends PokeroleItemBaseSheet {
   _getTabs() {
     const tabs = [
       { id: "description", group: "primary", icon: "fa-solid fa-book", label: "Description" },
-      { id: "properties", group: "primary", icon: "fa-solid fa-list", label: "Properties" }
+      { id: "properties", group: "primary", icon: "fa-solid fa-list", label: "Properties" },
+      { id: "rules", group: "primary", icon: "fa-solid fa-gears", label: "Effects" }
     ];
 
     const tabsObject = {};
@@ -55,6 +59,7 @@ export class PokeroleItemItemSheet extends PokeroleItemBaseSheet {
 
     // Item-specific context
     context.pockets = POKEROLE.itemCategory;
+    context.operators = { "add": "Add", "replace": "Replace" };
 
     return context;
   }

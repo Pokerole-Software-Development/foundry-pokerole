@@ -450,7 +450,7 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
   let constantBonus = 0;
   let rerollBonus = 0;
   let enablePainPenalty = !(POKEROLE.painPenaltyExcludedAttributes.includes(accAttr1) || POKEROLE.painPenaltyExcludedAttributes.includes(accAttr1var));
-  const painPenalty = enablePainPenalty ? actor.system.derived.painPenalty.effective : 0;
+  const painPenalty = enablePainPenalty ? actor.system.painPenalization.value : 0;
   let requiredSuccesses = Math.max(actor.system.actionCount.value + 1, 0);
 
   if (showPopup) {
@@ -840,7 +840,7 @@ export async function rollDamage(item, actor, token) {
   let { enemyDef, stab, effectiveness, poolBonus, constantBonus, applyLeechHeal, rerollBonus } = formData;
   poolBonus ??= 0;
   constantBonus ??= 0;
-  const painPenalty = actor.system.derived.painPenalty.effective;
+  const painPenalty = actor.system.painPenalization.value;
   constantBonus -= painPenalty;
 
   if (stab) {

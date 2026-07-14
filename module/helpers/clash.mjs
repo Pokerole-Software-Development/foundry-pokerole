@@ -82,7 +82,7 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
     + (attributeVal ?? 0)
     + (actor.system.skills.clash?.value ?? 0);
 
-  const painPenalty = actor.system.derived.painPenalty.effective;
+  const painPenalty = actor.system.painPenalization.value;
   const constantBonusWithPainPenalty = constantBonus - painPenalty;
 
   // Damage only depends on type matchups, not the roll - safe to compute once and reuse on reroll.

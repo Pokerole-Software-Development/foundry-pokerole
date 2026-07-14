@@ -744,10 +744,6 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     }
 
     let activeItem = gear.find(ability => ability.data._id === context.system.activeItem);
-    if (!activeItem && gear.length > 0) {
-      // If the active ability is not set, use the first one
-      activeItem = gear[0];
-    }
 
     if (activeItem) {
       context.activeItemName = activeItem.data.name;
@@ -767,6 +763,11 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       context.activeAbilityName = activeAbility.data.name;
       context.activeAbilityDescription = activeAbility.data.system.description;
     }
+
+    // "Equipped Effects" panel - uses the actor's real getters (not the abilities[0]/gear
+    // fallback above), so it can genuinely show "Empty" when nothing is equipped/selected.
+    context.activeAbilityItem = this.actor.activeAbility;
+    context.activeHeldItem = this.actor.activeItem;
 
     // Show number of learned moves and max number of learnable moves
     const maxLearnedMoves = (context.system.attributes.insight?.value ?? 0) + POKEROLE.CONST.LEARNED_MOVES_BONUS;
@@ -1062,7 +1063,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       speaker: ChatMessage.implementation.getSpeaker({ actor: this.actor })
     };
     const rollOptions = {
-      painPenalty: this.actor.system.derived.painPenalty.effective,
+      painPenalty: this.actor.system.painPenalization.value,
       confusionPenalty: this.actor.hasAilment('confused'),
       userRank: this.actor.system.rank,
     };

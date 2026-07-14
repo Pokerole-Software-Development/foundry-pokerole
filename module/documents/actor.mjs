@@ -76,8 +76,12 @@ export class PokeroleActor extends Actor {
 
     // Apply custom effects
     if (!game.settings.get('pokerole', 'recoveryMode')) { // Custom effects are disabled in recovery mode
-      for (const effect of this.items.filter(item => item.type === 'effect' && item.system.enabled)) {
-        for (const rule of effect.system.rules) {
+      const effects = this.items.filter(item => item.type === 'effect' && item.system.enabled);
+      // Equipped Item/Ability only contribute rules while selected (header dropdown) AND enabled.
+      const equipped = [this.activeItem, this.activeAbility].filter(item => item?.system.enabled);
+
+      for (const source of [...effects, ...equipped]) {
+        for (const rule of source.system.rules) {
           let value = parseInt(rule.value);
           let pathO = parseInt(foundry.utils.getProperty(this, rule.attribute));
 
@@ -430,9 +434,7 @@ export class PokeroleActor extends Actor {
       || foundry.utils.hasProperty(changed, 'system.statChanges')
       || foundry.utils.hasProperty(changed, 'system.accuracyMod')
       || foundry.utils.hasProperty(changed, 'system.hp')
-      || foundry.utils.hasProperty(changed, 'system.painPenaltyIgnored')
-      || foundry.utils.hasProperty(changed, 'system.painPenaltyOverrideEnabled')
-      || foundry.utils.hasProperty(changed, 'system.painPenaltyOverrideLevel')) {
+      || foundry.utils.hasProperty(changed, 'system.painPenalization')) {
       this._syncIconEffects(userId);
     }
   }
@@ -472,8 +474,9 @@ export class PokeroleActor extends Actor {
       desired.set(`ailment:${ailment.type}`, buildAilmentIconEffectData(ailment));
     }
     if (game.settings.get('pokerole', 'showPainPenaltyIcon') ?? true) {
-      const { level, ignored } = this.system.derived.painPenalty;
+      const { level, value } = this.system.painPenalization;
       if (level > 0) {
+        const ignored = level - value; // recover the clamped count for icon display
         desired.set('painPenalty', buildPainPenaltyIconData(level, ignored));
       }
     }

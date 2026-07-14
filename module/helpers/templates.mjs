@@ -7,6 +7,7 @@ export const preloadHandlebarsTemplates = async function() {
   const partials = [
     // Shared partials.
     "systems/pokerole/templates/shared/multi-editor.hbs",
+    "systems/pokerole/templates/item/parts/item-rules.hbs",
     // Actor partials.
     "systems/pokerole/templates/actor/parts/actor-items.hbs",
     "systems/pokerole/templates/actor/parts/actor-moves.hbs",

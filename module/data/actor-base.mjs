@@ -10,12 +10,16 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
     return {
       hp: resourceField(0, 0),
       will: resourceField(0, 3),
-      // Willpower spent to ignore points of the HP-derived Pain Penalty level below. Persists
-      // across HP changes within a scene - see computePainPenaltyLevel() in helpers/config.mjs.
-      painPenaltyIgnored: new NumberField({ required: true, integer: true, initial: 0, min: 0, max: 3 }),
-      // Manually forces the Pain Penalty level below instead of deriving it from HP.
-      painPenaltyOverrideEnabled: new BooleanField({ initial: false }),
-      painPenaltyOverrideLevel: new NumberField({ required: true, integer: true, initial: 0, min: 0, max: 3 }),
+      // Persisted state for the Pain Penalty mechanic (level/value/min/max are bolted on below,
+      // in prepareDerivedData() - same pattern as hp/will's persisted resourceField + derived .max).
+      painPenalization: new SchemaField({
+        // Willpower spent to ignore points of the HP-derived Pain Penalty level. Persists across
+        // HP changes within a scene - see computePainPenaltyLevel() in helpers/config.mjs.
+        ignored: new NumberField({ required: true, integer: true, initial: 0, min: 0, max: 3 }),
+        // Manually forces the Pain Penalty level instead of deriving it from HP.
+        overrideEnabled: new BooleanField({ initial: false }),
+        overrideLevel: new NumberField({ required: true, integer: true, initial: 0, min: 0, max: 3 })
+      }),
       rank: new StringField({ required: true, initial: "none", choices: POKEROLE.ranks }),
       personality: new StringField({ required: true, initial: "hardy", choices: Object.keys(POKEROLE.natureConfidence) }),
       gender: new StringField({ required: true, initial: "neutral", choices: POKEROLE.genders }),
@@ -115,12 +119,16 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
 
     let painPenaltyLevel = computePainPenaltyLevel(this.hp.value, this.hp.max);
     // Override never resurrects the mechanic if the world setting disabled it entirely.
-    if (this.painPenaltyOverrideEnabled && !game.settings.get('pokerole', 'disablePainPenalty')) {
-      painPenaltyLevel = this.painPenaltyOverrideLevel;
+    if (this.painPenalization.overrideEnabled && !game.settings.get('pokerole', 'disablePainPenalty')) {
+      painPenaltyLevel = this.painPenalization.overrideLevel;
     }
     // Can't visually/mechanically ignore more pain than currently exists, but the stored value
     // isn't clamped - it stays "banked" if the level later rises again within the same scene.
-    const painPenaltyIgnored = Math.min(this.painPenaltyIgnored ?? 0, painPenaltyLevel);
+    const painPenaltyIgnored = Math.min(this.painPenalization.ignored ?? 0, painPenaltyLevel);
+    this.painPenalization.level = painPenaltyLevel;
+    this.painPenalization.value = painPenaltyLevel - painPenaltyIgnored;
+    this.painPenalization.min = 0;
+    this.painPenalization.max = 3;
 
     // TP Support Will+
     this.will.max = (this.willbonus ?? 0) + this.attributes.insight.value + POKEROLE.CONST.MAX_WILL_BONUS + totalPassiveIncrease;
@@ -152,11 +160,6 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
       },
       def: {
         value: this.attributes.vitality.value + totalPassiveIncrease
-      },
-      painPenalty: {
-        level: painPenaltyLevel,
-        ignored: painPenaltyIgnored,
-        effective: painPenaltyLevel - painPenaltyIgnored
       }
     };
 

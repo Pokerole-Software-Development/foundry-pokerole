@@ -4,23 +4,23 @@
     <fieldset class="stat-changes pain">
       <legend>Pain Penalization</legend>
       <div class="pain-penalty-status">
-        {{#if system.painPenaltyOverrideEnabled}}
-        <select name="system.painPenaltyOverrideLevel" class="pain-penalty-level always-interactive">
-          {{selectOptions painPenaltyLevelChoices selected=system.painPenaltyOverrideLevel}}
+        {{#if system.painPenalization.overrideEnabled}}
+        <select name="system.painPenalization.overrideLevel" class="pain-penalty-level always-interactive">
+          {{selectOptions painPenaltyLevelChoices selected=system.painPenalization.overrideLevel}}
         </select>
         {{else}}
         <select class="pain-penalty-level" disabled>
-          {{selectOptions painPenaltyLevelChoices selected=system.derived.painPenalty.level}}
+          {{selectOptions painPenaltyLevelChoices selected=system.painPenalization.level}}
         </select>
         {{/if}}
-        <select name="system.painPenaltyIgnored" class="pain-penalty-resisted always-interactive">
-          {{selectOptions painPenaltyResistedChoices selected=system.painPenaltyIgnored}}
+        <select name="system.painPenalization.ignored" class="pain-penalty-resisted always-interactive">
+          {{selectOptions painPenaltyResistedChoices selected=system.painPenalization.ignored}}
         </select>
       </div>
       <label class="pain-penalty-override-toggle">
         Override
-        <input type="checkbox" name="system.painPenaltyOverrideEnabled"
-               {{checked system.painPenaltyOverrideEnabled}} class="always-interactive" />
+        <input type="checkbox" name="system.painPenalization.overrideEnabled"
+               {{checked system.painPenalization.overrideEnabled}} class="always-interactive" />
       </label>
     </fieldset>
     {{/unless}}
@@ -139,13 +139,67 @@
       </ol>
 
       <ol class="items-list effects-list">
+        <li class="items-header flexrow">
+          <h3 class="item-name flexrow">Held Item &amp; Ability</h3>
+        </li>
+
+        <li class="item flexrow {{#if activeAbilityItem}}{{#unless activeAbilityItem.system.enabled}}translucent{{/unless}}{{else}}translucent{{/if}}"
+          {{#if activeAbilityItem}}data-item-id="{{activeAbilityItem._id}}"{{/if}}>
+          <div class="item-name">
+            {{#if activeAbilityItem}}
+            <div class="item-image">
+              <img src="{{activeAbilityItem.img}}" title="{{activeAbilityItem.name}}" width="30" height="30" />
+            </div>
+            <h4>{{activeAbilityItem.name}}</h4>
+            {{else}}
+            <h4>Ability: Empty</h4>
+            {{/if}}
+          </div>
+          {{#if activeAbilityItem}}
+          <div class="item-controls centered">
+            <a data-action="toggleEffectEnabled" title="Toggle rules">
+              <i class="fas {{#if activeAbilityItem.system.enabled}}fa-toggle-on{{else}}fa-toggle-off{{/if}}"></i>
+            </a>
+            {{#if editable}}
+            <a data-action="editItem" title="Edit Ability"><i class="fas fa-edit"></i></a>
+            {{/if}}
+          </div>
+          {{/if}}
+        </li>
+
+        <li class="item flexrow {{#if activeHeldItem}}{{#unless activeHeldItem.system.enabled}}translucent{{/unless}}{{else}}translucent{{/if}}"
+          {{#if activeHeldItem}}data-item-id="{{activeHeldItem._id}}"{{/if}}>
+          <div class="item-name">
+            {{#if activeHeldItem}}
+            <div class="item-image">
+              <img src="{{activeHeldItem.img}}" title="{{activeHeldItem.name}}" width="30" height="30" />
+            </div>
+            <h4>{{activeHeldItem.name}}</h4>
+            {{else}}
+            <h4>Held Item: Empty</h4>
+            {{/if}}
+          </div>
+          {{#if activeHeldItem}}
+          <div class="item-controls centered">
+            <a data-action="toggleEffectEnabled" title="Toggle rules">
+              <i class="fas {{#if activeHeldItem.system.enabled}}fa-toggle-on{{else}}fa-toggle-off{{/if}}"></i>
+            </a>
+            {{#if editable}}
+            <a data-action="editItem" title="Edit Item"><i class="fas fa-edit"></i></a>
+            {{/if}}
+          </div>
+          {{/if}}
+        </li>
+      </ol>
+
+      <ol class="items-list effects-list">
         <li class="items-header flexrow" data-effect-type="{{section.type}}">
           <h3 class="item-name flexrow">Custom Effects</h3>
           {{#if editable}}
           <div class="item-controls centered">
             <a data-action="createItem" title="Create effect" data-type="effect"><i class="fas fa-plus"></i>
               Add</a>
-          </div>          
+          </div>
           {{/if}}
         </li>
 

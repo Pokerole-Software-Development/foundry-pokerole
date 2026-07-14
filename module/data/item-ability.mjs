@@ -1,6 +1,16 @@
 import { PokeroleItemBaseData } from "./item-base.mjs";
 
-/**
- * Abilities have no fields beyond the shared base (description/source).
- */
-export class PokeroleItemAbilityData extends PokeroleItemBaseData {}
+const { BooleanField, ArrayField, ObjectField } = foundry.data.fields;
+
+export class PokeroleItemAbilityData extends PokeroleItemBaseData {
+
+  static defineSchema() {
+    return {
+      ...super.defineSchema(),
+
+      enabled: new BooleanField({ initial: true }),
+      // Rules only apply while this ability is the actor's active ability (see PokeroleActor#activeAbility).
+      rules: new ArrayField(new ObjectField())
+    };
+  }
+}

@@ -16,6 +16,9 @@ export class PokeroleAbilitySheet extends PokeroleItemBaseSheet {
     },
     description: {
       template: "systems/pokerole/templates/item/parts/item-ability-description.hbs"
+    },
+    rules: {
+      template: "systems/pokerole/templates/item/parts/item-rules.hbs"
     }
   };
 
@@ -31,7 +34,8 @@ export class PokeroleAbilitySheet extends PokeroleItemBaseSheet {
    */
   _getTabs() {
     const tabs = [
-      { id: "description", group: "primary", icon: "fa-solid fa-book", label: "Description" }
+      { id: "description", group: "primary", icon: "fa-solid fa-book", label: "Description" },
+      { id: "rules", group: "primary", icon: "fa-solid fa-gears", label: "Effects" }
     ];
 
     const tabsObject = {};
@@ -42,6 +46,15 @@ export class PokeroleAbilitySheet extends PokeroleItemBaseSheet {
     }
 
     return tabsObject;
+  }
+
+  /** @override */
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+
+    context.operators = { "add": "Add", "replace": "Replace" };
+
+    return context;
   }
 
   /** @override */

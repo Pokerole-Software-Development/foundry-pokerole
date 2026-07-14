@@ -689,7 +689,7 @@ async function onChatActionClick(event) {
           name: 'Evade',
           value: actor.system.derived.evade.value
         }, {
-          painPenalty: actor.system.derived.painPenalty.effective,
+          painPenalty: actor.system.painPenalization.value,
           confusionPenalty: actor.hasAilment('confused'),
           userRank: actor.system.rank
         },
@@ -731,8 +731,7 @@ async function onChatActionClick(event) {
       case 'ignorePainPenalty': {
         const { actor, token } = await getActorAndTokenFromEvent(event);
         if (canModifyTokenOrActor(token, actor)) {
-          const { level, ignored } = actor.system.derived.painPenalty;
-          if (ignored >= level) {
+          if (actor.system.painPenalization.value <= 0) {
             return ui.notifications.warn("There's no more pain left to resist.");
           }
           if (actor.system.will.value < 1) {
@@ -740,7 +739,7 @@ async function onChatActionClick(event) {
           }
           await actor.update({
             'system.will.value': actor.system.will.value - 1,
-            'system.painPenaltyIgnored': actor.system.painPenaltyIgnored + 1
+            'system.painPenalization.ignored': actor.system.painPenalization.ignored + 1
           });
           await ChatMessage.implementation.create({
             content: 'It toughed through the pain with its Will power!',
