@@ -135,7 +135,15 @@ export class PokeroleItem extends Item {
       content: html,
       flavor,
       speaker: ChatMessage.getSpeaker({actor: this.actor, token}),
-      flags: {"core.canPopout": true}
+      flags: {
+        "core.canPopout": true,
+        "pokerole": {
+          itemUse: true,
+          itemUuid: this.uuid,
+          actorUuid: this.actor?.uuid,
+          tokenUuid: token?.uuid
+        }
+      }
     };
     chatData = ChatMessage.implementation.applyRollMode(chatData, game.settings.get('core', 'rollMode'));
 
