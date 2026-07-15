@@ -14,6 +14,7 @@ on:
             - release
             - prerelease
             - legacy
+            - develop
           default: release
       asset_repo:
           description: 'Which assets repository to build from?'
@@ -115,6 +116,20 @@ jobs:
               echo "PATCH_VERSION=${VERSION}-legacy" >> $GITHUB_ENV
               echo "PATCH_DESC_PREFIX=🔒 LEGACY BUILD — pinned to v${VERSION}, will not receive further updates. " >> $GITHUB_ENV
               ;;
+            develop)
+              # Same pinned-manifest mechanism as prerelease, but installs as a SEPARATE Foundry system
+              # (see PATCH_ID below) so it can coexist with a Release/Pre-Release install at the same time.
+              echo "RELEASE_TYPE=Develop" >> $GITHUB_ENV
+              echo "RELEASE_TAG=develop" >> $GITHUB_ENV
+              echo "IS_PRERELEASE=true" >> $GITHUB_ENV
+              echo "MAKE_LATEST=false" >> $GITHUB_ENV
+              echo "PIN_MANIFEST=true" >> $GITHUB_ENV
+              echo "MANIFEST_URL=https://github.com/${{ github.repository }}/releases/download/develop/system.json" >> $GITHUB_ENV
+              echo "DOWNLOAD_URL=https://github.com/${{ github.repository }}/releases/download/develop/PokeroleModule.zip" >> $GITHUB_ENV
+              echo "PATCH_VERSION=dev-${{ github.run_number }}" >> $GITHUB_ENV
+              echo "PATCH_DESC_PREFIX=🚧 DEVELOP BUILD — continuously updated with in-progress features, expect instability. " >> $GITHUB_ENV
+              echo "PATCH_ID=pokerole-dev" >> $GITHUB_ENV
+              ;;
             *)
               echo "RELEASE_TYPE=Release" >> $GITHUB_ENV
               echo "RELEASE_TAG=v${VERSION}-release.${{ github.run_number }}" >> $GITHUB_ENV
@@ -160,9 +175,21 @@ jobs:
             release_stage/system.json > release_stage/system.tmp.json
           mv release_stage/system.tmp.json release_stage/system.json
 
+          if [ -n "$PATCH_ID" ]; then
+            # Fork this build into a separate Foundry system id, and repoint every compendium
+            # pack's "system" field to match (packs won't load under the wrong system id).
+            jq --arg id "$PATCH_ID" '.id = $id | .packs |= map(.system = $id)' \
+              release_stage/system.json > release_stage/system.tmp.json
+            mv release_stage/system.tmp.json release_stage/system.json
+          fi
+
       - name: Load Release Notes
         run: |
-          NOTES=$(cat release_notes.md)
+          if [ "${{ inputs.release_type }}" == "develop" ]; then
+            NOTES="🚧 Automated Develop build — continuously updated with in-progress features. No detailed changelog for this build type; see the commit history for what changed."
+          else
+            NOTES=$(cat release_notes.md)
+          fi
           if [ "$PIN_MANIFEST" == "true" ]; then
             NOTES=$(printf '%s\n\n## Installing this %s Build\nPaste this Manifest URL into the Foundry Install System dialog:\n`%s`\n' "$NOTES" "$RELEASE_TYPE" "$MANIFEST_URL")
           fi
