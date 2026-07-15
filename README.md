@@ -74,9 +74,9 @@ Builds are produced by the "Build and Official Release" GitHub Actions workflow 
 - **Release type**: `release` (stable), `prerelease` (testing), `develop` (in-progress/unstable, installs as a separate system), or `legacy` (frozen to a specific version).
 - **Assets repository**: which Pokerole-Data source to pull compendium data from.
 
-The workflow compiles the CSS, pulls the compendium databases, and publishes a GitHub Release with the resulting `PokeroleModule.zip` - see the [Installation](#installation) section above for the manifest URL of each release type.
+The workflow pulls the compendium databases and publishes a GitHub Release with the resulting `PokeroleModule.zip` - see the [Installation](#installation) section above for the manifest URL of each release type.
 
 
 ### Installation from source
 
-Run `npm install` followed by `npm run build`, then copy/symlink this folder to `[Foundry data directory]/Data/systems/pokerole`.
+Copy/symlink this folder to `[Foundry data directory]/Data/systems/pokerole`.

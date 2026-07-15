@@ -3,10 +3,6 @@ name: Build and Official Release
 on:
   workflow_dispatch:
     inputs:
-      enable_gulp:
-        description: 'Run Gulp build?'
-        type: boolean
-        default: true
       release_type:
           description: 'What kind of build is this?'
           type: choice
@@ -41,19 +37,6 @@ jobs:
     steps:
       - name: Checkout Main Repository
         uses: actions/checkout@v4
-
-      # Setup Node
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20' 
-      
-      # Conditional Gulp Step
-      - name: Install NPM Dependencies and Run Gulp
-        if: ${{ inputs.enable_gulp == true }}
-        run: |
-          npm install
-          npx gulp build
 
       - name: Resolve Assets Repository
         run: |

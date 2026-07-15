@@ -21,9 +21,11 @@ packs/macros/
 packs/*.db
 !packs/macros.db
 
-css/
 images/pokemon/
 images/items/
 
 # Other
 .DS_Store
+
+# Claude Code - personal/local-only instructions, not shared with the team
+CLAUDE.local.md
