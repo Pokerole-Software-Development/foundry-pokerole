@@ -5,7 +5,28 @@ Work-in-progress [FoundryVTT](https://foundryvtt.com/) system for [Pokérole](ht
 Partially based on [Boilerplate](https://gitlab.com/asacolips-projects/foundry-mods/boilerplate) and [dnd5e](https://github.com/foundryvtt/dnd5e). Powered by [Pokerole-Data](https://github.com/Willowlark/Pokerole-Data).
 
 ## Installation
-Open the *Game Systems* tab and click *Install System*, then enter `https://raw.githubusercontent.com/Pokerole-Software-Development/foundry-pokerole/main/system.json` as the manifest URL and click *Install*.
+Open the *Game Systems* tab and click *Install System*, then paste the manifest URL for the build you want below and click *Install*.
+
+### Release (Recommended)
+The latest stable release.
+```
+https://raw.githubusercontent.com/Pokerole-Software-Development/foundry-pokerole/main/system.json
+```
+
+### Pre-Release
+Testing builds with the newest features ahead of the next stable release - may be unstable. Installs as an update to the same system as Release, so only keep one of the two installed at a time.
+```
+https://github.com/Pokerole-Software-Development/foundry-pokerole/releases/download/prerelease/system.json
+```
+
+### Develop
+Continuously updated build tracking in-progress development - expect frequent breaking changes. Installs as a separate system, so it can be kept side-by-side with a Release or Pre-Release install without conflict.
+```
+https://github.com/Pokerole-Software-Development/foundry-pokerole/releases/download/develop/system.json
+```
+
+### Legacy
+Version-pinned builds that never receive further updates, for campaigns that need to stay on a specific past version. None have been published yet.
 
 ## Usage
 
@@ -47,9 +68,13 @@ The following modules are known to work and provide useful functionality:
 
 ## Development
 
-### Compiling the CSS
+### Creating a Build
 
-~~This repository includes SCSS files that must be compiled to CSS.~~ CSS is added to the project, no need to compile it. Run `npm install` followed by `npm run gulp` to automatically watch for changes in SCSS files.
+Builds are produced by the "Build and Official Release" GitHub Actions workflow rather than a local build step. From the *Actions* tab, run the workflow manually and choose:
+- **Release type**: `release` (stable), `prerelease` (testing), `develop` (in-progress/unstable, installs as a separate system), or `legacy` (frozen to a specific version).
+- **Assets repository**: which Pokerole-Data source to pull compendium data from.
+
+The workflow compiles the CSS, pulls the compendium databases, and publishes a GitHub Release with the resulting `PokeroleModule.zip` - see the [Installation](#installation) section above for the manifest URL of each release type.
 
 
 ### Installation from source
