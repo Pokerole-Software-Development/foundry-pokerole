@@ -3,7 +3,7 @@
   {{#each targets as |t|}}
   <div class="form-group">
     <label>{{t.name}} (up to {{t.failedCount}})</label>
-    <input type="number" name="count_{{t.index}}" value="0" min="0" max="{{t.failedCount}}"/>
+    <input type="number" class="reroll-count-input" name="count_{{t.index}}" value="0" min="0" max="{{t.failedCount}}"/>
   </div>
   {{/each}}
 </form>

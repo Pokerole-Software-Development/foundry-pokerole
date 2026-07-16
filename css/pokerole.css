@@ -3607,3 +3607,14 @@ body.theme-light .pokerole.item.sheet:not(.theme-dark),
 .move-tooltip footer > * + * {
   margin-top: 0;
 }
+.pokerole.reroll-dialog .form-group {
+  flex-wrap: nowrap;
+}
+.pokerole.reroll-dialog .form-group label {
+  flex: 1;
+}
+.pokerole.reroll-dialog .reroll-count-input {
+  flex: 0 0 auto;
+  width: 50px;
+  text-align: center;
+}

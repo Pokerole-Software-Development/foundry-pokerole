@@ -156,7 +156,8 @@ export async function ReSuccessRoll(li) {
 
   const formData = await foundry.applications.api.DialogV2.wait({
     window: { title: 'Reroll Failed Dice' },
-    classes: ['standard-form'],
+    classes: ['standard-form', 'pokerole', 'reroll-dialog'],
+    position: { width: 340 },
     content,
     buttons: [{
       action: 'reroll',
@@ -190,7 +191,8 @@ async function rerollDamageDialog(message, rollData) {
 
   const formData = await foundry.applications.api.DialogV2.wait({
     window: { title: 'Reroll Failed Dice' },
-    classes: ['standard-form'],
+    classes: ['standard-form', 'pokerole', 'reroll-dialog'],
+    position: { width: 340 },
     content,
     buttons: [{
       action: 'reroll',
