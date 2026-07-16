@@ -66,7 +66,7 @@ export function buildCustomEffectIconData(item) {
     disabled: false,
     transfer: false,
     showIcon: CONST.ACTIVE_EFFECT_SHOW_ICON.ALWAYS,
-    flags: { pokerole: { iconOnly: true, iconKey: `effect:${item.id}` } }
+    flags: { [game.system.id]: { iconOnly: true, iconKey: `effect:${item.id}` } }
   };
 }
 
@@ -93,7 +93,7 @@ export function buildStatChangeIconData(key, value) {
     disabled: false,
     transfer: false,
     showIcon: CONST.ACTIVE_EFFECT_SHOW_ICON.ALWAYS,
-    flags: { pokerole: { iconOnly: true, iconKey: `statChange:${key}` } }
+    flags: { [game.system.id]: { iconOnly: true, iconKey: `statChange:${key}` } }
   };
 }
 
@@ -111,7 +111,7 @@ export function buildPainPenaltyIconData(level, ignored) {
     disabled: false,
     transfer: false,
     showIcon: CONST.ACTIVE_EFFECT_SHOW_ICON.ALWAYS,
-    flags: { pokerole: { iconOnly: true, iconKey: 'painPenalty' } }
+    flags: { [game.system.id]: { iconOnly: true, iconKey: 'painPenalty' } }
   };
 }
 

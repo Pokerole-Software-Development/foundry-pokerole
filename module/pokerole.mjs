@@ -129,7 +129,7 @@ Hooks.on('getChatMessageContextOptions', (html, options) => {
     condition: li => {
       // Only show this context menu if the person is GM or author of the message
       const message = game.messages.get(li.getAttribute('data-message-id'));
-      const rollData = message?.getFlag('pokerole', 'rollData');
+      const rollData = message?.getFlag(game.system.id, 'rollData');
 
       // Only if not already rerolled and there's at least one failed die left
       if (!rollData || rollData.rerolled) return false;

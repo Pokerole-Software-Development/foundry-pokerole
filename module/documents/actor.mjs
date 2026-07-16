@@ -494,10 +494,10 @@ export class PokeroleActor extends Actor {
       }
     }
 
-    const existing = this.effects.filter(e => e.getFlag('pokerole', 'iconOnly'));
-    const existingByKey = new Map(existing.map(e => [e.getFlag('pokerole', 'iconKey'), e]));
+    const existing = this.effects.filter(e => e.getFlag(game.system.id, 'iconOnly'));
+    const existingByKey = new Map(existing.map(e => [e.getFlag(game.system.id, 'iconKey'), e]));
 
-    const toDelete = existing.filter(e => !desired.has(e.getFlag('pokerole', 'iconKey')));
+    const toDelete = existing.filter(e => !desired.has(e.getFlag(game.system.id, 'iconKey')));
     const toCreate = [];
     const toUpdate = [];
 

@@ -103,8 +103,8 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
   };
 
   messageData.flags = messageData.flags || {};
-  if (messageDataPart.flags?.pokerole?.rollData) {
-    messageData.flags.pokerole = { rollData: messageDataPart.flags.pokerole.rollData };
+  if (messageDataPart.flags?.[game.system.id]?.rollData) {
+    messageData.flags[game.system.id] = { rollData: messageDataPart.flags[game.system.id].rollData };
   }
 
   const finalMessageData = ChatMessage.implementation.applyRollMode(messageData, game.settings.get('core', 'rollMode'));

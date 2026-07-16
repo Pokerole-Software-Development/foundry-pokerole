@@ -89,7 +89,7 @@ export async function successRollAttributeSkill(attribute, skill, chatData, pool
  * @param {number} count
  */
 export async function rerollFailedDice(message, count) {
-  const rollData = message.getFlag('pokerole', 'rollData');
+  const rollData = message.getFlag(game.system.id, 'rollData');
   if (!rollData || rollData.rerolled) return;
 
   const { rolls, modifier, type, context, painPenalty = 0, requiredSuccesses = null } = rollData;
@@ -124,7 +124,7 @@ export async function rerollFailedDice(message, count) {
 
   await message.update({
     content,
-    'flags.pokerole.rollData': {
+    [`flags.${game.system.id}.rollData`]: {
       ...rollData,
       rolls: [...rolls, ...rollsRE],
       rerolled: true
@@ -140,7 +140,7 @@ const REROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/reroll.html";
  */
 export async function ReSuccessRoll(li) {
   const message = game.messages.get(li.getAttribute('data-message-id'));
-  const rollData = message?.getFlag('pokerole', 'rollData');
+  const rollData = message?.getFlag(game.system.id, 'rollData');
   if (!rollData || rollData.rerolled) return;
 
   if (rollData.type === 'damage') {
@@ -220,7 +220,7 @@ async function rerollDamageDialog(message, rollData) {
  * @param {Object<number, number>} countsByIndex Target array index -> dice to reroll
  */
 export async function rerollDamageTargets(message, countsByIndex) {
-  const rollData = message.getFlag('pokerole', 'rollData');
+  const rollData = message.getFlag(game.system.id, 'rollData');
   if (!rollData || rollData.rerolled || rollData.type !== 'damage') return;
 
   const targets = rollData.targets;
@@ -267,7 +267,7 @@ export async function rerollDamageTargets(message, countsByIndex) {
 
   await message.update({
     content,
-    'flags.pokerole.rollData': { ...rollData, targets, rerolled: true }
+    [`flags.${game.system.id}.rollData`]: { ...rollData, targets, rerolled: true }
   });
 }
 
@@ -1202,8 +1202,8 @@ export async function createSuccessRollMessageData(rollCount, flavor, chatData, 
 
   if (rerollType) {
     messageData.flags ??= {};
-    messageData.flags.pokerole ??= {};
-    messageData.flags.pokerole.rollData = {
+    messageData.flags[game.system.id] ??= {};
+    messageData.flags[game.system.id].rollData = {
       type: rerollType,
       rolls: [...rolls, ...rollsRE],
       modifier,

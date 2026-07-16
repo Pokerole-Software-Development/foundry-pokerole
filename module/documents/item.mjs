@@ -137,7 +137,7 @@ export class PokeroleItem extends Item {
       speaker: ChatMessage.getSpeaker({actor: this.actor, token}),
       flags: {
         "core.canPopout": true,
-        "pokerole": {
+        [game.system.id]: {
           itemUse: true,
           itemUuid: this.uuid,
           actorUuid: this.actor?.uuid,
@@ -397,7 +397,7 @@ export class PokeroleItem extends Item {
     if (!actor) return;
 
     // Get the Item from stored flag data or by the item ID on the Actor
-    const storedData = message.getFlag("pokerole", "itemData");
+    const storedData = message.getFlag(game.system.id, "itemData");
     const item = storedData ? new this(storedData, {parent: actor}) : actor.items.get(card.dataset.itemId);
     const canBeClashed = !!card.dataset.canBeClashed;
     const canBeEvaded = !!card.dataset.canBeEvaded;
