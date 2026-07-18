@@ -26,6 +26,8 @@ export const MANEUVER_MOVES = [
       dmgMod1var: "",
       effect: "The User applies CPR and/or first aid to an unconcious Ally. Target won't receive Lethal Damage each hour anymore. Each Lethal Damage on the Ally reduces 1 Success to the Accuracy Pool of this Maneuver. This Move may only be attempted on the Target once per hour.",
       source: "Core v3.0",
+      rank: "starter",
+      learned: true,
       attributes: { maneuver: true },
       effectGroups: [],
       heal: { type: "none" }
@@ -50,6 +52,8 @@ export const MANEUVER_MOVES = [
       dmgMod1var: "",
       effect: "Single Target. Blocks. The Target may resist this Maneuver by rolling Strength or Dexterity and scoring the same or more Successes than the User. The User can't Act while Grappling. The User can release the Grapple at any point to act.",
       source: "Core v3.0",
+      rank: "starter",
+      learned: true,
       attributes: { maneuver: true },
       effectGroups: [],
       heal: { type: "none" }
@@ -74,6 +78,8 @@ export const MANEUVER_MOVES = [
       dmgMod1var: "",
       effect: "Target Self. The User runs away from the Battlefield. This Effect ends the Battle. Foes may try to prevent this by rolling Dexterity + Athletic and scoring the same or more Successes. If the User is Blocked, this Maneuver fails.",
       source: "Core v3.0",
+      rank: "starter",
+      learned: true,
       attributes: { maneuver: true },
       effectGroups: [],
       heal: { type: "none" }
@@ -98,6 +104,8 @@ export const MANEUVER_MOVES = [
       dmgMod1var: "special",
       effect: "Single Target.",
       source: "Core v3.0",
+      rank: "starter",
+      learned: true,
       attributes: { maneuver: true },
       effectGroups: [],
       heal: { type: "none" }
@@ -122,6 +130,8 @@ export const MANEUVER_MOVES = [
       dmgMod1var: "",
       effect: "Target One Ally. Reaction 1. Roll your Accuracy as if it were Chance dice. Add 1 die to the Accuracy Roll of your Ally for each Success (result of 6) obtained this way. Up to 3 Characters may attempt to help a single Action. Up to 6 Dice may be added this way.",
       source: "Core v3.0",
+      rank: "starter",
+      learned: true,
       attributes: { reactionMove: 1, maneuver: true },
       effectGroups: [],
       heal: { type: "none" }
@@ -146,6 +156,8 @@ export const MANEUVER_MOVES = [
       dmgMod1var: "special",
       effect: "Single Target.",
       source: "Core v3.0",
+      rank: "starter",
+      learned: true,
       attributes: { maneuver: true },
       effectGroups: [],
       heal: { type: "none" }
@@ -170,6 +182,8 @@ export const MANEUVER_MOVES = [
       dmgMod1var: "",
       effect: "Single Target. Before the Battle starts, Target may resist by rolling: Insight + Alert and scoring the same or more Successes. The User has 1 Action before Initiatives are rolled in which the Target can't act. Other foes can still Evade or Clash during this time.",
       source: "Core v3.0",
+      rank: "starter",
+      learned: true,
       attributes: { maneuver: true },
       effectGroups: [],
       heal: { type: "none" }
@@ -194,6 +208,8 @@ export const MANEUVER_MOVES = [
       dmgMod1var: "",
       effect: "Target Self. Reaction 6. Match the number of successes on the Accuracy roll of a Move that targets the User. If successful, the user Clashes, see p.68. This Maneuver is not affected by the Multiple Action difficulty chart.",
       source: "Core v3.0",
+      rank: "starter",
+      learned: true,
       attributes: { reactionMove: 6, maneuver: true },
       effectGroups: [],
       heal: { type: "none" }
@@ -218,6 +234,8 @@ export const MANEUVER_MOVES = [
       dmgMod1var: "special",
       effect: "Single Target.",
       source: "Core v3.0",
+      rank: "starter",
+      learned: true,
       attributes: { maneuver: true },
       effectGroups: [],
       heal: { type: "none" }
@@ -242,6 +260,8 @@ export const MANEUVER_MOVES = [
       dmgMod1var: "",
       effect: "Target One Ally. Priority 1. The User will become the Target for incoming attacks towards the Target. This Cover lasts until the User's Next Turn or until the Target uses a Non-Ranged Physical Move. Pokémon with Loyalty 2 or less won't use this Maneuver.",
       source: "Core v3.0",
+      rank: "starter",
+      learned: true,
       attributes: { maneuver: true },
       effectGroups: [],
       heal: { type: "none" }
@@ -266,6 +286,8 @@ export const MANEUVER_MOVES = [
       dmgMod1var: "",
       effect: "Target Self. Reaction 6. Match the number of successes on the Accuracy roll of a Move that targets the User. If successful, the user Evades, see p.68. This Maneuver is not affected by the Multiple Action difficulty chart.",
       source: "Core v3.0",
+      rank: "starter",
+      learned: true,
       attributes: { reactionMove: 6, maneuver: true },
       effectGroups: [],
       heal: { type: "none" }
