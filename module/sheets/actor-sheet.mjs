@@ -537,6 +537,15 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       this._inventoryFilter = event.target.value;
       this.render({ parts: ["items"] });
     });
+
+    // These inputs aren't part of the bound form (no `name`) - only read imperatively by
+    // addCustomAttribute/addCustomSkill. Without this, blurring them (e.g. by clicking the
+    // adjacent "+" button) fires a native change event that bubbles to the form's
+    // submitOnChange handler, triggering a mid-interaction re-render that can swap out the
+    // "+" button before the click completes, silently swallowing it.
+    for (const sel of ['.custom-skill .add-value-input', '.custom-attribute .add-value-input']) {
+      this.element.querySelector(sel)?.addEventListener('change', event => event.stopPropagation());
+    }
   }
 
   /* -------------------------------------------- */
