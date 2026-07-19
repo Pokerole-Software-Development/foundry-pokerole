@@ -3,33 +3,64 @@
   <div class="Geoboxer">
     <ul class="items-list team-list">
       {{#each team as |member|}}
-      <li class="item team-member{{#if member.missing}} missing{{/if}}" data-uuid="{{member.uuid}}">
+      <li class="item team-member{{#if member.empty}} empty{{/if}}{{#if member.missing}} missing{{/if}}" data-uuid="{{member.uuid}}">
+        {{#if member.empty}}
+        <div class="team-member-portrait empty"></div>
+        <div class="team-member-info">
+          <span class="team-empty-label">- Empty -</span>
+        </div>
+        {{else}}
         {{#unless member.missing}}
-        <div class="team-member-portrait draggable" draggable="true" data-action="openTeamMember" data-uuid="{{member.uuid}}" title="Open {{member.name}}'s sheet">
+        <div class="team-member-portrait draggable{{#if member.fainted}} fainted{{/if}}" draggable="true" data-action="openTeamMember" data-uuid="{{member.uuid}}" title="Open {{member.name}}'s sheet" style="{{#if member.rankColor}}border-color: {{member.rankColor}};{{/if}}">
           <img class="team-member-img" src="{{member.img}}" alt="{{member.name}}"/>
+          <img class="team-rank-badge" src="{{member.rankImage}}" title="{{member.rankLabel}}"/>
         </div>
         {{/unless}}
         <div class="team-member-info">
           <div class="team-member-header">
             <span class="team-member-name">{{member.name}}</span>
             {{#unless member.missing}}
-            <span class="team-member-rank">- {{member.rank}}</span>
+            {{#if (pkOptions "genderOption")}}
+            <img class="team-gender-icon" src="{{member.genderImage}}"/>
+            {{/if}}
+            {{#if member.fainted}}
+            <span class="team-fainted-tag">Fainted</span>
+            {{/if}}
             {{/unless}}
           </div>
           {{#unless member.missing}}
-          <hr class="team-member-separator"/>
-          <span class="team-member-hp">HP: {{member.hp.value}}/{{member.hp.max}}</span>
-          <span class="team-member-will">Will: {{member.will.value}}/{{member.will.max}}</span>
+          <div class="team-bar hp {{member.hpBucket}}">
+            <span class="team-bar-label">HP</span>
+            <span class="team-bar-value">{{member.hp.value}}/{{member.hp.max}}</span>
+            <div class="team-bar-track"><div class="team-bar-fill" style="width: {{member.hpPercent}}%;"></div></div>
+          </div>
+          <div class="team-bar wp">
+            <span class="team-bar-label">WP</span>
+            <span class="team-bar-value">{{member.will.value}}/{{member.will.max}}</span>
+            <div class="team-bar-track"><div class="team-bar-fill" style="width: {{member.wpPercent}}%;"></div></div>
+          </div>
+          {{#if member.ailments.length}}
+          <div class="team-ailment-row">
+            {{#each member.ailments}}
+            <div class="team-ailment-chip" style="--ailment-tint: {{this.tint}};" title="{{this.label}}">
+              <img src="{{this.icon}}"/>
+            </div>
+            {{/each}}
+          </div>
+          {{/if}}
           {{/unless}}
         </div>
+        {{/if}}
         {{#if ../editable}}
+        {{#unless member.empty}}
         <a class="team-member-clear" data-action="clearTeamMember" data-uuid="{{member.uuid}}" title="Remove from team">
           <i class="fas fa-times"></i>
         </a>
+        {{/unless}}
         {{/if}}
       </li>
       {{/each}}
     </ul>
   </div>
-  <p class="hint">Drag an owned Pokémon actor here to add it to this Trainer's team (up to 6).</p>
+  <p class="hint">Drag an owned Pokémon actor here to add it to this Trainer's team (up to {{teamSizeLimit}}).</p>
 </section>

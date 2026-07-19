@@ -58,6 +58,15 @@
       <label for="system.source">Source</label>
       <input type="text" name="system.source" value="{{source}}" data-dtype="String"/>
     </div>
+
+    {{#if isTrainer}}
+    <h2>Team</h2>
+
+    <div class="form-group">
+      <label for="system.teamSizeLimit">Team Size Limit</label>
+      <input type="number" name="system.teamSizeLimit" value="{{teamSizeLimit}}" min="1" max="20" data-dtype="Number"/>
+    </div>
+    {{/if}}
   </div>
   
 </form>

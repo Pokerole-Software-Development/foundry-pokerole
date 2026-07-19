@@ -1190,6 +1190,9 @@ body,
   --background: #111;
   --color-disposition: #999999;
   --input-pkmn-text-color: black;
+  --color-pkmn-team-card-bg: #c23a24;
+  --color-pkmn-hp-low-hi: #ff7a1a;
+  --color-pkmn-hp-low-lo: #d94e0a;
 }
 .pokerole.actor.sheet:not(.theme-light) {
   --color-pkmn-header-back: #251915;
@@ -1204,6 +1207,9 @@ body,
   --background: #111;
   --color-disposition: #999999;
   --input-pkmn-text-color: white;
+  --color-pkmn-team-card-bg: #841722;
+  --color-pkmn-hp-low-hi: #ff5a42;
+  --color-pkmn-hp-low-lo: #c2301c;
 }
 .pokerole.actor.sheet .window-header slide-toggle {
   --slide-toggle-track-color-unchecked: darkgray;
@@ -3012,95 +3018,211 @@ body.theme-light .pokerole.actor.sheet:not(.theme-light) .effects-list .quick-ai
 
 /* Team tab */
 .pokerole .team-list {
-  -webkit-column-count: 2;
-  -moz-column-count: 2;
-  column-count: 2;
-  -webkit-column-gap: 12px;
-  -moz-column-gap: 12px;
-  column-gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(260px, (100% - 12px) / 2), 1fr));
+  gap: 12px;
+  overflow-x: auto;
 }
 
 .pokerole .team-member {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal;
-  -ms-flex-direction: row;
   flex-direction: row;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
-  margin-bottom: 8px;
-  -webkit-column-break-inside: avoid;
-  -moz-column-break-inside: avoid;
-  break-inside: avoid;
+  border-radius: 8px;
+  padding: 4px;
+  background: var(--color-pkmn-team-card-bg);
+  color: #fff;
+}
+
+.pokerole .team-member.empty {
+  align-items: center;
+  background: var(--color-pkmn-container-bg);
+  border: 1px dashed var(--color-pkmn-outline);
+  color: var(--color-disposition);
+  opacity: 0.7;
 }
 
 .pokerole .team-member-portrait {
+  position: relative;
   height: 90px;
   width: 90px;
-  -webkit-box-flex: 0;
-  -ms-flex: 0 0 90px;
   flex: 0 0 90px;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: center;
-  -ms-flex-pack: center;
   justify-content: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
   align-items: center;
   min-width: 90px;
   background-color: rgba(244, 244, 244, 0.231372549);
   border-radius: 50%;
-  border: 2px solid var(--color-disposition);
+  border: 3px solid var(--color-disposition);
   margin: 0;
   cursor: pointer;
+}
+
+.pokerole .team-member-portrait.fainted {
+  filter: grayscale(1) brightness(0.7);
+}
+
+.pokerole .team-member-portrait.empty {
+  background: transparent;
+  border: 2px dashed var(--color-pkmn-outline);
+  cursor: default;
 }
 
 .pokerole .team-member-img {
   width: 90px;
   height: 90px;
-  -o-object-fit: contain;
   object-fit: contain;
+  border-radius: 50%;
+}
+
+.pokerole .team-rank-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 0;
+  max-width: unset;
 }
 
 .pokerole .team-member-info {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -ms-flex-direction: column;
+  flex: 1;
+  min-width: 0;
   flex-direction: column;
-  -webkit-box-align: start;
-  -ms-flex-align: start;
-  align-items: flex-start;
+  align-items: stretch;
+  gap: 3px;
   text-align: left;
+  padding-top: 5px;
+  padding-right: 8px;
+}
+
+.pokerole .team-empty-label {
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 0.03em;
 }
 
 .pokerole .team-member-header {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  gap: 4px;
+  align-items: center;
+  gap: 5px;
   font-weight: bold;
 }
 
-.pokerole .team-member-separator {
-  width: 100%;
-  margin: 2px 0;
+.pokerole .team-member-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pokerole .team-gender-icon {
+  width: 13px;
+  height: 13px;
+  border: none;
+  max-width: unset;
+}
+
+.pokerole .team-fainted-tag {
+  font-size: 8px;
+  font-weight: bold;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 3px;
+  padding: 1px 4px;
+}
+
+.pokerole .team-bar {
+  display: flex;
+  height: 13px;
+  border: 1.5px solid #000;
+  clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+  overflow: hidden;
+}
+
+.pokerole .team-bar-label,
+.pokerole .team-bar-value {
+  flex: 0 0 auto;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.pokerole .team-bar-label {
+  min-width: 20px;
+  font-size: 8px;
+  padding: 0 5px 0 7px;
+  border-right: 1px solid rgba(0, 0, 0, 0.35);
+}
+
+.pokerole .team-bar-value {
+  min-width: 34px;
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+  padding: 0 5px;
+}
+
+.pokerole .team-bar-track {
+  flex: 1;
+  position: relative;
+  background: rgba(0, 0, 0, 0.3);
+  border-left: 1px solid rgba(0, 0, 0, 0.35);
+  min-width: 0;
+}
+
+.pokerole .team-bar-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background: var(--color-pkmn-blue);
+}
+
+.pokerole .team-bar.hp.low .team-bar-fill {
+  background: linear-gradient(180deg, var(--color-pkmn-hp-low-hi) 0%, var(--color-pkmn-hp-low-lo) 100%);
+}
+.pokerole .team-bar.hp.mid .team-bar-fill {
+  background: linear-gradient(180deg, #e0a827 0%, #b57a12 100%);
+}
+.pokerole .team-bar.hp.high .team-bar-fill {
+  background: linear-gradient(180deg, #3ddc1f 0%, #128a0a 100%);
+}
+.pokerole .team-bar.hp.fainted .team-bar-fill {
+  background: #6b5f52;
+}
+
+.pokerole .team-ailment-row {
+  display: flex;
+  gap: 3px;
+  min-height: 15px;
+}
+
+.pokerole .team-ailment-chip {
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
+  background-color: var(--ailment-tint);
+  border: 1.5px solid rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pokerole .team-ailment-chip img {
+  width: 10px;
+  height: 10px;
 }
 
 .pokerole .team-member-clear {
   margin-left: auto;
-  -webkit-box-flex: 0;
-  -ms-flex: 0 0 auto;
   flex: 0 0 auto;
-  -ms-flex-item-align: start;
   align-self: flex-start;
   color: inherit;
   opacity: 0.6;

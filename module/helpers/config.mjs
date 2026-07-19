@@ -321,6 +321,18 @@ POKEROLE.styleImages = {
   neutral: 'systems/pokerole/images/icons/none.svg',
 }
 
+POKEROLE.rankColors = {
+  none: '#8a8a8a',
+  starter: '#9a9a9a',
+  rookie: '#5fae4a',
+  standard: '#3f8fd1',
+  advanced: '#e2b23c',
+  expert: '#e2803c',
+  ace: '#d1453f',
+  master: '#8a5fc7',
+  champion: '#c79a2e'
+};
+
 POKEROLE.styleColor = {
   // Styles
   skinClean : {
@@ -681,6 +693,14 @@ export function computePainPenaltyLevel(hpValue, hpMax) {
   if (hpValue === 1) return 3;
   if (hpValue > 0 && hpValue <= Math.floor(hpMax / 2)) return 1;
   return 0;
+}
+
+/** 'low' | 'mid' | 'high' bucket for HP-bar coloring, independent of the fainted check. */
+export function getHpBarBucket(value, max) {
+  const pct = max > 0 ? value / max : 0;
+  if (pct <= 0.25) return 'low';
+  if (pct <= 0.5) return 'mid';
+  return 'high';
 }
 
 POKEROLE.i18n = {

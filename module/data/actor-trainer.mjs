@@ -41,8 +41,11 @@ export class PokeroleActorTrainerData extends PokeroleActorBaseData {
       skills: new ObjectField({ required: true, initial: {} }),
       extra: new ObjectField({ required: true, initial: {} }),
 
-      // UUIDs of up to 6 owned Pokémon Actors that make up this Trainer's team (Team tab)
-      team: new ArrayField(new DocumentUUIDField({ type: "Actor", embedded: false }), { max: 6 })
+      // Configurable via the "Actor settings" dialog - see PokeroleActorSheet#_showSettings()
+      teamSizeLimit: new NumberField({ required: true, integer: true, initial: 6, min: 1, max: 20 }),
+
+      // UUIDs of the Trainer's owned Pokémon Actors that make up their team (Team tab), up to teamSizeLimit
+      team: new ArrayField(new DocumentUUIDField({ type: "Actor", embedded: false }))
     };
   }
 

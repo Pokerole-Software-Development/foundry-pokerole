@@ -1,4 +1,4 @@
-import { getTripleTypeMatchups, getDualTypeMatchups, getLocalizedType, getLocalizedTypesForSelect, getLocalizedEntriesForSelect, POKEROLE } from "../helpers/config.mjs";
+import { getTripleTypeMatchups, getDualTypeMatchups, getLocalizedType, getLocalizedTypesForSelect, getLocalizedEntriesForSelect, getHpBarBucket, POKEROLE } from "../helpers/config.mjs";
 import { successRollAttributeDialog, successRollSkillDialog } from "../helpers/roll.mjs";
 import { addAilmentWithDialog } from "../helpers/effects.mjs";
 import { AdvancementDialog } from "../applications/advancement-dialog.mjs";
@@ -170,7 +170,9 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     }
     
     if (partId === "team") {
-      context.team = await this._prepareTeamContext();
+      const { members, teamSizeLimit } = await this._prepareTeamContext();
+      context.team = members;
+      context.teamSizeLimit = teamSizeLimit;
     }
 
     // Prepare enriched biography HTML for the biography part
@@ -234,10 +236,12 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
   /* -------------------------------------------- */
 
   /**
-   * Resolve the Trainer's `system.team` UUIDs into displayable data for the Team tab.
-   * @returns {Promise<Object[]>}
+   * Resolve the Trainer's `system.team` UUIDs into displayable data for the Team tab, padded with
+   * empty-slot placeholders up to `system.teamSizeLimit`.
+   * @returns {Promise<{members: Object[], teamSizeLimit: number}>}
    */
   async _prepareTeamContext() {
+    const limit = this.actor.system.teamSizeLimit ?? 6;
     const members = [];
     for (const uuid of this.actor.system.team) {
       const pokemon = await fromUuid(uuid);
@@ -245,16 +249,34 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
         members.push({ uuid, missing: true, name: "(missing actor)" });
         continue;
       }
+
+      const fainted = pokemon.hasAilment('fainted');
+      const ailmentDefs = POKEROLE.getAilments();
+      const ailments = pokemon.system.ailments
+        .map(a => ({ key: a.type, ...ailmentDefs[a.type] }))
+        .filter(a => a.icon && a.key !== 'fainted');
+
       members.push({
         uuid,
         name: pokemon.name,
         img: pokemon.img,
         hp: pokemon.system.hp,
         will: pokemon.system.will,
-        rank: game.i18n.localize(POKEROLE.i18n.ranks[pokemon.system.rank]) ?? pokemon.system.rank
+        hpPercent: Math.round(100 * pokemon.system.hp.value / Math.max(1, pokemon.system.hp.max)),
+        wpPercent: Math.round(100 * pokemon.system.will.value / Math.max(1, pokemon.system.will.max)),
+        hpBucket: fainted ? 'fainted' : getHpBarBucket(pokemon.system.hp.value, pokemon.system.hp.max),
+        rankLabel: game.i18n.localize(POKEROLE.i18n.ranks[pokemon.system.rank]) ?? pokemon.system.rank,
+        rankColor: fainted ? null : POKEROLE.rankColors[pokemon.system.rank],
+        rankImage: POKEROLE.styleImages[pokemon.system.rank] ?? 'systems/pokerole/images/icons/Ranks/none.svg',
+        genderImage: POKEROLE.styleImages[pokemon.system.gender] ?? POKEROLE.styleImages.neutral,
+        fainted,
+        ailments
       });
     }
-    return members;
+    while (members.length < limit) {
+      members.push({ empty: true });
+    }
+    return { members, teamSizeLimit: limit };
   }
 
 
@@ -439,8 +461,9 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       ui.notifications.warn(`${actor.name} is already on this Trainer's team.`);
       return null;
     }
-    if (this.actor.system.team.length >= 6) {
-      ui.notifications.warn("This Trainer's team is already full (6/6).");
+    const teamSizeLimit = this.actor.system.teamSizeLimit ?? 6;
+    if (this.actor.system.team.length >= teamSizeLimit) {
+      ui.notifications.warn(`This Trainer's team is already full (${this.actor.system.team.length}/${teamSizeLimit}).`);
       return null;
     }
 
@@ -1380,7 +1403,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
 
   async _showSettings() {
 
-    const {attributes, varicolor, baseHp, willbonus, customInitiativeMod, hasThirdType, recommendedRank, source, sheetskin} = this.actor.system;
+    const {attributes, varicolor, baseHp, willbonus, customInitiativeMod, hasThirdType, recommendedRank, source, sheetskin, teamSizeLimit} = this.actor.system;
 
     const labelito = {};
     for (let [k, v] of Object.entries(attributes)) {
@@ -1399,7 +1422,9 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       source,
       ranks: this.constructor.getLocalizedRanks(),
       styleSheets: this.constructor.getLocalizedStyle(),
-      sheetskin
+      sheetskin,
+      isTrainer: this.actor.type === 'trainer',
+      teamSizeLimit
     });
 
     const result = await foundry.applications.api.DialogV2.prompt({
