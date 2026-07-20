@@ -749,22 +749,29 @@ async function buildDamageRerollContent(targets, context) {
 }
 
 /**
- * Builds a shared-pool dice tooltip: unlike `buildDiceHtml`'s append-only model, a rerolled
- * position is shown in place - old value crossed out immediately followed by the new one -
- * since a shared/prefix-sliced pool can't move rerolled dice to the end without breaking
- * other targets' prefixes.
- * @param {Array<number>} dice The current (post-reroll) values for this target's slice
+ * Builds a shared-pool dice tooltip for one target's window: old (pre-reroll) values stay in
+ * their original order/position - crossed out where rerolled - and the fresh replacement values
+ * relevant to this target are appended as a trailing group, matching `buildDiceHtml`'s single-pool
+ * convention. Success counts still come from `masterRolls` (the in-place-updated array) elsewhere -
+ * this only controls what's displayed.
+ * @param {number} keepCount This target's prefix length
+ * @param {Array<number>} masterRolls The current (post-reroll) shared array
  * @param {Function} stylingFunction
  * @param {{originalRolls: Array<number>, rerolledIndices: Array<number>} | null} rerollInfo
  */
-function buildSharedPoolDiceHtml(dice, stylingFunction, rerollInfo) {
-  const rerolledIndices = rerollInfo ? new Set(rerollInfo.rerolledIndices) : null;
+function buildSharedPoolDiceHtml(keepCount, masterRolls, stylingFunction, rerollInfo) {
+  const originalSlice = (rerollInfo ? rerollInfo.originalRolls : masterRolls).slice(0, keepCount);
+  const relevantRerolled = rerollInfo ? rerollInfo.rerolledIndices.filter(i => i < keepCount) : [];
+  const relevantRerolledSet = new Set(relevantRerolled);
+  const newDice = relevantRerolled.map(i => masterRolls[i]);
+
   let text = '<div class="dice-tooltip"><div class="dice"><ol class="dice-rolls">';
-  dice.forEach((roll, i) => {
-    if (rerolledIndices?.has(i)) {
-      const oldRoll = rerollInfo.originalRolls[i];
-      text += `<li class="roll die d6 ${stylingFunction(oldRoll)} rerolled">${oldRoll}</li>`;
-    }
+  originalSlice.forEach((roll, i) => {
+    let classes = stylingFunction(roll);
+    if (relevantRerolledSet.has(i)) classes += ' rerolled';
+    text += `<li class="roll die d6 ${classes}">${roll}</li>`;
+  });
+  newDice.forEach(roll => {
     text += `<li class="roll die d6 ${stylingFunction(roll)}">${roll}</li>`;
   });
   text += '</ol></div></div>';
@@ -789,7 +796,7 @@ async function buildDamageSharedRerollContent(masterRolls, modifier, painPenalty
     const dice = masterRolls.slice(0, t.keepCount);
     const successCount = dice.filter(roll => roll > 3).length + modifier;
     const { damageBeforeEffectiveness, damage } = computeDamageFromRoll(successCount, damageFactor, t.effectivenessLevel);
-    const diceHtml = buildSharedPoolDiceHtml(dice, stylingFunction, rerollInfo) + buildModifierNoteHtml(modifier, painPenalty)
+    const diceHtml = buildSharedPoolDiceHtml(t.keepCount, masterRolls, stylingFunction, rerollInfo) + buildModifierNoteHtml(modifier, painPenalty)
       + `<p><b>${successCount} Total Successes</b></p>` + (rerollInfo ? `<p><i>(Rerolled)</i></p>` : '');
     const html = buildDamageTargetHtml({
       diceHtml, name: t.name, damageTypeText, effectivenessLevel: t.effectivenessLevel, damage,
