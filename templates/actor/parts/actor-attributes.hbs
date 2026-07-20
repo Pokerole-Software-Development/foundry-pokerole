@@ -121,27 +121,6 @@
   
   <aside>
 
-    <div class="nature-box battle-nature-wrap">
-      {{#if (pkOptions "genderOption")}}
-        <div class="attribute">
-          <label for="system.gender" class="resource-label flexlarge align-left">Gender</label>
-          <select name="system.gender" value="{{system.gender}}" data-dtype="String" class="large">
-            {{selectOptions gender selected=system.gender}}
-          </select>
-        </div>
-        {{/if}}
-      <div class="attribute">
-        <label for="system.personality" class="resource-label flexlarge align-left">Nature</label>
-        <select name="system.personality" value="{{system.personality}}" data-dtype="String" class="large">
-          {{selectOptions natures selected=system.personality}}
-        </select>
-      </div>
-      <div class="attribute">
-        <label for="system.trainingPoints" class="resource-label flexlarge align-left">Training Points</label>
-        <input class="always-interactive" type="text" name="system.trainingPoints" value="{{system.trainingPoints}}" data-dtype="Number" />
-      </div>
-    </div>
-
     <div class="button-container">
       <button type="button" title="Retrain" data-action="reTrain" class="set-button">Retrain</button>
     </div>

@@ -310,6 +310,8 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     for (let nature of Object.keys(POKEROLE.natureConfidence)) {
       context.natures[nature] = game.i18n.localize(POKEROLE.i18n.natures[nature]) ?? nature;
     }
+    context.natureKeywords = game.i18n.localize(POKEROLE.i18n.natureKeywords[this.actor.system.personality]);
+    context.natureDescription = game.i18n.localize(POKEROLE.i18n.natureDescriptions[this.actor.system.personality]);
     // TP support.
     context.gender = {neutral: "None", male: "Male", female: "Female", genderless: "Genderless"};
     context.addedvitamin = {None: "None", strength: "Strength", dexterity: "Dexterity", def: "Defense", vitality: "Vitality", special: "Special", spDef: "Special Def.", insight: "Insight", hp: "HP", willpower: "WP"};
