@@ -4,7 +4,7 @@
 import { POKEROLE } from "../helpers/config.mjs";
 import { PokeroleActorBaseData } from "./actor-base.mjs";
 
-const { NumberField, StringField, BooleanField, ObjectField } = foundry.data.fields;
+const { NumberField, StringField, BooleanField, ObjectField, ArrayField } = foundry.data.fields;
 
 export class PokeroleActorPokemonData extends PokeroleActorBaseData {
 
@@ -27,6 +27,9 @@ export class PokeroleActorPokemonData extends PokeroleActorBaseData {
       weight: new NumberField({ required: true, initial: 0, min: 0 }),
       recommendedRank: new StringField({ required: true, initial: "none", choices: POKEROLE.ranks }),
       sheetskin: new StringField({ required: true, initial: "skinOld" }),
+
+      // Heterogeneous shape (varies by `kind`) sourced from the compendium build - see helpers/config.mjs buildEvolutionDisplayData().
+      evolutions: new ArrayField(new ObjectField()),
 
       // Loose objects (not SchemaField) so custom skills/attributes can be added - see prepareBaseData().
       skills: new ObjectField({ required: true, initial: {} }),

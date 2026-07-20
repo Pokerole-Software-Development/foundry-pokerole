@@ -21,6 +21,18 @@
         <textarea class="pokedex-description"
           name="system.pokedexDescription" {{#unless editable}}readonly{{/unless}}>{{ system.pokedexDescription }}</textarea>
       </fieldset>
+      {{#if evolutions.length}}
+      <fieldset class="evolutions">
+        <legend>Evolutions</legend>
+        {{#each evolutions}}
+        <div class="evolution-row">
+          <span class="evolution-label">{{this.label}}</span>
+          <span class="evolution-species">{{this.species}}</span>
+          <a class="evolution-info" data-tooltip-html="{{this.tooltipHtml}}"><i class="fas fa-circle-info"></i></a>
+        </div>
+        {{/each}}
+      </fieldset>
+      {{/if}}
       <div class="inner-list">
         <fieldset>
           <legend>Height</legend>

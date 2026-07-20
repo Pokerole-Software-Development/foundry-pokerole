@@ -2175,6 +2175,26 @@ body,
   font-size: 16px;
   cursor: help;
 }
+.pokerole.actor.sheet .tab[data-tab=biography] .evolution-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pokerole.actor.sheet .tab[data-tab=biography] .evolution-row + .evolution-row {
+  margin-top: 4px;
+}
+.pokerole.actor.sheet .tab[data-tab=biography] .evolution-label {
+  font-weight: 700;
+  min-width: 70px;
+}
+.pokerole.actor.sheet .tab[data-tab=biography] .evolution-species {
+  flex: 1;
+}
+.pokerole.actor.sheet .tab[data-tab=biography] .evolution-info {
+  color: var(--color-pkmn-dkorange);
+  font-size: 16px;
+  cursor: help;
+}
 .pokerole.actor.sheet .resource {
   background-color: black;
   border-radius: 20px;

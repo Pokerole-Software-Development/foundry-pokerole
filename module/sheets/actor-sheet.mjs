@@ -2,7 +2,7 @@
  * Sheet class for both Actor types (Pokémon and Trainer), including the Trainer-only Team tab.
  * Biggest file in the codebase - context prep and most `data-action` button handlers live here.
  */
-import { getTripleTypeMatchups, getDualTypeMatchups, getLocalizedType, getLocalizedTypesForSelect, getLocalizedEntriesForSelect, getHpBarBucket, POKEROLE } from "../helpers/config.mjs";
+import { getTripleTypeMatchups, getDualTypeMatchups, getLocalizedType, getLocalizedTypesForSelect, getLocalizedEntriesForSelect, getHpBarBucket, buildEvolutionDisplayData, POKEROLE } from "../helpers/config.mjs";
 import { successRollAttributeDialog, successRollSkillDialog } from "../helpers/roll.mjs";
 import { addAilmentWithDialog } from "../helpers/effects.mjs";
 import { AdvancementDialog } from "../applications/advancement-dialog.mjs";
@@ -313,6 +313,15 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     context.natureKeywords = game.i18n.localize(POKEROLE.i18n.natureKeywords[this.actor.system.personality]);
     context.natureDescription = game.i18n.localize(POKEROLE.i18n.natureDescriptions[this.actor.system.personality]);
     context.natureTooltipHtml = `<p style="text-align: center;"><strong>${context.natureKeywords}</strong></p><hr><p>${context.natureDescription}</p>`;
+
+    context.evolutions = (this.actor.system.evolutions ?? [])
+      .filter(e => e.direction === 'to')
+      .map(e => {
+        const display = buildEvolutionDisplayData(e);
+        if (!display) return null;
+        return { species: e.species, label: display.label, tooltipHtml: `<p style="text-align: center;"><strong>${display.kindLabel}</strong></p><hr><p>${display.detail}</p>` };
+      })
+      .filter(Boolean);
     // TP support.
     context.gender = {neutral: "None", male: "Male", female: "Female", genderless: "Genderless"};
     context.addedvitamin = {None: "None", strength: "Strength", dexterity: "Dexterity", def: "Defense", vitality: "Vitality", special: "Special", spDef: "Special Def.", insight: "Insight", hp: "HP", willpower: "WP"};

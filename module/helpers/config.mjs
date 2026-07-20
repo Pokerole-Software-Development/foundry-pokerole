@@ -701,6 +701,32 @@ export function getRankDiceCount(tag, rank) {
   return POKEROLE.rankDiceTables[tag]?.[rank] ?? 0;
 }
 
+// Training Point cost per Level-evolution speed tier (Pokerole rulebook values).
+POKEROLE.evolutionSpeedTrainingPoints = { fast: 10, medium: 30, slow: 50 };
+
+/** Turns one raw `system.evolutions[]` entry into `{label, kindLabel, detail}` display data, or `null` for kinds not shown (form/mega/unrecognized). */
+export function buildEvolutionDisplayData(evolution) {
+  switch (evolution.kind) {
+    case 'level': {
+      const speed = evolution.speed;
+      const label = speed ? speed.charAt(0).toUpperCase() + speed.slice(1) : 'Unknown';
+      const tp = POKEROLE.evolutionSpeedTrainingPoints[speed];
+      return { label, kindLabel: 'Level', detail: tp ? `${tp} Training Points` : `${label} pace` };
+    }
+    case 'stone':
+    case 'item':
+      return { label: 'Item', kindLabel: 'Item', detail: `Requires: ${evolution.item}` };
+    case 'stat':
+      return { label: evolution.stat, kindLabel: 'Stat', detail: `${evolution.stat} ${evolution.value ?? ''}+`.trim() };
+    case 'special':
+      return { label: 'Special', kindLabel: 'Special', detail: evolution.special ?? '' };
+    case 'trade':
+      return { label: 'Trade', kindLabel: 'Trade', detail: evolution.item ? `Requires: ${evolution.item}` : 'No additional requirements' };
+    default:
+      return null;
+  }
+}
+
 /** How many regular and Lethal damage are healed from basic and complete heals */
 POKEROLE.healAmounts = {
   basic: {
