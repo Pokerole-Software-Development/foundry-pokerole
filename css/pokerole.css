@@ -2162,63 +2162,9 @@ body,
   -ms-flex: 1;
   flex: 1;
 }
-.pokerole.actor.sheet .tab[data-tab=biography] .character-info-row {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-}
-.pokerole.actor.sheet .tab[data-tab=biography] .character-info-card {
-  display: flex;
-  flex-direction: column;
-  border-radius: 8px;
-  overflow: hidden;
-  font-family: var(--font-sans);
-}
-.pokerole.actor.sheet .tab[data-tab=biography] .character-info-card.nature-card {
-  width: 220px;
-}
-.pokerole.actor.sheet .tab[data-tab=biography] .character-info-header {
-  background: var(--color-pkmn-red);
-  color: white;
-  font-size: 14px;
-  padding: 6px 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  text-align: center;
-}
-.pokerole.actor.sheet .tab[data-tab=biography] .character-info-header select {
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 13px;
-  text-align: right;
-}
-.pokerole.actor.sheet .tab[data-tab=biography] .character-info-body {
-  flex: 1;
-  background: var(--color-pkmn-container-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 12px;
-  text-align: center;
-}
-.pokerole.actor.sheet .tab[data-tab=biography] .character-info-body select,
-.pokerole.actor.sheet .tab[data-tab=biography] .character-info-body input {
-  width: 100%;
-  background: transparent;
-  border: none;
-  color: var(--input-pkmn-text-color);
-  font-size: 13px;
-  text-align: center;
-}
 .pokerole.actor.sheet .tab[data-tab=biography] .nature-keywords {
   font-style: italic;
-  color: var(--color-pkmn-red);
-  font-size: 13px;
-  border-bottom: 1px dotted var(--color-pkmn-red);
+  border-bottom: 1px dotted currentColor;
   cursor: help;
 }
 .pokerole.actor.sheet .resource {

@@ -1,35 +1,5 @@
 {{!-- Biography Tab --}}
 <section class="tab {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
-  <div class="character-info-row">
-    <div class="character-info-card nature-card">
-      <div class="character-info-header">
-        <span>Nature</span>
-        <select name="system.personality" value="{{system.personality}}" data-dtype="String">
-          {{selectOptions natures selected=system.personality}}
-        </select>
-      </div>
-      <div class="character-info-body">
-        <span class="nature-keywords" data-tooltip="{{natureDescription}}">{{natureKeywords}}</span>
-      </div>
-    </div>
-    {{#if (pkOptions "genderOption")}}
-    <div class="character-info-card">
-      <div class="character-info-header">Gender</div>
-      <div class="character-info-body">
-        <select name="system.gender" value="{{system.gender}}" data-dtype="String">
-          {{selectOptions gender selected=system.gender}}
-        </select>
-      </div>
-    </div>
-    {{/if}}
-    <div class="character-info-card">
-      <div class="character-info-header">Training Points</div>
-      <div class="character-info-body">
-        <input type="text" name="system.trainingPoints" value="{{system.trainingPoints}}" data-dtype="Number">
-      </div>
-    </div>
-  </div>
-
   <aside class="species-data">
     <div class="pokedex-number-name">
       <span class="number-sign">#</span>
@@ -96,6 +66,27 @@
     </div>
 
     <div class="pokedex">
+      <div class="inner-list">
+        <fieldset>
+          <legend>Nature</legend>
+          <select name="system.personality" value="{{system.personality}}" data-dtype="String">
+            {{selectOptions natures selected=system.personality}}
+          </select>
+          <span class="nature-keywords" data-tooltip="{{natureDescription}}">{{natureKeywords}}</span>
+        </fieldset>
+        {{#if (pkOptions "genderOption")}}
+        <fieldset>
+          <legend>Gender</legend>
+          <select name="system.gender" value="{{system.gender}}" data-dtype="String">
+            {{selectOptions gender selected=system.gender}}
+          </select>
+        </fieldset>
+        {{/if}}
+        <fieldset>
+          <legend>Training Points</legend>
+          <input type="text" name="system.trainingPoints" value="{{system.trainingPoints}}" data-dtype="Number">
+        </fieldset>
+      </div>
       <fieldset>
         <legend>Trait</legend>
         <input type="text" name="system.trait" value="{{system.trait}}" placeholder="None">
