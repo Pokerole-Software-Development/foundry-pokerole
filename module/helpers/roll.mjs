@@ -88,6 +88,11 @@ export async function successRollAttributeSkill(attribute, skill, chatData, pool
   }
 }
 
+/** Whether a roll message still has rerolls left, per the configurable per-message limit. */
+export function hasRerollsRemaining(rollData) {
+  return (rollData.rerollCount ?? 0) < game.settings.get('pokerole', 'maxRerollsPerMessage');
+}
+
 /**
  * Rerolls up to `count` failed dice in an existing roll message (skill/attribute/accuracy/clash/shared-pool damage).
  * @param {ChatMessage} message
@@ -95,9 +100,10 @@ export async function successRollAttributeSkill(attribute, skill, chatData, pool
  */
 export async function rerollFailedDice(message, count) {
   const rollData = message.getFlag(game.system.id, 'rollData');
-  if (!rollData || rollData.rerolled) return;
+  if (!rollData || !hasRerollsRemaining(rollData)) return;
 
   const { rolls, modifier, type, context, painPenalty = 0, requiredSuccesses = null } = rollData;
+  const newRerollCount = (rollData.rerollCount ?? 0) + 1;
   const failedCount = rolls.filter(roll => roll < 4).length;
   count = Math.max(0, Math.min(count, failedCount));
   if (count === 0) return;
@@ -116,12 +122,12 @@ export async function rerollFailedDice(message, count) {
         rerollIndex++;
       }
     }
-    const rerollInfo = { originalRolls: rolls, rerolledIndices };
+    const rerollInfo = { originalRolls: rolls, rerolledIndices, rerollCount: newRerollCount };
     const content = await buildDamageSharedRerollContent(updatedRolls, modifier, painPenalty, context, rerollInfo);
     await animateDiceRoll(rollsRE, message.whisper);
     await message.update({
       content,
-      [`flags.${game.system.id}.rollData`]: { ...rollData, rolls: updatedRolls, rerolled: true }
+      [`flags.${game.system.id}.rollData`]: { ...rollData, rolls: updatedRolls, rerollCount: newRerollCount }
     });
     return;
   }
@@ -136,7 +142,7 @@ export async function rerollFailedDice(message, count) {
   if (requiredSuccesses !== null) {
     totalsText += ` (${requiredSuccesses} required)`;
   }
-  const totalsLineHtml = `<p><b>${totalsText}</b></p><p><i>(Rerolled)</i></p>`;
+  const totalsLineHtml = `<p><b>${totalsText}</b></p><p><i>Rerolled (${newRerollCount})</i></p>`;
 
   let content = diceHtml + modifierNoteHtml + totalsLineHtml;
   if (type === 'accuracy') {
@@ -155,7 +161,7 @@ export async function rerollFailedDice(message, count) {
     [`flags.${game.system.id}.rollData`]: {
       ...rollData,
       rolls: [...rolls, ...rollsRE],
-      rerolled: true
+      rerollCount: newRerollCount
     }
   });
 }
@@ -169,7 +175,7 @@ const REROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/reroll.html";
 export async function ReSuccessRoll(li) {
   const message = game.messages.get(li.getAttribute('data-message-id'));
   const rollData = message?.getFlag(game.system.id, 'rollData');
-  if (!rollData || rollData.rerolled) return;
+  if (!rollData || !hasRerollsRemaining(rollData)) return;
 
   if (rollData.type === 'damage') {
     return rerollDamageDialog(message, rollData);
@@ -251,8 +257,9 @@ async function rerollDamageDialog(message, rollData) {
  */
 export async function rerollDamageTargets(message, countsByIndex) {
   const rollData = message.getFlag(game.system.id, 'rollData');
-  if (!rollData || rollData.rerolled || rollData.type !== 'damage') return;
+  if (!rollData || !hasRerollsRemaining(rollData) || rollData.type !== 'damage') return;
 
+  const newRerollCount = (rollData.rerollCount ?? 0) + 1;
   const targets = rollData.targets;
   const stylingFunction = roll => roll > 3 ? 'max' : '';
   let anyRerolled = false;
@@ -278,7 +285,7 @@ export async function rerollDamageTargets(message, countsByIndex) {
     const targetPainPenalty = rollData.context.painPenalty ?? 0;
     const diceHtml = buildDiceHtml(target.rolls, stylingFunction, rollsRE)
       + buildModifierNoteHtml(target.modifier, targetPainPenalty)
-      + `<p><b>${successCount} Total Successes (${count} Reroll${count === 1 ? '' : 's'})</b></p><p><i>(Rerolled)</i></p>`;
+      + `<p><b>${successCount} Total Successes (${count} Reroll${count === 1 ? '' : 's'})</b></p><p><i>Rerolled (${newRerollCount})</i></p>`;
 
     target.rolls = [...target.rolls, ...rollsRE];
     target.damageBeforeEffectiveness = damageBeforeEffectiveness;
@@ -297,7 +304,7 @@ export async function rerollDamageTargets(message, countsByIndex) {
 
   await message.update({
     content,
-    [`flags.${game.system.id}.rollData`]: { ...rollData, targets, rerolled: true }
+    [`flags.${game.system.id}.rollData`]: { ...rollData, targets, rerollCount: newRerollCount }
   });
 }
 
@@ -791,7 +798,7 @@ async function buildDamageSharedRerollContent(masterRolls, modifier, painPenalty
     const successCount = dice.filter(roll => roll > 3).length + modifier;
     const { damageBeforeEffectiveness, damage } = computeDamageFromRoll(successCount, damageFactor, t.effectivenessLevel);
     const diceHtml = buildSharedPoolDiceHtml(t.keepCount, masterRolls, stylingFunction, rerollInfo) + buildModifierNoteHtml(modifier, painPenalty)
-      + `<p><b>${successCount} Total Successes</b></p>` + (rerollInfo ? `<p><i>(Rerolled)</i></p>` : '');
+      + `<p><b>${successCount} Total Successes</b></p>` + (rerollInfo ? `<p><i>Rerolled (${rerollInfo.rerollCount})</i></p>` : '');
     const html = buildDamageTargetHtml({
       diceHtml, name: t.name, damageTypeText, effectivenessLevel: t.effectivenessLevel, damage,
       isNoTarget: t.defenderTokenUuid === null
@@ -1002,7 +1009,7 @@ export async function rollDamage(item, actor, token) {
             modifier: constantBonus,
             painPenalty,
             requiredSuccesses: null,
-            rerolled: false,
+            rerollCount: 0,
             context: damageContext
           }
         }
@@ -1110,7 +1117,7 @@ export async function rollDamage(item, actor, token) {
       [game.system.id]: {
         rollData: {
           type: 'damage',
-          rerolled: false,
+          rerollCount: 0,
           targets,
           context: {
             itemUuid: item.uuid,
@@ -1337,7 +1344,7 @@ export async function createSuccessRollMessageData(rollCount, flavor, chatData, 
       modifier,
       painPenalty,
       requiredSuccesses,
-      rerolled: false,
+      rerollCount: 0,
       ...(rerollContext ? { context: rerollContext } : {})
     };
   }

@@ -18,7 +18,7 @@ import { PokeroleItemItemSheet } from "./sheets/item-item-sheet.mjs";
 import { PokeroleMoveSheet } from "./sheets/item-move-sheet.mjs";
 import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { getAilmentList, POKEROLE } from "./helpers/config.mjs";
-import { rollRecoil, successRollAttributeDialog, successRollFromExpression, chanceDiceRollFromExpression, chanceDiceRoll, createChanceDiceRollMessageData, ReSuccessRoll} from "./helpers/roll.mjs";
+import { rollRecoil, successRollAttributeDialog, successRollFromExpression, chanceDiceRollFromExpression, chanceDiceRoll, createChanceDiceRollMessageData, ReSuccessRoll, hasRerollsRemaining } from "./helpers/roll.mjs";
 import { showClashDialog } from "./helpers/clash.mjs";
 import { bulkApplyDamageValidated, bulkApplyHp, createHealMessage, canModifyTokenOrActor } from "./helpers/damage.mjs";
 import { registerIntegrationHooks } from "./helpers/integrations.mjs";
@@ -130,8 +130,8 @@ Hooks.on('getChatMessageContextOptions', (html, options) => {
       const message = game.messages.get(li.getAttribute('data-message-id'));
       const rollData = message?.getFlag(game.system.id, 'rollData');
 
-      // Only if not already rerolled and there's at least one failed die left
-      if (!rollData || rollData.rerolled) return false;
+      // Only if rerolls remain and there's at least one failed die left
+      if (!rollData || !hasRerollsRemaining(rollData)) return false;
       const failedCount = rollData.type === 'damage'
         ? rollData.targets.reduce((sum, t) => sum + t.rolls.filter(roll => roll < 4).length, 0)
         : rollData.rolls.filter(roll => roll < 4).length;
@@ -526,6 +526,16 @@ function registerSettings() {
     config: true,
     type: Boolean,
     default: false
+  });
+
+  game.settings.register('pokerole', 'maxRerollsPerMessage', {
+    name: 'Max Rerolls Per Message',
+    hint: 'How many times a single roll\'s chat message can be rerolled (via the "Reroll" context-menu option) before it\'s locked. Default 1 matches today\'s behavior.',
+    scope: 'world',
+    config: true,
+    type: Number,
+    default: 1,
+    range: { min: 1, max: 10, step: 1 }
   });
 
   game.settings.register('pokerole', 'showBubbles', {
