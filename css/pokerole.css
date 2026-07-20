@@ -2167,9 +2167,12 @@ body,
   align-items: center;
   gap: 10px;
 }
+.pokerole.actor.sheet .tab[data-tab=biography] .nature-row select {
+  flex: 1;
+}
 .pokerole.actor.sheet .tab[data-tab=biography] .nature-keywords {
-  font-style: italic;
-  border-bottom: 1px dotted currentColor;
+  color: var(--color-pkmn-dkorange);
+  font-size: 16px;
   cursor: help;
 }
 .pokerole.actor.sheet .resource {

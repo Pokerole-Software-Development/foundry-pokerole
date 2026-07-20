@@ -312,6 +312,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     }
     context.natureKeywords = game.i18n.localize(POKEROLE.i18n.natureKeywords[this.actor.system.personality]);
     context.natureDescription = game.i18n.localize(POKEROLE.i18n.natureDescriptions[this.actor.system.personality]);
+    context.natureTooltipHtml = `<p style="text-align: center;"><strong>${context.natureKeywords}</strong></p><hr><p>${context.natureDescription}</p>`;
     // TP support.
     context.gender = {neutral: "None", male: "Male", female: "Female", genderless: "Genderless"};
     context.addedvitamin = {None: "None", strength: "Strength", dexterity: "Dexterity", def: "Defense", vitality: "Vitality", special: "Special", spDef: "Special Def.", insight: "Insight", hp: "HP", willpower: "WP"};
