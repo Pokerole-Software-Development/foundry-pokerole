@@ -132,7 +132,18 @@ export async function rerollFailedDice(message, count) {
     return;
   }
 
-  const successCount = Math.min(rolls.filter(roll => roll > 3).length + rollsRE.filter(roll => roll > 3).length, rolls.length) + modifier;
+  // Replace the failed dice in place for the array we persist, so a later reroll's
+  // failed-dice count only ever counts dice that are genuinely still failing (not the
+  // same old failures again, which would otherwise let the pool grow every round).
+  const updatedRolls = [...rolls];
+  let rerollIndex = 0;
+  for (let i = 0; i < updatedRolls.length && rerollIndex < rollsRE.length; i++) {
+    if (updatedRolls[i] < 4) {
+      updatedRolls[i] = rollsRE[rerollIndex];
+      rerollIndex++;
+    }
+  }
+  const successCount = Math.min(updatedRolls.filter(roll => roll > 3).length, updatedRolls.length) + modifier;
 
   const stylingFunction = roll => roll > 3 ? 'max' : '';
   const diceHtml = buildDiceHtml(rolls, stylingFunction, rollsRE);
@@ -160,7 +171,7 @@ export async function rerollFailedDice(message, count) {
     content,
     [`flags.${game.system.id}.rollData`]: {
       ...rollData,
-      rolls: [...rolls, ...rollsRE],
+      rolls: updatedRolls,
       rerollCount: newRerollCount
     }
   });
@@ -275,10 +286,17 @@ export async function rerollDamageTargets(message, countsByIndex) {
     const rollsRE = await rollDice(count);
     await animateDiceRoll(rollsRE, message.whisper);
 
-    const successCount = Math.min(
-      target.rolls.filter(roll => roll > 3).length + rollsRE.filter(roll => roll > 3).length,
-      target.rolls.length
-    ) + target.modifier;
+    // Replace the failed dice in place for the array we persist - same reasoning as the
+    // single-pool reroll path, so a later reroll doesn't double-count already-superseded failures.
+    const updatedTargetRolls = [...target.rolls];
+    let rerollIndex = 0;
+    for (let i = 0; i < updatedTargetRolls.length && rerollIndex < rollsRE.length; i++) {
+      if (updatedTargetRolls[i] < 4) {
+        updatedTargetRolls[i] = rollsRE[rerollIndex];
+        rerollIndex++;
+      }
+    }
+    const successCount = Math.min(updatedTargetRolls.filter(roll => roll > 3).length, updatedTargetRolls.length) + target.modifier;
 
     const { damageBeforeEffectiveness, damage } = computeDamageFromRoll(successCount, rollData.context.damageFactor, target.effectivenessLevel);
 
@@ -287,7 +305,7 @@ export async function rerollDamageTargets(message, countsByIndex) {
       + buildModifierNoteHtml(target.modifier, targetPainPenalty)
       + `<p><b>${successCount} Total Successes (${count} Reroll${count === 1 ? '' : 's'})</b></p><p><i>Rerolled (${newRerollCount})</i></p>`;
 
-    target.rolls = [...target.rolls, ...rollsRE];
+    target.rolls = updatedTargetRolls;
     target.damageBeforeEffectiveness = damageBeforeEffectiveness;
     target.damage = damage;
     target.html = buildDamageTargetHtml({
