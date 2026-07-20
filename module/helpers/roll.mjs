@@ -84,7 +84,8 @@ export async function successRollAttributeSkill(attribute, skill, chatData, pool
 }
 
 /**
- * Rerolls up to `count` failed dice in an existing roll message (skill/attribute/accuracy/clash).
+ * Rerolls up to `count` failed dice in an existing roll message
+ * (skill/attribute/accuracy/clash/shared-pool damage).
  * @param {ChatMessage} message
  * @param {number} count
  */
@@ -98,6 +99,18 @@ export async function rerollFailedDice(message, count) {
   if (count === 0) return;
 
   const rollsRE = await rollDice(count);
+
+  if (type === 'damageShared') {
+    const updatedRolls = [...rolls, ...rollsRE];
+    const content = await buildDamageSharedRerollContent(updatedRolls, modifier, painPenalty, context);
+    await animateDiceRoll(rollsRE, message.whisper);
+    await message.update({
+      content,
+      [`flags.${game.system.id}.rollData`]: { ...rollData, rolls: updatedRolls, rerolled: true }
+    });
+    return;
+  }
+
   const successCount = Math.min(rolls.filter(roll => roll > 3).length + rollsRE.filter(roll => roll > 3).length, rolls.length) + modifier;
 
   const stylingFunction = roll => roll > 3 ? 'max' : '';
@@ -721,6 +734,36 @@ async function buildDamageRerollContent(targets, context) {
   return html;
 }
 
+/**
+ * Builds a shared-pool damage roll's full content: each target keeps its own prefix of one
+ * shared dice array (`context.targets[].keepCount`). Used for both the initial roll and reroll,
+ * so there's a single source of truth for how a shared-pool message's HTML is derived.
+ */
+async function buildDamageSharedRerollContent(masterRolls, modifier, painPenalty, context) {
+  const { actorUuid, tokenUuid, damageTypeText, damageFactor, hasRecoil, applyLeechHeal, targets: targetMeta } = context;
+  const actor = await fromUuid(actorUuid);
+  if (!actor) return '';
+  const token = tokenUuid ? await fromUuid(tokenUuid) : undefined;
+  const stylingFunction = roll => roll > 3 ? 'max' : '';
+
+  const targets = targetMeta.map(t => {
+    const dice = masterRolls.slice(0, t.keepCount);
+    const successCount = dice.filter(roll => roll > 3).length + modifier;
+    const { damageBeforeEffectiveness, damage } = computeDamageFromRoll(successCount, damageFactor, t.effectivenessLevel);
+    const diceHtml = buildDiceHtml(dice, stylingFunction) + buildModifierNoteHtml(modifier, painPenalty)
+      + `<p><b>${successCount} Total Successes</b></p>`;
+    const html = buildDamageTargetHtml({
+      diceHtml, name: t.name, damageTypeText, effectivenessLevel: t.effectivenessLevel, damage,
+      isNoTarget: t.defenderTokenUuid === null
+    });
+    return { ...t, damage, damageBeforeEffectiveness, html };
+  });
+
+  let html = targets.map(t => t.html).join('');
+  html += buildDamageActionButtonsHtml({ actor, token, targets, hasRecoil, applyLeechHeal });
+  return html;
+}
+
 const DAMAGE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/damage-roll.html";
 
 /**
@@ -874,6 +917,61 @@ export async function rollDamage(item, actor, token) {
   const hasRecoil = !!item.system.attributes.recoil;
   const targets = [];
 
+  // Formula-driven moves (TASK-17) already vary a target's base pool for reasons unrelated to
+  // defense, and are designed to be single-target - shared pooling only applies to plain targets.
+  const useSharedPool = selectedTokens.length > 1
+    && game.settings.get('pokerole', 'sharedMultiTargetDamage')
+    && selectedTokens.every(t => resolveDamagePoolFormula(item, actor, t.actor) === null);
+
+  if (useSharedPool) {
+    const masterRolls = await rollDice(Math.max(rollCountBeforeDef, 1));
+    await animateDiceRoll(masterRolls, chatData.whisper);
+
+    const targetMeta = selectedTokens.map(defenderToken => {
+      const defender = defenderToken.actor;
+      let defStat = 0;
+      if (!item.system.attributes?.ignoreDefenses) {
+        defStat = item.system.category === 'special' && !item.system.attributes.resistedWithDefense
+          ? defender.system.derived.spDef.value
+          : defender.system.derived.def.value;
+      }
+      return {
+        name: defender.name,
+        keepCount: Math.max(rollCountBeforeDef - defStat, 1),
+        effectivenessLevel: computeEffectivenessLevel(item, defender),
+        defenderTokenUuid: defenderToken.document.uuid, defenderActorId: defender.id
+      };
+    });
+
+    const damageContext = {
+      actorUuid: actor.uuid, itemUuid: item.uuid, tokenUuid: token?.uuid,
+      damageTypeText, damageFactor, hasRecoil, applyLeechHeal: !!applyLeechHeal,
+      targets: targetMeta
+    };
+
+    html += await buildDamageSharedRerollContent(masterRolls, constantBonus, painPenalty, damageContext);
+
+    await ChatMessage.create({
+      ...chatData,
+      content: html,
+      flavor: `Damage roll: ${item.name}`,
+      flags: {
+        [game.system.id]: {
+          rollData: {
+            type: 'damageShared',
+            rolls: masterRolls,
+            modifier: constantBonus,
+            painPenalty,
+            requiredSuccesses: null,
+            rerolled: false,
+            context: damageContext
+          }
+        }
+      }
+    });
+    return true;
+  }
+
   if (selectedTokens.length === 0) {
     // A damaging move's dice pool is always at least 1, even if power+stat doesn't exceed the defense.
     const formulaResult = resolveDamagePoolFormula(item, actor, null);
@@ -970,7 +1068,7 @@ export async function rollDamage(item, actor, token) {
     content: html,
     flavor: `Damage roll: ${item.name}`,
     flags: {
-      pokerole: {
+      [game.system.id]: {
         rollData: {
           type: 'damage',
           rerolled: false,

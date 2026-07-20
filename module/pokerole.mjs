@@ -520,6 +520,15 @@ function registerSettings() {
     default: false
   });
 
+  game.settings.register('pokerole', 'sharedMultiTargetDamage', {
+    name: 'Shared Multi-Target Damage Pool',
+    hint: 'For multi-target damage rolls, roll one shared dice pool instead of an independent pool per target - each target keeps as many dice from the shared pool as its own Def/Sp. Def allows. Only applies to standard power+stat damage rolls, not moves with a custom Damage Pool Formula.',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false
+  });
+
   game.settings.register('pokerole', 'showBubbles', {
     name: 'Show Bubbles on Attributes',
     hint: 'In "Play" mode on the character sheet, display bubbles for attributes instead of numbers (similar to the PDF)',
