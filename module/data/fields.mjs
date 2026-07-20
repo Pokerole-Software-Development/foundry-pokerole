@@ -1,3 +1,6 @@
+/**
+ * Shared SchemaField factory functions reused across the actor/item data models.
+ */
 const { SchemaField, NumberField } = foundry.data.fields;
 
 /** A {value, min, max} resource block (HP, Will, Action Count) */

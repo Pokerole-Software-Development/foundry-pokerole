@@ -1,3 +1,7 @@
+/**
+ * Sheet class for the Move item type. Edit mode exposes Attributes/Description/Effects tabs;
+ * Play mode instead renders a compact read-only tooltip built from the move's attributes.
+ */
 import { PokeroleItemBaseSheet } from "./item-base-sheet.mjs";
 import { getLocalizedEntriesForSelect, getLocalizedTypesForSelect, POKEROLE } from "../helpers/config.mjs";
 
@@ -52,8 +56,7 @@ export class PokeroleMoveSheet extends PokeroleItemBaseSheet {
       options.parts = ['header', 'tabs', 'attributes', 'description', 'effects'];
     }
 
-    // Auto-size to content when read-only (Play mode, or not owned) - the fixed default height
-    // is reserved for the full edit form, which needs stable room to work with.
+    // Auto-size to content when read-only (Play mode, or not owned); edit mode keeps the fixed default height.
     const isEditMode = this.isEditable && (this._mode === this.constructor.MODES.EDIT);
     options.position ??= {};
     options.position.height = isEditMode ? this.constructor.DEFAULT_OPTIONS.position.height : "auto";
@@ -341,7 +344,7 @@ export class PokeroleMoveSheet extends PokeroleItemBaseSheet {
         tooltip: "This move cannot be Evaded.",
       });
     }
-    if (this.item.system.attributes.physicalRanged /*|| this.item.system.category == "special"*/) {
+    if (this.item.system.attributes.physicalRanged) {
       context.attributes.push({
         icon: "systems/pokerole/images/icons/moves/ranged.png",
         tooltip: "Ranged Move. This move does not bring the user into contact with the target directly.",

@@ -1,3 +1,7 @@
+/**
+ * Custom `<slide-toggle>` form element - a checkbox rendered as an on/off slider, used for
+ * e.g. the Play/Edit mode toggle in sheet headers.
+ */
 import CheckboxElement from "./checkbox.mjs";
 
 /**

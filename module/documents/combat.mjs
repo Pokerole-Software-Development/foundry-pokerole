@@ -1,3 +1,6 @@
+/**
+ * Combat and CombatTracker subclasses for round/turn flow, ailment damage, and the action-count UI.
+ */
 import { POKEROLE } from "../helpers/config.mjs";
 
 /** Extensions to Foundry's combat systems */
@@ -42,10 +45,7 @@ export class PokeroleCombat extends Combat {
     // Determine the next turn number
     let next = turn;
 
-    // The original implementation starts the next round on a wrap-around.
-    // In Pokérole, players can use up to five actions per round where the
-    // initiative order resets in each sub-round, so wrapping around to the
-    // beginning feels more natural.
+    // The original implementation starts the next round on a wrap-around; in Pokérole that feels more natural since players can use up to five actions per round with initiative resetting each sub-round.
     for (let i = 0; i < this.turns.length; i++) { // Only skip until `turns.length` to avoid endless loops
       next += 1;
       next %= this.turns.length;
@@ -84,9 +84,7 @@ export class PokeroleCombat extends Combat {
     }
   }
 
-  /**
-   * Apply ailment damage to all actors at the end of the round
-   */
+  /** Apply ailment damage to all actors at the end of the round */
   async handleAilmentDamage() {
     for (const combatant of this.turns) {
       // TODO: Defeated actors are not ignored here since they might still obtain Lethal Damage.

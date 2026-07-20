@@ -1,3 +1,6 @@
+/**
+ * Actor document subclass: the custom rules-based effects engine, ailment helpers, roll data, and token icon sync.
+ */
 import { POKEROLE } from "../helpers/config.mjs";
 import { buildAilmentIconEffectData, buildCustomEffectIconData, buildStatChangeIconData, buildPainPenaltyIconData } from "../helpers/effects.mjs";
 import { MANEUVER_MOVES } from "../helpers/maneuvers.mjs";
@@ -31,9 +34,7 @@ export class PokeroleActor extends Actor {
     }
   }
 
-  /**
-   * Apply attribute changes and effects
-   */
+  /** Apply attribute changes and effects */
   _applyEffects() {
     const overrides = {};
     const original = {};
@@ -114,12 +115,9 @@ export class PokeroleActor extends Actor {
     foundry.utils.mergeObject(this, this.overrides);
   }
 
-  /**
-   * Override getRollData() that's supplied to rolls.
-   */
+  /** Override getRollData() that's supplied to rolls. */
   getRollData() {
-    // super.getRollData() returns `this.system` directly (not a copy), so we shallow-copy it
-    // here before mutating - otherwise _getCharacterRollData() would pollute the live actor data.
+    // super.getRollData() returns `this.system` directly (not a copy), so we shallow-copy it here before mutating - otherwise _getCharacterRollData() would pollute the live actor data.
     const data = { ...super.getRollData() };
 
     // Prepare character roll data.
@@ -128,12 +126,9 @@ export class PokeroleActor extends Actor {
     return data;
   }
 
-  /**
-   * Prepare character roll data.
-   */
+  /** Prepare character roll data. */
   _getCharacterRollData(data) {
-    // Copy the attribute scores to the top level, so that rolls can use
-    // formulas like `@str.mod + 4`.
+    // Copy the attribute scores to the top level, so that rolls can use formulas like `@str.mod + 4`.
     for (let [k, v] of Object.entries({
       ...data.attributes, ...data.skills, ...data.social, ...data.extra, ...data.derived
     })) {
@@ -260,10 +255,7 @@ export class PokeroleActor extends Actor {
     });
   }
 
-  /**
-   * Reset the Attributes, Skills and Rank to base
-   * 
-   */
+  /** Reset the Attributes, Skills and Rank to base */
   resetAttributes() {
     let recovery = {
       system: {
@@ -506,8 +498,7 @@ export class PokeroleActor extends Actor {
       if (!current) {
         toCreate.push(data);
       } else if (current.name !== data.name || current.img !== data.img || current.tint !== data.tint) {
-        // Keep the icon in sync if the source Item/ailment definition changes after creation
-        // (e.g. a GM swaps the effect Item's image) - creation alone only handles first-time sync.
+        // Keep the icon in sync if the source Item/ailment definition changes after creation (e.g. a GM swaps the effect Item's image) - creation alone only handles first-time sync.
         toUpdate.push({ _id: current.id, name: data.name, img: data.img, tint: data.tint });
       }
     }
@@ -532,14 +523,12 @@ export class PokeroleActor extends Actor {
       } else if (amount > 0) {
         key = `system.statChanges.${stat}.plus`;
       };
-      // key = `system.statChanges.${stat}.value`;
     } else if (stat === 'accuracyMod') {
       if (amount < 0) {
         key = `system.accuracyMod.minus`;
       } else if (amount > 0) {
         key = `system.accuracyMod.plus`;
       };
-      // key = `system.accuracyMod.value`;
     } else {
       throw new Error(`Unknown stat '${stat}'`);
     }

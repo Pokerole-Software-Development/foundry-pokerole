@@ -1,3 +1,7 @@
+/**
+ * Sheet class for the Item (gear/inventory) item type, covering its Description, Properties,
+ * and Rules tabs.
+ */
 import { PokeroleItemBaseSheet } from "./item-base-sheet.mjs";
 import { POKEROLE } from "../helpers/config.mjs";
 

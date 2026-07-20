@@ -1,3 +1,5 @@
+/** Clash dialog/resolution logic: picking a move to clash with and computing both sides' damage. */
+
 import { calcDualTypeMatchupScore, calcTripleTypeMatchupScore, getConfusionModifier} from "./config.mjs";
 import { getEffectivenessText, createSuccessRollMessageData } from "./roll.mjs";
 import { PokeroleActor } from "../documents/actor.mjs";

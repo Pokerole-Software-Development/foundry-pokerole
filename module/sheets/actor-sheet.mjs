@@ -1,3 +1,7 @@
+/**
+ * Sheet class for both Actor types (Pokémon and Trainer), including the Trainer-only Team tab.
+ * Biggest file in the codebase - context prep and most `data-action` button handlers live here.
+ */
 import { getTripleTypeMatchups, getDualTypeMatchups, getLocalizedType, getLocalizedTypesForSelect, getLocalizedEntriesForSelect, getHpBarBucket, POKEROLE } from "../helpers/config.mjs";
 import { successRollAttributeDialog, successRollSkillDialog } from "../helpers/roll.mjs";
 import { addAilmentWithDialog } from "../helpers/effects.mjs";
@@ -236,8 +240,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
   /* -------------------------------------------- */
 
   /**
-   * Resolve the Trainer's `system.team` UUIDs into displayable data for the Team tab, padded with
-   * empty-slot placeholders up to `system.teamSizeLimit`.
+   * Resolve the Trainer's `system.team` UUIDs into displayable data for the Team tab, padded to `system.teamSizeLimit`.
    * @returns {Promise<{members: Object[], teamSizeLimit: number}>}
    */
   async _prepareTeamContext() {
@@ -443,8 +446,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
    */
   async _onDropActor(event, actor) {
     if (this.actor.type !== "trainer") return null;
-    // Only act if the drop actually landed inside the Team tab's container - otherwise
-    // dragging something onto another part of the sheet (e.g. by accident) should do nothing.
+    // Only act if the drop actually landed inside the Team tab's container, not elsewhere on the sheet.
     if (!event.target.closest(".team-list")) return null;
     if (!this.actor.isOwner || !this.isEditable) return null;
 
@@ -554,18 +556,13 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     this.element.classList.toggle("interactable", this.isEditable && (this._mode === this.constructor.MODES.PLAY));
     this.element.classList.toggle("locked", !this.isEditable);
 
-    // Inventory category filter: just UI state, re-render the items part on change
-    // instead of round-tripping a fake field through the actor (see _inventoryFilter).
+    // Inventory category filter: just UI state, re-render the items part instead of round-tripping through the actor.
     this.element.querySelector(".inventoryfilterclass")?.addEventListener("change", event => {
       this._inventoryFilter = event.target.value;
       this.render({ parts: ["items"] });
     });
 
-    // These inputs aren't part of the bound form (no `name`) - only read imperatively by
-    // addCustomAttribute/addCustomSkill. Without this, blurring them (e.g. by clicking the
-    // adjacent "+" button) fires a native change event that bubbles to the form's
-    // submitOnChange handler, triggering a mid-interaction re-render that can swap out the
-    // "+" button before the click completes, silently swallowing it.
+    // These nameless inputs are only read imperatively by addCustomAttribute/addCustomSkill; stop their blur/change event from bubbling to the form's submitOnChange, which would re-render mid-click and swallow the "+" button press.
     for (const sel of ['.custom-skill .add-value-input', '.custom-attribute .add-value-input']) {
       this.element.querySelector(sel)?.addEventListener('change', event => event.stopPropagation());
     }
@@ -663,8 +660,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     
     let learnedMoveNum = 0;
 
-    // Iterate through items, allocating to containers.
-    // Sorted by `.sort` first so drag-to-reorder (_onSortItem) is reflected visually.
+    // Iterate through items, allocating to containers; sorted by `.sort` first so drag-to-reorder is reflected visually.
     const sortedItems = [...this.actor.items].sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
     for (let i of sortedItems) {
       i.img = i.img || DEFAULT_TOKEN;
@@ -702,8 +698,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
             'system.rank': 'starter',
             'system.learned': true,
           }]);
-          // The changes above also have to be applied manually because the object
-          // doesn't update automatically.
+          // The changes above also have to be applied manually because the object doesn't update automatically.
           i.system.rank = 'starter';
           i.system.learned = true;
         }
@@ -748,7 +743,6 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     context.moves = moves;
     context.customEffects = effects;
      // TP Support inventory support
-    // categorylist = game.itempiles.API.getItemCategories();
 
     for (const key in POKEROLE.itemCategory){
       if (customitemdf[key]) {
@@ -796,8 +790,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       context.activeAbilityDescription = activeAbility.data.system.description;
     }
 
-    // "Equipped Effects" panel - uses the actor's real getters (not the abilities[0]/gear
-    // fallback above), so it can genuinely show "Empty" when nothing is equipped/selected.
+    // "Equipped Effects" panel uses the actor's real getters (not the fallback above), so it can genuinely show "Empty".
     context.activeAbilityItem = this.actor.activeAbility;
     context.activeHeldItem = this.actor.activeItem;
 
@@ -1516,7 +1509,6 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
   }
 
   static _sanitizeName(name) {
-    //return name.replace(/[\W_]+/g, "").toLowerCase();
     return name.replace(/[^\p{L}\p{N}]+/gu, "").toLowerCase();
   }
 

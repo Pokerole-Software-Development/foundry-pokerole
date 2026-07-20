@@ -1,3 +1,6 @@
+/**
+ * Item document subclass: use()/chat-card rendering, heal application, and move effect-text formatting.
+ */
 import { POKEROLE } from "../helpers/config.mjs";
 import { bulkApplyHp, createHealMessage } from "../helpers/damage.mjs";
 import { rollAccuracy, rollDamage } from "../helpers/roll.mjs";
@@ -7,12 +10,9 @@ import { rollAccuracy, rollDamage } from "../helpers/roll.mjs";
  * @extends {Item}
  */
 export class PokeroleItem extends Item {
-  /**
-   * Augment the basic Item data model with additional dynamic data.
-   */
+  /** Augment the basic Item data model with additional dynamic data. */
   prepareData() {
-    // As with the actor class, items are documents that can have their data
-    // preparation methods overridden (such as prepareBaseData()).
+    // As with the actor class, items are documents that can have their data preparation methods overridden (such as prepareBaseData()).
     super.prepareData();
 
     if (this.actor) {

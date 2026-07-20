@@ -1,3 +1,7 @@
+/**
+ * DialogV2 shown when a Trainer or Pokémon's rank changes, letting the player spend the
+ * attribute/skill/social points granted by the new rank before it's applied.
+ */
 import { POKEROLE } from "../helpers/config.mjs";
 
 /**

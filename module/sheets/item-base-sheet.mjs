@@ -1,3 +1,7 @@
+/**
+ * Shared base class for all Pokérole item sheets (AppV2 ItemSheetV2), providing Play/Edit
+ * mode toggling, rules-table editing, and other action handlers common to every item type.
+ */
 import { getLocalizedEntriesForSelect, getLocalizedTypesForSelect, POKEROLE } from "../helpers/config.mjs";
 
 /**

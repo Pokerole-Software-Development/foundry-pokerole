@@ -1,3 +1,6 @@
+/**
+ * Data model for Trainer actors, extending the shared actor base with team and progression fields.
+ */
 import { POKEROLE } from "../helpers/config.mjs";
 import { PokeroleActorBaseData } from "./actor-base.mjs";
 import { attributeField } from "./fields.mjs";

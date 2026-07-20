@@ -1,3 +1,6 @@
+/**
+ * Data model for Move items, including their accuracy/damage pool refs and damagePool formula overrides.
+ */
 import { POKEROLE } from "../helpers/config.mjs";
 import { PokeroleItemBaseData } from "./item-base.mjs";
 
@@ -56,8 +59,7 @@ export class PokeroleItemMoveData extends PokeroleItemBaseData {
         target: new StringField({ required: true, initial: "targets", choices: POKEROLE.effectTargets })
       }),
 
-      // Alternative ways to compute a Damage roll's dice pool, for moves that don't follow the
-      // standard power+stat-vs-defense formula (e.g. Super Fang, Dragon Rage, Heavy Slam).
+      // Alternative ways to compute a Damage roll's dice pool, for moves that don't follow the standard power+stat-vs-defense formula (e.g. Super Fang, Dragon Rage, Heavy Slam).
       damagePool: new SchemaField({
         formula: new StringField({ required: true, initial: "standard", choices: ["standard", "hpBased", "statDiff", "fixed"] }),
 
@@ -82,8 +84,7 @@ export class PokeroleItemMoveData extends PokeroleItemBaseData {
         ignoreTypeEffectiveness: new BooleanField({ initial: false })
       }),
 
-      // Heterogeneous shapes (condition.type: 'none'|'chanceDice', effects[].type: 'ailment'|'statChange'
-      // with different sub-fields each) - kept loose like Actor#ailments rather than a strict schema.
+      // Heterogeneous shapes (condition.type: 'none'|'chanceDice', effects[].type: 'ailment'|'statChange' with different sub-fields each) - kept loose like Actor#ailments rather than a strict schema.
       effectGroups: new ArrayField(new ObjectField()),
 
       // Not in the legacy template.json - must be declared or a strict schema silently drops them.

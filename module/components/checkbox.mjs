@@ -1,3 +1,7 @@
+/**
+ * Custom `<pokerole-checkbox>` form element with configurable styling, used in place of the
+ * native checkbox input across item/actor sheet templates.
+ */
 import AdoptedStyleSheetMixin from "./adopted-stylesheet-mixin.mjs";
 
 /**
@@ -141,8 +145,7 @@ export default class CheckboxElement extends AdoptedStyleSheetMixin(
   }
 
   /**
-   * Override AbstractFormInputElement#value setter because we want to emit input/change events when the checked state
-   * changes, and not when the value changes.
+   * Override AbstractFormInputElement#value setter to emit input/change events on checked-state change, not value change.
    * @override
    */
   set value(value) {

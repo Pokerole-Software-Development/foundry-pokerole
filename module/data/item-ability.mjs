@@ -1,3 +1,6 @@
+/**
+ * Data model for Ability items.
+ */
 import { PokeroleItemBaseData } from "./item-base.mjs";
 
 const { BooleanField, ArrayField, ObjectField } = foundry.data.fields;

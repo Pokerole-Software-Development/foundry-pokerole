@@ -1,3 +1,8 @@
+/**
+ * Core dice-rolling engine: attribute/skill/accuracy/damage resolution, reroll handling, and the
+ * chat-message HTML builders shared across all roll types.
+ */
+
 import { PokeroleItem } from "../documents/item.mjs";
 import {
   calcDualTypeMatchupScore,
@@ -84,8 +89,7 @@ export async function successRollAttributeSkill(attribute, skill, chatData, pool
 }
 
 /**
- * Rerolls up to `count` failed dice in an existing roll message
- * (skill/attribute/accuracy/clash/shared-pool damage).
+ * Rerolls up to `count` failed dice in an existing roll message (skill/attribute/accuracy/clash/shared-pool damage).
  * @param {ChatMessage} message
  * @param {number} count
  */
@@ -101,10 +105,7 @@ export async function rerollFailedDice(message, count) {
   const rollsRE = await rollDice(count);
 
   if (type === 'damageShared') {
-    // Dice are shared across targets by array position (each target keeps a prefix) - a reroll
-    // must replace the failed dice in place, not append, so every target whose prefix includes
-    // that position sees the new value. `rerolledIndices` lets the display still show the old
-    // (crossed-out) value next to the new one, matching every other roll type's convention.
+    // Dice are shared across targets by array position, so a reroll replaces dice in place (not appended); rerolledIndices lets the display still show the old crossed-out value next to the new one.
     const updatedRolls = [...rolls];
     const rerolledIndices = [];
     let rerollIndex = 0;
@@ -655,8 +656,7 @@ function resolveDamagePoolFormula(item, actor, defender) {
   }
 
   return pool.formula === 'hpBased'
-    // Direct-damage hpBased moves (Horn Drill, Guillotine...) are OHKO mechanics - never affected by
-    // type effectiveness, unlike 'fixed' which defaults to respecting it (see ignoreTypeEffectiveness).
+    // Direct-damage hpBased moves (Horn Drill, Guillotine...) are OHKO mechanics, never affected by type effectiveness, unlike 'fixed' which defaults to respecting it (see ignoreTypeEffectiveness).
     ? { mode: pool.resultAs, amount, diceMode: pool.diceMode, applyEffectiveness: false }
     : { mode: 'diceToRoll', amount, diceMode: pool.diceMode, applyEffectiveness: true };
 }
@@ -749,11 +749,7 @@ async function buildDamageRerollContent(targets, context) {
 }
 
 /**
- * Builds a shared-pool dice tooltip for one target's window: old (pre-reroll) values stay in
- * their original order/position - crossed out where rerolled - and the fresh replacement values
- * relevant to this target are appended as a trailing group, matching `buildDiceHtml`'s single-pool
- * convention. Success counts still come from `masterRolls` (the in-place-updated array) elsewhere -
- * this only controls what's displayed.
+ * Builds a shared-pool dice tooltip for one target: old values stay in place (crossed out where rerolled) and fresh replacements are appended as a trailing group, matching `buildDiceHtml`'s convention; this only controls what's displayed, success counts still come from `masterRolls`.
  * @param {number} keepCount This target's prefix length
  * @param {Array<number>} masterRolls The current (post-reroll) shared array
  * @param {Function} stylingFunction
@@ -779,9 +775,7 @@ function buildSharedPoolDiceHtml(keepCount, masterRolls, stylingFunction, reroll
 }
 
 /**
- * Builds a shared-pool damage roll's full content: each target keeps its own prefix of one
- * shared dice array (`context.targets[].keepCount`). Used for both the initial roll and reroll,
- * so there's a single source of truth for how a shared-pool message's HTML is derived.
+ * Builds a shared-pool damage roll's full content (each target keeps its own prefix of one shared dice array); used for both the initial roll and reroll as a single source of truth.
  * @param {{originalRolls: Array<number>, rerolledIndices: Array<number>} | null} rerollInfo Pass
  *   when called from a reroll, so previously-failed dice show their old (crossed-out) value.
  */
@@ -963,8 +957,7 @@ export async function rollDamage(item, actor, token) {
   const hasRecoil = !!item.system.attributes.recoil;
   const targets = [];
 
-  // Formula-driven moves (TASK-17) already vary a target's base pool for reasons unrelated to
-  // defense, and are designed to be single-target - shared pooling only applies to plain targets.
+  // Formula-driven moves (TASK-17) already vary a target's base pool for reasons unrelated to defense and are designed to be single-target, so shared pooling only applies to plain targets.
   const useSharedPool = selectedTokens.length > 1
     && game.settings.get('pokerole', 'sharedMultiTargetDamage')
     && selectedTokens.every(t => resolveDamagePoolFormula(item, actor, t.actor) === null);

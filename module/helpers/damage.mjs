@@ -1,3 +1,5 @@
+/** HP/damage application helpers shared by chat-card buttons and the native token HP bar. */
+
 import { computePainPenaltyLevel } from "./config.mjs";
 
 /**

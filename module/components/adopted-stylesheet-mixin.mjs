@@ -1,6 +1,10 @@
 /**
- * Adds functionality to a custom HTML element for caching its stylesheet and adopting it into its Shadow DOM, rather
- * than having each stylesheet duplicated per element.
+ * Shared mixin used by custom HTML elements (e.g. checkbox, slide-toggle) in this system.
+ * Caches one CSSStyleSheet per Document and adopts it into each element's Shadow DOM.
+ */
+
+/**
+ * Adds functionality to a custom HTML element for caching and adopting its stylesheet into Shadow DOM, avoiding per-element duplication.
  * @param {typeof HTMLElement} Base  The base class being mixed.
  * @returns {typeof AdoptedStyleSheetElement}
  */

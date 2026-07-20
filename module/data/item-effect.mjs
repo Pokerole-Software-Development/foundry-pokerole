@@ -1,3 +1,6 @@
+/**
+ * Data model for Custom Effect items, which apply a list of rules to an actor via _applyEffects().
+ */
 import { PokeroleItemBaseData } from "./item-base.mjs";
 
 const { BooleanField, ArrayField, ObjectField } = foundry.data.fields;
@@ -11,9 +14,7 @@ export class PokeroleItemEffectData extends PokeroleItemBaseData {
       enabled: new BooleanField({ initial: true }),
       visible: new BooleanField({ initial: true }),
 
-      // Each rule is {attribute, operator: 'add'|'replace', value}. `attribute` is a free-form
-      // path (e.g. 'system.attributes.strength.value') meant to target any actor field, so it
-      // can't be restricted to a fixed set of choices - kept as a loose object like Actor#ailments.
+      // Each rule is {attribute, operator: 'add'|'replace', value}, kept as a loose object since `attribute` is a free-form path (e.g. 'system.attributes.strength.value').
       rules: new ArrayField(new ObjectField())
     };
   }

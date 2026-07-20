@@ -1,3 +1,7 @@
+/**
+ * System entry point: registers DataModels, sheet classes, settings, Handlebars helpers, hooks,
+ * hotbar macro support, chat command/button handling, and the PokeroleActiveEffect override.
+ */
 import { PokeroleActor } from "./documents/actor.mjs";
 import { PokeroleItem } from "./documents/item.mjs";
 import { PokeroleActorPokemonData } from "./data/actor-pokemon.mjs";
@@ -34,8 +38,7 @@ Hooks.once('init', async () => {
   customElements.define(CheckboxElement.tagName, CheckboxElement);
   customElements.define(SlideToggleElement.tagName, SlideToggleElement);
 
-  // Add utility classes to the global game object so that they're more easily
-  // accessible in global contexts.
+  // Add utility classes to the global game object so that they're more easily accessible in global contexts.
   game.pokerole = {
     PokeroleActor,
     PokeroleItem,
@@ -115,10 +118,6 @@ Hooks.once("ready", async function () {
 });
 
 // Chat message hooks
-/*
-Hooks.on('renderChatLog', (app, html, data) => PokeroleItem.chatListeners(html));
-Hooks.on('renderChatPopout', (app, html, data) => PokeroleItem.chatListeners(html));
-*/
 Hooks.on('renderChatMessageHTML', (app, html, data) => PokeroleItem.chatListeners(html));
 
 Hooks.on('getChatMessageContextOptions', (html, options) => {
@@ -842,15 +841,6 @@ async function onInlineRollClick(event) {
       const actor = token?.actor ?? game.user?.character;
       await successRollFromExpression(a.dataset.roll, actor, { speaker: ChatMessage.implementation.getSpeaker({ token, actor }) });
       break;
-      /*
-    case "cd":
-      const roll = a.dataset.roll;
-
-      const token = canvas.tokens.controlled.length > 0 ? canvas.tokens.controlled[0] : null;
-      const actor = token?.actor ?? game.user?.character;
-      await chanceDiceRollFromExpression(a.dataset.roll, actor, { speaker: ChatMessage.implementation.getSpeaker({ token, actor }) });
-      break;
-      */
   }
 }
 

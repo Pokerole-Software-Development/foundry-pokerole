@@ -1,3 +1,5 @@
+/** Ailment/status-effect logic: token icon data builders, the Token HUD status list, and applying effects to actors. */
+
 import { POKEROLE } from "./config.mjs";
 
 export class TokenEffect {
@@ -70,8 +72,7 @@ export function buildCustomEffectIconData(item) {
   };
 }
 
-// Foundry's ActiveEffect#tint is a ColorField that only accepts 6-digit hex (no alpha channel),
-// unlike the old TokenEffect.tint (a plain property with no validation) - trimmed accordingly.
+// ActiveEffect#tint is a ColorField that only accepts 6-digit hex (no alpha), unlike the old TokenEffect.tint - trimmed accordingly.
 const STAT_CHANGE_NEGATIVE_TINTS = ["#AAAAAA", "#ffae00", "#ff7b00", "#ff0000"];
 const STAT_CHANGE_POSITIVE_TINTS = ["#AAAAAA", "#0d47e7", "#18a4f7", "#29ecff"];
 

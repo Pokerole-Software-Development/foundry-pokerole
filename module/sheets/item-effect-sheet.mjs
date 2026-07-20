@@ -1,3 +1,7 @@
+/**
+ * Sheet class for the Custom Effect item type (AppV2/HandlebarsApplicationMixin).
+ * Handles the Description and Rules tabs, plus the rules-table and effect-group editors.
+ */
 import { PokeroleItemBaseSheet } from "./item-base-sheet.mjs";
 
 /**

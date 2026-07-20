@@ -1,3 +1,6 @@
+/**
+ * Data model for Item-type items (held items, key items, medicine, etc.).
+ */
 import { POKEROLE } from "../helpers/config.mjs";
 import { PokeroleItemBaseData } from "./item-base.mjs";
 

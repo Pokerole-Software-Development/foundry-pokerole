@@ -1,3 +1,5 @@
+/** ApplicationV2 settings-menu dialogs registered by this system (currently just the Ailments menu). */
+
 /**
  * Settings menu for the "Ailments Constants" homebrew options (burnConst/frozenConst/paralysisConst).
  * @extends {foundry.applications.api.ApplicationV2}

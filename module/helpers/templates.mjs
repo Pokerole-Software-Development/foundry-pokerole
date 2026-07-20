@@ -1,6 +1,10 @@
 /**
- * Define a set of template paths to pre-load
- * Pre-loaded templates are compiled and cached for fast access when rendering
+ * Handlebars template preloading for this system.
+ * Lists the actor/item sheet partials to compile upfront so sheets don't stutter on first render.
+ */
+
+/**
+ * Define a set of template paths to pre-load, so they're compiled and cached for fast access when rendering.
  * @return {Promise}
  */
 export const preloadHandlebarsTemplates = async function() {

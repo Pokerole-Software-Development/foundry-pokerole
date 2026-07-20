@@ -1,10 +1,11 @@
 /**
- * The 11 universal maneuver moves (Struggle, Clash, Evasion, etc.) that every Pokémon/Trainer
- * in the `pokerole.pokemon`/`pokerole.moves` compendia already carries. Kept here as a static
- * reference instead of reading the compendium at runtime, since compendium contents can be
- * edited/removed by world builders and shouldn't be treated as a source of truth for core data.
- * `_id`s are preserved from the official compendium so newly-created actors match its convention
- * (every actor in `pokedex.db` shares the same `_id` per maneuver).
+ * Static item data for the 11 universal maneuver moves granted to every Pokémon/Trainer actor.
+ * Plain data only - no logic - consumed when seeding a newly-created actor's items.
+ */
+
+/**
+ * The 11 universal maneuver moves every Pokémon/Trainer carries; kept as a static list instead of read from
+ * the compendium at runtime since world builders can edit/remove entries, and `_id`s match the official compendium.
  */
 export const MANEUVER_MOVES = [
   {

@@ -1,3 +1,8 @@
+/**
+ * Third-party module integrations (Item Piles, Bar Brawl) wired up via their respective hooks.
+ * Mostly static config objects handed to each module's own API - no Pokerole-specific logic here.
+ */
+
 /** Register integrations with third-party modules */
 export function registerIntegrationHooks() {
   // Item Piles module integration (https://fantasycomputer.works/FoundryVTT-ItemPiles/#/api)

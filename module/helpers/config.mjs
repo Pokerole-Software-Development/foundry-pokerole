@@ -1,3 +1,8 @@
+/**
+ * Central static config: the `POKEROLE` object (type matchups, ailments, ranks, i18n key maps, etc.)
+ * plus small pure-function helpers (type matchup scoring, pain penalty level) that read from it.
+ */
+
 export const POKEROLE = {};
 
 POKEROLE.CONST = {
@@ -651,8 +656,7 @@ export function getConfusionModifier(rank) {
   return POKEROLE.rankProgression[rank]?.confusionPenalty ?? 0;
 }
 
-// Named per-rank dice-count tables for moves whose damage pool scales with the user's Rank
-// (e.g. Seismic Toss, Night Shade, Psywave). Ranks not listed in a tag fall back to 0.
+// Named per-rank dice-count tables for moves whose damage pool scales with the user's Rank (e.g. Seismic Toss, Night Shade, Psywave); ranks not listed in a tag fall back to 0.
 POKEROLE.rankDiceTables = {
   standard: {
     starter: 1,

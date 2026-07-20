@@ -1,3 +1,6 @@
+/**
+ * Public API surface exposed to macros and other modules (e.g. APIdb.pokemonMatchup()).
+ */
 import { getTripleTypeMatchups, getDualTypeMatchups, POKEROLE } from "../helpers/config.mjs";
 
 export class APIdb {

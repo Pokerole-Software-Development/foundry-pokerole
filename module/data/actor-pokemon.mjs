@@ -1,3 +1,6 @@
+/**
+ * Data model for Pokemon actors, extending the shared actor base with species/type/skill fields.
+ */
 import { POKEROLE } from "../helpers/config.mjs";
 import { PokeroleActorBaseData } from "./actor-base.mjs";
 

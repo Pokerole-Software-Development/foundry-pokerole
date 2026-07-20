@@ -1,3 +1,6 @@
+/**
+ * Base data model for Actor documents, shared by the Pokemon and Trainer data models.
+ */
 import { POKEROLE, computePainPenaltyLevel } from "../helpers/config.mjs";
 import { resourceField, attributeField, scaleField, plusMinusField } from "./fields.mjs";
 
@@ -10,11 +13,9 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
     return {
       hp: resourceField(0, 0),
       will: resourceField(0, 3),
-      // Persisted state for the Pain Penalty mechanic (level/value/min/max are bolted on below,
-      // in prepareDerivedData() - same pattern as hp/will's persisted resourceField + derived .max).
+      // Persisted state for the Pain Penalty mechanic (level/value/min/max are bolted on below, in prepareDerivedData()).
       painPenalization: new SchemaField({
-        // Willpower spent to ignore points of the HP-derived Pain Penalty level. Persists across
-        // HP changes within a scene - see computePainPenaltyLevel() in helpers/config.mjs.
+        // Willpower spent to ignore points of the HP-derived Pain Penalty level, persisting across HP changes within a scene - see computePainPenaltyLevel() in helpers/config.mjs.
         ignored: new NumberField({ required: true, integer: true, initial: 0, min: 0, max: 3 }),
         // Manually forces the Pain Penalty level instead of deriving it from HP.
         overrideEnabled: new BooleanField({ initial: false }),
@@ -41,8 +42,7 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
         Object.fromEntries(POKEROLE.socialAttributes.map(key => [key, scaleField(1, 5)]))
       ),
 
-      // Ailments have varying shapes (type, inflictedByUuid, moveUuid...), so they're
-      // kept as loose objects rather than a strict schema for now.
+      // Ailments have varying shapes (type, inflictedByUuid, moveUuid...), so they're kept as loose objects rather than a strict schema for now.
       ailments: new ArrayField(new ObjectField()),
 
       customInitiativeMod: new NumberField({ required: true, integer: true, initial: 0 }),
@@ -63,8 +63,7 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
       // Whether this actor is a "shiny"/variant color - shows a special icon on the header
       varicolor: new BooleanField({ initial: false }),
 
-      // Persisted inputs for temporary combat modifiers. Their `.value` (plus - minus)
-      // is recomputed every prepareBaseData() cycle and is NOT part of the schema.
+      // Persisted inputs for temporary combat modifiers; their `.value` (plus - minus) is recomputed every prepareBaseData() cycle and is NOT part of the schema.
       accuracyMod: plusMinusField(),
       statChanges: new SchemaField({
         strength: plusMinusField(),
@@ -122,8 +121,7 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
     if (this.painPenalization.overrideEnabled && !game.settings.get('pokerole', 'disablePainPenalty')) {
       painPenaltyLevel = this.painPenalization.overrideLevel;
     }
-    // Can't visually/mechanically ignore more pain than currently exists, but the stored value
-    // isn't clamped - it stays "banked" if the level later rises again within the same scene.
+    // Can't visually/mechanically ignore more pain than currently exists, but the stored value isn't clamped - it stays "banked" if the level later rises again within the same scene.
     const painPenaltyIgnored = Math.min(this.painPenalization.ignored ?? 0, painPenaltyLevel);
     this.painPenalization.level = painPenaltyLevel;
     this.painPenalization.value = painPenaltyLevel - painPenaltyIgnored;
@@ -133,8 +131,7 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
     // TP Support Will+
     this.will.max = (this.willbonus ?? 0) + this.attributes.insight.value + POKEROLE.CONST.MAX_WILL_BONUS + totalPassiveIncrease;
 
-    // Stat changes need to be applied manually here because derived stats are created
-    // before `_applyEffects` runs on the Document
+    // Stat changes need to be applied manually here because derived stats are created before `_applyEffects` runs on the Document
     const strength = Math.max(this.attributes.strength.value + this.statChanges.strength.value, 1);
     const dexterity = Math.max(this.attributes.dexterity.value + this.statChanges.dexterity.value, 1);
     const special = Math.max(this.attributes.special.value + this.statChanges.special.value, 1);

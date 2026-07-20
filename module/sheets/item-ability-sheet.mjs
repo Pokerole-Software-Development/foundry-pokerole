@@ -1,3 +1,7 @@
+/**
+ * Sheet class for the Ability item type (AppV2), covering its Description and Rules tabs.
+ * Rules use the same attribute add/replace editor shared with other item sheets.
+ */
 import { PokeroleItemBaseSheet } from "./item-base-sheet.mjs";
 
 /**
