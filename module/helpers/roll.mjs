@@ -101,8 +101,18 @@ export async function rerollFailedDice(message, count) {
   const rollsRE = await rollDice(count);
 
   if (type === 'damageShared') {
-    const updatedRolls = [...rolls, ...rollsRE];
-    const content = await buildDamageSharedRerollContent(updatedRolls, modifier, painPenalty, context);
+    // Dice are shared across targets by array position (each target keeps a prefix) - a reroll
+    // must replace the failed dice in place, not append, so every target whose prefix includes
+    // that position sees the new value.
+    const updatedRolls = [...rolls];
+    let rerollIndex = 0;
+    for (let i = 0; i < updatedRolls.length && rerollIndex < rollsRE.length; i++) {
+      if (updatedRolls[i] < 4) {
+        updatedRolls[i] = rollsRE[rerollIndex];
+        rerollIndex++;
+      }
+    }
+    const content = await buildDamageSharedRerollContent(updatedRolls, modifier, painPenalty, context, true);
     await animateDiceRoll(rollsRE, message.whisper);
     await message.update({
       content,
@@ -739,7 +749,7 @@ async function buildDamageRerollContent(targets, context) {
  * shared dice array (`context.targets[].keepCount`). Used for both the initial roll and reroll,
  * so there's a single source of truth for how a shared-pool message's HTML is derived.
  */
-async function buildDamageSharedRerollContent(masterRolls, modifier, painPenalty, context) {
+async function buildDamageSharedRerollContent(masterRolls, modifier, painPenalty, context, rerolled = false) {
   const { actorUuid, tokenUuid, damageTypeText, damageFactor, hasRecoil, applyLeechHeal, targets: targetMeta } = context;
   const actor = await fromUuid(actorUuid);
   if (!actor) return '';
@@ -751,7 +761,7 @@ async function buildDamageSharedRerollContent(masterRolls, modifier, painPenalty
     const successCount = dice.filter(roll => roll > 3).length + modifier;
     const { damageBeforeEffectiveness, damage } = computeDamageFromRoll(successCount, damageFactor, t.effectivenessLevel);
     const diceHtml = buildDiceHtml(dice, stylingFunction) + buildModifierNoteHtml(modifier, painPenalty)
-      + `<p><b>${successCount} Total Successes</b></p>`;
+      + `<p><b>${successCount} Total Successes</b></p>` + (rerolled ? `<p><i>(Rerolled)</i></p>` : '');
     const html = buildDamageTargetHtml({
       diceHtml, name: t.name, damageTypeText, effectivenessLevel: t.effectivenessLevel, damage,
       isNoTarget: t.defenderTokenUuid === null
