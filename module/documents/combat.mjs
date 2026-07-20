@@ -21,11 +21,10 @@ export class PokeroleCombat extends Combat {
     }
 
     // If combat resource automation is enabled, show a dialog to confirm resetting all resources
-    let shouldContinue = false;
-    await Dialog.confirm({
-      title: game.i18n.localize('POKEROLE.CombatNextRoundDialogTitle'),
-      content: game.i18n.localize(`<p>${game.i18n.localize('POKEROLE.CombatNextRoundDialogContent')}</p>`),
-      yes: () => shouldContinue = true,
+    const shouldContinue = await foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.localize('POKEROLE.CombatNextRoundDialogTitle') },
+      content: `<p>${game.i18n.localize('POKEROLE.CombatNextRoundDialogContent')}</p>`,
+      rejectClose: false
     });
 
     // Apply ailment damage at the end of the round
