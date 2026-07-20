@@ -2162,6 +2162,11 @@ body,
   -ms-flex: 1;
   flex: 1;
 }
+.pokerole.actor.sheet .tab[data-tab=biography] .nature-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 .pokerole.actor.sheet .tab[data-tab=biography] .nature-keywords {
   font-style: italic;
   border-bottom: 1px dotted currentColor;

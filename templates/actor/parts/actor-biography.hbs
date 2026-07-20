@@ -68,10 +68,12 @@
     <div class="pokedex">
       <fieldset>
         <legend>Nature</legend>
-        <select name="system.personality" value="{{system.personality}}" data-dtype="String">
-          {{selectOptions natures selected=system.personality}}
-        </select>
-        <span class="nature-keywords" data-tooltip="{{natureDescription}}">{{natureKeywords}}</span>
+        <span class="nature-row">
+          <select name="system.personality" value="{{system.personality}}" data-dtype="String">
+            {{selectOptions natures selected=system.personality}}
+          </select>
+          <span class="nature-keywords" data-tooltip="{{natureDescription}}">{{natureKeywords}}</span>
+        </span>
       </fieldset>
       {{#if (pkOptions "genderOption")}}
       <fieldset>
