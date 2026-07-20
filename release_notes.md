@@ -9,7 +9,7 @@
 - **Unlimited Uses**: Moves can now be flagged to skip the once-per-round usage lock, for both Accuracy rolls and Clash (#88).
 - **Move Sheet Layout**: reorganized the Attributes tab for readability - related fields grouped together, Reaction/Late Reaction combined into one row.
 - **Trainer Team Tab Redesign**: team cards now show HP/Willpower as HUD-style bars, a rank badge and rank-colored portrait ring, real status ailment icons, and a fainted state. The maximum team size is no longer fixed at 6 - it's now configurable per-Trainer from the Actor settings dialog (#122).
-- **Bugs & Fixes**: adding skills/attributes could fail on new actors (#138); Clash messages missing required successes (#137); wrong "full HP" message on some heals; ailment icons invisible in Light theme; Advanced rank target limit off by one; Reroll dialog input wrapping; Develop builds crashing on chat buttons.
+- **Bugs & Fixes**: adding skills/attributes could fail on new actors (#138); Clash messages missing required successes (#137); wrong "full HP" message on some heals; ailment icons invisible in Light theme; Advanced rank target limit off by one; Reroll dialog input wrapping; Develop builds crashing on chat buttons; old worlds upgrading past 0.5.1 could hit "not a valid choice" rank errors on Pokémon/Move data.
 
 ## Notes
 Please ensure you backup your existing module folder before updating.
