@@ -293,6 +293,28 @@ POKEROLE.specialStatusEffects = {
 POKEROLE.ranks = ['none', 'starter', 'rookie', 'standard', 'advanced', 'expert', 'ace', 'master', 'champion'];
 POKEROLE.moveGroups = ['learned', ...POKEROLE.ranks.slice(1), 'maneuver'];
 
+// Pre-0.5.1 ("POKEROLE 3.0" rework) rank rename - these three are never valid under the current schema, safe to remap unconditionally.
+const LEGACY_RANK_RENAMES = { beginner: 'rookie', amateur: 'standard', pro: 'expert' };
+const AMBIGUOUS_OLD_ACE = 'ace';
+const AMBIGUOUS_OLD_ACE_REPLACEMENT = 'advanced';
+const RANK_REWORK_VERSION = '0.5.1';
+
+/** Migrates the pre-0.5.1 rank strings that are never valid under the current schema - always safe, no version info needed. */
+export function migrateUnambiguousLegacyRankValue(value) {
+  return typeof value === 'string' && value in LEGACY_RANK_RENAMES ? LEGACY_RANK_RENAMES[value] : value;
+}
+
+/** Migrates a legacy pre-0.5.1 rank string; `systemVersion` (a Document's `_stats.systemVersion`) disambiguates 'ace', which is valid under both the old and new schema with different meanings. */
+export function migrateLegacyRankValue(value, systemVersion) {
+  const unambiguous = migrateUnambiguousLegacyRankValue(value);
+  if (unambiguous !== value) return unambiguous;
+  if (value === AMBIGUOUS_OLD_ACE) {
+    const isLegacyDocument = !systemVersion || foundry.utils.isNewerVersion(RANK_REWORK_VERSION, systemVersion);
+    if (isLegacyDocument) return AMBIGUOUS_OLD_ACE_REPLACEMENT;
+  }
+  return value;
+}
+
 POKEROLE.itemCategory = {
   item: "Item",
   medicine: "Medicine",

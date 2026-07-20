@@ -1,7 +1,7 @@
 /**
  * Item document subclass: use()/chat-card rendering, heal application, and move effect-text formatting.
  */
-import { POKEROLE } from "../helpers/config.mjs";
+import { POKEROLE, migrateLegacyRankValue } from "../helpers/config.mjs";
 import { bulkApplyHp, createHealMessage } from "../helpers/damage.mjs";
 import { rollAccuracy, rollDamage } from "../helpers/roll.mjs";
 
@@ -10,6 +10,15 @@ import { rollAccuracy, rollDamage } from "../helpers/roll.mjs";
  * @extends {Item}
  */
 export class PokeroleItem extends Item {
+
+  /** @override Migrates pre-0.5.1 `rank` strings on Move items - see helpers/config.mjs for the mapping. */
+  static migrateData(source) {
+    if (source.type === 'move' && source.system?.rank !== undefined) {
+      source.system.rank = migrateLegacyRankValue(source.system.rank, source._stats?.systemVersion);
+    }
+    return super.migrateData(source);
+  }
+
   /** Augment the basic Item data model with additional dynamic data. */
   prepareData() {
     // As with the actor class, items are documents that can have their data preparation methods overridden (such as prepareBaseData()).

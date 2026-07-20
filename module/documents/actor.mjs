@@ -1,7 +1,7 @@
 /**
  * Actor document subclass: the custom rules-based effects engine, ailment helpers, roll data, and token icon sync.
  */
-import { POKEROLE } from "../helpers/config.mjs";
+import { POKEROLE, migrateLegacyRankValue } from "../helpers/config.mjs";
 import { buildAilmentIconEffectData, buildCustomEffectIconData, buildStatChangeIconData, buildPainPenaltyIconData } from "../helpers/effects.mjs";
 import { MANEUVER_MOVES } from "../helpers/maneuvers.mjs";
 import { applyDamageEffectsHtml, createHealMessage } from "../helpers/damage.mjs";
@@ -11,6 +11,18 @@ import { applyDamageEffectsHtml, createHealMessage } from "../helpers/damage.mjs
  * @extends {Actor}
  */
 export class PokeroleActor extends Actor {
+
+  /** @override Migrates pre-0.5.1 rank/recommendedRank strings - see helpers/config.mjs for the mapping. */
+  static migrateData(source) {
+    const systemVersion = source._stats?.systemVersion;
+    if (source.system?.rank !== undefined) {
+      source.system.rank = migrateLegacyRankValue(source.system.rank, systemVersion);
+    }
+    if (source.system?.recommendedRank !== undefined) {
+      source.system.recommendedRank = migrateLegacyRankValue(source.system.recommendedRank, systemVersion);
+    }
+    return super.migrateData(source);
+  }
 
   /** @override */
   prepareData() {

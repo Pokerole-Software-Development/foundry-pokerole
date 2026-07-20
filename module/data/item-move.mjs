@@ -1,7 +1,7 @@
 /**
  * Data model for Move items, including their accuracy/damage pool refs and damagePool formula overrides.
  */
-import { POKEROLE } from "../helpers/config.mjs";
+import { POKEROLE, migrateUnambiguousLegacyRankValue } from "../helpers/config.mjs";
 import { PokeroleItemBaseData } from "./item-base.mjs";
 
 const { SchemaField, NumberField, StringField, BooleanField, ArrayField, ObjectField } = foundry.data.fields;
@@ -13,7 +13,7 @@ function poolRefField() {
 
 export class PokeroleItemMoveData extends PokeroleItemBaseData {
 
-  /** Migrate pre-v14 raw `target` values (e.g. "User" -> "Self") to their current equivalents. */
+  /** Migrate pre-v14 raw `target` values and unconditional-safe pre-0.5.1 `rank` renames (backstop for PokeroleItem.migrateData - idempotent, no `_stats` needed here since these three are never valid post-rework). */
   static migrateData(source) {
     const targetMigrations = {
       "User": "Self",
@@ -24,6 +24,9 @@ export class PokeroleItemMoveData extends PokeroleItemBaseData {
     };
     if (source.target in targetMigrations) {
       source.target = targetMigrations[source.target];
+    }
+    if (source.rank !== undefined) {
+      source.rank = migrateUnambiguousLegacyRankValue(source.rank);
     }
     return super.migrateData(source);
   }
