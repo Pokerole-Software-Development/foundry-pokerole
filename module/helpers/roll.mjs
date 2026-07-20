@@ -74,12 +74,12 @@ export async function successRollAttribute(attribute, chatData) {
 }
 
 // attribute, skill = { name: String, value: number };
-export async function successRollAttributeSkill(attribute, skill, chatData, poolModifier = 0, constantModifier = 0, rerollBonus = 0, rerollType = null, painPenalty = 0) {
+export async function successRollAttributeSkill(attribute, skill, chatData, poolModifier = 0, constantModifier = 0, rerollType = null, painPenalty = 0) {
   if (poolModifier != 0) {
     let sign = poolModifier >= 0 ? '+' : '';
-    return successRoll(attribute.value + skill.value + poolModifier, `${attribute.name}+${skill.name}${sign}${poolModifier}`, chatData, constantModifier, rerollBonus, rerollType, painPenalty);
+    return successRoll(attribute.value + skill.value + poolModifier, `${attribute.name}+${skill.name}${sign}${poolModifier}`, chatData, constantModifier, rerollType, painPenalty);
   } else {
-    return successRoll(attribute.value + skill.value, `${attribute.name}+${skill.name}`, chatData, constantModifier, rerollBonus, rerollType, painPenalty);
+    return successRoll(attribute.value + skill.value, `${attribute.name}+${skill.name}`, chatData, constantModifier, rerollType, painPenalty);
   }
 }
 
@@ -293,7 +293,6 @@ export async function successRollAttributeDialog(attribute, options, chatData, s
   const painPenalty = enablePainPenalty ? (options?.painPenalty ?? 0) : 0;
   let confusionModifier = getConfusionModifier(options.userRank) ?? 1;
   let confusionPenalty = options.confusionPenalty ?? false;
-  let rerollBonus = 0;
 
   if (showPopup) {
     const content = await foundry.applications.handlebars.renderTemplate(ATTRIBUTE_ROLL_DIALOGUE_TEMPLATE, {
@@ -321,7 +320,6 @@ export async function successRollAttributeDialog(attribute, options, chatData, s
     poolBonus = formData.poolBonus ?? 0;
     constantBonus = formData.constantBonus ?? 0;
     confusionPenalty = formData.confusionPenalty ?? false;
-    rerollBonus = formData.rerollBonus ?? 0;
   }
 
   if (confusionPenalty) {
@@ -330,7 +328,7 @@ export async function successRollAttributeDialog(attribute, options, chatData, s
 
   const constantBonusWithPainPenalty = constantBonus - painPenalty;
   const rerollType = requiredSuccesses !== null ? 'evade' : 'attribute';
-  await successRoll(attribute.value + poolBonus, attribute.name, chatData, constantBonusWithPainPenalty, rerollBonus, rerollType, painPenalty, requiredSuccesses);
+  await successRoll(attribute.value + poolBonus, attribute.name, chatData, constantBonusWithPainPenalty, rerollType, painPenalty, requiredSuccesses);
 
   return true;
 }
@@ -375,7 +373,6 @@ export async function successRollSkillDialog(skill, attributes, options, chatDat
   let attributeName = formData.attribute;
   let poolBonus = formData.poolBonus ?? 0;
   let constantBonus = formData.constantBonus ?? 0;
-  let rerollBonus = formData.rerollBonus ?? 0;
 
   if (formData.confusionPenalty) {
     constantBonus -= getConfusionModifier(options.userRank);
@@ -392,7 +389,6 @@ export async function successRollSkillDialog(skill, attributes, options, chatDat
     chatData,
     poolBonus,
     constantBonusWithPainPenalty,
-    rerollBonus,
     'skill',
     painPenalty
   );
@@ -450,7 +446,6 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
 
   let poolBonus = 0;
   let constantBonus = 0;
-  let rerollBonus = 0;
   let enablePainPenalty = !(POKEROLE.painPenaltyExcludedAttributes.includes(accAttr1) || POKEROLE.painPenaltyExcludedAttributes.includes(accAttr1var));
   const painPenalty = enablePainPenalty ? actor.system.painPenalization.value : 0;
   let requiredSuccesses = Math.max(actor.system.actionCount.value + 1, 0);
@@ -483,7 +478,6 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
 
     poolBonus = formData.poolBonus ?? 0;
     constantBonus = formData.constantBonus ?? 0;
-    rerollBonus = formData.rerollBonus ?? 0;
 
     if (formData.requiredSuccesses !== undefined) {
       requiredSuccesses = formData.requiredSuccesses;
@@ -520,7 +514,7 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
 
   let chatData = { speaker: ChatMessage.implementation.getSpeaker({ actor }) };
   const [rollResult, newChatData] = await createSuccessRollMessageData(dicePool, `Accuracy roll: ${item.name}`, chatData,
-    constantBonusWithPainPenalty, rerollBonus, 'accuracy', rerollContext, painPenalty, requiredSuccesses);
+    constantBonusWithPainPenalty, 'accuracy', rerollContext, painPenalty, requiredSuccesses);
 
   chatData = newChatData;
 
@@ -839,7 +833,7 @@ export async function rollDamage(item, actor, token) {
 
   if (!formData) return false;
 
-  let { enemyDef, stab, effectiveness, poolBonus, constantBonus, applyLeechHeal, rerollBonus } = formData;
+  let { enemyDef, stab, effectiveness, poolBonus, constantBonus, applyLeechHeal } = formData;
   poolBonus ??= 0;
   constantBonus ??= 0;
   const painPenalty = actor.system.painPenalization.value;
@@ -899,7 +893,7 @@ export async function rollDamage(item, actor, token) {
     } else {
       const rollCount = Math.max(rollCountBeforeDef - enemyDef, 1);
 
-      const [rollResult, messageDataPart, rolls, rollsRE] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus, rerollBonus, null, null, painPenalty);
+      const [rollResult, messageDataPart, rolls] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus, null, null, painPenalty);
       const effectivenessLevel = effectivenessSelectToLevel(effectiveness);
       const { damageBeforeEffectiveness, damage } = computeDamageFromRoll(rollResult, damageFactor, effectivenessLevel);
 
@@ -908,7 +902,7 @@ export async function rollDamage(item, actor, token) {
       });
 
       targets.push({
-        name: actor.name, rolls: [...rolls, ...rollsRE], modifier: constantBonus,
+        name: actor.name, rolls, modifier: constantBonus,
         effectivenessLevel, damageBeforeEffectiveness, damage, html: targetHtml,
         defenderTokenUuid: null, defenderActorId: null
       });
@@ -951,7 +945,7 @@ export async function rollDamage(item, actor, token) {
       // A damaging move's dice pool is always at least 1, even if power+stat doesn't exceed the defense.
       const rollCount = Math.max(effectiveRollCountBeforeDef - defStat, 1);
 
-      const [rollResult, messageDataPart, rolls, rollsRE] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus, rerollBonus, null, null, painPenalty);
+      const [rollResult, messageDataPart, rolls] = await createSuccessRollMessageData(rollCount, undefined, chatData, constantBonus, null, null, painPenalty);
       const effectivenessLevel = computeEffectivenessLevel(item, defender);
       const { damageBeforeEffectiveness, damage } = computeDamageFromRoll(rollResult, damageFactor, effectivenessLevel);
 
@@ -960,7 +954,7 @@ export async function rollDamage(item, actor, token) {
       });
 
       targets.push({
-        name: defender.name, rolls: [...rolls, ...rollsRE], modifier: constantBonus,
+        name: defender.name, rolls, modifier: constantBonus,
         effectivenessLevel, damageBeforeEffectiveness, damage, html: targetHtml,
         defenderTokenUuid: defenderToken.document.uuid, defenderActorId: defender.id
       });
@@ -1129,12 +1123,12 @@ async function createDiceRollChatMessage(rolls, content, flavor, chatData) {
  * @param {number} modifier Constant number added to the result
  * @returns {Promise<number>} The number of successes
  */
-export async function successRoll(rollCount, flavor, chatData, modifier = 0, rerollBonus = 0, rerollType = null, painPenalty = 0, requiredSuccesses = null) {
+export async function successRoll(rollCount, flavor, chatData, modifier = 0, rerollType = null, painPenalty = 0, requiredSuccesses = null) {
   if (rollCount > 999) {
     throw new Error('You cannot roll more than 999 dice');
   }
 
-  const [successCount, messageData] = await createSuccessRollMessageData(rollCount, flavor, chatData, modifier, rerollBonus, rerollType, null, painPenalty, requiredSuccesses);
+  const [successCount, messageData] = await createSuccessRollMessageData(rollCount, flavor, chatData, modifier, rerollType, null, painPenalty, requiredSuccesses);
 
   await ChatMessage.implementation.create(messageData);
   return successCount;
@@ -1165,27 +1159,22 @@ export async function chanceDiceRoll(rollCount, flavor, chatData) {
  * @param {string} flavor Displayed flavor text
  * @param {Object} chatData Chat message settings that will be merged with the resulting HTML
  * @param {number} modifier Constant number added to the result
- * @returns {Promise<[result: number, chatMessageData: object, rolls: Array<number>, rollsRE: Array<number>]>}
+ * @returns {Promise<[result: number, chatMessageData: object, rolls: Array<number>]>}
  */
-export async function createSuccessRollMessageData(rollCount, flavor, chatData, modifier = 0, reRolls = 0, rerollType = null, rerollContext = null, painPenalty = 0, requiredSuccesses = null) {
+export async function createSuccessRollMessageData(rollCount, flavor, chatData, modifier = 0, rerollType = null, rerollContext = null, painPenalty = 0, requiredSuccesses = null) {
   if (rollCount > 999) {
     throw new Error('You cannot roll for successes with more than 999 dice');
   }
 
   const rolls = await rollDice(rollCount);
-  const rollsRE = await rollDice(Math.min(reRolls, rolls.filter(roll => roll < 4).length));
 
-  const rerollCount = rollsRE.length
-  const successCount = Math.min(rolls.filter(roll => roll > 3).length + rollsRE.filter(roll => roll > 3).length, rolls.length) + modifier;
+  const successCount = Math.min(rolls.filter(roll => roll > 3).length, rolls.length) + modifier;
 
   const stylingFunction = roll => roll > 3 ? 'max' : '';
-  const diceHtml = buildDiceHtml(rolls, stylingFunction, rollsRE);
+  const diceHtml = buildDiceHtml(rolls, stylingFunction);
   const modifierNoteHtml = buildModifierNoteHtml(modifier, painPenalty);
 
   let totalsText = `${successCount} Total Successes`;
-  if (rerollCount > 0) {
-    totalsText += ` (${rerollCount} Rerolls of ${reRolls})`
-  }
   if (requiredSuccesses !== null) {
     totalsText += ` (${requiredSuccesses} required)`;
   }
@@ -1207,7 +1196,7 @@ export async function createSuccessRollMessageData(rollCount, flavor, chatData, 
     messageData.flags[game.system.id] ??= {};
     messageData.flags[game.system.id].rollData = {
       type: rerollType,
-      rolls: [...rolls, ...rollsRE],
+      rolls,
       modifier,
       painPenalty,
       requiredSuccesses,
@@ -1216,7 +1205,7 @@ export async function createSuccessRollMessageData(rollCount, flavor, chatData, 
     };
   }
 
-  return [successCount, messageData, rolls, rollsRE];
+  return [successCount, messageData, rolls];
 }
 
 /**

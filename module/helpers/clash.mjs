@@ -63,7 +63,7 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
 
   if (!formData) return undefined;
 
-  let { moveId, poolBonus, constantBonus, confusionPenalty, rerollBonus } = formData;
+  let { moveId, poolBonus, constantBonus, confusionPenalty } = formData;
   constantBonus ??= 0;
   if (confusionPenalty) {
     constantBonus -= confusionModifier;
@@ -91,7 +91,7 @@ export async function showClashDialog(actor, actorToken, attacker, attackingMove
 
   const rerollContext = { expectedSuccesses, successResultHtml, failureResultHtml };
   const [rollResult, messageDataPart] = await createSuccessRollMessageData(rollCount, undefined, chatData,
-    constantBonusWithPainPenalty, rerollBonus, 'clash', rerollContext, painPenalty, expectedSuccesses);
+    constantBonusWithPainPenalty, 'clash', rerollContext, painPenalty, expectedSuccesses);
   const baseHtml = messageDataPart.content;
 
   const html = baseHtml + ((rollResult >= expectedSuccesses) ? successResultHtml : failureResultHtml);
