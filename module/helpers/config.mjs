@@ -704,7 +704,7 @@ export function getRankDiceCount(tag, rank) {
 // Training Point cost per Level-evolution speed tier (Pokerole rulebook values).
 POKEROLE.evolutionSpeedTrainingPoints = { fast: 10, medium: 30, slow: 50 };
 
-/** Turns one raw `system.evolutions[]` entry into `{label, kindLabel, detail}` display data, or `null` for kinds not shown (form/mega/unrecognized). */
+/** Turns one raw `system.evolutions[]` entry into `{label, kindLabel, detail}` display data, or `null` for kinds not shown (form/unrecognized). */
 export function buildEvolutionDisplayData(evolution) {
   switch (evolution.kind) {
     case 'level': {
@@ -722,6 +722,8 @@ export function buildEvolutionDisplayData(evolution) {
       return { label: 'Special', kindLabel: 'Special', detail: evolution.special ?? '' };
     case 'trade':
       return { label: 'Trade', kindLabel: 'Trade', detail: evolution.item ? `Requires: ${evolution.item}` : 'No additional requirements' };
+    case 'mega':
+      return { label: 'Mega', kindLabel: 'Mega', detail: evolution.item ? `Requires: ${evolution.item}` : 'Mega Evolution' };
     default:
       return null;
   }
