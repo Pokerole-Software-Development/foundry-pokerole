@@ -103,16 +103,20 @@ export async function rerollFailedDice(message, count) {
   if (type === 'damageShared') {
     // Dice are shared across targets by array position (each target keeps a prefix) - a reroll
     // must replace the failed dice in place, not append, so every target whose prefix includes
-    // that position sees the new value.
+    // that position sees the new value. `rerolledIndices` lets the display still show the old
+    // (crossed-out) value next to the new one, matching every other roll type's convention.
     const updatedRolls = [...rolls];
+    const rerolledIndices = [];
     let rerollIndex = 0;
     for (let i = 0; i < updatedRolls.length && rerollIndex < rollsRE.length; i++) {
       if (updatedRolls[i] < 4) {
         updatedRolls[i] = rollsRE[rerollIndex];
+        rerolledIndices.push(i);
         rerollIndex++;
       }
     }
-    const content = await buildDamageSharedRerollContent(updatedRolls, modifier, painPenalty, context, true);
+    const rerollInfo = { originalRolls: rolls, rerolledIndices };
+    const content = await buildDamageSharedRerollContent(updatedRolls, modifier, painPenalty, context, rerollInfo);
     await animateDiceRoll(rollsRE, message.whisper);
     await message.update({
       content,
@@ -745,11 +749,36 @@ async function buildDamageRerollContent(targets, context) {
 }
 
 /**
+ * Builds a shared-pool dice tooltip: unlike `buildDiceHtml`'s append-only model, a rerolled
+ * position is shown in place - old value crossed out immediately followed by the new one -
+ * since a shared/prefix-sliced pool can't move rerolled dice to the end without breaking
+ * other targets' prefixes.
+ * @param {Array<number>} dice The current (post-reroll) values for this target's slice
+ * @param {Function} stylingFunction
+ * @param {{originalRolls: Array<number>, rerolledIndices: Array<number>} | null} rerollInfo
+ */
+function buildSharedPoolDiceHtml(dice, stylingFunction, rerollInfo) {
+  const rerolledIndices = rerollInfo ? new Set(rerollInfo.rerolledIndices) : null;
+  let text = '<div class="dice-tooltip"><div class="dice"><ol class="dice-rolls">';
+  dice.forEach((roll, i) => {
+    if (rerolledIndices?.has(i)) {
+      const oldRoll = rerollInfo.originalRolls[i];
+      text += `<li class="roll die d6 ${stylingFunction(oldRoll)} rerolled">${oldRoll}</li>`;
+    }
+    text += `<li class="roll die d6 ${stylingFunction(roll)}">${roll}</li>`;
+  });
+  text += '</ol></div></div>';
+  return text;
+}
+
+/**
  * Builds a shared-pool damage roll's full content: each target keeps its own prefix of one
  * shared dice array (`context.targets[].keepCount`). Used for both the initial roll and reroll,
  * so there's a single source of truth for how a shared-pool message's HTML is derived.
+ * @param {{originalRolls: Array<number>, rerolledIndices: Array<number>} | null} rerollInfo Pass
+ *   when called from a reroll, so previously-failed dice show their old (crossed-out) value.
  */
-async function buildDamageSharedRerollContent(masterRolls, modifier, painPenalty, context, rerolled = false) {
+async function buildDamageSharedRerollContent(masterRolls, modifier, painPenalty, context, rerollInfo = null) {
   const { actorUuid, tokenUuid, damageTypeText, damageFactor, hasRecoil, applyLeechHeal, targets: targetMeta } = context;
   const actor = await fromUuid(actorUuid);
   if (!actor) return '';
@@ -760,8 +789,8 @@ async function buildDamageSharedRerollContent(masterRolls, modifier, painPenalty
     const dice = masterRolls.slice(0, t.keepCount);
     const successCount = dice.filter(roll => roll > 3).length + modifier;
     const { damageBeforeEffectiveness, damage } = computeDamageFromRoll(successCount, damageFactor, t.effectivenessLevel);
-    const diceHtml = buildDiceHtml(dice, stylingFunction) + buildModifierNoteHtml(modifier, painPenalty)
-      + `<p><b>${successCount} Total Successes</b></p>` + (rerolled ? `<p><i>(Rerolled)</i></p>` : '');
+    const diceHtml = buildSharedPoolDiceHtml(dice, stylingFunction, rerollInfo) + buildModifierNoteHtml(modifier, painPenalty)
+      + `<p><b>${successCount} Total Successes</b></p>` + (rerollInfo ? `<p><i>(Rerolled)</i></p>` : '');
     const html = buildDamageTargetHtml({
       diceHtml, name: t.name, damageTypeText, effectivenessLevel: t.effectivenessLevel, damage,
       isNoTarget: t.defenderTokenUuid === null
