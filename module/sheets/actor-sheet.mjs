@@ -142,8 +142,8 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       ? this.constructor.MODES.EDIT : this.constructor.MODES.PLAY;
     this._mode = mode ?? this._mode ?? defaultMode;
 
-    // The "team" tab is still a prototype - only show it to trainers while Developer Options are enabled.
-    if ( this.actor.type !== "trainer" || !game.settings.get('pokerole', 'developmentOption') ) {
+    // The "team" tab only applies to Trainers.
+    if ( this.actor.type !== "trainer" ) {
       options.parts = options.parts.filter(part => part !== "team");
     }
   }
@@ -390,7 +390,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       { id: "biography", group: "primary", icon: "fa-solid fa-book", label: "Biography" }
     ];
 
-    if ( this.actor.type === "trainer" && game.settings.get('pokerole', 'developmentOption') ) {
+    if ( this.actor.type === "trainer" ) {
       tabs.push({ id: "team", group: "primary", icon: "fa-solid fa-people-group", label: "Team" });
     }
 
