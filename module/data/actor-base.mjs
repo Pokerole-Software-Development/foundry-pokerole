@@ -149,20 +149,10 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
       clashSpecial: {
         value: special + (this.skills?.clash?.value ?? 0)
       },
-      searchForCover: {
-        value: this.attributes.insight.value + this.skills.alert.value
-      },
-      runAway: {
-        value: this.attributes.dexterity.value + this.skills.athletic.value
-      },
       def: {
         value: this.attributes.vitality.value + totalPassiveIncrease
       }
     };
-
-    if (this.skills?.medicine?.value !== undefined) { // Pokémon don't have Medicine
-      this.derived.useItem = { value: this.social.clever.value + this.skills.medicine.value };
-    }
 
     if (game.settings.get('pokerole', 'specialDefenseStat') === 'insight') {
       this.derived.spDef = { value: this.attributes.insight.value + totalPassiveIncrease };

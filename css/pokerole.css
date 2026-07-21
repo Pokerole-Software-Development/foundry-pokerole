@@ -1193,6 +1193,7 @@ body,
   --color-pkmn-team-card-bg: #c23a24;
   --color-pkmn-hp-low-hi: #ff7a1a;
   --color-pkmn-hp-low-lo: #d94e0a;
+  --color-pkmn-overridden: #8a6d00;
 }
 .pokerole.actor.sheet:not(.theme-light) {
   --color-pkmn-header-back: #251915;
@@ -1210,6 +1211,7 @@ body,
   --color-pkmn-team-card-bg: #841722;
   --color-pkmn-hp-low-hi: #ff5a42;
   --color-pkmn-hp-low-lo: #c2301c;
+  --color-pkmn-overridden: #ffd23f;
 }
 .pokerole.actor.sheet .window-header slide-toggle {
   --slide-toggle-track-color-unchecked: darkgray;
@@ -2025,6 +2027,35 @@ body,
   -ms-flex-direction: column;
   flex-direction: column;
 }
+.pokerole.actor.sheet .tab[data-tab=attributes] .combat-stats {
+  justify-content: flex-start;
+  gap: 4px;
+  min-height: 0;
+}
+.pokerole.actor.sheet .tab[data-tab=attributes] .combat-stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.pokerole.actor.sheet .tab[data-tab=attributes] .combat-stat-row + .combat-stat-row {
+  margin-top: 4px;
+}
+.pokerole.actor.sheet .tab[data-tab=attributes] .combat-stat-row label {
+  cursor: pointer;
+  font-weight: 700;
+}
+.pokerole.actor.sheet .tab[data-tab=attributes] .combat-stat-value {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 50%;
+  background-color: var(--color-pkmn-field-back);
+  color: var(--input-pkmn-text-color);
+}
 .pokerole.actor.sheet .tab[data-tab=attributes] .physical-capacity-row {
   display: flex;
   align-items: center;
@@ -2056,27 +2087,6 @@ body,
   -webkit-box-flex: 1;
   -ms-flex: 1;
   flex: 1;
-}
-.pokerole.actor.sheet .tab[data-tab=attributes] .derived .section-header {
-  font-size: 1.25em;
-  font-family: var(--font-sans);
-}
-.pokerole.actor.sheet .tab[data-tab=attributes] .derived .derived-attributes {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  gap: 2px;
-}
-.pokerole.actor.sheet .tab[data-tab=attributes] .derived .attribute {
-  border: 2px solid black;
-  padding: 1px 6px;
-  border-radius: 30px;
-  background-color: var(--color-pkmn-field-back);
-  color: var(--input-pkmn-text-color);
 }
 .pokerole.actor.sheet .tab[data-tab=items] {
   background-color: var(--color-pkmn-darkfield-back);
@@ -2440,7 +2450,7 @@ body,
 .pokerole.actor.sheet .overridden,
 .pokerole.actor.sheet .attribute .value-input.overridden {
   font-weight: bold;
-  border: 2px dashed yellow;
+  border: 2px dashed var(--color-pkmn-overridden);
 }
 .pokerole.actor.sheet .custom-skill {
   display: -webkit-box;

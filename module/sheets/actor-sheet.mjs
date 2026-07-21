@@ -1119,10 +1119,10 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
 
     if (dataset.rollAttribute) {
       if (dataset.rollAttribute === 'initiative') {
-        const roll = new Roll('1d6 + @dexterity + @alert + @customInitiativeMod', {
-          dexterity: this.actor.system.attributes.dexterity.value,
-          alert: this.actor.system.skills.alert.value,
-          customInitiativeMod: this.actor.system.customInitiativeMod,
+        // Not a dice-pool/success-counting roll like other attributes - a flat 1d6 + the derived total,
+        // which already includes totalPassiveIncrease and any effect override on system.derived.initiative.
+        const roll = new Roll('1d6 + @initiative', {
+          initiative: this.actor.system.derived.initiative.value,
         });
         await roll.toMessage(chatData, { create: true });
       } else {

@@ -121,6 +121,42 @@
   
   <aside>
 
+    <fieldset class="combat-stats">
+      <legend>Initiative</legend>
+      <div class="combat-stat-row">
+        <label data-action="roll" class="rollable" data-roll-attribute="initiative" data-roll-label="{{system.derived.initiative.label}}">{{system.derived.initiative.label}}</label>
+        <span class="combat-stat-value {{#if system.derived.initiative.overridden}}overridden{{/if}}">{{system.derived.initiative.value}}</span>
+      </div>
+    </fieldset>
+
+    <fieldset class="combat-stats">
+      <legend>Armor</legend>
+      <div class="combat-stat-row">
+        <label data-action="roll" class="rollable" data-roll-attribute="def" data-roll-label="{{system.derived.def.label}}">{{system.derived.def.label}}</label>
+        <span class="combat-stat-value {{#if system.derived.def.overridden}}overridden{{/if}}">{{system.derived.def.value}}</span>
+      </div>
+      <div class="combat-stat-row">
+        <label data-action="roll" class="rollable" data-roll-attribute="spDef" data-roll-label="{{system.derived.spDef.label}}">{{system.derived.spDef.label}}</label>
+        <span class="combat-stat-value {{#if system.derived.spDef.overridden}}overridden{{/if}}">{{system.derived.spDef.value}}</span>
+      </div>
+    </fieldset>
+
+    <fieldset class="combat-stats">
+      <legend>Reactions</legend>
+      <div class="combat-stat-row">
+        <label data-action="roll" class="rollable" data-roll-attribute="clashPhysical" data-roll-label="{{system.derived.clashPhysical.label}}">{{system.derived.clashPhysical.label}}</label>
+        <span class="combat-stat-value {{#if system.derived.clashPhysical.overridden}}overridden{{/if}}">{{system.derived.clashPhysical.value}}</span>
+      </div>
+      <div class="combat-stat-row">
+        <label data-action="roll" class="rollable" data-roll-attribute="clashSpecial" data-roll-label="{{system.derived.clashSpecial.label}}">{{system.derived.clashSpecial.label}}</label>
+        <span class="combat-stat-value {{#if system.derived.clashSpecial.overridden}}overridden{{/if}}">{{system.derived.clashSpecial.value}}</span>
+      </div>
+      <div class="combat-stat-row">
+        <label data-action="roll" class="rollable" data-roll-attribute="evade" data-roll-label="{{system.derived.evade.label}}">{{system.derived.evade.label}}</label>
+        <span class="combat-stat-value {{#if system.derived.evade.overridden}}overridden{{/if}}">{{system.derived.evade.value}}</span>
+      </div>
+    </fieldset>
+
     <fieldset class="physical-capacity">
       <legend>Physical Capacity</legend>
       <div class="physical-capacity-row">
@@ -137,26 +173,6 @@
 
     <div class="button-container">
       <button type="button" title="Retrain" data-action="reTrain" class="set-button">Retrain</button>
-    </div>
-
-    <div class="derived">
-      <h3 class="section-header centered">Quick References</h3>
-      <div class="derived-attributes">
-        {{#each system.derived as |attribute key|}}
-        <div class="attribute">
-          {{#if (pkOptions "vitaminOption")}}
-          {{#if (ifvitamin ../system.avitamin ../system.bvitamin key)}}
-          <div class="fa-solid fa-star attribute-star"></div>
-          {{else}}
-          <div class="fa-regular fa-star attribute-star"></div>
-          {{/if}}
-          {{/if}}
-          <label for="{{@root/id}}-system-derived-{{key}}-value" data-action="roll" class="resource-label flexlarge align-left rollable"
-            data-roll-attribute="{{key}}" data-roll-label="{{attribute.label}}">{{attribute.label}}</label>
-          <span id="{{@root/id}}-system-derived-{{key}}-value">{{attribute.value}}</spanq>
-        </div>
-        {{/each}}
-      </div>
     </div>
   </aside>
 
