@@ -26,7 +26,7 @@ import { applyEffectToActors, registerEffectHooks } from "./helpers/effects.mjs"
 import { APIdb } from "./API/API.mjs";
 import CheckboxElement from "./components/checkbox.mjs";
 import SlideToggleElement from "./components/slide-toggle.mjs";
-import { PokeroleAilmentsMenu } from "./helpers/settingsMenu.mjs";
+import { PokeroleRegionalRulesMenu, PokeroleDisplayOptionsMenu, PokeroleSheetPreferencesMenu, PokeroleAutomationMenu } from "./helpers/settingsMenu.mjs";
 
 
 /* -------------------------------------------- */
@@ -341,7 +341,7 @@ function registerSettings() {
     name: 'POKEROLE.SettingNameSpecialDefenseStat',
     hint: 'POKEROLE.SettingHintSpecialDefenseStat',
     scope: 'world',
-    config: true,
+    config: false,
     type: String,
     choices: {
       'vitality': 'POKEROLE.AttributeVitality',
@@ -355,7 +355,7 @@ function registerSettings() {
     name: 'Force HP Calculation',
     hint: 'Option to bypass HP calculations and force to use either Vitality or Insight for Maximum HP',
     scope: 'world',
-    config: true,
+    config: false,
     type: String,
     choices: {
       'disabled': 'Disabled',
@@ -371,7 +371,7 @@ function registerSettings() {
     name: 'POKEROLE.SettingNameCombatResourceAutomation',
     hint: 'POKEROLE.SettingHintCombatResourceAutomation',
     scope: 'world',
-    config: true,
+    config: false,
     type: Boolean,
     default: true,
   });
@@ -393,7 +393,7 @@ function registerSettings() {
     name: 'Display Buff & Debuff',
     hint: 'Add the Increases and Decreases of stats on token UI',
     scope: 'world',
-    config: true,
+    config: false,
     type: Boolean,
     default: true,
     requiresReload: true
@@ -403,7 +403,7 @@ function registerSettings() {
     name: 'Display Pain Penalization',
     hint: 'Show the Pain Penalization level (and how much is Resisted) as an icon on the token',
     scope: 'world',
-    config: true,
+    config: false,
     type: Boolean,
     default: true,
     requiresReload: true
@@ -413,7 +413,7 @@ function registerSettings() {
     name: 'Disable Pain Penalization',
     hint: 'Turns off the Pain Penalization mechanic entirely - no calculations, no sheet section, no Willpower-resist prompt.',
     scope: 'world',
-    config: true,
+    config: false,
     type: Boolean,
     default: false,
     requiresReload: true
@@ -433,7 +433,7 @@ function registerSettings() {
     name: 'Enable Pokemon Gender Selector',
     hint: 'Add a new dropdown list to keep track of the Gender of Actors (Videogame genders)',
     scope: 'world',
-    config: true,
+    config: false,
     type: Boolean,
     default: false,
     requiresReload: true
@@ -459,14 +459,41 @@ function registerSettings() {
     requiresReload: true
   });
 
-  game.settings.registerMenu('pokerole', 'ailmentsConst', {
-      name: "Ailments Constants",
-      hint: "Allows to change certain numbers of the core mechanics related to Ailments",
-      label: "Ailments Settings",
-      icon: 'fas fa-wrench',
-      type: PokeroleAilmentsMenu,
-      restricted: true
-    })
+  game.settings.registerMenu('pokerole', 'regionalRules', {
+    name: "Regional Rules",
+    hint: "Optional/homebrew rules from the rulebook - stat calculation, combat mechanics, cosmetic options, and ailment constants",
+    label: "Regional Rules",
+    icon: 'fas fa-book',
+    type: PokeroleRegionalRulesMenu,
+    restricted: true
+  });
+
+  game.settings.registerMenu('pokerole', 'displayOptions', {
+    name: "Display Options",
+    hint: "Token overlay and chat message display options",
+    label: "Display Options",
+    icon: 'fas fa-eye',
+    type: PokeroleDisplayOptionsMenu,
+    restricted: true
+  });
+
+  game.settings.registerMenu('pokerole', 'sheetPreferences', {
+    name: "Sheet Preferences",
+    hint: "Personal sheet display preferences",
+    label: "Sheet Preferences",
+    icon: 'fas fa-address-card',
+    type: PokeroleSheetPreferencesMenu,
+    restricted: false
+  });
+
+  game.settings.registerMenu('pokerole', 'automation', {
+    name: "Automation",
+    hint: "Combat and roll automation rules",
+    label: "Automation",
+    icon: 'fas fa-robot',
+    type: PokeroleAutomationMenu,
+    restricted: true
+  });
 
   game.settings.register('pokerole', 'burnConst', {
     name: 'Burn Strength Reduction',
@@ -505,7 +532,7 @@ function registerSettings() {
     name: 'Enforce Rank Target Limit',
     hint: 'Block a damage roll (with a warning) if more targets are selected than the attacker\'s rank allows, for multi-target moves (Area, All Foes, Battlefield, etc.)',
     scope: 'world',
-    config: true,
+    config: false,
     type: Boolean,
     default: false
   });
@@ -514,7 +541,7 @@ function registerSettings() {
     name: 'Enforce Single-Target Move Limit',
     hint: 'Block a damage roll (with a warning) if more than one target is selected for a single-target move (Foe, Random Foe, Ally). Takes priority over Enforce Rank Target Limit for these moves.',
     scope: 'world',
-    config: true,
+    config: false,
     type: Boolean,
     default: false
   });
@@ -523,7 +550,7 @@ function registerSettings() {
     name: 'Shared Multi-Target Damage Pool',
     hint: 'For multi-target damage rolls, roll one shared dice pool instead of an independent pool per target - each target keeps as many dice from the shared pool as its own Def/Sp. Def allows. Only applies to standard power+stat damage rolls, not moves with a custom Damage Pool Formula.',
     scope: 'world',
-    config: true,
+    config: false,
     type: Boolean,
     default: false
   });
@@ -532,7 +559,7 @@ function registerSettings() {
     name: 'Disable Chat Message on Token Bar Changes',
     hint: 'Skip posting a chat message when HP is changed by dragging a token\'s HP bar (or a third-party module doing the same). Damage/Healing applied through chat card buttons or Move effects still post a message.',
     scope: 'world',
-    config: true,
+    config: false,
     type: Boolean,
     default: false
   });
@@ -541,7 +568,7 @@ function registerSettings() {
     name: 'Max Rerolls Per Message',
     hint: 'How many times a single roll\'s chat message can be rerolled (via the "Reroll" context-menu option) before it\'s locked. Default 1 matches today\'s behavior.',
     scope: 'world',
-    config: true,
+    config: false,
     type: Number,
     default: 1,
     range: { min: 1, max: 10, step: 1 }
@@ -551,7 +578,7 @@ function registerSettings() {
     name: 'Show Bubbles on Attributes',
     hint: 'In "Play" mode on the character sheet, display bubbles for attributes instead of numbers (similar to the PDF)',
     scope: 'user',
-    config: true,
+    config: false,
     type: Boolean,
     default: true
   });
@@ -560,7 +587,7 @@ function registerSettings() {
     name: 'Default Actor Sheet Mode',
     hint: 'Whether Actor sheets (Pokémon and Trainer) open in Play or Edit mode by default',
     scope: 'user',
-    config: true,
+    config: false,
     type: String,
     choices: {
       'play': 'Play',
@@ -573,7 +600,7 @@ function registerSettings() {
     name: 'Default Item Sheet Mode',
     hint: 'Whether Item sheets (Move, Item, Ability, Effect) open in Play or Edit mode by default',
     scope: 'user',
-    config: true,
+    config: false,
     type: String,
     choices: {
       'play': 'Play',

@@ -1,0 +1,79 @@
+<div class="pokerole pokerole-settings-menu regional-rules-settings">
+
+  <fieldset>
+    <legend>Stat Calculation</legend>
+    <div class="setting-row">
+      <label>{{specialDefenseStat.label}}</label>
+      <div class="setting-control">
+        <select name="specialDefenseStat">{{selectOptions specialDefenseStat.choices selected=specialDefenseStat.value localize=true}}</select>
+      </div>
+    </div>
+    <p class="notes">{{specialDefenseStat.hint}}</p>
+
+    <div class="setting-row">
+      <label>{{forceAttributeHP.label}}</label>
+      <div class="setting-control">
+        <select name="forceAttributeHP">{{selectOptions forceAttributeHP.choices selected=forceAttributeHP.value localize=true}}</select>
+      </div>
+    </div>
+    <p class="notes">{{forceAttributeHP.hint}}</p>
+  </fieldset>
+
+  <fieldset>
+    <legend>Combat</legend>
+    <div class="setting-row">
+      <label>{{sharedMultiTargetDamage.label}}</label>
+      <div class="setting-control">
+        <input type="checkbox" name="sharedMultiTargetDamage" {{#if sharedMultiTargetDamage.value}}checked{{/if}}/>
+      </div>
+    </div>
+    <p class="notes">{{sharedMultiTargetDamage.hint}}</p>
+
+    <div class="setting-row">
+      <label>{{disablePainPenalty.label}}</label>
+      <div class="setting-control">
+        <input type="checkbox" name="disablePainPenalty" {{#if disablePainPenalty.value}}checked{{/if}}/>
+      </div>
+    </div>
+    <p class="notes">{{disablePainPenalty.hint}}</p>
+  </fieldset>
+
+  <fieldset>
+    <legend>Cosmetic</legend>
+    <div class="setting-row">
+      <label>{{genderOption.label}}</label>
+      <div class="setting-control">
+        <input type="checkbox" name="genderOption" {{#if genderOption.value}}checked{{/if}}/>
+      </div>
+    </div>
+    <p class="notes">{{genderOption.hint}}</p>
+  </fieldset>
+
+  <fieldset>
+    <legend>Ailments</legend>
+    <div class="setting-row">
+      <label>{{paralysisConst.label}}</label>
+      <div class="setting-control">
+        <input type="number" name="paralysisConst" value="{{paralysisConst.value}}" min="0" max="3" data-dtype="Number"/>
+      </div>
+    </div>
+    <p class="notes">{{paralysisConst.hint}}</p>
+
+    <div class="setting-row">
+      <label>{{burnConst.label}}</label>
+      <div class="setting-control">
+        <input type="number" name="burnConst" value="{{burnConst.value}}" min="0" max="3" data-dtype="Number"/>
+      </div>
+    </div>
+    <p class="notes">{{burnConst.hint}}</p>
+
+    <div class="setting-row">
+      <label>{{frozenConst.label}}</label>
+      <div class="setting-control">
+        <input type="number" name="frozenConst" value="{{frozenConst.value}}" min="0" max="3" data-dtype="Number"/>
+      </div>
+    </div>
+    <p class="notes">{{frozenConst.hint}}</p>
+  </fieldset>
+
+</div>

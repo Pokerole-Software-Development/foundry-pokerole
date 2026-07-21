@@ -1,0 +1,30 @@
+<div class="pokerole pokerole-settings-menu sheet-preferences-settings">
+
+  <fieldset>
+    <legend>Sheet Preferences</legend>
+    <div class="setting-row">
+      <label>{{showBubbles.label}}</label>
+      <div class="setting-control">
+        <input type="checkbox" name="showBubbles" {{#if showBubbles.value}}checked{{/if}}/>
+      </div>
+    </div>
+    <p class="notes">{{showBubbles.hint}}</p>
+
+    <div class="setting-row">
+      <label>{{defaultActorSheetMode.label}}</label>
+      <div class="setting-control">
+        <select name="defaultActorSheetMode">{{selectOptions defaultActorSheetMode.choices selected=defaultActorSheetMode.value localize=true}}</select>
+      </div>
+    </div>
+    <p class="notes">{{defaultActorSheetMode.hint}}</p>
+
+    <div class="setting-row">
+      <label>{{defaultItemSheetMode.label}}</label>
+      <div class="setting-control">
+        <select name="defaultItemSheetMode">{{selectOptions defaultItemSheetMode.choices selected=defaultItemSheetMode.value localize=true}}</select>
+      </div>
+    </div>
+    <p class="notes">{{defaultItemSheetMode.hint}}</p>
+  </fieldset>
+
+</div>

@@ -1,0 +1,30 @@
+<div class="pokerole pokerole-settings-menu display-options-settings">
+
+  <fieldset>
+    <legend>Display Options</legend>
+    <div class="setting-row">
+      <label>{{autoBuff.label}}</label>
+      <div class="setting-control">
+        <input type="checkbox" name="autoBuff" {{#if autoBuff.value}}checked{{/if}}/>
+      </div>
+    </div>
+    <p class="notes">{{autoBuff.hint}}</p>
+
+    <div class="setting-row">
+      <label>{{showPainPenaltyIcon.label}}</label>
+      <div class="setting-control">
+        <input type="checkbox" name="showPainPenaltyIcon" {{#if showPainPenaltyIcon.value}}checked{{/if}}/>
+      </div>
+    </div>
+    <p class="notes">{{showPainPenaltyIcon.hint}}</p>
+
+    <div class="setting-row">
+      <label>{{suppressTokenBarChatMessage.label}}</label>
+      <div class="setting-control">
+        <input type="checkbox" name="suppressTokenBarChatMessage" {{#if suppressTokenBarChatMessage.value}}checked{{/if}}/>
+      </div>
+    </div>
+    <p class="notes">{{suppressTokenBarChatMessage.hint}}</p>
+  </fieldset>
+
+</div>

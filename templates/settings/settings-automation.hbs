@@ -1,0 +1,38 @@
+<div class="pokerole pokerole-settings-menu automation-settings">
+
+  <fieldset>
+    <legend>Automation</legend>
+    <div class="setting-row">
+      <label>{{combatResourceAutomation.label}}</label>
+      <div class="setting-control">
+        <input type="checkbox" name="combatResourceAutomation" {{#if combatResourceAutomation.value}}checked{{/if}}/>
+      </div>
+    </div>
+    <p class="notes">{{combatResourceAutomation.hint}}</p>
+
+    <div class="setting-row">
+      <label>{{enforceTargetLimit.label}}</label>
+      <div class="setting-control">
+        <input type="checkbox" name="enforceTargetLimit" {{#if enforceTargetLimit.value}}checked{{/if}}/>
+      </div>
+    </div>
+    <p class="notes">{{enforceTargetLimit.hint}}</p>
+
+    <div class="setting-row">
+      <label>{{enforceSingleTargetLimit.label}}</label>
+      <div class="setting-control">
+        <input type="checkbox" name="enforceSingleTargetLimit" {{#if enforceSingleTargetLimit.value}}checked{{/if}}/>
+      </div>
+    </div>
+    <p class="notes">{{enforceSingleTargetLimit.hint}}</p>
+
+    <div class="setting-row">
+      <label>{{maxRerollsPerMessage.label}}</label>
+      <div class="setting-control">
+        <input type="number" name="maxRerollsPerMessage" value="{{maxRerollsPerMessage.value}}" min="1" max="10" data-dtype="Number"/>
+      </div>
+    </div>
+    <p class="notes">{{maxRerollsPerMessage.hint}}</p>
+  </fieldset>
+
+</div>

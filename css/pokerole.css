@@ -3803,3 +3803,45 @@ body.theme-light .pokerole.item.sheet:not(.theme-dark),
   width: 50px;
   text-align: center;
 }
+#pokerole-regional-rules .window-content,
+#pokerole-display-options .window-content,
+#pokerole-sheet-preferences .window-content,
+#pokerole-automation .window-content {
+  overflow-y: auto;
+}
+.pokerole-settings-menu fieldset {
+  border-radius: 6px;
+  margin: 0 0 12px;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+.pokerole-settings-menu fieldset legend {
+  font-size: 15px;
+  font-weight: 700;
+}
+.pokerole-settings-menu .setting-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+.pokerole-settings-menu .setting-row label {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+.pokerole-settings-menu .setting-row .setting-control {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+.pokerole-settings-menu .setting-row .setting-control select {
+  max-width: 140px;
+}
+.pokerole-settings-menu .setting-row .setting-control input[type=number] {
+  width: 60px;
+}
+.pokerole-settings-menu .notes {
+  margin: 0 0 12px;
+  font-size: 12px;
+}
