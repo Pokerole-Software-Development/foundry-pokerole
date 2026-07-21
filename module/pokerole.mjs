@@ -528,6 +528,15 @@ function registerSettings() {
     default: false
   });
 
+  game.settings.register('pokerole', 'suppressTokenBarChatMessage', {
+    name: 'Disable Chat Message on Token Bar Changes',
+    hint: 'Skip posting a chat message when HP is changed by dragging a token\'s HP bar (or a third-party module doing the same). Damage/Healing applied through chat card buttons or Move effects still post a message.',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false
+  });
+
   game.settings.register('pokerole', 'maxRerollsPerMessage', {
     name: 'Max Rerolls Per Message',
     hint: 'How many times a single roll\'s chat message can be rerolled (via the "Reroll" context-menu option) before it\'s locked. Default 1 matches today\'s behavior.',

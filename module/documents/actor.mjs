@@ -417,11 +417,15 @@ export class PokeroleActor extends Actor {
 
     const token = this.token ?? this.getActiveTokens(true, true)[0]?.document;
     const name = token?.name ?? this.name;
+    const suppressChat = game.settings.get('pokerole', 'suppressTokenBarChatMessage');
 
     if (target < current) {
+      // Always run this for its fainted/Pain Penalty side effects, even if the chat message itself is suppressed.
       const html = await applyDamageEffectsHtml(token, this, name, current - target, current, target, attr.max);
-      await ChatMessage.implementation.create({ content: `<div class="pokerole">${html}</div>` });
-    } else {
+      if (!suppressChat) {
+        await ChatMessage.implementation.create({ content: `<div class="pokerole">${html}</div>` });
+      }
+    } else if (!suppressChat) {
       await ChatMessage.implementation.create({
         content: createHealMessage(name, current, target, attr.max),
         speaker: ChatMessage.implementation.getSpeaker({ token, actor: this })
