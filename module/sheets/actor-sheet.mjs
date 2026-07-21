@@ -142,7 +142,8 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     // Set initial mode
     let { mode, renderContext } = options;
     if ( (mode === undefined) && (renderContext === "createItem") ) mode = this.constructor.MODES.EDIT;
-    const defaultMode = game.settings.get('pokerole', 'defaultActorSheetMode') === 'edit'
+    // Non-editable documents (e.g. locked compendium actors) always default to Play mode, regardless of the world setting.
+    const defaultMode = this.isEditable && game.settings.get('pokerole', 'defaultActorSheetMode') === 'edit'
       ? this.constructor.MODES.EDIT : this.constructor.MODES.PLAY;
     this._mode = mode ?? this._mode ?? defaultMode;
 
