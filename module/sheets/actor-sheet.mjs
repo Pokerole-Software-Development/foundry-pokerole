@@ -2,7 +2,7 @@
  * Sheet class for both Actor types (Pokémon and Trainer), including the Trainer-only Team tab.
  * Biggest file in the codebase - context prep and most `data-action` button handlers live here.
  */
-import { getTripleTypeMatchups, getDualTypeMatchups, getLocalizedType, getLocalizedTypesForSelect, getLocalizedEntriesForSelect, getHpBarBucket, buildEvolutionDisplayData, POKEROLE } from "../helpers/config.mjs";
+import { getTripleTypeMatchups, getDualTypeMatchups, getLocalizedType, getLocalizedTypesForSelect, getLocalizedEntriesForSelect, getHpBarBucket, buildEvolutionDisplayData, buildPhysicalCapacityDisplayData, POKEROLE } from "../helpers/config.mjs";
 import { successRollAttributeDialog, successRollSkillDialog } from "../helpers/roll.mjs";
 import { addAilmentWithDialog } from "../helpers/effects.mjs";
 import { AdvancementDialog } from "../applications/advancement-dialog.mjs";
@@ -323,6 +323,17 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
         return { species: e.species, label: display.label, tooltipHtml: `<p style="text-align: center;"><strong>${display.kindLabel}</strong></p><hr><p>${display.detail}</p>` };
       })
       .filter(Boolean);
+
+    const physicalCapacity = buildPhysicalCapacityDisplayData(
+      this.actor.system.attributes.strength.value,
+      this.actor.system.attributes.dexterity.value,
+      this.actor.system.skills.athletic?.value ?? 0
+    );
+    context.liftingCapacityLabel = `${physicalCapacity.lifting.lb} lb / ${physicalCapacity.lifting.kg} kg`;
+    context.liftingCapacityTooltipHtml = `<p style="text-align: center;"><strong>Lifting Capacity</strong></p><hr><p>Each point in Athletic adds 8 lb / 4 kg.</p><p>Affected by Pain Penalization.</p>`;
+    context.maxSpeedLabel = `${physicalCapacity.speed.mph} mph / ${physicalCapacity.speed.kmph} kmph`;
+    context.maxSpeedTooltipHtml = `<p style="text-align: center;"><strong>Max Speed</strong></p><hr><p>Each point in Athletic adds 1.4 mi / 2 km per hour.</p><p>At Half HP you can only walk; at 1 HP remaining you can only crawl.</p><p>Lifting someone/something halves Speed unless you can lift twice its weight.</p>`;
+
     // TP support.
     context.gender = {neutral: "None", male: "Male", female: "Female", genderless: "Genderless"};
     context.addedvitamin = {None: "None", strength: "Strength", dexterity: "Dexterity", def: "Defense", vitality: "Vitality", special: "Special", spDef: "Special Def.", insight: "Insight", hp: "HP", willpower: "WP"};

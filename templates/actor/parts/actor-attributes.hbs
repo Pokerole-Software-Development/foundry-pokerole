@@ -121,6 +121,20 @@
   
   <aside>
 
+    <fieldset class="physical-capacity">
+      <legend>Physical Capacity</legend>
+      <div class="physical-capacity-row">
+        <span class="physical-capacity-label">Lifting</span>
+        <span class="physical-capacity-value">{{liftingCapacityLabel}}</span>
+        <a class="physical-capacity-info" data-tooltip-html="{{liftingCapacityTooltipHtml}}"><i class="fas fa-circle-info"></i></a>
+      </div>
+      <div class="physical-capacity-row">
+        <span class="physical-capacity-label">Speed</span>
+        <span class="physical-capacity-value">{{maxSpeedLabel}}</span>
+        <a class="physical-capacity-info" data-tooltip-html="{{maxSpeedTooltipHtml}}"><i class="fas fa-circle-info"></i></a>
+      </div>
+    </fieldset>
+
     <div class="button-container">
       <button type="button" title="Retrain" data-action="reTrain" class="set-button">Retrain</button>
     </div>

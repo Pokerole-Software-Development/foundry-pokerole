@@ -2025,6 +2025,26 @@ body,
   -ms-flex-direction: column;
   flex-direction: column;
 }
+.pokerole.actor.sheet .tab[data-tab=attributes] .physical-capacity-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pokerole.actor.sheet .tab[data-tab=attributes] .physical-capacity-row + .physical-capacity-row {
+  margin-top: 4px;
+}
+.pokerole.actor.sheet .tab[data-tab=attributes] .physical-capacity-label {
+  font-weight: 700;
+  min-width: 50px;
+}
+.pokerole.actor.sheet .tab[data-tab=attributes] .physical-capacity-value {
+  flex: 1;
+}
+.pokerole.actor.sheet .tab[data-tab=attributes] .physical-capacity-info {
+  color: var(--color-pkmn-dkorange);
+  font-size: 16px;
+  cursor: help;
+}
 .pokerole.actor.sheet .tab[data-tab=attributes] .button-container {
   margin-bottom: 6px;
   margin-top: 3px;

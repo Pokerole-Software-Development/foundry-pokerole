@@ -729,6 +729,39 @@ export function buildEvolutionDisplayData(evolution) {
   }
 }
 
+// Narrative Strength->Lifting Capacity and Dexterity->Max Speed charts (Pokerole rulebook values). Index 0 unused; 1-10 matches the attribute range.
+POKEROLE.strengthLiftingCapacity = [null,
+  { lb: 40, kg: 18 }, { lb: 100, kg: 45 }, { lb: 250, kg: 113 }, { lb: 400, kg: 181 }, { lb: 650, kg: 294 },
+  { lb: 800, kg: 362 }, { lb: 900, kg: 408 }, { lb: 1000, kg: 453 }, { lb: 1200, kg: 544 }, { lb: 1500, kg: 680 }
+];
+POKEROLE.dexterityMaxSpeed = [null,
+  { mph: 6, kmph: 10 }, { mph: 12, kmph: 20 }, { mph: 15, kmph: 25 }, { mph: 18, kmph: 30 }, { mph: 24, kmph: 40 },
+  { mph: 37, kmph: 60 }, { mph: 49, kmph: 80 }, { mph: 62, kmph: 100 }, { mph: 80, kmph: 130 }, { mph: 99, kmph: 160 }
+];
+POKEROLE.athleticLiftingBonus = { lb: 8, kg: 4 };
+POKEROLE.athleticSpeedBonus = { mph: 1.4, kmph: 2 };
+
+/**
+ * Computes narrative Lifting Capacity and Max Speed from Strength/Dexterity/Athletic.
+ * Scores outside 1-10 (e.g. reduced to 0, or raised past 10) clamp to the nearest table row.
+ */
+export function buildPhysicalCapacityDisplayData(strengthValue, dexterityValue, athleticValue) {
+  const str = Math.clamp(strengthValue, 1, 10);
+  const dex = Math.clamp(dexterityValue, 1, 10);
+  const lift = POKEROLE.strengthLiftingCapacity[str];
+  const speed = POKEROLE.dexterityMaxSpeed[dex];
+  return {
+    lifting: {
+      lb: Math.round(lift.lb + athleticValue * POKEROLE.athleticLiftingBonus.lb),
+      kg: Math.round(lift.kg + athleticValue * POKEROLE.athleticLiftingBonus.kg)
+    },
+    speed: {
+      mph: Math.round(speed.mph + athleticValue * POKEROLE.athleticSpeedBonus.mph),
+      kmph: Math.round(speed.kmph + athleticValue * POKEROLE.athleticSpeedBonus.kmph)
+    }
+  };
+}
+
 /** How many regular and Lethal damage are healed from basic and complete heals */
 POKEROLE.healAmounts = {
   basic: {
