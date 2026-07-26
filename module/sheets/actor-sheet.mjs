@@ -7,6 +7,7 @@ import { successRollAttributeDialog, successRollSkillDialog } from "../helpers/r
 import { addAilmentWithDialog } from "../helpers/effects.mjs";
 import { AdvancementDialog } from "../applications/advancement-dialog.mjs";
 import { LearnMoveDialog } from "../applications/learn-move-dialog.mjs";
+import { OverrankDialog } from "../applications/overrank-dialog.mjs";
 
 
 /**
@@ -44,6 +45,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       increaseRank: PokeroleActorSheet.#onIncreaseRank,
       retrainWithCost: PokeroleActorSheet.#onRetrainWithCost,
       learnMove: PokeroleActorSheet.#onLearnMove,
+      overrankMove: PokeroleActorSheet.#onOverrankMove,
       incrementActions: PokeroleActorSheet.#onIncrementActions,
       resetRoundResources: PokeroleActorSheet.#onResetRoundResources,
       resetStatChanges: PokeroleActorSheet.#onResetStatChanges,
@@ -427,6 +429,10 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
           ready: this.actor.system.trainingPoints >= retrainCost
         };
       }
+
+      const happiness = this.actor.system.extra?.happiness?.value ?? 0;
+      const loyalty = this.actor.system.extra?.loyalty?.value ?? 0;
+      context.overrankReady = (happiness + loyalty) >= 7;
     }
 
     context.hasAvailableActions = this.actor.hasAvailableActions();
@@ -1405,6 +1411,16 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
    */
   static async #onLearnMove(event, target) {
     await LearnMoveDialog.show(this.actor);
+  }
+
+  /**
+   * Handle spending Training Points to Overrank (learn a move from a rank above current).
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static async #onOverrankMove(event, target) {
+    await OverrankDialog.show(this.actor);
   }
 
   /**

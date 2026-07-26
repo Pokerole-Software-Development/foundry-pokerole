@@ -314,6 +314,10 @@ POKEROLE.learnMoveTrainingPointCost = {
   final: { current: 6, previous: 3 }
 };
 
+// Overrank: TP cost per rank above the Pokemon's current rank, by evolution stage. Requires
+// Happiness + Loyalty >= 7 (checked in overrank-dialog.mjs, not here).
+POKEROLE.overrankTrainingPointCostPerRank = { first: 5, second: 15, final: 20 };
+
 // Pre-0.5.1 ("POKEROLE 3.0" rework) rank rename - these three are never valid under the current schema, safe to remap unconditionally.
 const LEGACY_RANK_RENAMES = { beginner: 'rookie', amateur: 'standard', pro: 'expert' };
 const AMBIGUOUS_OLD_ACE = 'ace';

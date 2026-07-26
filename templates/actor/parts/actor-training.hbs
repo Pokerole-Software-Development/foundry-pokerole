@@ -56,6 +56,11 @@
           <span class="tp-action-label">Learn Move</span>
           <i class="fas fa-graduation-cap tp-action-icon"></i>
         </button>
+        <button type="button" class="tp-action-row {{#if overrankReady}}ready{{/if}}" data-action="overrankMove"
+          title="Learn a move from a higher rank (requires Happiness + Loyalty of at least 7)" {{#unless overrankReady}}disabled{{/unless}}>
+          <span class="tp-action-label">Overrank</span>
+          <i class="fas fa-angles-up tp-action-icon"></i>
+        </button>
       </fieldset>
     </div>
 

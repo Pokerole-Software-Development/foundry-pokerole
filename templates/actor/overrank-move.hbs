@@ -1,0 +1,26 @@
+<form class="pokerole overrank">
+  <div class="form-group">
+    <label>Move to Overrank</label>
+    <select name="moveToOverrank">
+      {{selectOptions moveChoices}}
+    </select>
+  </div>
+  <p class="hint">Cost: <span class="overrank-cost">-</span> TP (you have {{trainingPoints}} TP)</p>
+
+  {{#if existingOverrankName}}
+  <p class="hint">This will automatically forget the current Overranked move: <strong>{{existingOverrankName}}</strong>.</p>
+  {{/if}}
+
+  {{#if needsReplacement}}
+  <p class="hint">Learned moves are full ({{learnedCount}}/{{maxLearnedMoves}}) - pick another move to forget:</p>
+  <div class="form-group">
+    <label>Move to Forget</label>
+    <select name="moveToReplace">
+      <option value=""></option>
+      {{selectOptions replaceChoices}}
+    </select>
+  </div>
+  {{else}}
+  <p class="hint">Learned moves: {{learnedCount}}/{{maxLearnedMoves}}</p>
+  {{/if}}
+</form>
