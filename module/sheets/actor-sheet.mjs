@@ -41,6 +41,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       showSettings: PokeroleActorSheet.#onShowSettings,
       reTrain: PokeroleActorSheet.#onReTrain,
       increaseRank: PokeroleActorSheet.#onIncreaseRank,
+      retrainWithCost: PokeroleActorSheet.#onRetrainWithCost,
       incrementActions: PokeroleActorSheet.#onIncrementActions,
       resetRoundResources: PokeroleActorSheet.#onResetRoundResources,
       resetStatChanges: PokeroleActorSheet.#onResetStatChanges,
@@ -414,6 +415,14 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
           nextRankIcon: POKEROLE.styleImages[nextRank],
           cost: rankUpCost,
           ready: this.actor.system.trainingPoints >= rankUpCost
+        };
+      }
+
+      const retrainCost = POKEROLE.retrainTrainingPointCost[this.actor.system.rank];
+      if (retrainCost !== undefined) {
+        context.retrainWithCost = {
+          cost: retrainCost,
+          ready: this.actor.system.trainingPoints >= retrainCost
         };
       }
     }
@@ -1358,6 +1367,35 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
   }
 
   /**
+   * Handle spending Training Points to Retrain (alternative to the free Retrain button above).
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static async #onRetrainWithCost(event, target) {
+    const cost = POKEROLE.retrainTrainingPointCost[this.actor.system.rank];
+    if (cost === undefined) return;
+
+    if (this.actor.system.trainingPoints < cost) {
+      return ui.notifications.warn(`Not enough Training Points (need ${cost}, have ${this.actor.system.trainingPoints}).`);
+    }
+
+    const confirmed = await foundry.applications.api.DialogV2.confirm({
+      window: {
+        title: "Retrain"
+      },
+      content: `<p>Spend ${cost} Training Points to Retrain?</p>`,
+      rejectClose: false
+    });
+    if (!confirmed) return;
+
+    const retrained = await this.reTrain();
+    if (retrained) {
+      await this.actor.update({ 'system.trainingPoints': this.actor.system.trainingPoints - cost });
+    }
+  }
+
+  /**
    * Handle incrementing action number.
    * @this {PokeroleActorSheet}
    * @param {PointerEvent} event  The triggering event.
@@ -1582,15 +1620,16 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       rejectClose: false
     });
 
-    if (!question) return;
+    if (!question) return false;
 
     const newRank = this.actor.system.rank
     if (newRank != 'none'){
       await this.actor.resetAttributes();
       this.actor.update({system: {rank: newRank}});
-      await this._advanceRank('none', newRank);
+      return await this._advanceRank('none', newRank);
     }
-    
+
+    return true;
   }
 
 

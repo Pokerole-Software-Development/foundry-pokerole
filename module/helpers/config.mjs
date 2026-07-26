@@ -299,6 +299,12 @@ POKEROLE.rankUpTrainingPointCost = {
   none: 0, starter: 5, rookie: 15, standard: 25, advanced: 30, expert: 35, ace: 40, master: 50
 };
 
+// Training Points required to Retrain while at this rank (resets attributes/skills and replays point
+// allocation from Starter up to the current rank). No entry for `none` - nothing to retrain yet.
+POKEROLE.retrainTrainingPointCost = {
+  starter: 1, rookie: 10, standard: 20, advanced: 25, expert: 30, ace: 35, master: 40, champion: 45
+};
+
 // Pre-0.5.1 ("POKEROLE 3.0" rework) rank rename - these three are never valid under the current schema, safe to remap unconditionally.
 const LEGACY_RANK_RENAMES = { beginner: 'rookie', amateur: 'standard', pro: 'expert' };
 const AMBIGUOUS_OLD_ACE = 'ace';

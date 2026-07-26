@@ -34,14 +34,22 @@
         <legend>Training Points</legend>
         <input type="text" name="system.trainingPoints" value="{{system.trainingPoints}}" data-dtype="Number">
       </fieldset>
-      <fieldset class="rank-up">
+      <fieldset class="tp-actions">
         <legend>TP</legend>
         {{#if rankUp}}
-        <button type="button" class="rank-up-row {{#if rankUp.ready}}ready{{/if}}" data-action="increaseRank"
+        <button type="button" class="tp-action-row {{#if rankUp.ready}}ready{{/if}}" data-action="increaseRank"
           title="Advance to {{rankUp.nextRankLabel}}" {{#unless rankUp.ready}}disabled{{/unless}}>
-          <span class="rank-up-label">Rank Up</span>
-          <span class="rank-up-progress">{{system.trainingPoints}}/{{rankUp.cost}}</span>
-          <img class="rank-up-icon" src="{{rankUp.nextRankIcon}}" />
+          <span class="tp-action-label">Rank Up</span>
+          <span class="tp-action-progress">{{system.trainingPoints}}/{{rankUp.cost}}</span>
+          <img class="tp-action-icon" src="{{rankUp.nextRankIcon}}" />
+        </button>
+        {{/if}}
+        {{#if retrainWithCost}}
+        <button type="button" class="tp-action-row {{#if retrainWithCost.ready}}ready{{/if}}" data-action="retrainWithCost"
+          title="Retrain" {{#unless retrainWithCost.ready}}disabled{{/unless}}>
+          <span class="tp-action-label">Retrain</span>
+          <span class="tp-action-progress">{{system.trainingPoints}}/{{retrainWithCost.cost}}</span>
+          <i class="fas fa-book-open tp-action-icon"></i>
         </button>
         {{/if}}
       </fieldset>

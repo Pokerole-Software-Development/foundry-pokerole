@@ -3893,7 +3893,7 @@ body.theme-light .pokerole.item.sheet:not(.theme-dark),
   flex: 0 0 auto;
   width: 90px;
 }
-.pokerole.actor.sheet .tab[data-tab=training] .rank-up-row {
+.pokerole.actor.sheet .tab[data-tab=training] .tp-action-row {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3907,23 +3907,26 @@ body.theme-light .pokerole.item.sheet:not(.theme-dark),
   color: var(--input-pkmn-text-color);
   cursor: pointer;
 }
-.pokerole.actor.sheet .tab[data-tab=training] .rank-up-row:disabled {
+.pokerole.actor.sheet .tab[data-tab=training] .tp-action-row:disabled {
   opacity: 0.5;
 }
-.pokerole.actor.sheet .tab[data-tab=training] .rank-up-row.ready {
+.pokerole.actor.sheet .tab[data-tab=training] .tp-action-row.ready {
   border-color: var(--color-pkmn-overridden);
   box-shadow: 0 0 4px var(--color-pkmn-overridden);
 }
-.pokerole.actor.sheet .tab[data-tab=training] .rank-up-label {
+.pokerole.actor.sheet .tab[data-tab=training] .tp-action-label {
   font-weight: 700;
   font-size: 13px;
 }
-.pokerole.actor.sheet .tab[data-tab=training] .rank-up-progress {
+.pokerole.actor.sheet .tab[data-tab=training] .tp-action-progress {
   font-weight: 700;
   font-size: 13px;
 }
-.pokerole.actor.sheet .tab[data-tab=training] .rank-up-icon {
+.pokerole.actor.sheet .tab[data-tab=training] img.tp-action-icon {
   width: 20px;
   height: 20px;
   object-fit: contain;
+}
+.pokerole.actor.sheet .tab[data-tab=training] i.tp-action-icon {
+  font-size: 16px;
 }
