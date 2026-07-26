@@ -40,6 +40,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       deleteValue: PokeroleActorSheet.#onDeleteValue,
       showSettings: PokeroleActorSheet.#onShowSettings,
       reTrain: PokeroleActorSheet.#onReTrain,
+      increaseRank: PokeroleActorSheet.#onIncreaseRank,
       incrementActions: PokeroleActorSheet.#onIncrementActions,
       resetRoundResources: PokeroleActorSheet.#onResetRoundResources,
       resetStatChanges: PokeroleActorSheet.#onResetStatChanges,
@@ -402,6 +403,19 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       context.hpMaxVitaminActive = this.actor.system.vitamins.hp;
       context.willMaxVitaminActive = this.actor.system.vitamins.willpower;
       context.vitaminStateChoices = { none: 'None', vitamin: 'Vitamin', rareCandy: 'Candy' };
+
+      const rankIndex = POKEROLE.ranks.indexOf(this.actor.system.rank);
+      const nextRank = POKEROLE.ranks[rankIndex + 1];
+      const rankUpCost = POKEROLE.rankUpTrainingPointCost[this.actor.system.rank];
+      if (nextRank && rankUpCost !== undefined) {
+        context.rankUp = {
+          nextRank,
+          nextRankLabel: game.i18n.localize(POKEROLE.i18n.ranks[nextRank]) ?? nextRank,
+          nextRankIcon: POKEROLE.styleImages[nextRank],
+          cost: rankUpCost,
+          ready: this.actor.system.trainingPoints >= rankUpCost
+        };
+      }
     }
 
     context.hasAvailableActions = this.actor.hasAvailableActions();
@@ -1308,6 +1322,39 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
    */
   static async #onReTrain(event, target) {
     await this.reTrain();
+  }
+
+  /**
+   * Handle spending Training Points to advance to the next rank.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static async #onIncreaseRank(event, target) {
+    const currentRank = this.actor.system.rank;
+    const rankIndex = POKEROLE.ranks.indexOf(currentRank);
+    const nextRank = POKEROLE.ranks[rankIndex + 1];
+    const cost = POKEROLE.rankUpTrainingPointCost[currentRank];
+    if (!nextRank || cost === undefined) return;
+
+    if (this.actor.system.trainingPoints < cost) {
+      return ui.notifications.warn(`Not enough Training Points (need ${cost}, have ${this.actor.system.trainingPoints}).`);
+    }
+
+    const nextRankLabel = game.i18n.localize(POKEROLE.i18n.ranks[nextRank]) ?? nextRank;
+    const confirmed = await foundry.applications.api.DialogV2.confirm({
+      window: {
+        title: "Rank Up"
+      },
+      content: `<p>Spend ${cost} Training Points to advance to ${nextRankLabel}?</p>`,
+      rejectClose: false
+    });
+    if (!confirmed) return;
+
+    const advanced = await this._advanceRank(currentRank, nextRank);
+    if (advanced) {
+      await this.actor.update({ 'system.trainingPoints': this.actor.system.trainingPoints - cost });
+    }
   }
 
   /**

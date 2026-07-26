@@ -5,10 +5,6 @@
       <div class="button-container">
         <button type="button" title="Retrain" data-action="reTrain" class="set-button">Retrain</button>
       </div>
-      <fieldset>
-        <legend>Training Points</legend>
-        <input type="text" name="system.trainingPoints" value="{{system.trainingPoints}}" data-dtype="Number">
-      </fieldset>
     </div>
 
     <div class="training-col">
@@ -33,7 +29,23 @@
       </fieldset>
     </div>
 
-    <div class="training-col"></div>
+    <div class="training-col">
+      <fieldset>
+        <legend>Training Points</legend>
+        <input type="text" name="system.trainingPoints" value="{{system.trainingPoints}}" data-dtype="Number">
+      </fieldset>
+      <fieldset class="rank-up">
+        <legend>TP</legend>
+        {{#if rankUp}}
+        <button type="button" class="rank-up-row {{#if rankUp.ready}}ready{{/if}}" data-action="increaseRank"
+          title="Advance to {{rankUp.nextRankLabel}}" {{#unless rankUp.ready}}disabled{{/unless}}>
+          <span class="rank-up-label">Rank Up</span>
+          <span class="rank-up-progress">{{system.trainingPoints}}/{{rankUp.cost}}</span>
+          <img class="rank-up-icon" src="{{rankUp.nextRankIcon}}" />
+        </button>
+        {{/if}}
+      </fieldset>
+    </div>
 
   </div>
 </section>

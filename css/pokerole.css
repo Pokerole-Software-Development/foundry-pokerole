@@ -3893,3 +3893,37 @@ body.theme-light .pokerole.item.sheet:not(.theme-dark),
   flex: 0 0 auto;
   width: 90px;
 }
+.pokerole.actor.sheet .tab[data-tab=training] .rank-up-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 6px;
+  padding: 4px 8px;
+  border: 1px solid var(--color-pkmn-outline);
+  border-radius: 6px;
+  background-color: var(--color-pkmn-field-back);
+  color: var(--input-pkmn-text-color);
+  cursor: pointer;
+}
+.pokerole.actor.sheet .tab[data-tab=training] .rank-up-row:disabled {
+  opacity: 0.5;
+}
+.pokerole.actor.sheet .tab[data-tab=training] .rank-up-row.ready {
+  border-color: var(--color-pkmn-overridden);
+  box-shadow: 0 0 4px var(--color-pkmn-overridden);
+}
+.pokerole.actor.sheet .tab[data-tab=training] .rank-up-label {
+  font-weight: 700;
+  font-size: 13px;
+}
+.pokerole.actor.sheet .tab[data-tab=training] .rank-up-progress {
+  font-weight: 700;
+  font-size: 13px;
+}
+.pokerole.actor.sheet .tab[data-tab=training] .rank-up-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}

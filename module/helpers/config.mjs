@@ -293,6 +293,12 @@ POKEROLE.specialStatusEffects = {
 POKEROLE.ranks = ['none', 'starter', 'rookie', 'standard', 'advanced', 'expert', 'ace', 'master', 'champion'];
 POKEROLE.moveGroups = ['learned', ...POKEROLE.ranks.slice(1), 'maneuver'];
 
+// Training Points required to advance FROM this rank to the next one. `none` is free (bootstrapping a
+// fresh/retrained actor into Starter, not a real TP-gated tier). No entry for `champion` (nothing past it).
+POKEROLE.rankUpTrainingPointCost = {
+  none: 0, starter: 5, rookie: 15, standard: 25, advanced: 30, expert: 35, ace: 40, master: 50
+};
+
 // Pre-0.5.1 ("POKEROLE 3.0" rework) rank rename - these three are never valid under the current schema, safe to remap unconditionally.
 const LEGACY_RANK_RENAMES = { beginner: 'rookie', amateur: 'standard', pro: 'expert' };
 const AMBIGUOUS_OLD_ACE = 'ace';
