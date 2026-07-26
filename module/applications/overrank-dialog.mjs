@@ -6,6 +6,7 @@
  * also be forgotten if the new total would exceed the Insight+LEARNED_MOVES_BONUS cap.
  */
 import { POKEROLE } from "../helpers/config.mjs";
+import { postTrainingChatMessage } from "../helpers/chat.mjs";
 
 export class OverrankDialog extends foundry.applications.api.DialogV2 {
 
@@ -96,20 +97,34 @@ export class OverrankDialog extends foundry.applications.api.DialogV2 {
     const formData = new foundry.applications.ux.FormDataExtended(formElement).object;
     const moveId = formData.moveToOverrank;
     const replaceId = formData.moveToReplace;
+    const skipCost = !!formData.skipCost;
     const cost = moveCosts[moveId];
 
     if (!moveId || cost === undefined) return false;
-    if (actor.system.trainingPoints < cost) return false;
+    if (!skipCost && actor.system.trainingPoints < cost) return false;
     if (needsReplacement && !replaceId) return false;
+
+    const spent = skipCost ? 0 : cost;
+    const move = actor.items.get(moveId);
+    const replacedMove = replaceId ? actor.items.get(replaceId) : undefined;
 
     if (existingOverrank) {
       await existingOverrank.update({ system: { learned: false, overrank: false, usedInRound: false } });
     }
-    if (replaceId) {
-      await actor.items.get(replaceId).update({ system: { learned: false, usedInRound: false, overrank: false } });
+    if (replacedMove) {
+      await replacedMove.update({ system: { learned: false, usedInRound: false, overrank: false } });
     }
-    await actor.items.get(moveId).update({ system: { learned: true, overrank: true, usedInRound: false } });
-    await actor.update({ 'system.trainingPoints': actor.system.trainingPoints - cost });
+    await move.update({ system: { learned: true, overrank: true, usedInRound: false } });
+    if (spent > 0) {
+      await actor.update({ 'system.trainingPoints': actor.system.trainingPoints - spent });
+    }
+
+    const rankLabel = game.i18n.localize(POKEROLE.i18n.ranks[move.system.rank]) ?? move.system.rank;
+    let message = `${actor.name} spent ${spent} Training Points to Overrank into ${move.name} (Rank ${rankLabel}).`;
+    if (existingOverrank) message += ` ${existingOverrank.name} was forgotten.`;
+    if (replacedMove) message += ` ${replacedMove.name} was also forgotten.`;
+    await postTrainingChatMessage(actor, message);
+
     return true;
   }
 
@@ -124,19 +139,21 @@ export class OverrankDialog extends foundry.applications.api.DialogV2 {
   static _setupDialogListeners(html, moveCosts, trainingPoints, needsReplacement) {
     const moveSelect = html.querySelector('[name="moveToOverrank"]');
     const replaceSelect = html.querySelector('[name="moveToReplace"]');
+    const skipCostCheckbox = html.querySelector('[name="skipCost"]');
     const costDisplay = html.querySelector('.overrank-cost');
     const overrankButton = html.querySelector('button[data-action="overrank"]');
 
     const updateState = () => {
       const cost = moveCosts[moveSelect?.value] ?? 0;
-      if (costDisplay) costDisplay.textContent = cost;
-      const hasEnoughTP = trainingPoints >= cost;
+      if (costDisplay) costDisplay.textContent = skipCostCheckbox?.checked ? 0 : cost;
+      const hasEnoughTP = skipCostCheckbox?.checked || trainingPoints >= cost;
       const hasReplacement = !needsReplacement || !!replaceSelect?.value;
       if (overrankButton) overrankButton.disabled = !hasEnoughTP || !hasReplacement;
     };
 
     moveSelect?.addEventListener('change', updateState);
     replaceSelect?.addEventListener('change', updateState);
+    skipCostCheckbox?.addEventListener('change', updateState);
     updateState();
   }
 }

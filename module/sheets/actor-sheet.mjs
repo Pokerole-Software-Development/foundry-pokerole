@@ -5,6 +5,7 @@
 import { getTripleTypeMatchups, getDualTypeMatchups, getLocalizedType, getLocalizedTypesForSelect, getLocalizedEntriesForSelect, getHpBarBucket, buildEvolutionDisplayData, buildPhysicalCapacityDisplayData, POKEROLE } from "../helpers/config.mjs";
 import { successRollAttributeDialog, successRollSkillDialog } from "../helpers/roll.mjs";
 import { addAilmentWithDialog } from "../helpers/effects.mjs";
+import { postTrainingChatMessage } from "../helpers/chat.mjs";
 import { AdvancementDialog } from "../applications/advancement-dialog.mjs";
 import { LearnMoveDialog } from "../applications/learn-move-dialog.mjs";
 import { OverrankDialog } from "../applications/overrank-dialog.mjs";
@@ -417,16 +418,14 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
           nextRank,
           nextRankLabel: game.i18n.localize(POKEROLE.i18n.ranks[nextRank]) ?? nextRank,
           nextRankIcon: POKEROLE.styleImages[nextRank],
-          cost: rankUpCost,
-          ready: this.actor.system.trainingPoints >= rankUpCost
+          cost: rankUpCost
         };
       }
 
       const retrainCost = POKEROLE.retrainTrainingPointCost[this.actor.system.rank];
       if (retrainCost !== undefined) {
         context.retrainWithCost = {
-          cost: retrainCost,
-          ready: this.actor.system.trainingPoints >= retrainCost
+          cost: retrainCost
         };
       }
 
@@ -1354,23 +1353,40 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     const cost = POKEROLE.rankUpTrainingPointCost[currentRank];
     if (!nextRank || cost === undefined) return;
 
-    if (this.actor.system.trainingPoints < cost) {
-      return ui.notifications.warn(`Not enough Training Points (need ${cost}, have ${this.actor.system.trainingPoints}).`);
-    }
-
+    const currentRankLabel = game.i18n.localize(POKEROLE.i18n.ranks[currentRank]) ?? currentRank;
     const nextRankLabel = game.i18n.localize(POKEROLE.i18n.ranks[nextRank]) ?? nextRank;
-    const confirmed = await foundry.applications.api.DialogV2.confirm({
+    const result = await foundry.applications.api.DialogV2.wait({
       window: {
         title: "Rank Up"
       },
-      content: `<p>Spend ${cost} Training Points to advance to ${nextRankLabel}?</p>`,
+      content: `<p>Spend ${cost} Training Points to advance to ${nextRankLabel}?</p>`
+        + `<label class="skip-cost"><input type="checkbox" name="skipCost"> Don't consume TP</label>`,
+      buttons: [
+        {
+          action: 'confirm',
+          label: 'Advance',
+          default: true,
+          callback: (event, button, dialog) => dialog.element
+        }
+      ],
       rejectClose: false
     });
-    if (!confirmed) return;
+    if (!result) return;
+
+    const formElement = result[0]?.querySelector('form') ?? result.querySelector('form');
+    const formData = new foundry.applications.ux.FormDataExtended(formElement).object;
+    const skipCost = !!formData.skipCost;
+    if (!skipCost && this.actor.system.trainingPoints < cost) {
+      return ui.notifications.warn(`Not enough Training Points (need ${cost}, have ${this.actor.system.trainingPoints}).`);
+    }
 
     const advanced = await this._advanceRank(currentRank, nextRank);
     if (advanced) {
-      await this.actor.update({ 'system.trainingPoints': this.actor.system.trainingPoints - cost });
+      const spent = skipCost ? 0 : cost;
+      if (spent > 0) {
+        await this.actor.update({ 'system.trainingPoints': this.actor.system.trainingPoints - spent });
+      }
+      await postTrainingChatMessage(this.actor, `${this.actor.name} spent ${spent} Training Points to advance from ${currentRankLabel} to ${nextRankLabel}.`);
     }
   }
 
@@ -1384,22 +1400,38 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     const cost = POKEROLE.retrainTrainingPointCost[this.actor.system.rank];
     if (cost === undefined) return;
 
-    if (this.actor.system.trainingPoints < cost) {
-      return ui.notifications.warn(`Not enough Training Points (need ${cost}, have ${this.actor.system.trainingPoints}).`);
-    }
-
-    const confirmed = await foundry.applications.api.DialogV2.confirm({
+    const result = await foundry.applications.api.DialogV2.wait({
       window: {
         title: "Retrain"
       },
-      content: `<p>Spend ${cost} Training Points to Retrain?</p>`,
+      content: `<p>Spend ${cost} Training Points to Retrain?</p>`
+        + `<label class="skip-cost"><input type="checkbox" name="skipCost"> Don't consume TP</label>`,
+      buttons: [
+        {
+          action: 'confirm',
+          label: 'Retrain',
+          default: true,
+          callback: (event, button, dialog) => dialog.element
+        }
+      ],
       rejectClose: false
     });
-    if (!confirmed) return;
+    if (!result) return;
+
+    const formElement = result[0]?.querySelector('form') ?? result.querySelector('form');
+    const formData = new foundry.applications.ux.FormDataExtended(formElement).object;
+    const skipCost = !!formData.skipCost;
+    if (!skipCost && this.actor.system.trainingPoints < cost) {
+      return ui.notifications.warn(`Not enough Training Points (need ${cost}, have ${this.actor.system.trainingPoints}).`);
+    }
 
     const retrained = await this.reTrain();
     if (retrained) {
-      await this.actor.update({ 'system.trainingPoints': this.actor.system.trainingPoints - cost });
+      const spent = skipCost ? 0 : cost;
+      if (spent > 0) {
+        await this.actor.update({ 'system.trainingPoints': this.actor.system.trainingPoints - spent });
+      }
+      await postTrainingChatMessage(this.actor, `${this.actor.name} spent ${spent} Training Points to Retrain.`);
     }
   }
 

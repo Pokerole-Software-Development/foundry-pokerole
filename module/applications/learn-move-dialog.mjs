@@ -6,6 +6,7 @@
  * rank ("Overrank", a separate future mechanic) are excluded entirely.
  */
 import { POKEROLE } from "../helpers/config.mjs";
+import { postTrainingChatMessage } from "../helpers/chat.mjs";
 
 export class LearnMoveDialog extends foundry.applications.api.DialogV2 {
 
@@ -86,17 +87,29 @@ export class LearnMoveDialog extends foundry.applications.api.DialogV2 {
     const formData = new foundry.applications.ux.FormDataExtended(formElement).object;
     const moveId = formData.moveToLearn;
     const replaceId = formData.moveToReplace;
+    const skipCost = !!formData.skipCost;
     const cost = moveCosts[moveId];
 
     if (!moveId || cost === undefined) return false;
-    if (actor.system.trainingPoints < cost) return false;
+    if (!skipCost && actor.system.trainingPoints < cost) return false;
     if (atCapacity && !replaceId) return false;
 
-    await actor.items.get(moveId).update({ system: { learned: true, usedInRound: false, overrank: false } });
-    if (replaceId) {
-      await actor.items.get(replaceId).update({ system: { learned: false, usedInRound: false, overrank: false } });
+    const spent = skipCost ? 0 : cost;
+    const move = actor.items.get(moveId);
+    const replacedMove = replaceId ? actor.items.get(replaceId) : undefined;
+
+    await move.update({ system: { learned: true, usedInRound: false, overrank: false } });
+    if (replacedMove) {
+      await replacedMove.update({ system: { learned: false, usedInRound: false, overrank: false } });
     }
-    await actor.update({ 'system.trainingPoints': actor.system.trainingPoints - cost });
+    if (spent > 0) {
+      await actor.update({ 'system.trainingPoints': actor.system.trainingPoints - spent });
+    }
+
+    let message = `${actor.name} spent ${spent} Training Points to learn ${move.name}.`;
+    if (replacedMove) message += ` ${replacedMove.name} was forgotten to make room.`;
+    await postTrainingChatMessage(actor, message);
+
     return true;
   }
 
@@ -111,19 +124,21 @@ export class LearnMoveDialog extends foundry.applications.api.DialogV2 {
   static _setupDialogListeners(html, moveCosts, trainingPoints, atCapacity) {
     const moveSelect = html.querySelector('[name="moveToLearn"]');
     const replaceSelect = html.querySelector('[name="moveToReplace"]');
+    const skipCostCheckbox = html.querySelector('[name="skipCost"]');
     const costDisplay = html.querySelector('.learn-move-cost');
     const learnButton = html.querySelector('button[data-action="learn"]');
 
     const updateState = () => {
       const cost = moveCosts[moveSelect?.value] ?? 0;
-      if (costDisplay) costDisplay.textContent = cost;
-      const hasEnoughTP = trainingPoints >= cost;
+      if (costDisplay) costDisplay.textContent = skipCostCheckbox?.checked ? 0 : cost;
+      const hasEnoughTP = skipCostCheckbox?.checked || trainingPoints >= cost;
       const hasReplacement = !atCapacity || !!replaceSelect?.value;
       if (learnButton) learnButton.disabled = !hasEnoughTP || !hasReplacement;
     };
 
     moveSelect?.addEventListener('change', updateState);
     replaceSelect?.addEventListener('change', updateState);
+    skipCostCheckbox?.addEventListener('change', updateState);
     updateState();
   }
 }

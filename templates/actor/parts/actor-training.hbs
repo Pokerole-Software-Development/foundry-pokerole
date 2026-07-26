@@ -2,9 +2,36 @@
   <div class="training-grid">
 
     <div class="training-col">
-      <div class="button-container">
-        <button type="button" title="Retrain" data-action="reTrain" class="set-button">Retrain</button>
-      </div>
+      <fieldset>
+        <legend>Training Points</legend>
+        <input type="text" name="system.trainingPoints" value="{{system.trainingPoints}}" data-dtype="Number">
+      </fieldset>
+      <fieldset class="tp-actions">
+        <legend>TP</legend>
+        {{#if rankUp}}
+        <button type="button" class="tp-action-row" data-action="increaseRank" title="Advance to {{rankUp.nextRankLabel}}">
+          <span class="tp-action-label">Rank Up</span>
+          <span class="tp-action-progress">{{system.trainingPoints}}/{{rankUp.cost}}</span>
+          <img class="tp-action-icon" src="{{rankUp.nextRankIcon}}" />
+        </button>
+        {{/if}}
+        {{#if retrainWithCost}}
+        <button type="button" class="tp-action-row" data-action="retrainWithCost" title="Retrain">
+          <span class="tp-action-label">Retrain</span>
+          <span class="tp-action-progress">{{system.trainingPoints}}/{{retrainWithCost.cost}}</span>
+          <i class="fas fa-book-open tp-action-icon"></i>
+        </button>
+        {{/if}}
+        <button type="button" class="tp-action-row" data-action="learnMove" title="Learn a new move">
+          <span class="tp-action-label">Learn Move</span>
+          <i class="fas fa-graduation-cap tp-action-icon"></i>
+        </button>
+        <button type="button" class="tp-action-row" data-action="overrankMove"
+          title="Learn a move from a higher rank (requires Happiness + Loyalty of at least 7)" {{#unless overrankReady}}disabled{{/unless}}>
+          <span class="tp-action-label">Overrank</span>
+          <i class="fas fa-angles-up tp-action-icon"></i>
+        </button>
+      </fieldset>
     </div>
 
     <div class="training-col">
@@ -26,41 +53,6 @@
           </select>
         </div>
         {{/each}}
-      </fieldset>
-    </div>
-
-    <div class="training-col">
-      <fieldset>
-        <legend>Training Points</legend>
-        <input type="text" name="system.trainingPoints" value="{{system.trainingPoints}}" data-dtype="Number">
-      </fieldset>
-      <fieldset class="tp-actions">
-        <legend>TP</legend>
-        {{#if rankUp}}
-        <button type="button" class="tp-action-row {{#if rankUp.ready}}ready{{/if}}" data-action="increaseRank"
-          title="Advance to {{rankUp.nextRankLabel}}" {{#unless rankUp.ready}}disabled{{/unless}}>
-          <span class="tp-action-label">Rank Up</span>
-          <span class="tp-action-progress">{{system.trainingPoints}}/{{rankUp.cost}}</span>
-          <img class="tp-action-icon" src="{{rankUp.nextRankIcon}}" />
-        </button>
-        {{/if}}
-        {{#if retrainWithCost}}
-        <button type="button" class="tp-action-row {{#if retrainWithCost.ready}}ready{{/if}}" data-action="retrainWithCost"
-          title="Retrain" {{#unless retrainWithCost.ready}}disabled{{/unless}}>
-          <span class="tp-action-label">Retrain</span>
-          <span class="tp-action-progress">{{system.trainingPoints}}/{{retrainWithCost.cost}}</span>
-          <i class="fas fa-book-open tp-action-icon"></i>
-        </button>
-        {{/if}}
-        <button type="button" class="tp-action-row" data-action="learnMove" title="Learn a new move">
-          <span class="tp-action-label">Learn Move</span>
-          <i class="fas fa-graduation-cap tp-action-icon"></i>
-        </button>
-        <button type="button" class="tp-action-row {{#if overrankReady}}ready{{/if}}" data-action="overrankMove"
-          title="Learn a move from a higher rank (requires Happiness + Loyalty of at least 7)" {{#unless overrankReady}}disabled{{/unless}}>
-          <span class="tp-action-label">Overrank</span>
-          <i class="fas fa-angles-up tp-action-icon"></i>
-        </button>
       </fieldset>
     </div>
 

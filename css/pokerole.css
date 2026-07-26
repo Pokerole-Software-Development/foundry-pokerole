@@ -3865,7 +3865,7 @@ body.theme-light .pokerole.item.sheet:not(.theme-dark),
 }
 .pokerole.actor.sheet .tab[data-tab=training] .training-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   align-items: start;
 }
@@ -3909,10 +3909,6 @@ body.theme-light .pokerole.item.sheet:not(.theme-dark),
 }
 .pokerole.actor.sheet .tab[data-tab=training] .tp-action-row:disabled {
   opacity: 0.5;
-}
-.pokerole.actor.sheet .tab[data-tab=training] .tp-action-row.ready {
-  border-color: var(--color-pkmn-overridden);
-  box-shadow: 0 0 4px var(--color-pkmn-overridden);
 }
 .pokerole.actor.sheet .tab[data-tab=training] .tp-action-label {
   font-weight: 700;
