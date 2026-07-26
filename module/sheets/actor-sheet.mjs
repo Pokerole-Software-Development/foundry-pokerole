@@ -6,6 +6,7 @@ import { getTripleTypeMatchups, getDualTypeMatchups, getLocalizedType, getLocali
 import { successRollAttributeDialog, successRollSkillDialog } from "../helpers/roll.mjs";
 import { addAilmentWithDialog } from "../helpers/effects.mjs";
 import { AdvancementDialog } from "../applications/advancement-dialog.mjs";
+import { LearnMoveDialog } from "../applications/learn-move-dialog.mjs";
 
 
 /**
@@ -42,6 +43,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       reTrain: PokeroleActorSheet.#onReTrain,
       increaseRank: PokeroleActorSheet.#onIncreaseRank,
       retrainWithCost: PokeroleActorSheet.#onRetrainWithCost,
+      learnMove: PokeroleActorSheet.#onLearnMove,
       incrementActions: PokeroleActorSheet.#onIncrementActions,
       resetRoundResources: PokeroleActorSheet.#onResetRoundResources,
       resetStatChanges: PokeroleActorSheet.#onResetStatChanges,
@@ -1396,6 +1398,16 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
   }
 
   /**
+   * Handle spending Training Points to learn a new move.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static async #onLearnMove(event, target) {
+    await LearnMoveDialog.show(this.actor);
+  }
+
+  /**
    * Handle incrementing action number.
    * @this {PokeroleActorSheet}
    * @param {PointerEvent} event  The triggering event.
@@ -1531,7 +1543,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
 
   async _showSettings() {
 
-    const {attributes, varicolor, baseHp, willbonus, customInitiativeMod, hasThirdType, recommendedRank, source, sheetskin, teamSizeLimit} = this.actor.system;
+    const {attributes, varicolor, baseHp, willbonus, customInitiativeMod, hasThirdType, recommendedRank, evolutionStage, source, sheetskin, teamSizeLimit} = this.actor.system;
 
     const labelito = {};
     for (let [k, v] of Object.entries(attributes)) {
@@ -1547,6 +1559,8 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       customInitiativeMod,
       hasThirdType,
       recommendedRank,
+      evolutionStage,
+      evolutionStages: { first: 'First Stage', second: 'Second Stage', final: 'Final Stage' },
       source,
       ranks: this.constructor.getLocalizedRanks(),
       styleSheets: this.constructor.getLocalizedStyle(),

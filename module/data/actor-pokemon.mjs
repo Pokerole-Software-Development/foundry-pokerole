@@ -31,6 +31,10 @@ export class PokeroleActorPokemonData extends PokeroleActorBaseData {
 
       // Heterogeneous shape (varies by `kind`) sourced from the compendium build - see helpers/config.mjs buildEvolutionDisplayData().
       evolutions: new ArrayField(new ObjectField()),
+      // Baked in by the Pokerole-Data build pipeline (not derived from `evolutions` - there's no in-game
+      // way to edit that array, so this needs to be a real, directly-editable field for GMs to manage
+      // evolution pace on homebrew/edited Pokémon). Used by the future Learn-Move TP cost feature.
+      evolutionStage: new StringField({ required: true, initial: "final", choices: ["first", "second", "final"] }),
 
       // Mechanical vitamin/Rare Candy state (Issue #132) - Pokémon-only, applied via PokeroleActor#_applyEffects().
       // Rare Candy is a strict upgrade over Vitamin (same value bonus, plus a max bonus), not independent.

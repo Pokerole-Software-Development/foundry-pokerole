@@ -305,6 +305,15 @@ POKEROLE.retrainTrainingPointCost = {
   starter: 1, rookie: 10, standard: 20, advanced: 25, expert: 30, ace: 35, master: 40, champion: 45
 };
 
+// Training Points required to learn a new move, by the Pokemon's evolution stage and whether the move's
+// own rank equals the Pokemon's current rank ("current") or is below it ("previous"). Moves above the
+// Pokemon's current rank are "Overrank" - a separate future TP mechanic, not handled here.
+POKEROLE.learnMoveTrainingPointCost = {
+  first: { current: 2, previous: 1 },
+  second: { current: 4, previous: 2 },
+  final: { current: 6, previous: 3 }
+};
+
 // Pre-0.5.1 ("POKEROLE 3.0" rework) rank rename - these three are never valid under the current schema, safe to remap unconditionally.
 const LEGACY_RANK_RENAMES = { beginner: 'rookie', amateur: 'standard', pro: 'expert' };
 const AMBIGUOUS_OLD_ACE = 'ace';

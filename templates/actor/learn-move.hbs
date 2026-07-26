@@ -1,0 +1,22 @@
+<form class="pokerole learn-move">
+  <div class="form-group">
+    <label>Move to Learn</label>
+    <select name="moveToLearn">
+      {{selectOptions moveChoices}}
+    </select>
+  </div>
+  <p class="hint">Cost: <span class="learn-move-cost">-</span> TP (you have {{trainingPoints}} TP)</p>
+
+  {{#if atCapacity}}
+  <p class="hint">Learned moves are full ({{learnedCount}}/{{maxLearnedMoves}}) - pick a move to forget:</p>
+  <div class="form-group">
+    <label>Move to Forget</label>
+    <select name="moveToReplace">
+      <option value=""></option>
+      {{selectOptions replaceChoices}}
+    </select>
+  </div>
+  {{else}}
+  <p class="hint">Learned moves: {{learnedCount}}/{{maxLearnedMoves}}</p>
+  {{/if}}
+</form>
