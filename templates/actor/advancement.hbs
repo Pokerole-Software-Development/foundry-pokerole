@@ -7,6 +7,11 @@
     {{#each attributes as |attribute key|}}
       <div class="form-group attrib-{{key}}">
         <label for="attributes.{{key}}.value">{{attribute.label}}</label>
+        {{#with (lookup ../vitaminIndicators key) as |indicator|}}
+        <span class="vitamin-indicator {{#if indicator.active}}active{{/if}}" title="{{indicator.title}}">
+          <i class="fas fa-flask"></i>
+        </span>
+        {{/with}}
         <button type="button" class="decrease" data-target="attributes.{{key}}.value" data-kind="attributes">-</button>
         <button type="button" class="increase" data-target="attributes.{{key}}.value" data-kind="attributes">+</button>
         <input type="text" name="attributes.{{key}}.value" value="{{attribute.value}}" data-min="{{attribute.value}}" data-max="{{attribute.max}}" data-dtype="Number" disabled/>

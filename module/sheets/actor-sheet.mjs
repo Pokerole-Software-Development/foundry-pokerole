@@ -91,6 +91,10 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     team: {
       template: "systems/pokerole/templates/actor/parts/actor-team.hbs",
       scrollable: [""]
+    },
+    training: {
+      template: "systems/pokerole/templates/actor/parts/actor-training.hbs",
+      scrollable: [""]
     }
   };
 
@@ -150,6 +154,11 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     // The "team" tab only applies to Trainers.
     if ( this.actor.type !== "trainer" ) {
       options.parts = options.parts.filter(part => part !== "team");
+    }
+
+    // The "training" tab only applies to Pokémon, and only when the Vitamin Tracker setting is enabled.
+    if ( this.actor.type !== "pokemon" || !game.settings.get('pokerole', 'vitaminOption') ) {
+      options.parts = options.parts.filter(part => part !== "training");
     }
   }
 
@@ -296,6 +305,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     context.system = { ...this.actor.system };
     context.flags = this.actor.flags;
     context.owner = this.document.isOwner;
+    context.isTrainer = this.actor.type === 'trainer';
     context.locked = !this.isEditable;
     context.editable = this.isEditable && (this._mode === this.constructor.MODES.EDIT);
     context.id = this.id;
@@ -388,6 +398,12 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     }
     context.weightImperial = Math.round(weightImperial);
     
+    if (this.actor.type === 'pokemon') {
+      context.hpMaxVitaminActive = this.actor.system.vitamins.hp;
+      context.willMaxVitaminActive = this.actor.system.vitamins.willpower;
+      context.vitaminStateChoices = { none: 'None', vitamin: 'Vitamin', rareCandy: 'Candy' };
+    }
+
     context.hasAvailableActions = this.actor.hasAvailableActions();
     context.painPenaltyDisabled = game.settings.get('pokerole', 'disablePainPenalty');
     context.painPenaltyLevelChoices = getLocalizedEntriesForSelect('painPenaltyLevels');
@@ -419,6 +435,10 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
 
     if ( this.actor.type === "trainer" ) {
       tabs.push({ id: "team", group: "primary", icon: "fa-solid fa-people-group", label: "Team" });
+    }
+
+    if ( this.actor.type === "pokemon" && game.settings.get('pokerole', 'vitaminOption') ) {
+      tabs.push({ id: "training", group: "primary", icon: "fa-solid fa-dumbbell", label: "Training" });
     }
 
     const tabsObject = {};
@@ -615,9 +635,15 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
    */
   async _prepareAttributes(context, overrides) {
     // Apply localization
+    const sourceAttributes = this.actor._source.system.attributes ?? {};
     for (let [k, v] of Object.entries(context.system.attributes)) {
       v.label = game.i18n.localize(POKEROLE.i18n.attributes[k]) ?? k;
       v.overridden = foundry.utils.hasProperty(overrides, `system.attributes.${k}.value`);
+      // Edit-mode "(N)" annotations showing the vitamin-inclusive total next to the raw editable number.
+      const rawValue = sourceAttributes[k]?.value ?? v.value;
+      const rawMax = sourceAttributes[k]?.max ?? v.max;
+      v.vitaminValueNote = v.value !== rawValue ? `(${v.value})` : '';
+      v.vitaminMaxNote = v.max !== rawMax ? `(${v.max})` : '';
     }
     for (let [k, v] of Object.entries(context.system.social)) {
       v.label = game.i18n.localize(POKEROLE.i18n.social[k]) ?? k;

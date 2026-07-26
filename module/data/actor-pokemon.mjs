@@ -3,8 +3,9 @@
  */
 import { POKEROLE } from "../helpers/config.mjs";
 import { PokeroleActorBaseData } from "./actor-base.mjs";
+import { vitaminAttributeStateField } from "./fields.mjs";
 
-const { NumberField, StringField, BooleanField, ObjectField, ArrayField } = foundry.data.fields;
+const { NumberField, StringField, BooleanField, ObjectField, ArrayField, SchemaField } = foundry.data.fields;
 
 export class PokeroleActorPokemonData extends PokeroleActorBaseData {
 
@@ -31,10 +32,35 @@ export class PokeroleActorPokemonData extends PokeroleActorBaseData {
       // Heterogeneous shape (varies by `kind`) sourced from the compendium build - see helpers/config.mjs buildEvolutionDisplayData().
       evolutions: new ArrayField(new ObjectField()),
 
+      // Mechanical vitamin/Rare Candy state (Issue #132) - Pokémon-only, applied via PokeroleActor#_applyEffects().
+      // Rare Candy is a strict upgrade over Vitamin (same value bonus, plus a max bonus), not independent.
+      vitamins: new SchemaField({
+        strength: vitaminAttributeStateField(),
+        dexterity: vitaminAttributeStateField(),
+        vitality: vitaminAttributeStateField(),
+        special: vitaminAttributeStateField(),
+        insight: vitaminAttributeStateField(),
+        hp: new BooleanField({ required: true, initial: false }),
+        willpower: new BooleanField({ required: true, initial: false })
+      }),
+
       // Loose objects (not SchemaField) so custom skills/attributes can be added - see prepareBaseData().
       skills: new ObjectField({ required: true, initial: {} }),
       extra: new ObjectField({ required: true, initial: {} })
     };
+  }
+
+  /** @override Migrates the brief pre-release `{vitamin, rareCandy}` object shape to the current single-state string. */
+  static migrateData(source) {
+    if (source.vitamins) {
+      for (const key of ['strength', 'dexterity', 'vitality', 'special', 'insight']) {
+        const value = source.vitamins[key];
+        if (value && typeof value === 'object') {
+          source.vitamins[key] = value.rareCandy ? 'rareCandy' : (value.vitamin ? 'vitamin' : 'none');
+        }
+      }
+    }
+    return super.migrateData(source);
   }
 
   /** @override */

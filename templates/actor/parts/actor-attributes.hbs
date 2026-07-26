@@ -171,9 +171,11 @@
       </div>
     </fieldset>
 
+    {{#if isTrainer}}
     <div class="button-container">
       <button type="button" title="Retrain" data-action="reTrain" class="set-button">Retrain</button>
     </div>
+    {{/if}}
   </aside>
 
 </section>
@@ -197,9 +199,11 @@
   {{#if @root/editable}}
     <input id="{{@root/id}}-system-{{type}}-{{key}}-value" type="text" class="value-input {{#if pool.overridden}}overridden{{/if}}"
       name="system.{{type}}.{{key}}.value" value="{{getProperty @root/actor._source.system type key "value" default=pool.value}}" data-dtype="Number" />
+    {{#if pool.vitaminValueNote}}<span class="vitamin-note">{{pool.vitaminValueNote}}</span>{{/if}}
     <span> / </span>
-    <input type="text" class="value-input" name="system.{{type}}.{{key}}.max" value="{{pool.max}}"
+    <input type="text" class="value-input" name="system.{{type}}.{{key}}.max" value="{{getProperty @root/actor._source.system type key "max" default=pool.max}}"
       data-dtype="Number" {{#if maxReadonly}}disabled{{/if}} />
+    {{#if pool.vitaminMaxNote}}<span class="vitamin-note">{{pool.vitaminMaxNote}}</span>{{/if}}
   {{else}}
   {{#if @root/hideBubbles}}
     <input id="{{@root/id}}-system-{{type}}-{{key}}-value" type="text" class="value-input {{#if pool.overridden}}overridden{{/if}}"

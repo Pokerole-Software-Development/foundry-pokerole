@@ -295,39 +295,39 @@ Handlebars.registerHelper('attributeBubbles', function(actor, category, key) {
   // Calculate how many bubbles of each type
   let blackCount = baseValue;
   let redCount = 0;
-  let blueCount = 0;
-  
+  let yellowCount = 0;
+
   if (changeValue < 0) {
     // Stat is lowered - some black bubbles become red
     redCount = Math.min(Math.abs(changeValue), baseValue);
     blackCount = baseValue - redCount;
   } else if (changeValue > 0) {
-    // Stat is increased - add blue bubbles
-    blueCount = changeValue;
+    // Stat is increased - add yellow bubbles
+    yellowCount = changeValue;
   }
-  
+
   // Add black bubbles (base value minus any red)
   for (let i = 0; i < blackCount; i++) {
     bubbles.push({ type: 'base', color: 'black' });
   }
-  
+
   // Add red bubbles (penalties)
   for (let i = 0; i < redCount; i++) {
     bubbles.push({ type: 'penalty', color: 'red' });
   }
-  
-  // Add blue bubbles (bonuses)
-  for (let i = 0; i < blueCount; i++) {
-    bubbles.push({ type: 'bonus', color: 'blue' });
+
+  // Add yellow bubbles (bonuses)
+  for (let i = 0; i < yellowCount; i++) {
+    bubbles.push({ type: 'bonus', color: 'yellow' });
   }
-  
+
   // Add white bubbles for remaining capacity
-  const totalFilled = blackCount + redCount + blueCount;
+  const totalFilled = blackCount + redCount + yellowCount;
   const whiteCount = Math.max(0, maxValue - totalFilled);
   for (let i = 0; i < whiteCount; i++) {
     bubbles.push({ type: 'empty', color: 'white' });
   }
-  
+
   return bubbles;
 });
 

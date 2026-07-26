@@ -1,0 +1,39 @@
+<section class="tab {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
+  <div class="training-grid">
+
+    <div class="training-col">
+      <div class="button-container">
+        <button type="button" title="Retrain" data-action="reTrain" class="set-button">Retrain</button>
+      </div>
+      <fieldset>
+        <legend>Training Points</legend>
+        <input type="text" name="system.trainingPoints" value="{{system.trainingPoints}}" data-dtype="Number">
+      </fieldset>
+    </div>
+
+    <div class="training-col">
+      <fieldset class="vitamins-attributes">
+        <legend>Vitamins</legend>
+        <div class="vitamin-row">
+          <span class="vitamin-row-label {{#if hpMaxVitaminActive}}overridden{{/if}}">HP</span>
+          <input type="checkbox" name="system.vitamins.hp" {{#if hpMaxVitaminActive}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />
+        </div>
+        <div class="vitamin-row">
+          <span class="vitamin-row-label {{#if willMaxVitaminActive}}overridden{{/if}}">Will</span>
+          <input type="checkbox" name="system.vitamins.willpower" {{#if willMaxVitaminActive}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />
+        </div>
+        {{#each system.attributes as |attribute key|}}
+        <div class="vitamin-row">
+          <span class="vitamin-row-label">{{attribute.label}}</span>
+          <select name="system.vitamins.{{key}}" {{#unless ../editable}}disabled{{/unless}}>
+            {{selectOptions ../vitaminStateChoices selected=(lookup ../system.vitamins key)}}
+          </select>
+        </div>
+        {{/each}}
+      </fieldset>
+    </div>
+
+    <div class="training-col"></div>
+
+  </div>
+</section>

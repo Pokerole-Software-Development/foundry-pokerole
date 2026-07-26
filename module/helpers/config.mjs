@@ -704,6 +704,11 @@ export function getRankDiceCount(tag, rank) {
 // Training Point cost per Level-evolution speed tier (Pokerole rulebook values).
 POKEROLE.evolutionSpeedTrainingPoints = { fast: 10, medium: 30, slow: 50 };
 
+// Vitamin mechanical bonuses (Issue #132). Vitamin/Rare Candy give the same flat amount to an attribute's value/max.
+POKEROLE.vitaminAttributeBonus = 1;
+POKEROLE.vitaminHpMaxBonus = 2;
+POKEROLE.vitaminWillMaxBonus = 2;
+
 /** Turns one raw `system.evolutions[]` entry into `{label, kindLabel, detail}` display data, or `null` for kinds not shown (form/unrecognized). */
 export function buildEvolutionDisplayData(evolution) {
   switch (evolution.kind) {

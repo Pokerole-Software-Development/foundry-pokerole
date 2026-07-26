@@ -52,6 +52,18 @@ export class AdvancementDialog extends foundry.applications.api.DialogV2 {
     const oldMaxHp = actor.system.hp.max;
     const oldMaxWill = actor.system.will.max;
 
+    // Precompute display-ready vitamin indicators (not just raw state) so the template needs no string comparisons.
+    const vitaminIndicators = {};
+    for (const key of Object.keys(actor.system.attributes ?? {})) {
+      const state = actor.system.vitamins?.[key];
+      vitaminIndicators[key] = {
+        active: state === 'vitamin' || state === 'rareCandy',
+        title: state === 'rareCandy'
+          ? 'Rare Candy active - the value and max shown already include it'
+          : 'Vitamin active - the value shown already includes it, and it can\'t exceed the max shown'
+      };
+    }
+
     const content = await foundry.applications.handlebars.renderTemplate(this.TEMPLATE_PATH, {
       progression: totalProgression,
       skillLimit,
@@ -62,6 +74,7 @@ export class AdvancementDialog extends foundry.applications.api.DialogV2 {
       attributes: actor.system.attributes,
       social: actor.system.social,
       skills: actor.system.skills,
+      vitaminIndicators,
     });
 
     const dialogueProgression = {

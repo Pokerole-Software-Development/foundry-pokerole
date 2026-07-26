@@ -50,6 +50,31 @@ export class PokeroleActor extends Actor {
   _applyEffects() {
     const overrides = {};
     const original = {};
+
+    // Vitamins (Issue #132, Pokémon-only) run first: a more fundamental/base modifier that later blocks
+    // (statChanges, ailments, Custom Effects) compose on top of. The value clamp only considers this
+    // block's own Rare-Candy-boosted max, never anything a later block might add. Rare Candy is a strict
+    // upgrade over Vitamin - it grants the same value bonus, plus the max bonus.
+    if (this.type === 'pokemon') {
+      for (const key of ['strength', 'dexterity', 'vitality', 'special', 'insight']) {
+        const state = this.system.vitamins[key];
+        const maxPath = `system.attributes.${key}.max`;
+        const valuePath = `system.attributes.${key}.value`;
+
+        if (state === 'rareCandy') {
+          const currentMax = foundry.utils.getProperty(this, maxPath) ?? 0;
+          overrides[maxPath] = currentMax + POKEROLE.vitaminAttributeBonus;
+          original[maxPath] = currentMax;
+        }
+        if (state === 'vitamin' || state === 'rareCandy') {
+          const currentValue = foundry.utils.getProperty(this, valuePath) ?? 0;
+          const effectiveMax = overrides[maxPath] ?? foundry.utils.getProperty(this, maxPath) ?? 0;
+          overrides[valuePath] = Math.min(currentValue + POKEROLE.vitaminAttributeBonus, effectiveMax);
+          original[valuePath] = currentValue;
+        }
+      }
+    }
+
     for (const statChange of Object.values(this.system.statChanges)) {
       const currentValue = foundry.utils.getProperty(this, statChange.stat) ?? 0;
       if (statChange.value !== 0) {

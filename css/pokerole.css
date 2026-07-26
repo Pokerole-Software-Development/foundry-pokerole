@@ -1085,6 +1085,17 @@ body,
   color: var(--color-pkmn-attribute-text);
   background-color: var(--color-pkmn-attribute-bg);
 }
+.pokerole.advancement .vitamin-indicator {
+  display: inline-flex;
+  justify-content: center;
+  width: 16px;
+  color: black;
+  visibility: hidden;
+  cursor: help;
+}
+.pokerole.advancement .vitamin-indicator.active {
+  visibility: visible;
+}
 .pokerole.advancement .list.social .form-group {
   color: var(--color-pkmn-attribute-text);
   background-color: var(--color-pkmn-attribute-bg);
@@ -2076,14 +2087,16 @@ body,
   font-size: 16px;
   cursor: help;
 }
-.pokerole.actor.sheet .tab[data-tab=attributes] .button-container {
+.pokerole.actor.sheet .tab[data-tab=attributes] .button-container,
+.pokerole.actor.sheet .tab[data-tab=training] .button-container {
   margin-bottom: 6px;
   margin-top: 3px;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
 }
-.pokerole.actor.sheet .tab[data-tab=attributes] .button-container button {
+.pokerole.actor.sheet .tab[data-tab=attributes] .button-container button,
+.pokerole.actor.sheet .tab[data-tab=training] .button-container button {
   -webkit-box-flex: 1;
   -ms-flex: 1;
   flex: 1;
@@ -2392,10 +2405,10 @@ body,
   background-color: #d32f2f;
   border-color: #690f0f;
 }
-.pokerole.actor.sheet .attribute .bubble.bubble-blue,
-.pokerole.actor.sheet .add-custom-value .bubble.bubble-blue {
-  background-color: #1976d2;
-  border-color: #082858;
+.pokerole.actor.sheet .attribute .bubble.bubble-yellow,
+.pokerole.actor.sheet .add-custom-value .bubble.bubble-yellow {
+  background-color: #f9a825;
+  border-color: #7a4f00;
 }
 .pokerole.actor.sheet .attribute .bubble.bubble-white,
 .pokerole.actor.sheet .add-custom-value .bubble.bubble-white {
@@ -3844,4 +3857,39 @@ body.theme-light .pokerole.item.sheet:not(.theme-dark),
 .pokerole-settings-menu .notes {
   margin: 0 0 12px;
   font-size: 12px;
+}
+.pokerole.actor.sheet .tab[data-tab=attributes] .vitamin-note {
+  color: black;
+  font-size: 12px;
+  font-weight: 700;
+}
+.pokerole.actor.sheet .tab[data-tab=training] .training-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+.pokerole.actor.sheet .tab[data-tab=training] .training-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.pokerole.actor.sheet .tab[data-tab=training] fieldset {
+  margin-bottom: 0;
+}
+.pokerole.actor.sheet .tab[data-tab=training] .vitamin-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+}
+.pokerole.actor.sheet .tab[data-tab=training] .vitamin-row-label {
+  flex: 1;
+  font-weight: 700;
+  font-size: 13px;
+}
+.pokerole.actor.sheet .tab[data-tab=training] .vitamin-row select {
+  flex: 0 0 auto;
+  width: 90px;
 }

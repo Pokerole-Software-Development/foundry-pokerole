@@ -115,6 +115,9 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
     } else {
       this.hp.max = this.baseHp + this.attributes.vitality.value + totalPassiveIncrease;
     }
+    // Vitamin HP bonus (Issue #132, Pokémon-only) - can't go through _applyEffects() since this.hp.max is
+    // reassigned every cycle after that runs; added directly here instead.
+    this.hp.max += this.vitamins?.hp ? POKEROLE.vitaminHpMaxBonus : 0;
 
     let painPenaltyLevel = computePainPenaltyLevel(this.hp.value, this.hp.max);
     // Override never resurrects the mechanic if the world setting disabled it entirely.
@@ -130,6 +133,8 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
 
     // TP Support Will+
     this.will.max = (this.willbonus ?? 0) + this.attributes.insight.value + POKEROLE.CONST.MAX_WILL_BONUS + totalPassiveIncrease;
+    // Vitamin Will bonus (Issue #132, Pokémon-only) - same reasoning as the HP bonus above.
+    this.will.max += this.vitamins?.willpower ? POKEROLE.vitaminWillMaxBonus : 0;
 
     // Stat changes need to be applied manually here because derived stats are created before `_applyEffects` runs on the Document
     const strength = Math.max(this.attributes.strength.value + this.statChanges.strength.value, 1);
