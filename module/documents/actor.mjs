@@ -119,9 +119,9 @@ export class PokeroleActor extends Actor {
       original[path] = currentValue;
     }
 
-    // Apply Custom Effect/Held Item/Ability rules (TASK-16: Attribute Override/Type Override/Damage Pool
-    // Bonus). Damage Pool Bonus isn't an actor-attribute override - it's read separately at roll time by
-    // rollDamage() (roll.mjs) via getActiveRuleSources() below.
+    // Apply Custom Effect/Held Item/Ability rules (Attribute Override/Type Override/Damage Pool Bonus/
+    // Matchup Modifier). Damage Pool Bonus and Matchup Modifier aren't actor-attribute overrides - both
+    // are read live at roll/effectiveness-computation time instead, via getActiveRuleSources() below.
     for (const source of this.getActiveRuleSources()) {
       for (const rule of source.system.rules) {
         const kind = rule.kind ?? 'attribute';
@@ -155,7 +155,8 @@ export class PokeroleActor extends Actor {
           overrides[slotPath] = rule.newType;
           original[slotPath] = foundry.utils.getProperty(this, slotPath);
         }
-        // kind === 'damagePool' has no actor-attribute override - handled at roll time instead.
+        // kind === 'damagePool'/'matchup' have no actor-attribute override - both are read live at
+        // roll/effectiveness-computation time instead (roll.mjs, config.mjs's getEffectiveTypeMatchupScore).
       }
     }
 

@@ -8,7 +8,7 @@
   <hr>
 
   <h3>Custom rules</h3>
-  <p>Attribute Override changes a value directly. Type Override replaces a Type slot. Damage Pool Bonus adds dice to a move's damage roll.</p>
+  <p>Attribute Override changes a value directly. Type Override replaces a Type slot. Damage Pool Bonus adds dice to a move's damage roll. Matchup Modifier grants or cancels weakness/resistance/immunity to an attacking type, without changing the Pokémon's actual type.</p>
 
   <ol class="items-list effects-list">
     <li class="item flexrow items-header rule-row">
@@ -60,6 +60,22 @@
       </select>
       {{/unless}}
       <input type="number" class="rule-pool-dice rule-field" value="{{rule.dice}}" data-index="{{i}}" data-dtype="Number" placeholder="Dice"/>
+      {{/if}}
+
+      {{#if rule.isMatchupKind}}
+      <select class="rule-matchup-operation rule-field" data-index="{{i}}">
+        {{selectOptions ../matchupOperations selected=rule.operation}}
+      </select>
+      {{#if rule.matchupIsCancel}}
+      <select class="rule-matchup-scope rule-field" data-index="{{i}}">
+        {{selectOptions ../matchupCancelScopes selected=rule.scope}}
+      </select>
+      {{/if}}
+      {{#unless rule.matchupScopeIsAll}}
+      <select class="rule-matchup-scope-value rule-field" data-index="{{i}}">
+        {{selectOptions ../typeChoices selected=rule.scopeValue}}
+      </select>
+      {{/unless}}
       {{/if}}
 
       <div class="item-controls">

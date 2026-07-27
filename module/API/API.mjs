@@ -1,7 +1,7 @@
 /**
  * Public API surface exposed to macros and other modules (e.g. APIdb.pokemonMatchup()).
  */
-import { getTripleTypeMatchups, getDualTypeMatchups, POKEROLE } from "../helpers/config.mjs";
+import { getEffectiveTypeMatchups, POKEROLE } from "../helpers/config.mjs";
 
 export class APIdb {
     /**
@@ -22,10 +22,7 @@ export class APIdb {
      * Get weak/resistances for an actor
 	 */
 	static pokemonMatchup(targetactor) {
-        const matchups = targetactor.system.hasThirdType
-        ? getTripleTypeMatchups(targetactor.system.type1, targetactor.system.type2, targetactor.system.type3)
-        : getDualTypeMatchups(targetactor.system.type1, targetactor.system.type2);
-		return matchups;
+		return getEffectiveTypeMatchups(targetactor);
 	}
 
 }
