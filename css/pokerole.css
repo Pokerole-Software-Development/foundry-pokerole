@@ -132,7 +132,40 @@
   flex-direction: column;
   -ms-flex-wrap: nowrap;
   flex-wrap: nowrap;
-  gap: 5px;
+  gap: 3px;
+}
+.pokerole.actor-settings .window-content {
+  overflow-y: auto;
+}
+.pokerole.actor-settings .setting-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.pokerole.actor-settings .setting-row > label:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: 700;
+}
+.pokerole.actor-settings .setting-row input[type=text],
+.pokerole.actor-settings .setting-row select {
+  flex: 0 0 auto;
+  width: 180px;
+  height: 26px;
+}
+.pokerole.actor-settings .setting-row input[type=number] {
+  flex: 0 0 auto;
+  width: 70px;
+  height: 26px;
+}
+.pokerole.actor-settings .setting-row input[type=checkbox] {
+  flex: 0 0 auto;
+}
+.pokerole.actor-settings h2 {
+  font-size: 15px;
+  margin: 10px 0 6px;
 }
 
 .actor .window-app {

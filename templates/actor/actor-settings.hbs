@@ -1,22 +1,22 @@
 <form class="pokerole actor-settings">
-  
+
   <div class="pokerole actor-settings">
     <h2>Actor Base Data</h2>
-    
-    <div class="form-group">
+
+    <div class="setting-row">
       <label for="system.baseHp">Base HP</label>
       <input type="number" name="system.baseHp" value="{{baseHp}}" min="0" max="99" data-dtype="Number"/>
     </div>
-    
-    <div class="form-group">
+
+    <div class="setting-row">
       <label for="system.hasThirdType">Triple Typing</label>
         <input type="checkbox" name="system.hasThirdType" value="{{hasThirdType}}" data-dtype="Boolean"
           {{#if hasThirdType}}checked{{/if}}
         />
     </div>
-    
+
     {{#each attributes as |attribute key|}}
-      <div class="form-group">
+      <div class="setting-row">
         <label for="system.attributes.{{key}}">{{attribute.label}}</label>
         <label style="text-align: center; flex: 1" for="system.attributes.{{key}}.base">Base</label>
         <input style="flex: 1" type="number" name="system.attributes.{{key}}.base" value="{{attribute.base}}" min="1" max="99" data-dtype="Number"/>
@@ -27,34 +27,34 @@
 
     <h2>Custom Bonus</h2>
 
-    <div class="form-group">
+    <div class="setting-row">
       <label for="system.customInitiativeMod">Initiative Bonus</label>
       <input type="number" name="system.customInitiativeMod" value="{{customInitiativeMod}}" data-dtype="Number"/>
     </div>
-    <div class="form-group">
+    <div class="setting-row">
       <label for="system.willbonus">Will Bonus</label>
       <input type="number" name="system.willbonus" value="{{willbonus}}" min="0" max="99" data-dtype="Number"/>
     </div>
 
     <h2>Aspect Data</h2>
-    
-    <div class="form-group">
+
+    <div class="setting-row">
       <label for="system.varicolor">Is Shiny?</label>
       <input type="checkbox" name="system.varicolor" value="{{system.varicolor}}" data-dtype="Boolean" {{#if varicolor}}checked{{/if}} />
     </div>
-    <div class="form-group">
+    <div class="setting-row">
       <label for="system.recommendedRank">Recommended Rank</label>
       <select name="system.recommendedRank">
         {{selectOptions ranks selected=recommendedRank}}
       </select>
     </div>
-    <div class="form-group">
+    <div class="setting-row">
       <label for="system.evolutionStage">Evolution Stage</label>
       <select name="system.evolutionStage">
         {{selectOptions evolutionStages selected=evolutionStage}}
       </select>
     </div>
-    <div class="form-group">
+    <div class="setting-row">
       <label for="system.source">Source</label>
       <input type="text" name="system.source" value="{{source}}" data-dtype="String"/>
     </div>
@@ -62,7 +62,7 @@
     {{#if isTrainer}}
     <h2>Team</h2>
 
-    <div class="form-group">
+    <div class="setting-row">
       <label for="system.teamSizeLimit">Team Size Limit</label>
       <input type="number" name="system.teamSizeLimit" value="{{teamSizeLimit}}" min="1" max="20" data-dtype="Number"/>
     </div>
@@ -70,13 +70,13 @@
 
     <h2>Legacy Vitamin Tracker (reference only)</h2>
 
-    <div class="form-group">
+    <div class="setting-row">
       <label for="system.avitamin">A Vitamin</label>
       <select name="system.avitamin" value="{{avitamin}}" data-dtype="String">
         {{selectOptions addedvitamin selected=avitamin}}
       </select>
     </div>
-    <div class="form-group">
+    <div class="setting-row">
       <label for="system.bvitamin">B Vitamin</label>
       <select name="system.bvitamin" value="{{bvitamin}}" data-dtype="String">
         {{selectOptions addedvitamin selected=bvitamin}}

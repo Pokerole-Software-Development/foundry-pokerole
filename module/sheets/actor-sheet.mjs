@@ -1623,8 +1623,11 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     });
 
     const result = await foundry.applications.api.DialogV2.prompt({
+      classes: ['pokerole', 'actor-settings'],
+      position: { width: 480 },
       window: {
-        title: 'Actor settings'
+        title: 'Actor settings',
+        resizable: true
       },
       content,
       ok: {
