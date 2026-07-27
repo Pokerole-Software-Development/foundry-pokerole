@@ -39,12 +39,6 @@
     <h2>Aspect Data</h2>
     
     <div class="form-group">
-      <label for="system.source">Sheet Skin</label>
-      <select name="system.sheetskin" value="{{system.sheetskin}}" data-dtype="String">
-        {{selectOptions styleSheets selected=sheetskin}}
-      </select>
-    </div>
-    <div class="form-group">
       <label for="system.varicolor">Is Shiny?</label>
       <input type="checkbox" name="system.varicolor" value="{{system.varicolor}}" data-dtype="Boolean" {{#if varicolor}}checked{{/if}} />
     </div>

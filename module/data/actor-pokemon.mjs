@@ -27,7 +27,6 @@ export class PokeroleActorPokemonData extends PokeroleActorBaseData {
       height: new NumberField({ required: true, initial: 0, min: 0 }),
       weight: new NumberField({ required: true, initial: 0, min: 0 }),
       recommendedRank: new StringField({ required: true, initial: "none", choices: POKEROLE.ranks }),
-      sheetskin: new StringField({ required: true, initial: "skinOld" }),
 
       // Heterogeneous shape (varies by `kind`) sourced from the compendium build - see helpers/config.mjs buildEvolutionDisplayData().
       evolutions: new ArrayField(new ObjectField()),

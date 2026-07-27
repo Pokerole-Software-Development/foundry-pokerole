@@ -361,8 +361,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     // TP support.
     context.ranks = this.constructor.getLocalizedRanks();
     context.types = getLocalizedTypesForSelect();
-    context.styleSheets = this.constructor.getLocalizedStyle();
-   
+
     context.matchups = {};
     const matchups = context.system.hasThirdType
         ? getTripleTypeMatchups(context.system.type1, context.system.type2, context.system.type3)
@@ -1591,7 +1590,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
 
   async _showSettings() {
 
-    const {attributes, varicolor, baseHp, willbonus, customInitiativeMod, hasThirdType, recommendedRank, evolutionStage, source, sheetskin, teamSizeLimit} = this.actor.system;
+    const {attributes, varicolor, baseHp, willbonus, customInitiativeMod, hasThirdType, recommendedRank, evolutionStage, source, teamSizeLimit} = this.actor.system;
 
     const labelito = {};
     for (let [k, v] of Object.entries(attributes)) {
@@ -1611,8 +1610,6 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       evolutionStages: { first: 'First Stage', second: 'Second Stage', final: 'Final Stage' },
       source,
       ranks: this.constructor.getLocalizedRanks(),
-      styleSheets: this.constructor.getLocalizedStyle(),
-      sheetskin,
       isTrainer: this.actor.type === 'trainer',
       teamSizeLimit
     });
@@ -1718,13 +1715,6 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     return ranks;
   }
 
-  static getLocalizedStyle() {
-    const ranks = {};
-    for (let rank of POKEROLE.styleSheet) {
-      ranks[rank] = rank;
-    }
-    return ranks;
-  }
 }
 
 /** Re-renders any open Trainer sheet whose Team tab references the actor that just updated (Foundry only auto-refreshes a sheet's own actor). */

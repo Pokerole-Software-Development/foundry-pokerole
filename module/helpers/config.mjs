@@ -385,36 +385,6 @@ POKEROLE.rankColors = {
   champion: '#c79a2e'
 };
 
-POKEROLE.styleColor = {
-  // Styles
-  skinClean : {
-    color1: '#2D2718',
-    color2: '#E73C2F',
-    color3: '#FFFFFF',
-    color4: '#E73C2F',
-  },
-  skinOld : {
-    color1: '#2D2718',
-    color2: '#C34231',
-    color3: '#FFFFFF',
-    color4: '#C34231',
-  },
-  secret : {
-    color1: 'red',
-    color2: 'green',
-    color3: 'blue',
-    color4: 'grey',
-  },
-  v3style : {
-    color1: '#433727',
-    color2: '#A21C1C',
-    color3: '#DAECF9',
-    color4: '#D22417',
-  },
-}
-
-POKEROLE.styleSheet = Object.keys(POKEROLE.styleColor);
-
 /** The maximum number of actions allowed per round */
 POKEROLE.maxActions = 5;
 
