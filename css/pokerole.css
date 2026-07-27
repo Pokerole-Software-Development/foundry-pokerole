@@ -2410,6 +2410,11 @@ body,
   background-color: #f9a825;
   border-color: #7a4f00;
 }
+.pokerole.actor.sheet .attribute .bubble.bubble-blue,
+.pokerole.actor.sheet .add-custom-value .bubble.bubble-blue {
+  background-color: #1976d2;
+  border-color: #082858;
+}
 .pokerole.actor.sheet .attribute .bubble.bubble-white,
 .pokerole.actor.sheet .add-custom-value .bubble.bubble-white {
   background-color: white;

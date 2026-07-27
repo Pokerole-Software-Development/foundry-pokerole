@@ -66,18 +66,25 @@ export class PokeroleActor extends Actor {
           overrides[maxPath] = currentMax + POKEROLE.vitaminAttributeBonus;
           original[maxPath] = currentMax;
         }
+
+        let vitaminBonus = 0;
         if (state === 'vitamin' || state === 'rareCandy') {
           const currentValue = foundry.utils.getProperty(this, valuePath) ?? 0;
           const effectiveMax = overrides[maxPath] ?? foundry.utils.getProperty(this, maxPath) ?? 0;
-          overrides[valuePath] = Math.min(currentValue + POKEROLE.vitaminAttributeBonus, effectiveMax);
+          const boostedValue = Math.min(currentValue + POKEROLE.vitaminAttributeBonus, effectiveMax);
+          vitaminBonus = boostedValue - currentValue;
+          overrides[valuePath] = boostedValue;
           original[valuePath] = currentValue;
         }
+        // Bolted onto the derived attribute object (like hp.max/painPenalization.level) so attributeBubbles
+        // can tell vitamin-driven increases apart from Custom Effect/Ability/Item ones for bubble coloring.
+        overrides[`system.attributes.${key}.vitaminBonus`] = vitaminBonus;
       }
     }
 
     for (const statChange of Object.values(this.system.statChanges)) {
-      const currentValue = foundry.utils.getProperty(this, statChange.stat) ?? 0;
       if (statChange.value !== 0) {
+        const currentValue = overrides[statChange.stat] ?? foundry.utils.getProperty(this, statChange.stat) ?? 0;
         // Stat changes can only reduce stats down to 1
         const newValue = Math.max(currentValue + statChange.value, 1);
         overrides[statChange.stat] = newValue;

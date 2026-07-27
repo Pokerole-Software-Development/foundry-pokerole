@@ -296,14 +296,17 @@ Handlebars.registerHelper('attributeBubbles', function(actor, category, key) {
   let blackCount = baseValue;
   let redCount = 0;
   let yellowCount = 0;
+  let blueCount = 0;
 
   if (changeValue < 0) {
     // Stat is lowered - some black bubbles become red
     redCount = Math.min(Math.abs(changeValue), baseValue);
     blackCount = baseValue - redCount;
   } else if (changeValue > 0) {
-    // Stat is increased - add yellow bubbles
-    yellowCount = changeValue;
+    // Stat is increased - Vitamin/Rare Candy bonuses show yellow, everything else (Custom Effects, etc.) blue
+    const vitaminBonus = currentData.vitaminBonus ?? 0;
+    yellowCount = Math.min(vitaminBonus, changeValue);
+    blueCount = changeValue - yellowCount;
   }
 
   // Add black bubbles (base value minus any red)
@@ -316,13 +319,18 @@ Handlebars.registerHelper('attributeBubbles', function(actor, category, key) {
     bubbles.push({ type: 'penalty', color: 'red' });
   }
 
-  // Add yellow bubbles (bonuses)
+  // Add yellow bubbles (Vitamin/Rare Candy bonuses)
   for (let i = 0; i < yellowCount; i++) {
     bubbles.push({ type: 'bonus', color: 'yellow' });
   }
 
+  // Add blue bubbles (other bonuses, e.g. Custom Effects)
+  for (let i = 0; i < blueCount; i++) {
+    bubbles.push({ type: 'bonus', color: 'blue' });
+  }
+
   // Add white bubbles for remaining capacity
-  const totalFilled = blackCount + redCount + yellowCount;
+  const totalFilled = blackCount + redCount + yellowCount + blueCount;
   const whiteCount = Math.max(0, maxValue - totalFilled);
   for (let i = 0; i < whiteCount; i++) {
     bubbles.push({ type: 'empty', color: 'white' });
