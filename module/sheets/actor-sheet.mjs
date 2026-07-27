@@ -2,7 +2,7 @@
  * Sheet class for both Actor types (Pokémon and Trainer), including the Trainer-only Team tab.
  * Biggest file in the codebase - context prep and most `data-action` button handlers live here.
  */
-import { getTripleTypeMatchups, getDualTypeMatchups, getLocalizedType, getLocalizedTypesForSelect, getLocalizedEntriesForSelect, getHpBarBucket, buildEvolutionDisplayData, buildPhysicalCapacityDisplayData, POKEROLE } from "../helpers/config.mjs";
+import { getEffectiveTypeMatchups, getLocalizedType, getLocalizedTypesForSelect, getLocalizedEntriesForSelect, getHpBarBucket, buildEvolutionDisplayData, buildPhysicalCapacityDisplayData, POKEROLE } from "../helpers/config.mjs";
 import { successRollAttributeDialog, successRollSkillDialog } from "../helpers/roll.mjs";
 import { addAilmentWithDialog } from "../helpers/effects.mjs";
 import { postTrainingChatMessage } from "../helpers/chat.mjs";
@@ -362,9 +362,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     context.types = getLocalizedTypesForSelect();
 
     context.matchups = {};
-    const matchups = context.system.hasThirdType
-        ? getTripleTypeMatchups(context.system.type1, context.system.type2, context.system.type3)
-        : getDualTypeMatchups(context.system.type1, context.system.type2);
+    const matchups = getEffectiveTypeMatchups(this.actor);
     context.typematch = matchups;
     
     if (matchups.resist) {

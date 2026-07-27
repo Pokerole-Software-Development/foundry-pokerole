@@ -577,6 +577,75 @@ export function calcTripleTypeMatchupScore(attacking, defending1, defending2, de
   return calcTypeMatchupScore(attacking, defending1) + calcTypeMatchupScore(attacking, defending2) + calcTypeMatchupScore(attacking, defending3);
 }
 
+// Per-attacking-type contribution list for a Matchup Modifier-aware score: one entry per natural type
+// slot (may be -Infinity) plus one per active Grant* rule targeting this type. Cancel Immunity is
+// applied by the caller afterward, since it needs the full list to filter -Infinity out.
+function getMatchupContributions(attackingType, defender) {
+  const slots = defender.system.hasThirdType
+    ? [defender.system.type1, defender.system.type2, defender.system.type3]
+    : [defender.system.type1, defender.system.type2];
+  const contributions = slots.map(slot => calcTypeMatchupScore(attackingType, slot));
+  for (const source of defender.getActiveRuleSources()) {
+    for (const rule of source.system.rules) {
+      if ((rule.kind ?? 'attribute') !== 'matchup') continue;
+      if (rule.scope !== 'type' || rule.scopeValue !== attackingType) continue;
+      if (rule.operation === 'grantWeakness') contributions.push(1);
+      else if (rule.operation === 'grantResistance') contributions.push(-1);
+      else if (rule.operation === 'grantImmunity') contributions.push(Number.NEGATIVE_INFINITY);
+    }
+  }
+  return contributions;
+}
+
+function hasActiveCancelImmunity(attackingType, defender) {
+  for (const source of defender.getActiveRuleSources()) {
+    for (const rule of source.system.rules) {
+      if ((rule.kind ?? 'attribute') !== 'matchup') continue;
+      if (rule.operation !== 'cancelImmunity') continue;
+      if (rule.scope === 'all' || rule.scopeValue === attackingType) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Single source of truth for "how effective is an attack of this type against this defender" -
+ * the natural dual/triple-type sum plus any active Matchup Modifier rules (Grant Weakness/Resistance/
+ * Immunity stack additively like an extra type slot; Cancel Immunity strips every -Infinity
+ * contribution for its target type(s) before re-summing). Replaces the
+ * `hasThirdType ? calcTripleTypeMatchupScore(...) : calcDualTypeMatchupScore(...)` branch that used to
+ * be duplicated independently in both roll.mjs and clash.mjs.
+ */
+export function getEffectiveTypeMatchupScore(attackingType, defender) {
+  let contributions = getMatchupContributions(attackingType, defender);
+  if (hasActiveCancelImmunity(attackingType, defender)) {
+    contributions = contributions.filter(c => c !== Number.NEGATIVE_INFINITY);
+  }
+  return contributions.reduce((sum, c) => sum + c, 0);
+}
+
+/**
+ * Rule-aware replacement for getDualTypeMatchups()/getTripleTypeMatchups() - buckets every attacking
+ * type by its getEffectiveTypeMatchupScore() result instead of the raw natural score, so the
+ * Attributes-tab display and pokemonMatchup() macro API reflect active Matchup Modifier rules.
+ * @returns {{weak: string[], doubleWeak: string[], tripleWeak: string[], resist: string[], doubleResist: string[], tripleResist: string[], immune: string[]}}
+ */
+export function getEffectiveTypeMatchups(defender) {
+  const buckets = { weak: [], doubleWeak: [], tripleWeak: [], resist: [], doubleResist: [], tripleResist: [], immune: [] };
+  for (const attacking of Object.keys(POKEROLE.typeMatchups)) {
+    switch (getEffectiveTypeMatchupScore(attacking, defender)) {
+      case 1: buckets.weak.push(attacking); break;
+      case 2: buckets.doubleWeak.push(attacking); break;
+      case 3: buckets.tripleWeak.push(attacking); break;
+      case -1: buckets.resist.push(attacking); break;
+      case -2: buckets.doubleResist.push(attacking); break;
+      case -3: buckets.tripleResist.push(attacking); break;
+      case Number.NEGATIVE_INFINITY: buckets.immune.push(attacking); break;
+    }
+  }
+  return buckets;
+}
+
 export function getTypeMatchups(defending) {
   return POKEROLE.typeMatchups[defending];
 }

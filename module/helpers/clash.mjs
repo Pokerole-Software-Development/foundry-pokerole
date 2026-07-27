@@ -1,6 +1,6 @@
 /** Clash dialog/resolution logic: picking a move to clash with and computing both sides' damage. */
 
-import { calcDualTypeMatchupScore, calcTripleTypeMatchupScore, getConfusionModifier} from "./config.mjs";
+import { getEffectiveTypeMatchupScore, getConfusionModifier} from "./config.mjs";
 import { getEffectivenessText, createSuccessRollMessageData } from "./roll.mjs";
 import { PokeroleActor } from "../documents/actor.mjs";
 
@@ -136,9 +136,7 @@ function buildClashSuccessResultHtml(move, attacker, attackerTokenDoc, attacking
 }
 
 function calculateClashDamage(move, defender) {
-  let matchup = defender.system.hasThirdType ? calcTripleTypeMatchupScore(move.system.type,
-    defender.system.type1, defender.system.type2, defender.system.type3)
-  :calcDualTypeMatchupScore(move.system.type, defender.system.type1, defender.system.type2);
+  let matchup = getEffectiveTypeMatchupScore(move.system.type, defender);
   let damage = Math.max(1 + matchup, 0);
   let html = '';
   let text = getEffectivenessText(matchup);

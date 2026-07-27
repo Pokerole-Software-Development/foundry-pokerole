@@ -5,8 +5,7 @@
 
 import { PokeroleItem } from "../documents/item.mjs";
 import {
-  calcDualTypeMatchupScore,
-  calcTripleTypeMatchupScore,
+  getEffectiveTypeMatchupScore,
   getConfusionModifier,
   getRankDiceCount,
   POKEROLE
@@ -702,11 +701,7 @@ function applyEffectivenessToAmount(amount, effectivenessLevel) {
 
 /** Type-matchup effectiveness level of a move against a specific defender. */
 function computeEffectivenessLevel(item, defender) {
-  return defender.system.hasThirdType ? calcTripleTypeMatchupScore(
-    item.system.type, defender.system.type1, defender.system.type2, defender.system.type3
-  ) : calcDualTypeMatchupScore(
-    item.system.type, defender.system.type1, defender.system.type2
-  );
+  return getEffectiveTypeMatchupScore(item.system.type, defender);
 }
 
 /** Builds one damage target's result HTML block (shared between initial roll and reroll). */

@@ -118,11 +118,13 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
     // (targetGroups, selected, etc.) into what #onAddRule/the rule change handlers persist via item.update().
     if (this.item.system.rules) {
       context.operators = { add: 'Add', replace: 'Replace' };
-      context.ruleKinds = { attribute: 'Attribute Override', type: 'Type Override', damagePool: 'Damage Pool Bonus' };
+      context.ruleKinds = { attribute: 'Attribute Override', type: 'Type Override', damagePool: 'Damage Pool Bonus', matchup: 'Matchup Modifier' };
       context.typeSlots = { type1: 'Type 1', type2: 'Type 2', type3: 'Type 3' };
       context.poolScopes = { all: 'All Moves', type: 'By Type', category: 'By Category' };
       context.typeChoices = getLocalizedTypesForSelect();
       context.categoryChoices = getDamagePoolCategoryChoices();
+      context.matchupOperations = { grantWeakness: 'Grant Weakness', grantResistance: 'Grant Resistance', grantImmunity: 'Grant Immunity', cancelImmunity: 'Cancel Immunity' };
+      context.matchupCancelScopes = { all: 'All Types', type: 'By Type' };
 
       const targetGroups = getRuleAttributeTargets();
       context.ruleRows = this.item.system.rules.map(rule => {
@@ -132,7 +134,8 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
           kind,
           isAttributeKind: kind === 'attribute',
           isTypeKind: kind === 'type',
-          isDamagePoolKind: kind === 'damagePool'
+          isDamagePoolKind: kind === 'damagePool',
+          isMatchupKind: kind === 'matchup'
         };
         if (row.isAttributeKind) {
           row.targetGroups = targetGroups.map(group => ({
@@ -144,6 +147,10 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
           row.scopeIsAll = !rule.scope || rule.scope === 'all';
           row.scopeIsType = rule.scope === 'type';
           row.scopeIsCategory = rule.scope === 'category';
+        }
+        if (row.isMatchupKind) {
+          row.matchupIsCancel = rule.operation === 'cancelImmunity';
+          row.matchupScopeIsAll = row.matchupIsCancel && rule.scope === 'all';
         }
         return row;
       });
@@ -258,6 +265,17 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
       el.addEventListener('change', this._onRulePoolDiceChange.bind(this));
     });
 
+    // Matchup Modifier operation/scope/scope-value changes
+    htmlElement.querySelectorAll('.rule-matchup-operation').forEach(el => {
+      el.addEventListener('change', this._onRuleMatchupOperationChange.bind(this));
+    });
+    htmlElement.querySelectorAll('.rule-matchup-scope').forEach(el => {
+      el.addEventListener('change', this._onRuleMatchupScopeChange.bind(this));
+    });
+    htmlElement.querySelectorAll('.rule-matchup-scope-value').forEach(el => {
+      el.addEventListener('change', this._onRuleMatchupScopeValueChange.bind(this));
+    });
+
     // Effect group condition changes
     htmlElement.querySelectorAll('.effect-group-condition').forEach(el => {
       el.addEventListener('change', this._onEffectGroupConditionChange.bind(this));
@@ -349,6 +367,10 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
     } else if (rule.kind === 'damagePool') {
       rule.scope ??= 'all';
       rule.dice ??= 1;
+    } else if (rule.kind === 'matchup') {
+      rule.operation ??= 'grantImmunity';
+      rule.scope ??= 'type';
+      rule.scopeValue ??= POKEROLE.types.find(t => t !== 'none') ?? 'normal';
     }
     await this.item.update({ "system.rules": this.item.system.rules });
   }
@@ -408,6 +430,46 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
   async _onRulePoolDiceChange(event) {
     const index = event.target.dataset.index;
     this.item.system.rules[index].dice = event.target.value;
+    await this.item.update({ "system.rules": this.item.system.rules });
+  }
+
+  /**
+   * Handle Matchup Modifier operation changes (Grant Weakness/Resistance/Immunity, Cancel Immunity).
+   * @param {Event} event  The triggering event.
+   */
+  async _onRuleMatchupOperationChange(event) {
+    const index = event.target.dataset.index;
+    const rule = this.item.system.rules[index];
+    rule.operation = event.target.value;
+    // Only Cancel Immunity supports the "All Types" scope - grants always target one specific type.
+    if (rule.operation !== 'cancelImmunity') {
+      rule.scope = 'type';
+    }
+    rule.scopeValue ??= POKEROLE.types.find(t => t !== 'none') ?? 'normal';
+    await this.item.update({ "system.rules": this.item.system.rules });
+  }
+
+  /**
+   * Handle Matchup Modifier scope changes (Cancel Immunity only: All Types / By Type).
+   * @param {Event} event  The triggering event.
+   */
+  async _onRuleMatchupScopeChange(event) {
+    const index = event.target.dataset.index;
+    const rule = this.item.system.rules[index];
+    rule.scope = event.target.value;
+    if (rule.scope === 'type') {
+      rule.scopeValue ??= POKEROLE.types.find(t => t !== 'none') ?? 'normal';
+    }
+    await this.item.update({ "system.rules": this.item.system.rules });
+  }
+
+  /**
+   * Handle Matchup Modifier scope-value (target type) changes.
+   * @param {Event} event  The triggering event.
+   */
+  async _onRuleMatchupScopeValueChange(event) {
+    const index = event.target.dataset.index;
+    this.item.system.rules[index].scopeValue = event.target.value;
     await this.item.update({ "system.rules": this.item.system.rules });
   }
 
