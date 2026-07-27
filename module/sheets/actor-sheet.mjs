@@ -667,11 +667,16 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     for (let [k, v] of Object.entries(context.system.attributes)) {
       v.label = game.i18n.localize(POKEROLE.i18n.attributes[k]) ?? k;
       v.overridden = foundry.utils.hasProperty(overrides, `system.attributes.${k}.value`);
-      // Edit-mode "(N)" annotations showing the vitamin-inclusive total next to the raw editable number.
+      // Edit-mode +N/-N annotations next to the raw editable number - the delta an active effect is
+      // applying, matching how Play mode's bubbles show the change rather than the resulting total.
       const rawValue = sourceAttributes[k]?.value ?? v.value;
       const rawMax = sourceAttributes[k]?.max ?? v.max;
-      v.vitaminValueNote = v.value !== rawValue ? `(${v.value})` : '';
-      v.vitaminMaxNote = v.max !== rawMax ? `(${v.max})` : '';
+      const valueDelta = v.value - rawValue;
+      const maxDelta = v.max - rawMax;
+      v.vitaminValueNote = valueDelta !== 0 ? (valueDelta > 0 ? `+${valueDelta}` : `${valueDelta}`) : '';
+      v.vitaminValueIncrease = valueDelta > 0;
+      v.vitaminMaxNote = maxDelta !== 0 ? (maxDelta > 0 ? `+${maxDelta}` : `${maxDelta}`) : '';
+      v.vitaminMaxIncrease = maxDelta > 0;
     }
     for (let [k, v] of Object.entries(context.system.social)) {
       v.label = game.i18n.localize(POKEROLE.i18n.social[k]) ?? k;

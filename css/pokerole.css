@@ -3899,9 +3899,24 @@ body.theme-light .pokerole.item.sheet:not(.theme-dark),
   font-size: 12px;
 }
 .pokerole.actor.sheet .tab[data-tab=attributes] .vitamin-note {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
   color: black;
-  font-size: 12px;
+  font-family: "Roboto", sans-serif;
+  font-size: 10px;
   font-weight: 700;
+}
+.pokerole.actor.sheet .tab[data-tab=attributes] .vitamin-note.increase {
+  background-color: #1976d2;
+  border: 1px solid #082858;
+}
+.pokerole.actor.sheet .tab[data-tab=attributes] .vitamin-note.decrease {
+  background-color: #d32f2f;
+  border: 1px solid #690f0f;
 }
 .pokerole.actor.sheet .tab[data-tab=training] .training-grid {
   display: grid;

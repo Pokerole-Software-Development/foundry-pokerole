@@ -191,11 +191,11 @@
   {{#if @root/editable}}
     <input id="{{@root/id}}-system-{{type}}-{{key}}-value" type="text" class="value-input {{#if pool.overridden}}overridden{{/if}}"
       name="system.{{type}}.{{key}}.value" value="{{getProperty @root/actor._source.system type key "value" default=pool.value}}" data-dtype="Number" />
-    {{#if pool.vitaminValueNote}}<span class="vitamin-note">{{pool.vitaminValueNote}}</span>{{/if}}
+    {{#if pool.vitaminValueNote}}<span class="vitamin-note {{#if pool.vitaminValueIncrease}}increase{{else}}decrease{{/if}}">{{pool.vitaminValueNote}}</span>{{/if}}
     <span> / </span>
     <input type="text" class="value-input" name="system.{{type}}.{{key}}.max" value="{{getProperty @root/actor._source.system type key "max" default=pool.max}}"
       data-dtype="Number" {{#if maxReadonly}}disabled{{/if}} />
-    {{#if pool.vitaminMaxNote}}<span class="vitamin-note">{{pool.vitaminMaxNote}}</span>{{/if}}
+    {{#if pool.vitaminMaxNote}}<span class="vitamin-note {{#if pool.vitaminMaxIncrease}}increase{{else}}decrease{{/if}}">{{pool.vitaminMaxNote}}</span>{{/if}}
   {{else}}
   {{#if @root/hideBubbles}}
     <input id="{{@root/id}}-system-{{type}}-{{key}}-value" type="text" class="value-input {{#if pool.overridden}}overridden{{/if}}"
