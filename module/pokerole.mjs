@@ -188,16 +188,6 @@ Handlebars.registerHelper('getProperty', function (...args) {
   return next;
 });
 
-// TP support (EQ)
-
-Handlebars.registerHelper('ifvitamin', function(v1, v2, test) {
-  if (v1==test || v2==test){
-    return true;
-  } else {
-    return false;
-  };
-});
-
 // TP filter EQ
 
 Handlebars.registerHelper('categoryfilter', function(v1, categ) {
@@ -239,9 +229,6 @@ Handlebars.registerHelper('pokecount', function(cvalue, cmax) {
 Handlebars.registerHelper('pkOptions', function(v1) {
   if (v1=='genderOption'){
     return game.settings.get('pokerole', 'genderOption') ?? false;
-  };
-  if (v1=='vitaminOption'){
-    return game.settings.get('pokerole', 'vitaminOption') ?? false;
   };
   if (v1=='developmentOption'){
     return game.settings.get('pokerole', 'developmentOption') ?? false;
@@ -414,16 +401,6 @@ function registerSettings() {
     hint: 'Turns off the Pain Penalization mechanic entirely - no calculations, no sheet section, no Willpower-resist prompt.',
     scope: 'world',
     config: false,
-    type: Boolean,
-    default: false,
-    requiresReload: true
-  });
-
-  game.settings.register('pokerole', 'vitaminOption', {
-    name: 'Enable Vitamin Tracker',
-    hint: 'Add a new section on the Biography tab to keeptrack of the vitamin you are giving to a pokemon and add a visual reminder on the attribute tab',
-    scope: 'world',
-    config: true,
     type: Boolean,
     default: false,
     requiresReload: true

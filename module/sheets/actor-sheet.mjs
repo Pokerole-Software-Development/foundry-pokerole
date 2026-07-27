@@ -163,8 +163,8 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       options.parts = options.parts.filter(part => part !== "team");
     }
 
-    // The "training" tab only applies to Pokémon, and only when the Vitamin Tracker setting is enabled.
-    if ( this.actor.type !== "pokemon" || !game.settings.get('pokerole', 'vitaminOption') ) {
+    // The "training" tab only applies to Pokémon.
+    if ( this.actor.type !== "pokemon" ) {
       options.parts = options.parts.filter(part => part !== "training");
     }
   }
@@ -353,7 +353,6 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
 
     // TP support.
     context.gender = {neutral: "None", male: "Male", female: "Female", genderless: "Genderless"};
-    context.addedvitamin = {None: "None", strength: "Strength", dexterity: "Dexterity", def: "Defense", vitality: "Vitality", special: "Special", spDef: "Special Def.", insight: "Insight", hp: "HP", willpower: "WP"};
 
     // Inventory category filter (see _inventoryFilter / the .inventoryfilterclass change listener in _onRender)
     context.testvarso = this._inventoryFilter;
@@ -466,7 +465,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       tabs.push({ id: "team", group: "primary", icon: "fa-solid fa-people-group", label: "Team" });
     }
 
-    if ( this.actor.type === "pokemon" && game.settings.get('pokerole', 'vitaminOption') ) {
+    if ( this.actor.type === "pokemon" ) {
       tabs.push({ id: "training", group: "primary", icon: "fa-solid fa-dumbbell", label: "Training" });
     }
 
@@ -1595,7 +1594,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
 
   async _showSettings() {
 
-    const {attributes, varicolor, baseHp, willbonus, customInitiativeMod, hasThirdType, recommendedRank, evolutionStage, source, teamSizeLimit} = this.actor.system;
+    const {attributes, varicolor, baseHp, willbonus, customInitiativeMod, hasThirdType, recommendedRank, evolutionStage, source, teamSizeLimit, avitamin, bvitamin} = this.actor.system;
 
     const labelito = {};
     for (let [k, v] of Object.entries(attributes)) {
@@ -1616,7 +1615,11 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       source,
       ranks: this.constructor.getLocalizedRanks(),
       isTrainer: this.actor.type === 'trainer',
-      teamSizeLimit
+      teamSizeLimit,
+      avitamin,
+      bvitamin,
+      // Legacy pre-Issue-#132 vitamin tracker fields - kept for reference only, superseded by the Training tab.
+      addedvitamin: {None: "None", strength: "Strength", dexterity: "Dexterity", def: "Defense", vitality: "Vitality", special: "Special", spDef: "Special Def.", insight: "Insight", hp: "HP", willpower: "WP"}
     });
 
     const result = await foundry.applications.api.DialogV2.prompt({

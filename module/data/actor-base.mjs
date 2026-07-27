@@ -53,7 +53,8 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
       activeItem: new StringField({ required: false, blank: true, initial: "" }),
       activeAbility: new StringField({ required: false, blank: true, initial: "" }),
 
-      // Display-only "vitamin boost" indicator (star icon in actor-attributes.hbs), no real effect.
+      // Legacy pre-Issue-#132 vitamin tracker, superseded by the Training tab - kept for reference only
+      // (edited via Actor Settings), no mechanical effect.
       avitamin: new StringField({ required: false, blank: true, initial: "" }),
       bvitamin: new StringField({ required: false, blank: true, initial: "" }),
 

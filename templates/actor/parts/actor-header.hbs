@@ -110,13 +110,6 @@
     <div class="sub-container">
       <div class="hp-container">
         <div class="internal">
-          {{#if (pkOptions "vitaminOption")}}
-          {{#if (ifvitamin system.avitamin system.bvitamin "hp")}}
-          <div class="vitamin-star fa-solid fa-star"></div>
-          {{else}}
-          <div class="vitamin-star fa-regular fa-star"></div>
-          {{/if}}
-          {{/if}}
           <label for="system.hp.value"> HP </label>
           <div class="pp-displayer">
             <input type="number" min="0" name="system.hp.value" value="{{system.hp.value}}" data-dtype="Number" class="always-interactive">
@@ -127,13 +120,6 @@
       <img class="rank-icon" src="{{styleImage system.rank}}">
       <div class="wp-container">
         <div class="internal">
-          {{#if (pkOptions "vitaminOption")}}
-          {{#if (ifvitamin system.avitamin system.bvitamin "willpower")}}
-          <div class="vitamin-star fa-solid fa-star"></div>
-          {{else}}
-          <div class="vitamin-star fa-regular fa-star"></div>
-          {{/if}}
-          {{/if}}
           <label for="{{id}}-system-will-value" data-action="roll" data-roll-attribute="will" data-label="Will" class="rollable"> WP </label>
           <div class="pp-displayer">
             <input id="{{id}}-system-will-value" type="number" min="0" name="system.will.value" value="{{system.will.value}}" data-dtype="Number" class="always-interactive">

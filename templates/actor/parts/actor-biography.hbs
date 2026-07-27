@@ -101,24 +101,6 @@
         <legend>Trait</legend>
         <input type="text" name="system.trait" value="{{system.trait}}" placeholder="None">
       </fieldset>
-      {{#if (pkOptions "vitaminOption")}}
-      <div class="inner-list">
-        <fieldset>
-          <legend>A Vitamin</legend>
-          <select name="system.avitamin" value="{{system.avitamin}}" data-dtype="String"
-            class="medium clean-selector">
-            {{selectOptions addedvitamin selected=system.avitamin}}
-          </select>
-        </fieldset>
-        <fieldset>
-          <legend>B Vitamin</legend>
-          <select name="system.bvitamin" value="{{system.bvitamin}}" data-dtype="String"
-            class="medium clean-selector">
-            {{selectOptions addedvitamin selected=system.bvitamin}}
-          </select>
-        </fieldset>
-      </div>
-      {{/if}}
     </div>
 
     {{#unless limitedPermissions}}

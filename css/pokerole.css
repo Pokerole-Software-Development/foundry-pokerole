@@ -1878,11 +1878,6 @@ body,
   padding: 2px 3px;
   height: 100%;
 }
-.pokerole.actor.sheet .character-header .sub-header .sub-container .hp-container > .internal .vitamin-star,
-.pokerole.actor.sheet .character-header .sub-header .sub-container .wp-container > .internal .vitamin-star {
-  border: none;
-  margin: 0 2px 0 0;
-}
 .pokerole.actor.sheet .character-header .sub-header .sub-container .hp-container > .internal label,
 .pokerole.actor.sheet .character-header .sub-header .sub-container .wp-container > .internal label {
   color: white;
@@ -1946,13 +1941,6 @@ body,
 }
 .pokerole.actor.sheet .tab[data-tab=attributes] .recovery-mode-warning {
   color: red;
-}
-.pokerole.actor.sheet .tab[data-tab=attributes] .attribute-star {
-  width: 22px;
-  height: 22px;
-  line-height: 22px;
-  border: none;
-  margin: 0 2px 0 0;
 }
 .pokerole.actor.sheet .tab[data-tab=attributes] .bubbles {
   width: calc(var(--num-bubbles) * 11px);

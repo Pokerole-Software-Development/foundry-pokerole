@@ -13,14 +13,6 @@
       {{#each system.attributes as |attribute key|}}
       <div class="attribute">
 
-        {{#if (pkOptions "vitaminOption")}}
-          {{#if (ifvitamin ../system.avitamin ../system.bvitamin key)}}
-          <div class="fa-solid fa-star attribute-star"></div>
-          {{else}}
-          <div class="fa-regular fa-star attribute-star"></div>
-          {{/if}}
-        {{/if}}
-
         <label for="{{@root/id}}-system-attributes-{{key}}-value" data-action="roll" class="resource-label flexlarge align-left rollable"
           data-roll-attribute="{{key}}" data-label="{{attribute.label}}">{{attribute.label}}</label>
         {{> dicePool type="attributes" key=key pool=attribute}}
