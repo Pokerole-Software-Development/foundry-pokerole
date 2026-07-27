@@ -832,6 +832,34 @@ async function buildDamageSharedRerollContent(masterRolls, modifier, painPenalty
 const DAMAGE_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/damage-roll.html";
 
 /**
+ * Sum of Damage Pool Bonus rule dice (TASK-16) from the actor's active Custom Effect/Held Item/Ability
+ * rules that match the move being rolled. Support-category moves never have a dice pool in this
+ * ruleset (same exclusion PokeroleItem#canBeClashed() uses), so they're excluded outright regardless of scope.
+ * @param {PokeroleActor} actor
+ * @param {PokeroleItem} item - the move being rolled
+ * @returns {number}
+ */
+function getDamagePoolRuleBonus(actor, item) {
+  if (item.system.category === 'support') return 0;
+
+  let bonus = 0;
+  for (const source of actor.getActiveRuleSources()) {
+    for (const rule of source.system.rules) {
+      if ((rule.kind ?? 'attribute') !== 'damagePool') continue;
+      const matches = rule.scope === 'all'
+        || (rule.scope === 'type' && item.system.type === rule.scopeValue)
+        // Membership, not equality - a compound category like "physical/special" (real moves use this)
+        // still counts as a Physical move and a Special move, not a wholly separate third category.
+        || (rule.scope === 'category' && item.system.category.split('/').includes(rule.scopeValue));
+      if (!matches) continue;
+      const dice = parseInt(rule.dice);
+      if (!Number.isNaN(dice)) bonus += dice;
+    }
+  }
+  return bonus;
+}
+
+/**
  *
  * @param {Item} item The move to roll damage for
  * @param {Actor} actor The actor using the move
@@ -954,7 +982,7 @@ export async function rollDamage(item, actor, token) {
     poolBonus += POKEROLE.CONST.CRIT_BONUS;
   }
 
-  let rollCountBeforeDef = (item.system.power ?? 0) + poolBonus;
+  let rollCountBeforeDef = (item.system.power ?? 0) + poolBonus + getDamagePoolRuleBonus(actor, item);
   if (item.system.dmgMod1 && item.system.dmgMod1var) {
     rollCountBeforeDef += Math.max(actor.getAnyAttribute(item.system.dmgMod1)?.value ?? 0, actor.getAnyAttribute(item.system.dmgMod1var)?.value ?? 0)
   } else if (item.system.dmgMod1) {

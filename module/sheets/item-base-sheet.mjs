@@ -2,7 +2,7 @@
  * Shared base class for all Pokérole item sheets (AppV2 ItemSheetV2), providing Play/Edit
  * mode toggling, rules-table editing, and other action handlers common to every item type.
  */
-import { getLocalizedEntriesForSelect, getLocalizedTypesForSelect, POKEROLE } from "../helpers/config.mjs";
+import { getLocalizedEntriesForSelect, getLocalizedTypesForSelect, getRuleAttributeTargets, getDamagePoolCategoryChoices, POKEROLE } from "../helpers/config.mjs";
 
 /**
  * Base ItemSheet with AppV2 - to be extended by type-specific sheets
@@ -112,6 +112,43 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
       context.descriptionHtml = "";
     }
 
+    // Custom Effect/Held Item/Ability rules (TASK-16) - shared by item-effect-sheet.mjs/item-item-sheet.mjs/item-ability-sheet.mjs.
+    // Built as a separate context.ruleRows array (not mutating context.system.rules) since context.system
+    // is the live actor/item data reference - annotating it in place would leak display-only fields
+    // (targetGroups, selected, etc.) into what #onAddRule/the rule change handlers persist via item.update().
+    if (this.item.system.rules) {
+      context.operators = { add: 'Add', replace: 'Replace' };
+      context.ruleKinds = { attribute: 'Attribute Override', type: 'Type Override', damagePool: 'Damage Pool Bonus' };
+      context.typeSlots = { type1: 'Type 1', type2: 'Type 2', type3: 'Type 3' };
+      context.poolScopes = { all: 'All Moves', type: 'By Type', category: 'By Category' };
+      context.typeChoices = getLocalizedTypesForSelect();
+      context.categoryChoices = getDamagePoolCategoryChoices();
+
+      const targetGroups = getRuleAttributeTargets();
+      context.ruleRows = this.item.system.rules.map(rule => {
+        const kind = rule.kind ?? 'attribute';
+        const row = {
+          ...rule,
+          kind,
+          isAttributeKind: kind === 'attribute',
+          isTypeKind: kind === 'type',
+          isDamagePoolKind: kind === 'damagePool'
+        };
+        if (row.isAttributeKind) {
+          row.targetGroups = targetGroups.map(group => ({
+            label: group.label,
+            options: group.options.map(opt => ({ ...opt, selected: opt.path === rule.attribute }))
+          }));
+        }
+        if (row.isDamagePoolKind) {
+          row.scopeIsAll = !rule.scope || rule.scope === 'all';
+          row.scopeIsType = rule.scope === 'type';
+          row.scopeIsCategory = rule.scope === 'category';
+        }
+        return row;
+      });
+    }
+
     return context;
   }
 
@@ -188,7 +225,10 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
   _attachPartListeners(partId, htmlElement, options) {
     super._attachPartListeners(partId, htmlElement, options);
 
-    // Rule attribute/operator/value changes
+    // Rule kind/attribute/operator/value changes
+    htmlElement.querySelectorAll('.rule-kind').forEach(el => {
+      el.addEventListener('change', this._onRuleKindChange.bind(this));
+    });
     htmlElement.querySelectorAll('.rule-attribute').forEach(el => {
       el.addEventListener('change', this._onRuleAttributeChange.bind(this));
     });
@@ -197,6 +237,25 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
     });
     htmlElement.querySelectorAll('.rule-value').forEach(el => {
       el.addEventListener('change', this._onRuleValueChange.bind(this));
+    });
+
+    // Type Override slot/new-type changes
+    htmlElement.querySelectorAll('.rule-type-slot').forEach(el => {
+      el.addEventListener('change', this._onRuleTypeSlotChange.bind(this));
+    });
+    htmlElement.querySelectorAll('.rule-type-new').forEach(el => {
+      el.addEventListener('change', this._onRuleTypeNewChange.bind(this));
+    });
+
+    // Damage Pool Bonus scope/scope-value/dice changes
+    htmlElement.querySelectorAll('.rule-pool-scope').forEach(el => {
+      el.addEventListener('change', this._onRulePoolScopeChange.bind(this));
+    });
+    htmlElement.querySelectorAll('.rule-pool-scope-value').forEach(el => {
+      el.addEventListener('change', this._onRulePoolScopeValueChange.bind(this));
+    });
+    htmlElement.querySelectorAll('.rule-pool-dice').forEach(el => {
+      el.addEventListener('change', this._onRulePoolDiceChange.bind(this));
     });
 
     // Effect group condition changes
@@ -266,6 +325,89 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
   async _onRuleValueChange(event) {
     const index = event.target.dataset.index;
     this.item.system.rules[index].value = event.target.value;
+    await this.item.update({ "system.rules": this.item.system.rules });
+  }
+
+  /**
+   * Handle rule kind changes (Attribute Override/Type Override/Damage Pool Bonus).
+   * @param {Event} event  The triggering event.
+   */
+  async _onRuleKindChange(event) {
+    const index = event.target.dataset.index;
+    const rule = this.item.system.rules[index];
+    rule.kind = event.target.value;
+    // Seed defaults for the newly-selected kind's own fields - an unset <select> renders its first
+    // <option> regardless, so without this the data stays undefined until the user happens to touch
+    // every one of that kind's dropdowns individually.
+    if (rule.kind === 'attribute') {
+      rule.attribute ??= getRuleAttributeTargets()[0].options[0].path;
+      rule.operator ??= 'add';
+      rule.value ??= 0;
+    } else if (rule.kind === 'type') {
+      rule.slot ??= 'type1';
+      rule.newType ??= 'none';
+    } else if (rule.kind === 'damagePool') {
+      rule.scope ??= 'all';
+      rule.dice ??= 1;
+    }
+    await this.item.update({ "system.rules": this.item.system.rules });
+  }
+
+  /**
+   * Handle Type Override slot changes.
+   * @param {Event} event  The triggering event.
+   */
+  async _onRuleTypeSlotChange(event) {
+    const index = event.target.dataset.index;
+    this.item.system.rules[index].slot = event.target.value;
+    await this.item.update({ "system.rules": this.item.system.rules });
+  }
+
+  /**
+   * Handle Type Override new-type changes.
+   * @param {Event} event  The triggering event.
+   */
+  async _onRuleTypeNewChange(event) {
+    const index = event.target.dataset.index;
+    this.item.system.rules[index].newType = event.target.value;
+    await this.item.update({ "system.rules": this.item.system.rules });
+  }
+
+  /**
+   * Handle Damage Pool Bonus scope changes.
+   * @param {Event} event  The triggering event.
+   */
+  async _onRulePoolScopeChange(event) {
+    const index = event.target.dataset.index;
+    const rule = this.item.system.rules[index];
+    rule.scope = event.target.value;
+    // Seed the newly-revealed scope-value dropdown with a real option - same reasoning as the rule-kind
+    // seeding above, an unset <select> still renders its first option regardless of stored data.
+    if (rule.scope === 'type') {
+      rule.scopeValue ??= Object.keys(getLocalizedTypesForSelect())[0];
+    } else if (rule.scope === 'category') {
+      rule.scopeValue ??= Object.keys(getDamagePoolCategoryChoices())[0];
+    }
+    await this.item.update({ "system.rules": this.item.system.rules });
+  }
+
+  /**
+   * Handle Damage Pool Bonus scope-value changes.
+   * @param {Event} event  The triggering event.
+   */
+  async _onRulePoolScopeValueChange(event) {
+    const index = event.target.dataset.index;
+    this.item.system.rules[index].scopeValue = event.target.value;
+    await this.item.update({ "system.rules": this.item.system.rules });
+  }
+
+  /**
+   * Handle Damage Pool Bonus dice-amount changes.
+   * @param {Event} event  The triggering event.
+   */
+  async _onRulePoolDiceChange(event) {
+    const index = event.target.dataset.index;
+    this.item.system.rules[index].dice = event.target.value;
     await this.item.update({ "system.rules": this.item.system.rules });
   }
 
@@ -389,7 +531,8 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
   static async #onAddRule(event, target) {
     const rules = [...this.item.system.rules];
     rules.push({
-      attribute: '',
+      kind: 'attribute',
+      attribute: getRuleAttributeTargets()[0].options[0].path,
       operator: 'add',
       value: 0
     });

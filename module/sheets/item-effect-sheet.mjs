@@ -56,12 +56,6 @@ export class PokeroleEffectSheet extends PokeroleItemBaseSheet {
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
 
-    // Effect-specific context
-    context.operators = {
-      "add": "Add",
-      "replace": "Replace"
-    };
-
     return context;
   }
 

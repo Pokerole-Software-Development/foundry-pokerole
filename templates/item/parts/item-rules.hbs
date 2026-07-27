@@ -7,25 +7,61 @@
 
   <hr>
 
-  <h3>Custom rules (experimental)</h3>
-  <p>Please note that broken rules might cause issues with the system.</p>
+  <h3>Custom rules</h3>
+  <p>Attribute Override changes a value directly. Type Override replaces a Type slot. Damage Pool Bonus adds dice to a move's damage roll.</p>
 
   <ol class="items-list effects-list">
     <li class="item flexrow items-header rule-row">
-      <div class="rule-attribute">Attribute Key</div>
-      <div class="rule-operator">Change Mode</div>
-      <div class="rule-value">Effect Value</div>
+      <div class="rule-kind">Kind</div>
+      <div class="rule-details">Details</div>
       <div class="item-controls">
         <a class="item-control" title="Add rule" data-action="addRule" data-type="rule"><i class="fas fa-plus"></i>Add</a>
       </div>
     </li>
-    {{#each system.rules as |rule i|}}
+    {{#each ruleRows as |rule i|}}
     <li class="flexrow rule-row">
-      <input class="rule-attribute" data-index="{{i}}" type="text" value="{{rule.attribute}}" placeholder="system.attributes.strength.value" data-dtype="String"/>
-      <select class="rule-operator" data-index="{{i}}" value="{{rule.operator}}" data-dtype="String">
+      <select class="rule-kind" data-index="{{i}}">
+        {{selectOptions ../ruleKinds selected=rule.kind}}
+      </select>
+
+      {{#if rule.isAttributeKind}}
+      <select class="rule-attribute rule-field" data-index="{{i}}">
+        {{#each rule.targetGroups as |grp|}}
+        <optgroup label="{{grp.label}}">
+          {{#each grp.options as |opt|}}
+          <option value="{{opt.path}}" {{#if opt.selected}}selected{{/if}}>{{opt.label}}</option>
+          {{/each}}
+        </optgroup>
+        {{/each}}
+      </select>
+      <select class="rule-operator rule-field" data-index="{{i}}">
         {{selectOptions ../operators selected=rule.operator}}
       </select>
-      <input type="number" class="rule-value" value="{{rule.value}}" data-index="{{i}}" data-dtype="Number"/>
+      <input type="number" class="rule-value rule-field" value="{{rule.value}}" data-index="{{i}}" data-dtype="Number"/>
+      {{/if}}
+
+      {{#if rule.isTypeKind}}
+      <select class="rule-type-slot rule-field" data-index="{{i}}">
+        {{selectOptions ../typeSlots selected=rule.slot}}
+      </select>
+      <select class="rule-type-new rule-field" data-index="{{i}}">
+        {{selectOptions ../typeChoices selected=rule.newType}}
+      </select>
+      {{/if}}
+
+      {{#if rule.isDamagePoolKind}}
+      <select class="rule-pool-scope rule-field" data-index="{{i}}">
+        {{selectOptions ../poolScopes selected=rule.scope}}
+      </select>
+      {{#unless rule.scopeIsAll}}
+      <select class="rule-pool-scope-value rule-field" data-index="{{i}}">
+        {{#if rule.scopeIsType}}{{selectOptions ../typeChoices selected=rule.scopeValue}}{{/if}}
+        {{#if rule.scopeIsCategory}}{{selectOptions ../categoryChoices selected=rule.scopeValue}}{{/if}}
+      </select>
+      {{/unless}}
+      <input type="number" class="rule-pool-dice rule-field" value="{{rule.dice}}" data-index="{{i}}" data-dtype="Number" placeholder="Dice"/>
+      {{/if}}
+
       <div class="item-controls">
         <a class="item-control" title="Delete Rule" data-action="deleteRule" data-index="{{i}}"><i class="fas fa-trash"></i></a>
       </div>

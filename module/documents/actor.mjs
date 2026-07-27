@@ -1,7 +1,7 @@
 /**
  * Actor document subclass: the custom rules-based effects engine, ailment helpers, roll data, and token icon sync.
  */
-import { POKEROLE, migrateLegacyRankValue } from "../helpers/config.mjs";
+import { POKEROLE, migrateLegacyRankValue, getRuleAttributeTargetPaths } from "../helpers/config.mjs";
 import { buildAilmentIconEffectData, buildCustomEffectIconData, buildStatChangeIconData, buildPainPenaltyIconData } from "../helpers/effects.mjs";
 import { MANEUVER_MOVES } from "../helpers/maneuvers.mjs";
 import { applyDamageEffectsHtml, createHealMessage } from "../helpers/damage.mjs";
@@ -119,35 +119,43 @@ export class PokeroleActor extends Actor {
       original[path] = currentValue;
     }
 
-    // Apply custom effects
-    if (!game.settings.get('pokerole', 'recoveryMode')) { // Custom effects are disabled in recovery mode
-      const effects = this.items.filter(item => item.type === 'effect' && item.system.enabled);
-      // Equipped Item/Ability only contribute rules while selected (header dropdown) AND enabled.
-      const equipped = [this.activeItem, this.activeAbility].filter(item => item?.system.enabled);
+    // Apply Custom Effect/Held Item/Ability rules (TASK-16: Attribute Override/Type Override/Damage Pool
+    // Bonus). Damage Pool Bonus isn't an actor-attribute override - it's read separately at roll time by
+    // rollDamage() (roll.mjs) via getActiveRuleSources() below.
+    for (const source of this.getActiveRuleSources()) {
+      for (const rule of source.system.rules) {
+        const kind = rule.kind ?? 'attribute';
 
-      for (const source of [...effects, ...equipped]) {
-        for (const rule of source.system.rules) {
-          let value = parseInt(rule.value);
-          let pathO = parseInt(foundry.utils.getProperty(this, rule.attribute));
-
-          if ((Number.isNaN(value) || Number.isNaN(pathO)) && rule.attribute != '') {
-            console.warn("Custom Rule: Path or value is not a number")
+        if (kind === 'attribute') {
+          // The mechanical enforcement TASK-16 was actually about - a free-text path (legacy data, or
+          // anything outside the closed target list) is silently ignored instead of applying.
+          if (!getRuleAttributeTargetPaths().has(rule.attribute)) {
+            console.warn("Custom Rule: attribute path is not in the allowed target list", rule.attribute);
             continue;
           }
-
-          const currentValue = foundry.utils.getProperty(this, rule.attribute) ?? 0;
-
-          switch (rule.operator) {
-            case 'add':
-              overrides[rule.attribute] = (overrides[rule.attribute] ?? currentValue) + value;
-              original[rule.attribute] = currentValue;
-              break;
-            case 'replace':
-              overrides[rule.attribute] = value;
-              original[rule.attribute] = currentValue;
-              break;
+          const value = parseInt(rule.value);
+          if (Number.isNaN(value)) {
+            console.warn("Custom Rule: value is not a number");
+            continue;
           }
+          const currentValue = overrides[rule.attribute] ?? foundry.utils.getProperty(this, rule.attribute) ?? 0;
+          if (rule.operator === 'add') {
+            overrides[rule.attribute] = currentValue + value;
+          } else if (rule.operator === 'replace') {
+            overrides[rule.attribute] = value;
+          }
+          original[rule.attribute] = foundry.utils.getProperty(this, rule.attribute) ?? 0;
+        } else if (kind === 'type') {
+          if (this.type !== 'pokemon') continue;
+          if (!['type1', 'type2', 'type3'].includes(rule.slot) || !POKEROLE.typeMatchups[rule.newType]) {
+            console.warn("Custom Rule: invalid Type Override slot or type", rule.slot, rule.newType);
+            continue;
+          }
+          const slotPath = `system.${rule.slot}`;
+          overrides[slotPath] = rule.newType;
+          original[slotPath] = foundry.utils.getProperty(this, slotPath);
         }
+        // kind === 'damagePool' has no actor-attribute override - handled at roll time instead.
       }
     }
 
@@ -157,6 +165,21 @@ export class PokeroleActor extends Actor {
 
     // Apply the changes.
     foundry.utils.mergeObject(this, this.overrides);
+  }
+
+  /**
+   * Items currently contributing Custom Effect/Held Item/Ability rules to this actor - enabled Custom
+   * Effect items, plus the equipped/selected Held Item and Ability if each is itself enabled. Empty
+   * while the recoveryMode world setting is on. Shared by _applyEffects() above and rollDamage()'s
+   * Damage Pool Bonus lookup (module/helpers/roll.mjs).
+   * @returns {PokeroleItem[]}
+   */
+  getActiveRuleSources() {
+    if (game.settings.get('pokerole', 'recoveryMode')) return [];
+    const effects = this.items.filter(item => item.type === 'effect' && item.system.enabled);
+    // Equipped Item/Ability only contribute rules while selected (header dropdown) AND enabled.
+    const equipped = [this.activeItem, this.activeAbility].filter(item => item?.system.enabled);
+    return [...effects, ...equipped];
   }
 
   /** Override getRollData() that's supplied to rolls. */

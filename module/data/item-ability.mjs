@@ -2,10 +2,17 @@
  * Data model for Ability items.
  */
 import { PokeroleItemBaseData } from "./item-base.mjs";
+import { migrateRuleKinds } from "./fields.mjs";
 
 const { BooleanField, ArrayField, ObjectField } = foundry.data.fields;
 
 export class PokeroleItemAbilityData extends PokeroleItemBaseData {
+
+  /** @override */
+  static migrateData(source) {
+    migrateRuleKinds(source);
+    return super.migrateData(source);
+  }
 
   static defineSchema() {
     return {

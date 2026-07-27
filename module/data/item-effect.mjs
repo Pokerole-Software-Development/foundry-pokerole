@@ -2,10 +2,17 @@
  * Data model for Custom Effect items, which apply a list of rules to an actor via _applyEffects().
  */
 import { PokeroleItemBaseData } from "./item-base.mjs";
+import { migrateRuleKinds } from "./fields.mjs";
 
 const { BooleanField, ArrayField, ObjectField } = foundry.data.fields;
 
 export class PokeroleItemEffectData extends PokeroleItemBaseData {
+
+  /** @override */
+  static migrateData(source) {
+    migrateRuleKinds(source);
+    return super.migrateData(source);
+  }
 
   static defineSchema() {
     return {

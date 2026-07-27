@@ -691,6 +691,11 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       v.overridden = foundry.utils.hasProperty(overrides, `system.derived.${k}.value`);
     }
 
+    // Type Override (TASK-16) - locks the header's Type selectors and shows a lock icon while active.
+    context.system.type1Overridden = foundry.utils.hasProperty(overrides, 'system.type1');
+    context.system.type2Overridden = foundry.utils.hasProperty(overrides, 'system.type2');
+    context.system.type3Overridden = foundry.utils.hasProperty(overrides, 'system.type3');
+
     // Stat changes
     context.system.statChanges.strength.label = game.i18n.localize(POKEROLE.i18n.attributes.strength);
     context.system.statChanges.dexterity.label = game.i18n.localize(POKEROLE.i18n.attributes.dexterity);

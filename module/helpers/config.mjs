@@ -1111,6 +1111,80 @@ export function getLocalizedTypesForSelect() {
   return obj;
 }
 
+/**
+ * The closed, grouped list of paths a Custom Effect/Held Item/Ability "Attribute Override" rule may
+ * target (TASK-16) - single source of truth for both the sheet's dropdown and _applyEffects()'s
+ * mechanical whitelist. Excludes Pain Penalization (own override toggle), Training Points, Rank,
+ * Evolution Stage, and Extra/Happiness/Loyalty - none of those are overridable by design.
+ * @returns {Array<{label: string, options: Array<{path: string, label: string}>}>}
+ */
+export function getRuleAttributeTargets() {
+  const attrLabel = key => game.i18n.localize(POKEROLE.i18n.attributes[key]) ?? key;
+  return [
+    {
+      label: 'Attributes',
+      options: POKEROLE.attributes.flatMap(key => [
+        { path: `system.attributes.${key}.value`, label: `${attrLabel(key)} — Value` },
+        { path: `system.attributes.${key}.max`, label: `${attrLabel(key)} — Max` }
+      ])
+    },
+    {
+      label: 'Social',
+      options: POKEROLE.socialAttributes.map(key => ({ path: `system.social.${key}.value`, label: game.i18n.localize(POKEROLE.i18n.social[key]) ?? key }))
+    },
+    {
+      label: 'Skills',
+      // The union of pokemonSkills/trainerSkills (i18n.skills already covers exactly that) - a rule isn't
+      // bound to one actor type at authoring time, and a mismatched selection is a harmless no-op.
+      options: Object.keys(POKEROLE.i18n.skills).map(key => ({ path: `system.skills.${key}.value`, label: game.i18n.localize(POKEROLE.i18n.skills[key]) ?? key }))
+    },
+    {
+      label: 'Derived',
+      // Hardcoded, not Object.keys(POKEROLE.i18n.derived) - that also holds 'atk'/'spAtk', which are dead keys never actually built onto system.derived.
+      options: ['initiative', 'evade', 'clashPhysical', 'clashSpecial', 'def', 'spDef'].map(key => ({ path: `system.derived.${key}.value`, label: game.i18n.localize(POKEROLE.i18n.derived[key]) ?? key }))
+    },
+    {
+      label: 'Resource',
+      options: [
+        { path: 'system.hp.max', label: 'HP — Max' },
+        { path: 'system.will.max', label: 'Willpower — Max' }
+      ]
+    },
+    {
+      label: 'Combat Modifier',
+      options: [
+        { path: 'system.accuracyMod.value', label: 'Accuracy Roll Bonus' }
+      ]
+    }
+  ];
+}
+
+/** Flat Set of every valid Attribute Override target path - see getRuleAttributeTargets(). */
+export function getRuleAttributeTargetPaths() {
+  const paths = new Set();
+  for (const group of getRuleAttributeTargets()) {
+    for (const option of group.options) paths.add(option.path);
+  }
+  return paths;
+}
+
+/**
+ * Damage Pool Bonus "Category" scope choices - just the atomic categories (physical/special).
+ * 'support' is excluded (never has a dice pool in this ruleset, same exclusion PokeroleItem#canBeClashed()
+ * already uses). The compound category strings ('physical/special', 'support/physical/special') are
+ * deliberately not offered as scope *values* - matching is membership-based (see getDamagePoolRuleBonus()
+ * in roll.mjs), so picking "Physical" already covers a compound-category move; offering the compound
+ * strings themselves as a pickable scope would only match that exact compound string, a narrower and
+ * more confusing case than what an author actually wants.
+ */
+export function getDamagePoolCategoryChoices() {
+  const entries = {};
+  for (const category of ['physical', 'special']) {
+    entries[category] = game.i18n.localize(POKEROLE.i18n.moveCategories[category]) ?? category;
+  }
+  return entries;
+}
+
 /** Localized classification string for a Pain Penalty level (0-3), e.g. "Half HP (-1)". */
 export function getLocalizedPainPenaltyLevel(level) {
   return game.i18n.localize(POKEROLE.i18n.painPenaltyLevels[level] ?? POKEROLE.i18n.painPenaltyLevels[0]);

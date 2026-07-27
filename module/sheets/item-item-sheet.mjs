@@ -63,7 +63,6 @@ export class PokeroleItemItemSheet extends PokeroleItemBaseSheet {
 
     // Item-specific context
     context.pockets = POKEROLE.itemCategory;
-    context.operators = { "add": "Add", "replace": "Replace" };
 
     return context;
   }

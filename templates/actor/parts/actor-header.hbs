@@ -33,20 +33,23 @@
           <div class="type-container">
             <div class="type-selector" style="--type-color: {{styleType system.type1 'color1'}};">
               <img src="{{styleType system.type1 'image'}}">
-              <select name="system.type1" value="{{system.type1}}" data-dtype="String">
+              <i class="fas fa-lock type-override-icon {{#if system.type1Overridden}}active{{/if}}" data-tooltip="Overridden by an active Type Override rule"></i>
+              <select name="system.type1" value="{{system.type1}}" data-dtype="String" {{#if system.type1Overridden}}disabled{{/if}}>
                 {{selectOptions types selected=system.type1}}
               </select>
             </div>
             <div class="type-selector" style="--type-color: {{styleType system.type2 'color1'}};">
               <img src="{{styleType system.type2 'image'}}">
-              <select name="system.type2" value="{{system.type2}}" data-dtype="String">
+              <i class="fas fa-lock type-override-icon {{#if system.type2Overridden}}active{{/if}}" data-tooltip="Overridden by an active Type Override rule"></i>
+              <select name="system.type2" value="{{system.type2}}" data-dtype="String" {{#if system.type2Overridden}}disabled{{/if}}>
                 {{selectOptions types selected=system.type2}}
               </select>
             </div>
             {{#if system.hasThirdType}}
             <div class="type-selector" style="--type-color: {{styleType system.type3 'color1'}};">
               <img src="{{styleType system.type3 'image'}}">
-              <select name="system.type3" value="{{system.type3}}" data-dtype="String">
+              <i class="fas fa-lock type-override-icon {{#if system.type3Overridden}}active{{/if}}" data-tooltip="Overridden by an active Type Override rule"></i>
+              <select name="system.type3" value="{{system.type3}}" data-dtype="String" {{#if system.type3Overridden}}disabled{{/if}}>
                 {{selectOptions types selected=system.type3}}
               </select>
             </div>

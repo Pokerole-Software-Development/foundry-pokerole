@@ -46,3 +46,17 @@ export function plusMinusField() {
 export function vitaminAttributeStateField() {
   return new StringField({ required: true, initial: 'none', choices: ['none', 'vitamin', 'rareCandy'] });
 }
+
+/**
+ * Backfills rule.kind = 'attribute' on any pre-existing rule missing it (TASK-16 - Attribute Override/
+ * Type Override/Damage Pool Bonus). Existing {attribute, operator, value} rules keep working unchanged,
+ * they just gain the discriminator the new rule kinds need. Shared by item-effect.mjs/item-item.mjs/item-ability.mjs.
+ * @param {object} source - the item's `system` source data (not the whole item).
+ */
+export function migrateRuleKinds(source) {
+  if (Array.isArray(source.rules)) {
+    for (const rule of source.rules) {
+      rule.kind ??= 'attribute';
+    }
+  }
+}

@@ -3,10 +3,17 @@
  */
 import { POKEROLE } from "../helpers/config.mjs";
 import { PokeroleItemBaseData } from "./item-base.mjs";
+import { migrateRuleKinds } from "./fields.mjs";
 
 const { NumberField, StringField, BooleanField, ArrayField, ObjectField } = foundry.data.fields;
 
 export class PokeroleItemItemData extends PokeroleItemBaseData {
+
+  /** @override */
+  static migrateData(source) {
+    migrateRuleKinds(source);
+    return super.migrateData(source);
+  }
 
   static defineSchema() {
     return {
