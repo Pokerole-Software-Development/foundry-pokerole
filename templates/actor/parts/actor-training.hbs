@@ -7,7 +7,7 @@
         <input type="text" name="system.trainingPoints" value="{{system.trainingPoints}}" data-dtype="Number">
       </fieldset>
       <fieldset class="tp-actions">
-        <legend>TP</legend>
+        <legend>Training Session</legend>
         {{#if rankUp}}
         <button type="button" class="tp-action-row" data-action="increaseRank" title="Advance to {{rankUp.nextRankLabel}}">
           <span class="tp-action-label">Rank Up</span>
@@ -30,6 +30,10 @@
           title="Learn a move from a higher rank (requires Happiness + Loyalty of at least 7)" {{#unless overrankReady}}disabled{{/unless}}>
           <span class="tp-action-label">Overrank</span>
           <i class="fas fa-angles-up tp-action-icon"></i>
+        </button>
+        <button type="button" class="tp-action-row" data-action="evolve" title="Change this Pokémon's species">
+          <span class="tp-action-label">Evolve</span>
+          <i class="fas fa-arrows-rotate tp-action-icon"></i>
         </button>
       </fieldset>
     </div>

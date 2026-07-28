@@ -1,0 +1,65 @@
+<form class="pokerole evolve">
+  {{#if evolutionTargets.length}}
+  <fieldset>
+    <legend>Evolution options</legend>
+    <div class="evolve-quickpicks">
+      {{#each evolutionTargets}}
+      <button type="button" class="evolve-quickpick" data-species="{{this.species}}" title="{{this.kindLabel}}: {{this.detail}}">{{this.species}}</button>
+      {{/each}}
+    </div>
+  </fieldset>
+  {{/if}}
+
+  <fieldset>
+    <legend>Or pick any compendium entry</legend>
+    <div class="evolve-pickers">
+      <select name="pack">
+        {{selectOptions packChoices selected=selectedPack}}
+      </select>
+      <select name="entry">
+        {{selectOptions entryChoices selected=selectedEntry}}
+      </select>
+    </div>
+  </fieldset>
+
+  <div class="evolve-comparison">
+    <div class="evolve-column">
+      <p class="evolve-column-name">{{actorName}}</p>
+      <p class="evolve-column-types">{{current.types}}</p>
+      <table>
+        {{#each current.attributes as |attribute key|}}
+        <tr><td>{{attribute.label}}</td><td>{{attribute.value}} / {{attribute.max}}</td></tr>
+        {{/each}}
+        <tr><td>HP</td><td>{{current.hp.value}} / {{current.hp.max}}</td></tr>
+        <tr><td>Will</td><td>{{current.will.value}} / {{current.will.max}}</td></tr>
+      </table>
+    </div>
+    <div class="evolve-column evolve-target-column">
+      <p class="evolve-column-name evolve-target-name">{{targetName}}</p>
+      <p class="evolve-column-types evolve-target-types">{{target.types}}</p>
+      <table>
+        {{#each target.attributes as |attribute key|}}
+        <tr><td>{{attribute.label}}</td><td class="evolve-target-{{key}}">{{attribute.value}} / {{attribute.max}}</td></tr>
+        {{/each}}
+        <tr><td>HP</td><td class="evolve-target-hp">{{target.hp.value}} / {{target.hp.max}}</td></tr>
+        <tr><td>Will</td><td class="evolve-target-will">{{target.will.value}} / {{target.will.max}}</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <fieldset>
+    <legend>Options</legend>
+    <div class="form-group">
+      <input type="checkbox" name="changeImage" checked>
+      <label>Update image to the new artwork</label>
+    </div>
+    <div class="form-group">
+      <label>Change nature to</label>
+      <select name="nature">
+        {{selectOptions natures selected=""}}
+      </select>
+    </div>
+  </fieldset>
+
+  <p class="evolve-summary hint">Keeps currently learned moves, removes the rest of the old movepool, and adds the new species' moves (skipping anything already known by name). Abilities are fully replaced. Rank resets to none and immediately reopens for you to reallocate for free; Skills reset to 0. Training Points are untouched.</p>
+</form>

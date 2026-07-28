@@ -25,7 +25,7 @@
       <fieldset class="evolutions">
         <legend>Evolutions</legend>
         {{#each evolutions}}
-        <div class="evolution-row">
+        <div class="evolution-row" data-action="evolve" data-species="{{this.species}}">
           <span class="evolution-label">{{this.label}}</span>
           <span class="evolution-species">{{this.species}}</span>
           <a class="evolution-info" data-tooltip-html="{{this.tooltipHtml}}"><i class="fas fa-circle-info"></i></a>

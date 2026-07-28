@@ -1221,6 +1221,53 @@ body,
   text-align: left;
 }
 
+.pokerole.evolve .window-content {
+  min-width: 480px;
+}
+.pokerole.evolve .evolve-quickpicks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.pokerole.evolve .evolve-pickers {
+  display: flex;
+  gap: 8px;
+}
+.pokerole.evolve .evolve-pickers select {
+  flex: 1;
+}
+.pokerole.evolve .evolve-comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 10px 0;
+}
+.pokerole.evolve .evolve-column {
+  border: 1px solid var(--color-pkmn-outline, #433727);
+  border-radius: 4px;
+  padding: 6px 10px;
+}
+.pokerole.evolve .evolve-column-name {
+  font-weight: 700;
+  margin: 0;
+}
+.pokerole.evolve .evolve-column-types {
+  margin: 0 0 4px;
+  font-size: 0.85em;
+  opacity: 0.8;
+}
+.pokerole.evolve .evolve-column table {
+  width: 100%;
+  font-size: 0.9em;
+}
+.pokerole.evolve .evolve-column table td:last-child {
+  text-align: right;
+}
+.pokerole.evolve .evolve-summary {
+  font-size: 0.85em;
+  opacity: 0.85;
+}
+
 .pokerole.actor.sheet {
   --color-pkmn-header-back: #DB442D;
   --color-pkmn-red: #DB442D;
@@ -2254,6 +2301,10 @@ body,
   display: flex;
   align-items: center;
   gap: 10px;
+  cursor: pointer;
+}
+.pokerole.actor.sheet .tab[data-tab=biography] .evolution-row:hover {
+  text-decoration: underline;
 }
 .pokerole.actor.sheet .tab[data-tab=biography] .evolution-row + .evolution-row {
   margin-top: 4px;
