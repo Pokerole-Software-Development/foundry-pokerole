@@ -1,0 +1,48 @@
+{{#*inline "evolutionRow"}}
+<div class="evolution-editor-row">
+  <select class="ee-direction">
+    {{selectOptions @root.directionChoices selected=direction}}
+  </select>
+  <input type="text" class="ee-species" value="{{species}}" placeholder="Species name">
+  <select class="ee-kind">
+    {{selectOptions @root.kindChoices selected=kind}}
+  </select>
+  <select class="ee-speed" title="Speed - only used for the Level kind">
+    {{selectOptions @root.speedChoices selected=speed}}
+  </select>
+  <input type="text" class="ee-item" value="{{item}}" placeholder="Item (Stone/Item/Trade/Mega)">
+  <input type="text" class="ee-stat" value="{{stat}}" placeholder="Stat name (Stat kind)">
+  <input type="number" class="ee-value" value="{{value}}" placeholder="Value (Stat kind)">
+  <input type="text" class="ee-special" value="{{special}}" placeholder="Special condition (Special kind)">
+  <a class="evolution-editor-delete" title="Delete row"><i class="fas fa-trash"></i></a>
+</div>
+{{/inline}}
+
+<form class="pokerole evolutions-editor">
+  <p class="hint">Every row always shows all kind-specific fields (Speed / Item / Stat + Value / Special) - only the field(s) matching that row's Kind are actually saved.</p>
+
+  <div class="evolution-editor-row evolution-editor-header">
+    <span>Direction</span>
+    <span>Species</span>
+    <span>Kind</span>
+    <span>Speed</span>
+    <span>Item</span>
+    <span>Stat</span>
+    <span>Value</span>
+    <span>Special</span>
+    <span></span>
+  </div>
+  <div class="evolution-editor-rows">
+    {{#each rows}}
+    {{> evolutionRow}}
+    {{/each}}
+  </div>
+
+  <a class="evolution-editor-add"><i class="fas fa-plus"></i> Add Evolution</a>
+
+  <div class="evolution-editor-row-template" style="display:none">
+    {{#with templateRow}}
+    {{> evolutionRow}}
+    {{/with}}
+  </div>
+</form>

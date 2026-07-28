@@ -1268,6 +1268,41 @@ body,
   opacity: 0.85;
 }
 
+.pokerole.evolutions-editor .window-content {
+  min-width: 600px;
+}
+.pokerole.evolutions-editor .hint {
+  font-size: 0.85em;
+  opacity: 0.85;
+  margin-bottom: 8px;
+}
+.pokerole.evolutions-editor .evolution-editor-row {
+  display: grid;
+  grid-template-columns: 90px 1fr 80px 70px 1fr 1fr 60px 1fr 24px;
+  gap: 4px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.pokerole.evolutions-editor .evolution-editor-header {
+  font-weight: 700;
+  font-size: 0.85em;
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--color-pkmn-outline, #433727);
+}
+.pokerole.evolutions-editor .evolution-editor-row input,
+.pokerole.evolutions-editor .evolution-editor-row select {
+  width: 100%;
+}
+.pokerole.evolutions-editor .evolution-editor-delete {
+  text-align: center;
+  cursor: pointer;
+}
+.pokerole.evolutions-editor .evolution-editor-add {
+  display: inline-block;
+  margin-top: 6px;
+}
+
 .pokerole.actor.sheet {
   --color-pkmn-header-back: #DB442D;
   --color-pkmn-red: #DB442D;
@@ -2320,6 +2355,10 @@ body,
   color: var(--color-pkmn-dkorange);
   font-size: 16px;
   cursor: help;
+}
+.pokerole.actor.sheet .tab[data-tab=biography] .evolutions legend a {
+  cursor: pointer;
+  margin-left: 4px;
 }
 .pokerole.actor.sheet .resource {
   background-color: black;

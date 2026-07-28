@@ -10,6 +10,7 @@ import { AdvancementDialog } from "../applications/advancement-dialog.mjs";
 import { LearnMoveDialog } from "../applications/learn-move-dialog.mjs";
 import { OverrankDialog } from "../applications/overrank-dialog.mjs";
 import { EvolveDialog } from "../applications/evolution-dialog.mjs";
+import { EvolutionsEditorDialog } from "../applications/evolutions-editor-dialog.mjs";
 
 
 /**
@@ -46,6 +47,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
       reTrain: PokeroleActorSheet.#onReTrain,
       increaseRank: PokeroleActorSheet.#onIncreaseRank,
       evolve: PokeroleActorSheet.#onEvolve,
+      editEvolutions: PokeroleActorSheet.#onEditEvolutions,
       retrainWithCost: PokeroleActorSheet.#onRetrainWithCost,
       learnMove: PokeroleActorSheet.#onLearnMove,
       overrankMove: PokeroleActorSheet.#onOverrankMove,
@@ -1356,6 +1358,16 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
    */
   static async #onEvolve(event, target) {
     await EvolveDialog.show(this.actor, target.dataset.species);
+  }
+
+  /**
+   * Handle opening the Evolutions list editor.
+   * @this {PokeroleActorSheet}
+   * @param {PointerEvent} event  The triggering event.
+   * @param {HTMLElement} target  The action target.
+   */
+  static async #onEditEvolutions(event, target) {
+    await EvolutionsEditorDialog.show(this.actor);
   }
 
   /**
