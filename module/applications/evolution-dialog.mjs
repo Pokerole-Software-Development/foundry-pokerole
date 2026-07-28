@@ -142,7 +142,10 @@ export class EvolveDialog extends foundry.applications.api.DialogV2 {
       "system.evolutions": target.system.evolutions,
       "system.source": target.system.source
     };
-    if (formData.changeImage) updateData.img = target.img;
+    if (formData.changeImage) {
+      updateData.img = target.img;
+      updateData["prototypeToken.texture.src"] = target.prototypeToken.texture.src;
+    }
     if (formData.nature) updateData["system.personality"] = formData.nature;
 
     await actor.update(updateData);
