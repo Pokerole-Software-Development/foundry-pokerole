@@ -68,6 +68,13 @@
       "system": "pokerole",
       "path": "./packs/macros.db",
       "type": "Macro"
+    },
+    {
+      "name": "effects",
+      "label": "Move Effects (Custom)",
+      "system": "pokerole",
+      "path": "./packs/effects.db",
+      "type": "Item"
     }
   ],
   "packFolders": [
@@ -80,7 +87,8 @@
         "moves",
         "abilities",
         "items",
-        "macros"
+        "macros",
+        "effects"
       ]
     }
   ],
