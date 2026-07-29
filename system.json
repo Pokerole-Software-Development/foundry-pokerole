@@ -30,7 +30,8 @@
     "module/pokerole.mjs"
   ],
   "styles": [
-    "css/pokerole.css"
+    "css/pokerole.css",
+    "css/pokerole-dex.css"
   ],
   "scripts": [],
   "packs": [

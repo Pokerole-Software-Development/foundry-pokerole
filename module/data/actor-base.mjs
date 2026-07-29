@@ -1,7 +1,7 @@
 /**
  * Base data model for Actor documents, shared by the Pokemon and Trainer data models.
  */
-import { POKEROLE, computePainPenaltyLevel } from "../helpers/config.mjs";
+import { POKEROLE, computePainPenaltyLevel, computeAttributeVitaminBonus } from "../helpers/config.mjs";
 import { resourceField, attributeField, scaleField, plusMinusField } from "./fields.mjs";
 
 const { SchemaField, NumberField, StringField, BooleanField, ArrayField, ObjectField, HTMLField } = foundry.data.fields;
@@ -46,6 +46,10 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
       ailments: new ArrayField(new ObjectField()),
 
       customInitiativeMod: new NumberField({ required: true, integer: true, initial: 0 }),
+      // Manual bonus to will.max, set via Actor Settings (see actor-settings.hbs) - was read by the
+      // will.max formula below and rendered in the settings form, but never actually declared here,
+      // so actor.update() silently dropped it (unknown fields don't survive schema validation).
+      willbonus: new NumberField({ required: true, integer: true, initial: 0, min: 0, max: 99 }),
       biography: new HTMLField({ required: true, initial: "" }),
       source: new StringField({ required: true, initial: "Homebrew" }),
 
@@ -105,16 +109,27 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
       skill.max = skillLimit;
     }
 
+    // Vitamin value bonus (Issue #132) - computed independently here (not via _applyEffects(),
+    // which runs later this cycle) since attribute value/max are read fresh below and
+    // _applyEffects() hasn't touched them yet. this.vitamins is Pokémon-only; optional chaining
+    // is inert on Trainers.
+    const vitaminValueBonus = {};
+    for (const key of ['strength', 'dexterity', 'vitality', 'special', 'insight']) {
+      vitaminValueBonus[key] = computeAttributeVitaminBonus(this.vitamins?.[key], this.attributes[key].value, this.attributes[key].max);
+    }
+    const vitality = this.attributes.vitality.value + vitaminValueBonus.vitality;
+    const insight = this.attributes.insight.value + vitaminValueBonus.insight;
+
     if (game.settings.get('pokerole', 'forceAttributeHP') === 'vitality') {
-      this.hp.max = this.baseHp + this.attributes.vitality.value + totalPassiveIncrease;
+      this.hp.max = this.baseHp + vitality + totalPassiveIncrease;
     } else if (game.settings.get('pokerole', 'forceAttributeHP') === 'insight') {
-      this.hp.max = this.baseHp + this.attributes.insight.value + totalPassiveIncrease;
+      this.hp.max = this.baseHp + insight + totalPassiveIncrease;
     } else if (game.settings.get('pokerole', 'forceAttributeHP') === 'higher') {
-      this.hp.max = this.baseHp + Math.max(this.attributes.vitality.value, this.attributes.insight.value) + totalPassiveIncrease;
+      this.hp.max = this.baseHp + Math.max(vitality, insight) + totalPassiveIncrease;
     } else if (game.settings.get('pokerole', 'specialDefenseStat') === 'insight') {
-      this.hp.max = this.baseHp + Math.max(this.attributes.vitality.value, this.attributes.insight.value) + totalPassiveIncrease;
+      this.hp.max = this.baseHp + Math.max(vitality, insight) + totalPassiveIncrease;
     } else {
-      this.hp.max = this.baseHp + this.attributes.vitality.value + totalPassiveIncrease;
+      this.hp.max = this.baseHp + vitality + totalPassiveIncrease;
     }
     // Vitamin HP bonus (Issue #132, Pokémon-only) - can't go through _applyEffects() since this.hp.max is
     // reassigned every cycle after that runs; added directly here instead.
@@ -133,14 +148,15 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
     this.painPenalization.max = 3;
 
     // TP Support Will+
-    this.will.max = (this.willbonus ?? 0) + this.attributes.insight.value + POKEROLE.CONST.MAX_WILL_BONUS + totalPassiveIncrease;
+    this.will.max = (this.willbonus ?? 0) + insight + POKEROLE.CONST.MAX_WILL_BONUS + totalPassiveIncrease;
     // Vitamin Will bonus (Issue #132, Pokémon-only) - same reasoning as the HP bonus above.
     this.will.max += this.vitamins?.willpower ? POKEROLE.vitaminWillMaxBonus : 0;
 
-    // Stat changes need to be applied manually here because derived stats are created before `_applyEffects` runs on the Document
-    const strength = Math.max(this.attributes.strength.value + this.statChanges.strength.value, 1);
-    const dexterity = Math.max(this.attributes.dexterity.value + this.statChanges.dexterity.value, 1);
-    const special = Math.max(this.attributes.special.value + this.statChanges.special.value, 1);
+    // Stat changes (and the Vitamin value bonus above) need to be applied manually here because
+    // derived stats are created before `_applyEffects` runs on the Document
+    const strength = Math.max(this.attributes.strength.value + vitaminValueBonus.strength + this.statChanges.strength.value, 1);
+    const dexterity = Math.max(this.attributes.dexterity.value + vitaminValueBonus.dexterity + this.statChanges.dexterity.value, 1);
+    const special = Math.max(this.attributes.special.value + vitaminValueBonus.special + this.statChanges.special.value, 1);
 
     this.derived = {
       initiative: {
@@ -156,14 +172,14 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
         value: special + (this.skills?.clash?.value ?? 0)
       },
       def: {
-        value: this.attributes.vitality.value + totalPassiveIncrease
+        value: vitality + totalPassiveIncrease
       }
     };
 
     if (game.settings.get('pokerole', 'specialDefenseStat') === 'insight') {
-      this.derived.spDef = { value: this.attributes.insight.value + totalPassiveIncrease };
+      this.derived.spDef = { value: insight + totalPassiveIncrease };
     } else {
-      this.derived.spDef = { value: this.attributes.vitality.value + totalPassiveIncrease };
+      this.derived.spDef = { value: vitality + totalPassiveIncrease };
     }
   }
 }

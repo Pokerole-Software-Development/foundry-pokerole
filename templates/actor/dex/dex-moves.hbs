@@ -1,0 +1,92 @@
+{{!-- Moves Tab - Pokédex Red skin --}}
+<section class="tab dex-panel {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
+
+  <div class="dex-combat-bar">
+    <div class="dex-combat-grp">
+      <label for="system.actionCount.value">Used Actions</label>
+      <input type="text" class="dex-num-field always-interactive" name="system.actionCount.value" value="{{system.actionCount.value}}" data-dtype="Number">
+      <span>/ {{system.actionCount.max}}</span>
+      <button type="button" class="dex-pill-btn" title="Increment action count" data-action="incrementActions" {{#unless hasAvailableActions}}disabled{{/unless}}>
+        <i class="fas fa-plus"></i> Increase
+      </button>
+    </div>
+    <div class="dex-combat-grp">
+      <button type="button" class="dex-pill-btn {{#unless system.canClash}}dex-off{{/unless}}" data-action="toggleCanClash">
+        <i class="{{#unless system.canClash}}fas fa-circle-xmark{{else}}fa-regular fa-circle{{/unless}}"></i>
+        Clash ({{system.derived.clashPhysical.value}} / {{system.derived.clashSpecial.value}})
+      </button>
+      <button type="button" class="dex-pill-btn {{#unless system.canEvade}}dex-off{{/unless}}" data-action="toggleCanEvade">
+        <i class="{{#unless system.canEvade}}fas fa-circle-xmark{{else}}fa-regular fa-circle{{/unless}}"></i>
+        Evade ({{system.derived.evade.value}})
+      </button>
+    </div>
+    <button type="button" class="dex-pill-btn dex-ghost-btn" title="Reset resources" data-action="resetRoundResources">Reset</button>
+  </div>
+
+  <div class="dex-geoboxer">
+    {{#each moves as |moves key|}}
+    <div class="dex-move-group">
+      <div class="dex-move-group-header {{#if moves.hidden}}dex-translucent{{/if}}">
+        {{#unless (eqpk key "maneuver")}}
+        <img class="dex-group-rank-icon" src="{{styleImage key}}" title="{{moves.groupName}}">
+        {{/unless}}
+        <a class="dex-group-name" data-action="toggleMoveGroup" data-group="{{key}}">{{moves.groupName}}</a>
+        <span class="dex-move-stats dex-cols"><span>Type/Cat</span><span>Accuracy</span><span>Damage</span><span>Target</span></span>
+        {{#if ../editable}}
+        <a class="dex-mini-btn" data-action="createItem" title="Create move" data-type="move" data-rank="{{key}}"><i class="fas fa-plus"></i> Add</a>
+        {{else}}
+        {{!-- Keeps this header's trailing slot the same width as ../editable's, which is what
+              keeps .dex-move-stats aligned with every row's .dex-move-ctrls slot below it. --}}
+        <span class="dex-mini-btn" style="visibility:hidden;"></span>
+        {{/if}}
+      </div>
+
+      {{!-- list-{{key}} and items-hidden aren't styling hooks of ours - they're what the
+            shared #onToggleMoveGroup handler (actor-sheet.mjs) looks up/toggles by name. --}}
+      <div class="dex-move-list-{{key}} list-{{key}} {{#if moves.hidden}}items-hidden{{/if}}">
+      {{#each moves.moveList as |item id|}}
+      <div class="dex-move-row draggable {{#unless item.usable}}dex-translucent{{/unless}}" draggable="true" data-item-id="{{item.data._id}}">
+        <a class="dex-move-icon" data-action="roll" data-roll-type="item"><img src="{{item.data.img}}" title="{{item.data.name}}"/></a>
+        {{#if item.data.system.learned}}
+        <a class="dex-icon-btn" data-action="toggleMoveUsed" title="{{localize 'POKEROLE.MoveToggleUsed'}}">
+          <i class="{{#if item.data.system.usedInRound}}fas fa-circle-xmark{{else}}fa-regular fa-circle{{/if}}"></i>
+        </a>
+        {{/if}}
+        <span class="dex-move-name {{#if item.disabled}}dex-strikethrough{{/if}}" {{#if item.data.system.effect}}data-tooltip="{{item.data.system.effect}}"{{/if}}>{{item.data.name}}</span>
+        <span class="dex-move-stats">
+          <span class="dex-move-stat">{{item.locType}} ({{item.locCategory}})</span>
+          <span class="dex-move-stat">{{item.data.system.accAttr1}}{{#if item.data.system.accAttr1var}}{{#if item.data.system.accAttr1}}/{{/if}}{{item.data.system.accAttr1var}}{{/if}}{{#if item.data.system.accSkill1}} + {{item.data.system.accSkill1}}{{/if}}{{#if item.data.system.accSkill1var}}{{#if item.data.system.accSkill1}}/{{else}} + {{/if}}{{item.data.system.accSkill1var}}{{/if}} (<b>{{item.accuracyPool}}</b>)</span>
+          <span class="dex-move-stat">
+            {{#if item.dmgPool}}{{item.data.system.dmgMod1}}{{/if}}{{#if item.data.system.dmgMod1var}}{{#if item.data.system.dmgMod1}}/{{/if}}{{item.data.system.dmgMod1var}}{{/if}}{{#if item.data.system.power}} +{{item.data.system.power}}{{/if}}
+            {{#if item.dmgPool}}(<b>{{item.dmgPool}}</b>){{/if}}
+            {{#unless item.dmgPool}}-{{/unless}}
+          </span>
+          <span class="dex-move-stat">{{item.locTarget}}</span>
+        </span>
+        <span class="dex-move-ctrls">
+          {{#if ../../editable}}
+          {{#unless item.data.system.attributes.maneuver}}
+            {{#if item.data.system.learned}}
+            <a data-action="toggleMoveOverrank" title="Toggle Overranked Status">
+              <i class="{{#if item.data.system.overrank}}fa-solid fa-star{{else}}fa-regular fa-star{{/if}}"></i>
+            </a>
+            {{/if}}
+            <a data-action="toggleMoveLearned" title="{{localize 'POKEROLE.MoveToggle'}}">
+              <i class="fas {{#if item.data.system.learned}}fa-times{{else}}fa-check{{/if}}"></i>
+            </a>
+          {{/unless}}
+          <a data-action="editItem" title="Edit Item"><i class="fas fa-edit"></i></a>
+          <a data-action="deleteItem" title="Delete Item"><i class="fas fa-trash"></i></a>
+          {{else}}
+          {{#if item.data.system.overrank}}
+          <i class="fa-solid fa-star" title="Overranked"></i>
+          {{/if}}
+          {{/if}}
+        </span>
+      </div>
+      {{/each}}
+      </div>
+    </div>
+    {{/each}}
+  </div>
+</section>

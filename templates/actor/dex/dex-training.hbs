@@ -1,0 +1,70 @@
+{{!-- Training Tab - Pokédex Red skin --}}
+<section class="tab dex-panel {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
+  <div class="dex-training-grid">
+
+    <div class="dex-col">
+      <div class="dex-box">
+        <div class="dex-box-title">Training Points</div>
+        <input type="text" class="dex-fval-input dex-tp-input" name="system.trainingPoints" value="{{system.trainingPoints}}" data-dtype="Number">
+      </div>
+      <div class="dex-box">
+        <div class="dex-box-title">Training Session</div>
+        {{#if rankUp}}
+        <button type="button" class="dex-tp-action-row" data-action="increaseRank" title="Advance to {{rankUp.nextRankLabel}}">
+          <img class="dex-tp-icon-img" src="{{rankUp.nextRankIcon}}" />
+          <span class="dex-tp-label">Rank Up</span>
+          <span class="dex-tp-progress">{{system.trainingPoints}} / {{rankUp.cost}}</span>
+        </button>
+        {{/if}}
+        <button type="button" class="dex-tp-action-row" data-action="retrainWithCost" title="Retrain" {{#unless retrainWithCost}}disabled{{/unless}}>
+          <i class="fas fa-book-open dex-tp-icon"></i>
+          <span class="dex-tp-label">Retrain</span>
+          {{#if retrainWithCost}}
+          <span class="dex-tp-progress">{{system.trainingPoints}} / {{retrainWithCost.cost}}</span>
+          {{else}}
+          <span class="dex-tp-progress">No rank to retrain from</span>
+          {{/if}}
+        </button>
+        <button type="button" class="dex-tp-action-row" data-action="learnMove" title="Learn a new move">
+          <i class="fas fa-graduation-cap dex-tp-icon"></i>
+          <span class="dex-tp-label">Learn Move</span>
+        </button>
+        <button type="button" class="dex-tp-action-row" data-action="overrankMove"
+          title="Learn a move from a higher rank (requires Happiness + Loyalty of at least 7)" {{#unless overrankReady}}disabled{{/unless}}>
+          <i class="fas fa-angles-up dex-tp-icon"></i>
+          <span class="dex-tp-label">Overrank</span>
+          {{#unless overrankReady}}
+          <span class="dex-tp-progress">Needs Happiness + Loyalty ≥ 7</span>
+          {{/unless}}
+        </button>
+        <button type="button" class="dex-tp-action-row" data-action="evolve" title="Change this Pokémon's species">
+          <i class="fas fa-arrows-rotate dex-tp-icon"></i>
+          <span class="dex-tp-label">Evolve</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="dex-col">
+      <div class="dex-box">
+        <div class="dex-box-title">Vitamins</div>
+        <div class="dex-vitamin-row">
+          <span class="dex-vlabel {{#if hpMaxVitaminActive}}dex-overridden{{/if}}">HP</span>
+          <input type="checkbox" class="dex-vitamin-check" name="system.vitamins.hp" {{#if hpMaxVitaminActive}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />
+        </div>
+        <div class="dex-vitamin-row">
+          <span class="dex-vlabel {{#if willMaxVitaminActive}}dex-overridden{{/if}}">Will</span>
+          <input type="checkbox" class="dex-vitamin-check" name="system.vitamins.willpower" {{#if willMaxVitaminActive}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />
+        </div>
+        {{#each system.attributes as |attribute key|}}
+        <div class="dex-vitamin-row">
+          <span class="dex-vlabel {{#unless (eqpk (lookup ../system.vitamins key) "none")}}dex-overridden{{/unless}}">{{attribute.label}}</span>
+          <select class="dex-vitamin-select" name="system.vitamins.{{key}}" {{#unless ../editable}}disabled{{/unless}}>
+            {{selectOptions ../vitaminStateChoices selected=(lookup ../system.vitamins key)}}
+          </select>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+  </div>
+</section>

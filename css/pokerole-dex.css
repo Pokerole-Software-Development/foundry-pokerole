@@ -1,0 +1,1344 @@
+/* ==========================================================================
+   Pokédex Red — alternate Pokémon actor sheet skin.
+   Scoped entirely under .pokerole-dex.actor.sheet (see actor-sheet-dex.mjs
+   DEFAULT_OPTIONS.classes) so it never touches the classic .pokerole.actor.sheet
+   rules in pokerole.css, and never leaks into the classic sheet either.
+   ========================================================================== */
+
+/* ---- theme tokens ---- */
+.pokerole-dex.actor.sheet {
+  --dex-bg: #ede7e3;
+  --dex-container-bg: #ffffff;
+  --dex-header-bg: #e0221f;
+  --dex-field-bg: #fffaf7;
+  --dex-darkfield-bg: #f2d9d6;
+  --dex-outline: #c9b9b5;
+  --dex-accent: #e0221f;
+  --dex-accent-ink: #fff5f3;
+  --dex-secondary: #1f7fc4;
+  --dex-vitamin: #a3760a;
+  --dex-text: #241a17;
+  --dex-text-dim: #2b2320;
+  --dex-hp-start: #128a0a;
+  --dex-hp-end: #3ddc1f;
+  /* Buff/debuff readouts (.dex-vitamin-note, .dex-cval) - tuned per-theme since a single
+     fixed color can't have good contrast against both a near-white and a near-black surface. */
+  --dex-buff: #1f9d3c;
+  --dex-debuff: #d21f2b;
+  /* Fixed (non-theme-swapping) text colors for the header band, which is always a dark/
+     saturated color (near-black in dark mode, red in light mode) in both themes - using
+     the theme-adaptive --dex-text/-dim here would go dark-on-red or similar low-contrast
+     combos in light mode. */
+  --dex-header-fg: #fbecea;
+  --dex-header-fg-dim: #e3b9b5;
+  --dex-font-display: "Arial Rounded MT Bold", "Segoe UI", ui-rounded, sans-serif;
+  --dex-font-mono: "Consolas", "SFMono-Regular", ui-monospace, monospace;
+}
+.pokerole-dex.actor.sheet:not(.theme-light) {
+  --dex-bg: #0c0908;
+  --dex-container-bg: #120d0b;
+  --dex-header-bg: #1a1210;
+  --dex-field-bg: #241a17;
+  --dex-darkfield-bg: #6e1017;
+  --dex-outline: #4a2f2c;
+  --dex-accent: #d81f26;
+  --dex-accent-ink: #fff5f3;
+  --dex-secondary: #2f8fd1;
+  --dex-vitamin: #ffcf3f;
+  --dex-text: #f5ece9;
+  --dex-text-dim: #b9a8a3;
+  --dex-buff: #4ade80;
+  --dex-debuff: #ff5c5c;
+}
+
+/* Some of our selects use a transparent/colored closed-control background (type chips) so
+   they blend into their pill; that transparency otherwise leaks into the native dropdown
+   list too, which then falls back to the browser's default white popup with our light text
+   color on top - unreadable. Force every option list in this sheet to use the same solid
+   field colors the Ability/Item selects already use. */
+.pokerole-dex.actor.sheet select option {
+  background-color: var(--dex-field-bg);
+  color: var(--dex-text);
+}
+
+/* ---- window chrome (real Foundry controls; decorate only, never cover/intercept) ---- */
+.pokerole-dex.actor.sheet {
+  border: 3px solid var(--dex-header-bg);
+  border-radius: 8px;
+}
+.pokerole-dex.actor.sheet .window-header {
+  background: var(--dex-header-bg);
+  border-bottom: 2px solid var(--dex-outline);
+}
+.pokerole-dex.actor.sheet .window-header .window-title {
+  color: var(--dex-header-fg);
+  font-family: var(--dex-font-display);
+}
+.pokerole-dex.actor.sheet .window-header slide-toggle {
+  --slide-toggle-track-color-unchecked: darkgray;
+}
+.pokerole-dex.actor.sheet .window-content {
+  overflow-y: scroll;
+  background: var(--dex-bg);
+  color: var(--dex-text);
+  font-family: "Segoe UI", ui-sans-serif, sans-serif;
+}
+
+/* ---- tab bar: reskin Foundry's own (unmodified) generic tab-nav to icon-only ----
+   Verified against the real templates/generic/tab-navigation.hbs shipped with Foundry
+   (<nav class="sheet-tabs tabs">, <a data-tab data-group class="{active|}"><i>...<span>label</span></a>). */
+.pokerole-dex.actor.sheet .sheet-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 6px 10px;
+  background: var(--dex-field-bg);
+  border-bottom: 1px solid var(--dex-outline);
+}
+.pokerole-dex.actor.sheet a[data-tab] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 30px;
+  font-size: 0; /* collapses the label text node to zero width, without affecting the icon below */
+  border-radius: 8px;
+  border: 1.5px solid var(--dex-outline);
+  background: var(--dex-darkfield-bg);
+  color: var(--dex-text-dim);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 -2px 0 rgba(0,0,0,.25);
+}
+.pokerole-dex.actor.sheet a[data-tab] i {
+  font-size: 15px;
+}
+.pokerole-dex.actor.sheet a[data-tab].active {
+  color: var(--dex-accent-ink);
+  background: var(--dex-accent);
+  border-color: color-mix(in srgb, var(--dex-accent) 60%, black);
+}
+.pokerole-dex.actor.sheet a[data-tab]:not(.active):hover {
+  background: var(--dex-outline);
+  color: var(--dex-text);
+}
+
+/* ---- header ----
+   Simple 3-column row: left (name/species/type), center (portrait), right (HP-WP +
+   Rank/Ability/Item). */
+.pokerole-dex.actor.sheet .dex-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  background-color: var(--dex-header-bg);
+  background-image: radial-gradient(circle, rgba(255,255,255,.07) 1px, transparent 1.3px);
+  background-size: 7px 7px;
+  border-bottom: 2px solid var(--dex-outline);
+  color: var(--dex-header-fg);
+  /* Columns below all get flex-shrink:0 (portrait) or a sensible min-width (name/right)
+     instead of squishing - once the window is narrower than their combined minimum, the
+     excess is simply clipped rather than crushing text/controls illegibly or showing a
+     scrollbar. */
+  overflow-x: hidden;
+  /* .window-content is a column flex container (core Foundry CSS); setting overflow-x above
+     resets this item's automatic min-height to 0 per the flexbox spec, which would let that
+     column layout squish the header's height to make room for the tabs/content below it. */
+  flex-shrink: 0;
+}
+.pokerole-dex.actor.sheet .dex-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+.pokerole-dex.actor.sheet .dex-col-left {
+  align-items: flex-start;
+  max-width: 400px;
+  /* Unlike the base .dex-col (flex-shrink:0), this column is allowed to shrink down to its
+     content's own floor (the 210px min-width on .dex-name-input/.dex-type-row) instead of
+     holding its full natural width, sharing the squeeze with .dex-col-right instead of
+     forcing all of it onto that column. Grow:1 (vs. .dex-col-right's grow:2) lets it still
+     stretch up toward its own max-width:400px once there's enough header space for both
+     columns to grow, but .dex-col-right claims a bigger share of any surplus first. */
+  flex: 1 1 auto;
+  /* No explicit min-width - .dex-name-input's own hard min-width:210px (plus the icon-btn/gap
+     next to it) is what actually can't shrink further, so the automatic flex minimum already
+     computes the correct floor (~234px) here. A hardcoded number drifts out of sync with
+     that whenever the name-row's contents change, which is what caused overflow last time. */
+}
+.pokerole-dex.actor.sheet .dex-col-portrait {
+  align-items: center;
+}
+.pokerole-dex.actor.sheet .dex-col-right {
+  /* Starts from a bigger basis (330px vs .dex-col-left's ~234px auto content size) with the
+     same grow factor, so it reaches its own max-width:400px cap sooner - the HP/WP/Rank/
+     Ability/Item area fills out before the name column keeps stretching further. */
+  flex: 1 1 330px;
+  max-width: 400px;
+  align-items: stretch;
+  margin-left: auto;
+  gap: 6px;
+  /* Same reasoning as .dex-col-left - relies on its children (.dex-rank-pill and the
+     Ability/Item pills, both now flex-shrinkable) to define the real floor instead of a
+     hand-maintained number that can end up smaller than what they actually need. */
+}
+.pokerole-dex.actor.sheet .dex-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pokerole-dex.actor.sheet .dex-icon-btn {
+  width: 18px;
+  flex: 0 0 auto;
+  font-size: 14px;
+  color: var(--dex-header-fg-dim);
+  cursor: pointer;
+}
+.pokerole-dex.actor.sheet .dex-name-input {
+  font-family: var(--dex-font-display);
+  font-weight: 900;
+  font-size: 19px;
+  background: transparent;
+  border: 1.5px solid transparent;
+  color: var(--dex-header-fg);
+  text-shadow: 0 1px 0 rgba(0,0,0,.35);
+  /* Without an explicit width, a bare <input> falls back to the browser's own default text-
+     input sizing heuristic instead of respecting min-width as its preferred size - with this
+     font it was rendering closer to 270px. Pin both so 210px is what actually gets used as
+     the flex-basis .dex-col-left sizes itself from, not just an unused floor. */
+  width: 210px;
+  min-width: 210px;
+  padding: 1px 2px;
+  box-sizing: border-box;
+}
+.pokerole-dex.actor.sheet:not(.editable) .dex-name-input {
+  pointer-events: none;
+}
+.pokerole-dex.actor.sheet.editable .dex-name-input {
+  border-color: var(--dex-outline);
+  background: var(--dex-field-bg);
+  /* This box gets the theme-adaptive field background (near-white in light mode), so its
+     text needs the theme-adaptive color too - the fixed light --dex-header-fg (meant for
+     text directly on the always-dark/red header band) would go invisible here in light mode. */
+  color: var(--dex-text);
+  text-shadow: none;
+  border-radius: 5px;
+}
+
+.pokerole-dex.actor.sheet .dex-portrait-wrap {
+  position: relative;
+  flex: 0 0 auto;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  background: var(--dex-darkfield-bg);
+  /* Fixed light ring color (not --dex-accent) so it stays visible against the header band
+     in both themes - in light mode --dex-accent is the same red as --dex-header-bg itself. */
+  border: 2px solid var(--dex-header-fg);
+  box-shadow: 0 0 0 4px var(--dex-header-bg), 0 0 0 5px var(--dex-header-fg-dim);
+}
+.pokerole-dex.actor.sheet .dex-portrait {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* Matches the classic sheet's own portrait rule (object-fit: contain, no crop at all) -
+     shows the full sprite letterboxed rather than zooming/cropping into a circle. */
+  object-fit: contain;
+}
+/* Only clickable (data-action="editImage") in Edit mode - see dex-header.hbs. */
+.pokerole-dex.actor.sheet.editable .dex-portrait {
+  cursor: pointer;
+}
+.pokerole-dex.actor.sheet .dex-portrait-edit-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--dex-accent);
+  color: var(--dex-accent-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  border: 1.5px solid var(--dex-header-bg);
+  pointer-events: none;
+}
+
+.pokerole-dex.actor.sheet .dex-dex-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  /* Matches the width of .dex-name-row above it (the widest sibling in this shrink-wrapped
+     column) and stays left/right-aligned with it - same technique as .dex-type-row. */
+  align-self: stretch;
+  width: 100%;
+}
+.pokerole-dex.actor.sheet .dex-dex-label {
+  font-family: var(--dex-font-mono);
+  font-size: 12px;
+  letter-spacing: .03em;
+  color: var(--dex-header-fg-dim);
+  text-transform: uppercase;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+.pokerole-dex.actor.sheet .dex-mini-icon {
+  width: 21px;
+  height: 21px;
+  flex: 0 0 auto;
+}
+.pokerole-dex.actor.sheet .dex-type-row {
+  /* 2 fixed columns: type1/type2 fill row 1, type3 (if present) auto-wraps into row 2's
+     first column rather than depending on flex-wrap's width-dependent wrapping. Unless
+     .dex-type-row--triple is set (system.hasThirdType), which switches to 3 columns so all
+     three chips share the same row/total width instead of wrapping. */
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 3px;
+  /* .dex-col-left uses align-items:flex-start, so without this the row would shrink to its
+     own content width instead of matching the wider name-input above it. */
+  align-self: stretch;
+  width: 100%;
+  min-width: 210px;
+}
+.pokerole-dex.actor.sheet .dex-type-row.dex-type-row--triple {
+  grid-template-columns: repeat(3, 1fr);
+}
+/* Three chips now split the same total width two used to, so their bespoke sizing (see
+   .dex-type-chip above) scales down a notch here to avoid feeling cramped. */
+.pokerole-dex.actor.sheet .dex-type-row--triple .dex-type-chip {
+  gap: 3px;
+  padding: 0 5px 0 3px;
+}
+.pokerole-dex.actor.sheet .dex-type-row--triple .dex-type-chip img {
+  width: 18px;
+  height: 18px;
+}
+.pokerole-dex.actor.sheet .dex-type-row--triple .dex-type-chip select {
+  font-size: 9.5px;
+  padding-right: 9px;
+}
+.pokerole-dex.actor.sheet .dex-type-chip {
+  /* Type chips are the sheet's most prominent selectors, so they get their own bespoke
+     sizing (taller pill, bigger icon/text) instead of matching the general 21px/24px
+     selector standard used everywhere else. */
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 30px;
+  box-sizing: border-box;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 0 8px 0 5px;
+  border-radius: 999px;
+  background: var(--type-color, var(--dex-accent));
+  border: 1.5px solid color-mix(in srgb, var(--type-color, var(--dex-accent)) 55%, black);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3), inset 0 -2px 0 rgba(0,0,0,.25);
+}
+.pokerole-dex.actor.sheet .dex-type-chip img {
+  width: 23px;
+  height: 23px;
+  flex: 0 0 auto;
+}
+.pokerole-dex.actor.sheet .dex-type-chip select {
+  font-family: var(--dex-font-mono);
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--dex-accent-ink);
+  background-color: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: none;
+  padding: 0 11px 0 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  height: 24px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--dex-accent-ink) 50%),
+    linear-gradient(135deg, var(--dex-accent-ink) 50%, transparent 50%);
+  background-position: calc(100% - 8px) center, calc(100% - 3px) center;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+.pokerole-dex.actor.sheet:not(.editable) .dex-type-chip select {
+  pointer-events: none;
+}
+.pokerole-dex.actor.sheet .dex-type-override-icon {
+  display: none;
+  font-size: 8px;
+  color: var(--dex-accent-ink);
+}
+.pokerole-dex.actor.sheet .dex-type-override-icon.active {
+  display: inline;
+}
+
+.pokerole-dex.actor.sheet .dex-rank-fields-row {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+}
+.pokerole-dex.actor.sheet .dex-field-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  /* Grows to fill the row next to .dex-rank-pill. No explicit min-width - each stacked pill's
+     own min-width:68px already sets the real per-child floor, so the automatic flex minimum
+     (which reads from that) is correct on its own; overriding it to 0 here previously let
+     this shrink narrower than the pills inside it actually support, overflowing them. */
+  flex: 1 1 auto;
+}
+.pokerole-dex.actor.sheet .dex-field-row select.dex-field-v {
+  height: 21px;
+}
+.pokerole-dex.actor.sheet .dex-field-pill {
+  /* Ability/Item are now stacked (see .dex-field-row above), each pill a fixed-height single
+     row: label left, selector right - so no grow/shrink needed, just a fixed box. */
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: var(--dex-field-bg);
+  border: 1.5px solid var(--dex-outline);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.35);
+  min-width: 68px;
+  max-width: 100%;
+  height: 24px;
+  box-sizing: border-box;
+}
+.pokerole-dex.actor.sheet .dex-field-row .dex-field-k {
+  flex: 0 0 auto;
+  /* Fixed to fit the longer of "Ability"/"Item" so both selectors start at the same x. */
+  width: 42px;
+}
+.pokerole-dex.actor.sheet .dex-field-row .dex-field-v {
+  width: auto;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.pokerole-dex.actor.sheet .dex-rank-pill {
+  /* Shrinkable (unlike .dex-field-pill's own flex:0 0 auto default for Ability/Item, which
+     this overrides) so it can compress toward its real content floor - .dex-rank-icon (24px,
+     fixed) + gap + the select's own min-width below - instead of staying rigid at natural
+     size and overflowing .dex-rank-fields-row when the header runs out of room. */
+  flex: 0 1 auto;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  /* Stretches (via .dex-rank-fields-row's default align-items:stretch) to match the combined
+     height of the stacked Ability/Item pills beside it, so both boxes start/end aligned. */
+  align-self: stretch;
+  height: auto;
+  width: auto;
+  box-sizing: border-box;
+  padding: 4px 6px;
+}
+.pokerole-dex.actor.sheet .dex-rank-icon {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+}
+.pokerole-dex.actor.sheet .dex-rank-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  /* .dex-rank-pill is a row, so this (not the select inside, which is in a column context
+     where flex-shrink would act on height instead) is what actually needs to shrink toward
+     a legible floor - the select falls back on its ellipsis below that. */
+  flex: 0 1 auto;
+  min-width: 28px;
+}
+.pokerole-dex.actor.sheet .dex-rank-pill .dex-field-k {
+  font-size: 8px;
+  flex: 0 0 auto;
+}
+.pokerole-dex.actor.sheet .dex-rank-pill .dex-field-v {
+  font-size: 10.5px;
+  /* Fills whatever width .dex-rank-info (its shrinkable parent) ends up with, capped at 70px
+     so it doesn't grow past what's needed to show the longest rank name ("Champion"). */
+  width: 100%;
+  max-width: 70px;
+  flex: 0 0 auto;
+  min-width: 0;
+  /* Native <select> otherwise keeps a browser-enforced minimum control height regardless of
+     padding:0/line-height:1 - force it down to a compact size; .dex-rank-pill centers it
+     vertically within its now taller, stretched box. */
+  height: 21px;
+}
+.pokerole-dex.actor.sheet .dex-field-k {
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--dex-text-dim);
+  font-size: 9.5px;
+}
+.pokerole-dex.actor.sheet .dex-field-v {
+  font-weight: 700;
+  font-family: var(--dex-font-display);
+  font-size: 12.5px;
+  line-height: 1;
+  color: var(--dex-text);
+  background-color: var(--dex-field-bg);
+  border: none;
+  padding: 0;
+  width: 100%;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pokerole-dex.actor.sheet select.dex-field-v {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 13px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--dex-text) 50%),
+    linear-gradient(135deg, var(--dex-text) 50%, transparent 50%);
+  background-position: calc(100% - 8px) center, calc(100% - 3px) center;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+/* :not(.always-interactive) exemption matches the classic sheet's own pattern (pokerole.css) -
+   Ability/Item carry always-interactive specifically so they stay hoverable/usable in Play
+   mode; without this exemption pointer-events:none here was also blocking the hover needed
+   to trigger their data-tooltip. */
+.pokerole-dex.actor.sheet:not(.editable) select.dex-field-v:not(.always-interactive) {
+  pointer-events: none;
+}
+
+.pokerole-dex.actor.sheet .dex-vitals-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  /* .dex-col-right is a flex column - if it ever has vertical slack (e.g. a taller sibling
+     column stretches the header taller than this column's own content needs), this claims
+     that space first so the HP/WP bars grow before .dex-rank-fields-row does. */
+  flex: 1 1 auto;
+}
+.pokerole-dex.actor.sheet .dex-vital-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  min-width: 160px;
+}
+.pokerole-dex.actor.sheet .dex-vital-lbl {
+  width: 28px;
+  flex: 0 0 auto;
+  font-weight: 700;
+  color: var(--dex-header-fg-dim);
+}
+.pokerole-dex.actor.sheet .dex-bar {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 90px;
+  height: 15px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--dex-outline);
+  border: 1.5px solid rgba(0,0,0,.4);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.5);
+  /* Falls back to 10 sections if a bar doesn't set this inline (see dex-header.hbs, which
+     sets it per-bar from hpSegments/wpSegments - one section per point of max HP/WP,
+     capped at 20 in actor-sheet-dex.mjs so a high-max Pokémon doesn't turn this to noise). */
+  --dex-bar-segments: 10;
+}
+.pokerole-dex.actor.sheet .dex-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  --dex-bar-segment-pct: calc(100% / var(--dex-bar-segments));
+  background-image: repeating-linear-gradient(90deg, transparent 0, transparent calc(var(--dex-bar-segment-pct) - 1px), rgba(0,0,0,.3) calc(var(--dex-bar-segment-pct) - 1px), rgba(0,0,0,.3) var(--dex-bar-segment-pct));
+}
+.pokerole-dex.actor.sheet .dex-bar > i {
+  display: block;
+  height: 100%;
+}
+.pokerole-dex.actor.sheet .dex-bar-hp > i {
+  background: linear-gradient(90deg, var(--dex-hp-start), var(--dex-hp-end));
+}
+.pokerole-dex.actor.sheet .dex-bar-hp[data-bucket="fainted"] > i {
+  background: #6b5f52;
+}
+.pokerole-dex.actor.sheet .dex-bar-wp > i {
+  background: var(--dex-secondary);
+}
+.pokerole-dex.actor.sheet .dex-vital-nums {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+.pokerole-dex.actor.sheet .dex-vital-input {
+  width: 34px;
+  height: 25px;
+  box-sizing: border-box;
+  font-family: var(--dex-font-mono);
+  font-size: 11.5px;
+  text-align: center;
+  background: var(--dex-field-bg);
+  color: var(--dex-text);
+  border: 1px solid var(--dex-outline);
+  border-radius: 3px;
+}
+.pokerole-dex.actor.sheet .dex-vital-max {
+  font-family: var(--dex-font-mono);
+  font-size: 11px;
+  color: var(--dex-header-fg-dim);
+}
+
+/* ---- tab content shell ----
+   No `display` set here deliberately: core Foundry hides inactive tabs via the unscoped
+   `.tab[data-tab]:not(.active) { display: none; }` rule, and an unconditional display value
+   here (even `block`) has equal specificity and loads later, so it would win and show every
+   tab at once. Only the active tab's own display needs to be block, which is already the
+   default for a <section> with no display override. */
+.pokerole-dex.actor.sheet .dex-panel {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 16px 22px;
+}
+.pokerole-dex.actor.sheet .dex-recovery-warning {
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border: 2px solid var(--dex-accent);
+  border-radius: 6px;
+  background: var(--dex-field-bg);
+}
+
+.pokerole-dex.actor.sheet .dex-box {
+  border: 2px solid var(--dex-outline);
+  border-radius: 8px;
+  padding: 9px 11px 11px;
+  background: var(--dex-field-bg);
+  margin-bottom: 10px;
+}
+/* Attribute-tab boxes sit in a .dex-col, which already adds its own 4px flex gap between
+   them - this margin-bottom was stacking on top of that (14px total). Drop it to 0 here so
+   the flex gap alone (a normal small separation) governs the spacing. */
+.pokerole-dex.actor.sheet .dex-attr-grid .dex-box,
+.pokerole-dex.actor.sheet .dex-bio-grid .dex-box {
+  margin-bottom: 0;
+}
+.pokerole-dex.actor.sheet .dex-box-title {
+  font-family: var(--dex-font-display);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--dex-accent);
+  font-weight: 900;
+  margin: -1px 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-left: 3px solid var(--dex-accent);
+  padding-left: 6px;
+  text-shadow: 0 1px 0 rgba(0,0,0,.3);
+}
+.pokerole-dex.actor.sheet .dex-box-title::before {
+  content: "▸";
+}
+.pokerole-dex.actor.sheet .dex-mini-btn-group {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  text-transform: none;
+  font-weight: 400;
+}
+.pokerole-dex.actor.sheet .dex-mini-btn {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: var(--dex-outline);
+  color: var(--dex-text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.pokerole-dex.actor.sheet .dex-add-input {
+  width: 70px;
+  height: 25px;
+  box-sizing: border-box;
+  font-size: 9px;
+  background: var(--dex-container-bg);
+  border: 1px solid var(--dex-outline);
+  border-radius: 4px;
+  color: var(--dex-text);
+  padding: 1px 4px;
+}
+
+.pokerole-dex.actor.sheet .dex-row-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 12px;
+  font-weight: 700;
+}
+.pokerole-dex.actor.sheet .dex-row-line + .dex-row-line {
+  border-top: 1px dashed color-mix(in srgb, var(--dex-outline) 65%, transparent);
+}
+.pokerole-dex.actor.sheet .dex-rlabel {
+  flex: 1 1 auto;
+  cursor: pointer;
+}
+.pokerole-dex.actor.sheet .dex-stat-label {
+  flex: 0 0 auto;
+  width: 82px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  color: #1c1712;
+  font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), inset 0 -1px 0 rgba(0,0,0,.15);
+}
+.pokerole-dex.actor.sheet .dex-social-tough { background: #F5E28E; }
+.pokerole-dex.actor.sheet .dex-social-cool { background: #FBA485; }
+.pokerole-dex.actor.sheet .dex-social-beauty { background: #A5BDD9; }
+.pokerole-dex.actor.sheet .dex-social-cute { background: #F8AABD; }
+.pokerole-dex.actor.sheet .dex-social-clever { background: #A3CF8E; }
+
+.pokerole-dex.actor.sheet .dex-pool {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+}
+.pokerole-dex.actor.sheet .dex-pool-input {
+  width: 25px;
+  height: 25px;
+  box-sizing: border-box;
+  text-align: center;
+  font-family: var(--dex-font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--dex-container-bg);
+  border: 1.5px solid var(--dex-outline);
+  border-radius: 4px;
+  padding: 1px 2px;
+  color: var(--dex-text);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.3);
+}
+.pokerole-dex.actor.sheet .dex-pool-sep {
+  color: var(--dex-text-dim);
+  font-size: 11px;
+}
+.pokerole-dex.actor.sheet .dex-vitamin-note {
+  /* Boxed to match .dex-pool-input beside it (same size), but styled like a disabled input -
+     dashed border, flatter/no inset shadow, muted opacity - so it doesn't read as another
+     editable field. It's a readout, not something the user can click into. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--dex-font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  width: 25px;
+  height: 25px;
+  box-sizing: border-box;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--dex-outline);
+  border: 1.5px dashed var(--dex-text-dim);
+  opacity: .75;
+}
+.pokerole-dex.actor.sheet .dex-vitamin-note.dex-increase { color: var(--dex-buff); font-weight: 900; }
+.pokerole-dex.actor.sheet .dex-vitamin-note.dex-decrease { color: var(--dex-debuff); font-weight: 900; }
+
+.pokerole-dex.actor.sheet .dex-dots {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+.pokerole-dex.actor.sheet .dex-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid #333;
+  display: block;
+  box-shadow: 0 1px 2px rgba(0,0,0,.3);
+}
+.pokerole-dex.actor.sheet .dex-dot-black { background: #222; border-color: #000; }
+.pokerole-dex.actor.sheet .dex-dot-red { background: #d32f2f; border-color: #690f0f; }
+.pokerole-dex.actor.sheet .dex-dot-yellow { background: #f9a825; border-color: #7a4f00; }
+.pokerole-dex.actor.sheet .dex-dot-blue { background: #1976d2; border-color: #082858; }
+.pokerole-dex.actor.sheet .dex-dot-white { background: #fff; border-color: #999; }
+
+.pokerole-dex.actor.sheet .dex-rval {
+  font-family: var(--dex-font-mono);
+  font-size: 12px;
+  color: var(--dex-text-dim);
+  margin-left: auto;
+}
+.pokerole-dex.actor.sheet .dex-overridden {
+  color: var(--dex-vitamin);
+  font-weight: 700;
+}
+.pokerole-dex.actor.sheet .dex-trash-btn {
+  color: var(--dex-text-dim);
+  cursor: pointer;
+}
+.pokerole-dex.actor.sheet .dex-info-icon {
+  color: var(--dex-text-dim);
+  cursor: pointer;
+}
+
+.pokerole-dex.actor.sheet .dex-attr-grid {
+  display: grid;
+  width: 100%;
+  box-sizing: border-box;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  align-items: start;
+}
+.pokerole-dex.actor.sheet .dex-col { min-width: 0; }
+
+.pokerole-dex.actor.sheet .dex-type-matchup-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 3px 0;
+}
+.pokerole-dex.actor.sheet .dex-matchup-label {
+  width: 100%;
+  color: var(--dex-text-dim);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.pokerole-dex.actor.sheet .dex-matchup-types { display: flex; gap: 4px; }
+.pokerole-dex.actor.sheet .dex-type-icon { width: 18px; height: 18px; }
+
+.pokerole-dex.actor.sheet .dex-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: var(--dex-accent);
+  color: var(--dex-accent-ink);
+  border: 1.5px solid color-mix(in srgb, var(--dex-accent) 55%, black);
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3), inset 0 -2px 0 rgba(0,0,0,.25);
+}
+.pokerole-dex.actor.sheet .dex-pill-btn.dex-off { opacity: .5; }
+.pokerole-dex.actor.sheet .dex-pill-btn:disabled { opacity: .4; cursor: not-allowed; }
+.pokerole-dex.actor.sheet .dex-ghost-btn {
+  background: var(--dex-outline);
+  color: var(--dex-text);
+  border-color: var(--dex-outline);
+}
+
+/* ---- moves ---- */
+.pokerole-dex.actor.sheet .dex-combat-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  margin-bottom: 10px;
+  background: var(--dex-field-bg);
+  border: 1px solid var(--dex-outline);
+  border-radius: 9px;
+  font-size: 10.5px;
+}
+.pokerole-dex.actor.sheet .dex-combat-grp { display: flex; align-items: center; gap: 6px; }
+.pokerole-dex.actor.sheet .dex-num-field {
+  width: 25px;
+  height: 25px;
+  box-sizing: border-box;
+  text-align: center;
+  font-family: var(--dex-font-mono);
+  background: var(--dex-container-bg);
+  border: 1.5px solid var(--dex-outline);
+  border-radius: 5px;
+  color: var(--dex-text);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.35);
+}
+.pokerole-dex.actor.sheet .dex-geoboxer { display: flex; flex-direction: column; gap: 10px; }
+.pokerole-dex.actor.sheet .dex-move-group {
+  border: 2px solid var(--dex-outline);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.pokerole-dex.actor.sheet .dex-move-group-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  /* --dex-darkfield-bg is only actually dark in the dark theme (a pale pink in light theme),
+     which made this header's white text nearly invisible in light mode. --dex-accent is the
+     same red used by every other interactable element and stays solid/saturated in both
+     themes, so white text on it reads reliably in light mode. Dark mode instead reuses
+     --dex-darkfield-bg (see the :not(.theme-light) override below) to match the same look
+     .dex-item-pocket-header already uses there. */
+  background: var(--dex-accent);
+  color: var(--dex-accent-ink);
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  text-shadow: 0 1px 0 rgba(0,0,0,.35);
+  border-bottom: 2px solid rgba(0,0,0,.25);
+}
+.pokerole-dex.actor.sheet:not(.theme-light) .dex-move-group-header {
+  background: var(--dex-darkfield-bg);
+}
+.pokerole-dex.actor.sheet .dex-group-name { cursor: pointer; color: inherit; }
+.pokerole-dex.actor.sheet .dex-group-rank-icon { width: 18px; height: 18px; flex: 0 0 auto; }
+/* Matches .dex-move-ctrls's reserved width in each row below, for the same reason - keeps
+   .dex-move-stats landing in the same position in the header and every row. */
+.pokerole-dex.actor.sheet .dex-move-group-header .dex-mini-btn {
+  width: 90px;
+  box-sizing: border-box;
+  text-align: center;
+  flex: 0 0 auto;
+}
+/* Shared by both the header labels (.dex-cols) and each move row's 4 stat cells - same
+   grid-template-columns in both places is what actually keeps a column (e.g. Accuracy)
+   aligned across the header and every row below it, regardless of how long any one row's
+   text is. Fixed column widths + wrapping (on .dex-move-stat) instead of each cell growing
+   to fit its own content, which is what caused the misalignment before. */
+.pokerole-dex.actor.sheet .dex-move-stats {
+  /* The row's only margin-left:auto (see .dex-move-ctrls below, which no longer has its own)
+     - having two auto-margined items in the same row split the leftover space between them,
+     and that split shifted per-row depending on leading content (e.g. the extra learned-move
+     toggle icon), which is what actually caused the misalignment. */
+  margin-left: auto;
+  display: grid;
+  grid-template-columns: 100px 95px 95px 55px;
+  gap: 10px;
+  text-align: center;
+  /* Without this, a cell that wraps to multiple lines (e.g. a long Accuracy formula) grows
+     the grid row taller, and every other cell in that row - being top-aligned by default -
+     ends up looking pinned above center instead of level with the wrapped one. */
+  align-items: center;
+}
+.pokerole-dex.actor.sheet .dex-cols {
+  font-size: 8.5px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  opacity: .85;
+}
+/* !important is deliberate here: this is a shared JS-toggled utility class (see
+   #onToggleMoveGroup/#onTogglePocket in actor-sheet.mjs) applied to containers that set
+   their own `display` (e.g. .dex-item-grid's display:grid), and since both are single-class
+   selectors, source order alone let display:grid win regardless of this class - the pocket
+   never actually hid despite the toggle firing and finding the right element. */
+.pokerole-dex.actor.sheet .items-hidden { display: none !important; }
+.pokerole-dex.actor.sheet .dex-move-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 3px 5px;
+  font-size: 11px;
+  flex-wrap: wrap;
+  background: var(--dex-field-bg);
+}
+.pokerole-dex.actor.sheet .dex-move-row + .dex-move-row {
+  border-top: 1px solid color-mix(in srgb, var(--dex-outline) 55%, transparent);
+}
+.pokerole-dex.actor.sheet .dex-move-icon img {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+}
+.pokerole-dex.actor.sheet .dex-move-name { font-weight: 700; min-width: 96px; flex: 1 1 96px; color: var(--dex-text); }
+.pokerole-dex.actor.sheet .dex-strikethrough { text-decoration: line-through; }
+.pokerole-dex.actor.sheet .dex-move-stat {
+  font-size: 10.5px;
+  color: var(--dex-text-dim);
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+.pokerole-dex.actor.sheet .dex-move-stat b { color: var(--dex-text); font-family: var(--dex-font-mono); }
+/* Fixed width matching .dex-move-group-header's "+ Add" button below - .dex-move-stats is
+   positioned via margin-left:auto against WHATEVER follows it, so if this trailing slot's
+   width differs between the header and a row (icon cluster vs. text button), the stats grid
+   itself ends up shifted between them even though its own width is identical in both. */
+.pokerole-dex.actor.sheet .dex-move-ctrls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  width: 90px;
+  box-sizing: border-box;
+  color: var(--dex-text-dim);
+}
+.pokerole-dex.actor.sheet .dex-translucent { opacity: .5; }
+
+/* ---- items ---- */
+.pokerole-dex.actor.sheet .dex-inv-header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; }
+.pokerole-dex.actor.sheet .dex-money-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--dex-font-mono);
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: var(--dex-field-bg);
+  border: 1px solid var(--dex-outline);
+  color: var(--dex-text);
+}
+.pokerole-dex.actor.sheet .dex-money-pill input {
+  width: 60px;
+  background: transparent;
+  border: none;
+  color: var(--dex-text);
+  font-family: var(--dex-font-mono);
+}
+.pokerole-dex.actor.sheet .dex-filter-pill {
+  margin-left: auto;
+  width: 100px;
+  flex: 0 0 auto;
+  font-size: 10px;
+  padding: 5px 9px;
+  border-radius: 7px;
+  background: var(--dex-field-bg);
+  border: 1px solid var(--dex-outline);
+  color: var(--dex-text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pokerole-dex.actor.sheet .dex-item-pocket { border: 2px solid var(--dex-outline); border-radius: 8px; overflow: hidden; margin-bottom: 10px; }
+/* Same fix as .dex-move-group-header: --dex-darkfield-bg is only actually dark in dark theme
+   (pale pink in light theme), so use --dex-accent (matching other interactable elements) in
+   light mode and restore the original background for dark mode below. */
+.pokerole-dex.actor.sheet .dex-item-pocket-header {
+  padding: 6px 10px;
+  background: var(--dex-accent);
+  color: var(--dex-accent-ink);
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  text-shadow: 0 1px 0 rgba(0,0,0,.35);
+  cursor: pointer;
+}
+.pokerole-dex.actor.sheet:not(.theme-light) .dex-item-pocket-header {
+  background: var(--dex-darkfield-bg);
+}
+.pokerole-dex.actor.sheet .dex-item-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  padding: 5px;
+  box-sizing: border-box;
+  background: color-mix(in srgb, var(--dex-outline) 55%, transparent);
+}
+.pokerole-dex.actor.sheet .dex-item-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 7px;
+  background: var(--dex-field-bg);
+  font-size: 11px;
+  color: var(--dex-text);
+  border-radius: 12px;
+  border: 1px solid var(--dex-text-dim);
+}
+.pokerole-dex.actor.sheet .dex-item-icon { flex: 0 0 auto; }
+.pokerole-dex.actor.sheet .dex-item-icon img { width: 30px; height: 30px; border-radius: 5px; }
+.pokerole-dex.actor.sheet .dex-item-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pokerole-dex.actor.sheet .dex-item-right { flex: 0 0 auto; margin-left: auto; display: flex; align-items: center; gap: 7px; }
+.pokerole-dex.actor.sheet .dex-item-qty { font-family: var(--dex-font-mono); color: var(--dex-text-dim); font-size: 11px; }
+.pokerole-dex.actor.sheet .dex-item-ctrls { display: flex; gap: 6px; color: var(--dex-text-dim); }
+
+/* ---- effects ---- */
+.pokerole-dex.actor.sheet .dex-effects-grid { display: grid; width: 100%; box-sizing: border-box; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+.pokerole-dex.actor.sheet .dex-pain-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.pokerole-dex.actor.sheet .dex-pain-selects { display: flex; flex-direction: column; gap: 6px; flex: 1 1 auto; min-width: 0; }
+.pokerole-dex.actor.sheet .dex-select {
+  font-size: 11px;
+  line-height: 1;
+  height: 21px;
+  background-color: var(--dex-container-bg);
+  color: var(--dex-text);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: 1.5px solid var(--dex-outline);
+  border-radius: 5px;
+  padding: 0 15px 0 5px;
+  box-sizing: border-box;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--dex-text) 50%),
+    linear-gradient(135deg, var(--dex-text) 50%, transparent 50%);
+  background-position: calc(100% - 9px) center, calc(100% - 4px) center;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+.pokerole-dex.actor.sheet .dex-override-toggle { font-size: 10px; display: flex; align-items: center; gap: 5px; color: var(--dex-text-dim); }
+.pokerole-dex.actor.sheet .dex-changerow { display: flex; align-items: center; gap: 6px; font-size: 10.5px; padding: 4px 0; }
+.pokerole-dex.actor.sheet .dex-changerow + .dex-changerow { border-top: 1px dashed color-mix(in srgb, var(--dex-outline) 65%, transparent); }
+.pokerole-dex.actor.sheet .dex-clabel { flex: 1 1 auto; }
+/* .dex-clabel's flex:1 1 auto above already pushes this to the row's right edge - the minus
+   input, plus input, and total are grouped together here (instead of the minus sitting on
+   the opposite side of the label from the plus) with explicit +/- icons so it's clear which
+   field is which. */
+.pokerole-dex.actor.sheet .dex-change-fields { display: flex; align-items: center; gap: 4px; flex: 0 0 auto; }
+.pokerole-dex.actor.sheet .dex-change-sign {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  font-size: 9px;
+}
+.pokerole-dex.actor.sheet .dex-change-sign.dex-neg { color: var(--dex-debuff); }
+.pokerole-dex.actor.sheet .dex-change-sign.dex-pos { color: var(--dex-buff); }
+.pokerole-dex.actor.sheet .dex-step-input {
+  width: 25px;
+  height: 25px;
+  box-sizing: border-box;
+  text-align: center;
+  font-family: var(--dex-font-mono);
+  font-size: 12px;
+  background: var(--dex-container-bg);
+  border: 1px solid var(--dex-outline);
+  border-radius: 4px;
+  color: var(--dex-text);
+}
+/* .dex-vitamin-note (see the Attributes tab) supplies the boxed/dashed/muted "readout, not
+   an editable field" look and the increase/decrease colors; this just overrides its size to
+   fit 3 characters (a sign plus up to 2 digits) instead of .dex-vitamin-note's own 25px. */
+.pokerole-dex.actor.sheet .dex-cval {
+  font-family: var(--dex-font-mono);
+  width: 30px;
+  text-align: center;
+}
+.pokerole-dex.actor.sheet .dex-change-equals { font-weight: 700; color: var(--dex-text-dim); }
+.pokerole-dex.actor.sheet .dex-sub-title {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--dex-text-dim);
+  display: flex;
+  align-items: center;
+  margin: 8px 0 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--dex-outline);
+}
+.pokerole-dex.actor.sheet .dex-box > .dex-sub-title:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+.pokerole-dex.actor.sheet .dex-ailment-quickrow { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 6px; }
+/* --dex-outline is a pale pinkish-grey in light theme, which barely contrasts with these
+   icons' white/light linework - --dex-accent (a solid red) reads fine in dark theme too, but
+   dark mode already had good contrast here, so it's restored below via :not(.theme-light). */
+.pokerole-dex.actor.sheet .dex-ailment-icon img { width: 20px; height: 20px; border-radius: 5px; background: var(--dex-accent); padding: 2px; }
+.pokerole-dex.actor.sheet:not(.theme-light) .dex-ailment-icon img { background: var(--dex-outline); }
+.pokerole-dex.actor.sheet .dex-ailment-icon.dex-disabled { opacity: .35; }
+/* --dex-darkfield-bg is only actually dark in dark theme (pale pink in light theme) - same
+   fix as .dex-move-group-header: use --dex-accent (matching other interactable elements) in
+   light mode, restore the original background+text color for dark mode below. */
+.pokerole-dex.actor.sheet .dex-status-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  padding: 5px 9px;
+  border-radius: 7px;
+  background: var(--dex-accent);
+  color: var(--dex-accent-ink);
+  margin-bottom: 5px;
+}
+.pokerole-dex.actor.sheet:not(.theme-light) .dex-status-chip {
+  background: var(--dex-darkfield-bg);
+  color: var(--dex-text);
+}
+/* .dex-effect-ctrls (the trash icon) sets its own color rather than inheriting the chip's,
+   so it needs the same light/dark split to stay legible against the chip's own background. */
+.pokerole-dex.actor.sheet .dex-status-chip .dex-effect-ctrls { color: var(--dex-accent-ink); opacity: .85; }
+.pokerole-dex.actor.sheet:not(.theme-light) .dex-status-chip .dex-effect-ctrls { color: var(--dex-text-dim); opacity: 1; }
+.pokerole-dex.actor.sheet .dex-ailment-img { width: 18px; height: 18px; }
+.pokerole-dex.actor.sheet .dex-status-chip span { flex: 1 1 auto; }
+.pokerole-dex.actor.sheet .dex-effect-ctrls { margin-left: auto; display: flex; gap: 6px; color: var(--dex-text-dim); }
+.pokerole-dex.actor.sheet .dex-effect-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 11px;
+  color: var(--dex-text);
+}
+.pokerole-dex.actor.sheet .dex-effect-row + .dex-effect-row { border-top: 1px dashed color-mix(in srgb, var(--dex-outline) 65%, transparent); }
+.pokerole-dex.actor.sheet .dex-effect-dot-img { width: 25px; height: 25px; border-radius: 5px; }
+
+/* ---- biography ---- */
+.pokerole-dex.actor.sheet .dex-bio-grid { display: grid; width: 100%; box-sizing: border-box; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+.pokerole-dex.actor.sheet .dex-box .dex-box-title { align-items: center; }
+.pokerole-dex.actor.sheet .dex-num-sign { color: var(--dex-text-dim); }
+.pokerole-dex.actor.sheet .dex-inline-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed var(--dex-outline);
+  color: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  font-size: inherit;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.pokerole-dex.actor.sheet .dex-inline-input.dex-small { width: 40px; }
+.pokerole-dex.actor.sheet .dex-bio-field { margin-bottom: 8px; }
+.pokerole-dex.actor.sheet .dex-flabel {
+  font-size: 8.5px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--dex-text-dim);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 2px;
+}
+.pokerole-dex.actor.sheet .dex-fval { font-size: 11px; color: var(--dex-text); }
+.pokerole-dex.actor.sheet .dex-fval-input {
+  width: 100%;
+  font-size: 11px;
+  background: var(--dex-container-bg);
+  border: 1px solid var(--dex-outline);
+  border-radius: 5px;
+  padding: 3px 6px;
+  color: var(--dex-text);
+}
+.pokerole-dex.actor.sheet .dex-textarea {
+  width: 100%;
+  min-height: 60px;
+  font-size: 10.5px;
+  line-height: 1.5;
+  background: var(--dex-container-bg);
+  border: 1px solid var(--dex-outline);
+  border-radius: 6px;
+  padding: 6px 8px;
+  color: var(--dex-text);
+  font-family: inherit;
+  resize: vertical;
+}
+.pokerole-dex.actor.sheet .dex-two-up { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pokerole-dex.actor.sheet .dex-evolution-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10.5px;
+  padding: 4px 0;
+  cursor: pointer;
+  color: var(--dex-text);
+}
+.pokerole-dex.actor.sheet .dex-hint { font-size: 10px; color: var(--dex-text-dim); }
+.pokerole-dex.actor.sheet .dex-ability-entry h5 { margin: 4px 0 2px; font-size: 11px; display: flex; align-items: center; gap: 6px; color: var(--dex-text); }
+/* The description is an HTMLField (ProseMirror) that typically already wraps its own text in
+   <p> tags, so .dex-ability-desc is a plain div (not another <p>) around it - styling targets
+   whatever <p>s actually end up inside instead of a redundant wrapper paragraph. */
+.pokerole-dex.actor.sheet .dex-ability-desc { margin: 0 0 6px; font-size: 11px; color: var(--dex-text-dim); line-height: 1.4; }
+.pokerole-dex.actor.sheet .dex-ability-desc p { margin: 0 0 4px; }
+.pokerole-dex.actor.sheet .dex-ability-desc p:last-child { margin-bottom: 0; }
+
+/* ---- training ---- */
+.pokerole-dex.actor.sheet .dex-training-grid { display: grid; width: 100%; box-sizing: border-box; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+.pokerole-dex.actor.sheet .dex-tp-input {
+  font-size: 13px;
+  font-weight: 700;
+  width: 100%;
+  height: 25px;
+  box-sizing: border-box;
+  background: var(--dex-container-bg);
+  border: 1px solid var(--dex-outline);
+  border-radius: 5px;
+  padding: 0 8px;
+  color: var(--dex-text);
+}
+.pokerole-dex.actor.sheet .dex-tp-action-row {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 5px 7px;
+  border-radius: 8px;
+  background: var(--dex-container-bg);
+  color: var(--dex-text);
+  border: 1.5px solid var(--dex-outline);
+  cursor: pointer;
+  margin-bottom: 8px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.15), inset 0 -2px 0 rgba(0,0,0,.2);
+}
+.pokerole-dex.actor.sheet .dex-tp-action-row:last-child { margin-bottom: 0; }
+.pokerole-dex.actor.sheet .dex-tp-action-row:disabled { opacity: .5; cursor: not-allowed; }
+.pokerole-dex.actor.sheet .dex-tp-icon {
+  color: var(--dex-accent);
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+.pokerole-dex.actor.sheet .dex-tp-icon-img { width: 30px; height: 30px; flex: 0 0 auto; }
+.pokerole-dex.actor.sheet .dex-tp-label { flex: 1 1 auto; text-align: left; }
+.pokerole-dex.actor.sheet .dex-tp-progress { font-family: var(--dex-font-mono); font-weight: 400; color: var(--dex-text-dim); font-size: 11.5px; }
+.pokerole-dex.actor.sheet .dex-vitamin-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; padding: 4px 0; color: var(--dex-text); }
+.pokerole-dex.actor.sheet .dex-vitamin-row + .dex-vitamin-row { border-top: 1px dashed color-mix(in srgb, var(--dex-outline) 65%, transparent); }
+.pokerole-dex.actor.sheet .dex-vlabel.dex-overridden { color: var(--dex-vitamin); font-weight: 700; }
+.pokerole-dex.actor.sheet .dex-vitamin-select {
+  font-family: var(--dex-font-mono);
+  font-size: 10.5px;
+  line-height: 1;
+  height: 21px;
+  /* Fixed instead of auto-width - without this, a bare <select>'s rendered width can follow
+     its currently-selected option's text length rather than the widest option in the shared
+     list, so rows landed at slightly different widths depending on which vitamin state was
+     picked, throwing off row-to-row alignment even with .dex-vitamin-row's space-between. */
+  width: 80px;
+  flex: 0 0 auto;
+  background-color: var(--dex-container-bg);
+  color: var(--dex-text);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: 1.5px solid var(--dex-outline);
+  border-radius: 5px;
+  padding: 0 15px 0 5px;
+  box-sizing: border-box;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--dex-text) 50%),
+    linear-gradient(135deg, var(--dex-text) 50%, transparent 50%);
+  background-position: calc(100% - 9px) center, calc(100% - 4px) center;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+.pokerole-dex.actor.sheet .dex-vitamin-check { width: 15px; height: 15px; accent-color: var(--dex-accent); }

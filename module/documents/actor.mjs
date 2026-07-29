@@ -1,7 +1,7 @@
 /**
  * Actor document subclass: the custom rules-based effects engine, ailment helpers, roll data, and token icon sync.
  */
-import { POKEROLE, migrateLegacyRankValue, getRuleAttributeTargetPaths } from "../helpers/config.mjs";
+import { POKEROLE, migrateLegacyRankValue, getRuleAttributeTargetPaths, computeAttributeVitaminBonus } from "../helpers/config.mjs";
 import { buildAilmentIconEffectData, buildCustomEffectIconData, buildStatChangeIconData, buildPainPenaltyIconData } from "../helpers/effects.mjs";
 import { MANEUVER_MOVES } from "../helpers/maneuvers.mjs";
 import { applyDamageEffectsHtml, createHealMessage } from "../helpers/damage.mjs";
@@ -70,10 +70,9 @@ export class PokeroleActor extends Actor {
         let vitaminBonus = 0;
         if (state === 'vitamin' || state === 'rareCandy') {
           const currentValue = foundry.utils.getProperty(this, valuePath) ?? 0;
-          const effectiveMax = overrides[maxPath] ?? foundry.utils.getProperty(this, maxPath) ?? 0;
-          const boostedValue = Math.min(currentValue + POKEROLE.vitaminAttributeBonus, effectiveMax);
-          vitaminBonus = boostedValue - currentValue;
-          overrides[valuePath] = boostedValue;
+          const currentMax = foundry.utils.getProperty(this, maxPath) ?? 0;
+          vitaminBonus = computeAttributeVitaminBonus(state, currentValue, currentMax);
+          overrides[valuePath] = currentValue + vitaminBonus;
           original[valuePath] = currentValue;
         }
         // Bolted onto the derived attribute object (like hp.max/painPenalization.level) so attributeBubbles

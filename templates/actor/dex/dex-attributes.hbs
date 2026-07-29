@@ -1,0 +1,195 @@
+{{!-- Attributes Tab - Pokédex Red skin --}}
+<section class="tab dex-panel {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
+  {{#if recoveryMode}}
+  <div class="dex-recovery-warning">
+    <strong>RECOVERY MODE</strong>
+    <p>Custom effects are disabled. Please fix potential errors and disable recovery mode in settings.</p>
+  </div>
+  {{/if}}
+
+  <div class="dex-attr-grid" style="--num-bubbles: {{attributesBubblesNum}};">
+
+    <div class="dex-col">
+      <div class="dex-box">
+        <div class="dex-box-title">Attributes</div>
+        {{#each system.attributes as |attribute key|}}
+        <div class="dex-row-line">
+          <label class="dex-rlabel dex-stat-label" style="background:#48A49D" for="{{@root/id}}-system-attributes-{{key}}-value"
+            data-action="roll" data-roll-attribute="{{key}}" data-label="{{attribute.label}}">{{attribute.label}}</label>
+          <span class="dex-pool">{{> dicePool type="attributes" key=key pool=attribute}}</span>
+        </div>
+        {{/each}}
+      </div>
+
+      <div class="dex-box">
+        <div class="dex-box-title">Social</div>
+        {{#each system.social as |attribute key|}}
+        <div class="dex-row-line" data-kind="social.{{key}}">
+          <label class="dex-rlabel dex-stat-label dex-social-{{key}}" for="{{@root/id}}-system-social-{{key}}-value"
+            data-action="roll" data-roll-attribute="{{key}}" data-label="{{attribute.label}}">{{attribute.label}}</label>
+          <span class="dex-pool">{{> dicePool type="social" key=key pool=attribute}}</span>
+        </div>
+        {{/each}}
+      </div>
+
+      <div class="dex-box">
+        <div class="dex-box-title">Extra
+          {{#if editable}}
+          <span class="dex-mini-btn-group custom-attribute">
+            <input type="text" class="dex-add-input add-value-input" placeholder="Add attribute..." data-dtype="Number" />
+            <a class="dex-mini-btn" data-action="addCustomAttribute" title="Create attribute"><i class="fas fa-plus"></i></a>
+          </span>
+          {{/if}}
+        </div>
+        {{#each system.extra as |attribute key|}}
+        <div class="dex-row-line">
+          <label class="dex-rlabel dex-stat-label" style="background:#48A49D" for="{{@root/id}}-system-extra-{{key}}-value"
+            data-action="roll" data-roll-attribute="{{key}}" data-label="{{attribute.label}}">{{attribute.label}}</label>
+          <span class="dex-pool">{{> dicePool type="extra" key=key pool=attribute}}</span>
+          {{#if ../editable}}
+          {{#if attribute.custom}}
+          <a class="dex-trash-btn" data-action="deleteValue" title="Delete attribute" data-attribute-key="{{key}}"><i class="fas fa-trash"></i></a>
+          {{/if}}
+          {{/if}}
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+    <div class="dex-col">
+      <div class="dex-box">
+        <div class="dex-box-title">Skills
+          {{#if editable}}
+          <span class="dex-mini-btn-group custom-skill">
+            <input type="text" class="dex-add-input add-value-input" placeholder="Add skill..." data-dtype="Number" />
+            <a class="dex-mini-btn" data-action="addCustomSkill" title="Create skill"><i class="fas fa-plus"></i></a>
+          </span>
+          {{/if}}
+        </div>
+        {{#each system.skills as |skill key|}}
+        <div class="dex-row-line">
+          <label class="dex-rlabel" for="{{@root/id}}-system-skills-{{key}}-value" data-action="roll" data-roll-skill="{{key}}">{{skill.label}}</label>
+          <span class="dex-pool">{{> dicePool type="skills" key=key pool=skill maxReadonly=true}}</span>
+          {{#if ../editable}}
+          {{#if skill.custom}}
+          <a class="dex-trash-btn" data-action="deleteValue" title="Delete skill" data-skill-key="{{key}}"><i class="fas fa-trash"></i></a>
+          {{/if}}
+          {{/if}}
+        </div>
+        {{/each}}
+      </div>
+
+      <div class="dex-box"><div class="dex-box-title">Physical Capacity</div>
+        <div class="dex-row-line">
+          <span class="dex-rlabel">Lifting <a class="dex-info-icon" data-tooltip-html="{{liftingCapacityTooltipHtml}}"><i class="fas fa-circle-info"></i></a></span>
+          <span class="dex-rval">{{liftingCapacityLabel}}</span>
+        </div>
+        <div class="dex-row-line">
+          <span class="dex-rlabel">Speed <a class="dex-info-icon" data-tooltip-html="{{maxSpeedTooltipHtml}}"><i class="fas fa-circle-info"></i></a></span>
+          <span class="dex-rval">{{maxSpeedLabel}}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dex-col">
+      <div class="dex-box"><div class="dex-box-title">Initiative</div>
+        <div class="dex-row-line">
+          <label class="dex-rlabel" data-action="roll" data-roll-attribute="initiative" data-roll-label="{{system.derived.initiative.label}}">{{system.derived.initiative.label}}</label>
+          <span class="dex-rval {{#if system.derived.initiative.overridden}}dex-overridden{{/if}}">{{system.derived.initiative.value}}</span>
+        </div>
+      </div>
+      <div class="dex-box"><div class="dex-box-title">Armor</div>
+        <div class="dex-row-line">
+          <label class="dex-rlabel" data-action="roll" data-roll-attribute="def" data-roll-label="{{system.derived.def.label}}">{{system.derived.def.label}}</label>
+          <span class="dex-rval {{#if system.derived.def.overridden}}dex-overridden{{/if}}">{{system.derived.def.value}}</span>
+        </div>
+        <div class="dex-row-line">
+          <label class="dex-rlabel" data-action="roll" data-roll-attribute="spDef" data-roll-label="{{system.derived.spDef.label}}">{{system.derived.spDef.label}}</label>
+          <span class="dex-rval {{#if system.derived.spDef.overridden}}dex-overridden{{/if}}">{{system.derived.spDef.value}}</span>
+        </div>
+      </div>
+      <div class="dex-box"><div class="dex-box-title">Reactions</div>
+        <div class="dex-row-line">
+          <label class="dex-rlabel" data-action="roll" data-roll-attribute="clashPhysical" data-roll-label="{{system.derived.clashPhysical.label}}">{{system.derived.clashPhysical.label}}</label>
+          <span class="dex-rval {{#if system.derived.clashPhysical.overridden}}dex-overridden{{/if}}">{{system.derived.clashPhysical.value}}</span>
+        </div>
+        <div class="dex-row-line">
+          <label class="dex-rlabel" data-action="roll" data-roll-attribute="clashSpecial" data-roll-label="{{system.derived.clashSpecial.label}}">{{system.derived.clashSpecial.label}}</label>
+          <span class="dex-rval {{#if system.derived.clashSpecial.overridden}}dex-overridden{{/if}}">{{system.derived.clashSpecial.value}}</span>
+        </div>
+        <div class="dex-row-line">
+          <label class="dex-rlabel" data-action="roll" data-roll-attribute="evade" data-roll-label="{{system.derived.evade.label}}">{{system.derived.evade.label}}</label>
+          <span class="dex-rval {{#if system.derived.evade.overridden}}dex-overridden{{/if}}">{{system.derived.evade.value}}</span>
+        </div>
+      </div>
+      <div class="dex-box dex-matchups">
+        <div class="dex-box-title">Type Matchups</div>
+        {{#if matchups.tripleWeak}}
+          {{> typematch label="Triple weaknesses (+3)" typematch=typematch.tripleWeak img="systems/pokerole/images/icons/matchups/X8.svg"}}
+        {{/if}}
+        {{#if matchups.doubleWeak}}
+          {{> typematch label="Double weaknesses (+2)" typematch=typematch.doubleWeak img="systems/pokerole/images/icons/matchups/X4.svg"}}
+        {{/if}}
+        {{#if matchups.weak}}
+          {{> typematch label="Weaknesses (+1)" typematch=typematch.weak img="systems/pokerole/images/icons/matchups/X2.svg"}}
+        {{/if}}
+        {{#if matchups.resist}}
+          {{> typematch label="Resistances (-1)" typematch=typematch.resist img="systems/pokerole/images/icons/matchups/1-2.svg"}}
+        {{/if}}
+        {{#if matchups.doubleResist}}
+          {{> typematch label="Double resistances (-2)" typematch=typematch.doubleResist img="systems/pokerole/images/icons/matchups/1-4.svg"}}
+        {{/if}}
+        {{#if matchups.tripleResist}}
+          {{> typematch label="Triple resistances (-3)" typematch=typematch.tripleResist}}
+        {{/if}}
+        {{#if matchups.immune}}
+          {{> typematch label="Immunities (x0)" typematch=typematch.immune img="systems/pokerole/images/icons/matchups/X0.svg"}}
+        {{/if}}
+      </div>
+      {{#if isTrainer}}
+      <button type="button" class="dex-pill-btn dex-ghost-btn" title="Retrain" data-action="reTrain">Retrain</button>
+      {{/if}}
+    </div>
+
+  </div>
+</section>
+
+
+{{#* inline "typematch"}}
+<div class="dex-type-matchup-row">
+  <span class="dex-matchup-label">{{label}}</span>
+  <div class="dex-matchup-types">
+    {{#each typematch}}
+    <img title="{{this}}" src="systems/pokerole/images/types/{{this}}.svg" class="dex-type-icon"></img>
+    {{/each}}
+  </div>
+</div>
+{{/inline}}
+
+{{#* inline "dicePool"}}
+  {{#if @root/editable}}
+    <input id="{{@root/id}}-system-{{type}}-{{key}}-value" type="text" class="dex-pool-input {{#if pool.overridden}}dex-overridden{{/if}}"
+      name="system.{{type}}.{{key}}.value" value="{{getProperty @root/actor._source.system type key "value" default=pool.value}}" data-dtype="Number" />
+    {{#if pool.vitaminValueNote}}<span class="dex-vitamin-note {{#if pool.vitaminValueIncrease}}dex-increase{{else}}dex-decrease{{/if}}">{{pool.vitaminValueNote}}</span>{{/if}}
+    <span class="dex-pool-sep">/</span>
+    {{#if maxReadonly}}
+    <input type="text" class="dex-pool-input" name="system.{{type}}.{{key}}.max" value="{{pool.max}}" data-dtype="Number" disabled />
+    {{else}}
+    <input type="text" class="dex-pool-input" name="system.{{type}}.{{key}}.max" value="{{getProperty @root/actor._source.system type key "max" default=pool.max}}" data-dtype="Number" />
+    {{/if}}
+    {{#if pool.vitaminMaxNote}}<span class="dex-vitamin-note {{#if pool.vitaminMaxIncrease}}dex-increase{{else}}dex-decrease{{/if}}">{{pool.vitaminMaxNote}}</span>{{/if}}
+  {{else}}
+  {{#if @root/hideBubbles}}
+    <input id="{{@root/id}}-system-{{type}}-{{key}}-value" type="text" class="dex-pool-input {{#if pool.overridden}}dex-overridden{{/if}}"
+      name="system.{{type}}.{{key}}.value" value="{{pool.value}}" data-dtype="Number" disabled />
+    <span class="dex-pool-sep">/</span>
+    <input type="text" class="dex-pool-input" name="system.{{type}}.{{key}}.max" value="{{pool.max}}" data-dtype="Number" disabled />
+  {{else}}
+    <span class="dex-dots">
+      {{#each (attributeBubbles @root/actor type key) as |bubble|}}
+      <i class="dex-dot dex-dot-{{bubble.color}}"></i>
+      {{/each}}
+    </span>
+  {{/if}}
+  {{/if}}
+{{/inline}}

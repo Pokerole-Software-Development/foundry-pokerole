@@ -1,0 +1,115 @@
+{{!-- Sheet Header - Pokédex Red skin. 3 columns: portrait-only, name+species/type,
+      right (HP/WP bars on top, Rank beside stacked Ability/Item below). --}}
+<div class="dex-header">
+
+  <div class="dex-col dex-col-portrait">
+    <div class="dex-portrait-wrap">
+      <img class="dex-portrait" {{#if editable}}data-action="editImage" data-edit="img" data-type="image"{{/if}}
+        src="{{actor.img}}" title="{{actor.name}}" height="100" width="100">
+      {{#if editable}}<span class="dex-portrait-edit-badge"><i class="fas fa-pen"></i></span>{{/if}}
+    </div>
+  </div>
+
+  <div class="dex-col dex-col-left">
+    <div class="dex-name-row">
+      <span class="dex-icon-btn">
+        {{#if editable}}
+        <i class="fas fa-gear butonable" data-action="showSettings"></i>
+        {{else}}
+        <i class="fas fa-list"></i>
+        {{/if}}
+      </span>
+      <input class="dex-name-input" name="name" type="text" value="{{actor.name}}" placeholder="Name">
+    </div>
+    <div class="dex-dex-row">
+      <label class="dex-dex-label" title="#{{system.pokedexId}} {{system.species}}">#{{system.pokedexId}} {{system.species}}</label>
+      {{#if (pkOptions "genderOption")}}
+      <img class="dex-mini-icon" src="{{styleImage system.gender}}">
+      {{/if}}
+      {{#if system.varicolor}}
+      <img class="dex-mini-icon" title="Shiny" src="systems/pokerole/images/icons/varicolor.png">
+      {{/if}}
+    </div>
+    <div class="dex-type-row {{#if system.hasThirdType}}dex-type-row--triple{{/if}}">
+      <div class="dex-type-chip" style="--type-color: {{styleType system.type1 'color1'}};">
+        <img src="{{styleType system.type1 'image'}}">
+        <i class="fas fa-lock dex-type-override-icon {{#if system.type1Overridden}}active{{/if}}" data-tooltip="Overridden by an active Type Override rule"></i>
+        <select name="system.type1" value="{{system.type1}}" data-dtype="String" {{#if system.type1Overridden}}disabled{{/if}}>
+          {{selectOptions types selected=system.type1}}
+        </select>
+      </div>
+      <div class="dex-type-chip" style="--type-color: {{styleType system.type2 'color1'}};">
+        <img src="{{styleType system.type2 'image'}}">
+        <i class="fas fa-lock dex-type-override-icon {{#if system.type2Overridden}}active{{/if}}" data-tooltip="Overridden by an active Type Override rule"></i>
+        <select name="system.type2" value="{{system.type2}}" data-dtype="String" {{#if system.type2Overridden}}disabled{{/if}}>
+          {{selectOptions types selected=system.type2}}
+        </select>
+      </div>
+      {{#if system.hasThirdType}}
+      <div class="dex-type-chip" style="--type-color: {{styleType system.type3 'color1'}};">
+        <img src="{{styleType system.type3 'image'}}">
+        <i class="fas fa-lock dex-type-override-icon {{#if system.type3Overridden}}active{{/if}}" data-tooltip="Overridden by an active Type Override rule"></i>
+        <select name="system.type3" value="{{system.type3}}" data-dtype="String" {{#if system.type3Overridden}}disabled{{/if}}>
+          {{selectOptions types selected=system.type3}}
+        </select>
+      </div>
+      {{/if}}
+    </div>
+  </div>
+
+  <div class="dex-col dex-col-right">
+    <div class="dex-vitals-row">
+      <div class="dex-vital-row">
+        <label class="dex-vital-lbl" for="system.hp.value">HP</label>
+        <div class="dex-bar dex-bar-hp" data-bucket="{{hpBucket}}" style="--dex-bar-segments: {{hpSegments}};"><i style="width: {{hpPercent}}%;"></i></div>
+        <div class="dex-vital-nums">
+          <input type="number" min="0" name="system.hp.value" value="{{system.hp.value}}" data-dtype="Number" class="dex-vital-input always-interactive">
+          <span class="dex-vital-max">/ {{system.hp.max}}</span>
+        </div>
+      </div>
+      <div class="dex-vital-row">
+        <label class="dex-vital-lbl rollable" for="{{id}}-system-will-value" data-action="roll" data-roll-attribute="will" data-label="Will">WP</label>
+        <div class="dex-bar dex-bar-wp" style="--dex-bar-segments: {{wpSegments}};"><i style="width: {{wpPercent}}%;"></i></div>
+        <div class="dex-vital-nums">
+          <input id="{{id}}-system-will-value" type="number" min="0" name="system.will.value" value="{{system.will.value}}" data-dtype="Number" class="dex-vital-input always-interactive">
+          <span class="dex-vital-max">/ {{system.will.max}}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dex-rank-fields-row">
+      <div class="dex-field-pill dex-rank-pill">
+        <img class="dex-rank-icon" src="{{styleImage system.rank}}">
+        <div class="dex-rank-info">
+          <span class="dex-field-k">Rank</span>
+          <select class="dex-field-v" name="system.rank" value="{{system.rank}}" data-dtype="String" data-action="selectRank">
+            {{selectOptions ranks selected=system.rank}}
+          </select>
+        </div>
+      </div>
+      <div class="dex-field-row">
+        <div class="dex-field-pill">
+          <span class="dex-field-k">Ability</span>
+          {{#unless locked}}
+          <select class="dex-field-v always-interactive" name="system.activeAbility" value="{{system.activeAbility}}" data-dtype="String" data-tooltip="{{activeAbilityDescription}}">
+            {{selectOptions abilitiesSelect selected=system.activeAbility}}
+          </select>
+          {{else}}
+          <span class="dex-field-v" data-tooltip="{{activeAbilityDescription}}">{{activeAbilityName}}</span>
+          {{/unless}}
+        </div>
+        <div class="dex-field-pill">
+          <span class="dex-field-k">Item</span>
+          {{#unless locked}}
+          <select class="dex-field-v always-interactive" name="system.activeItem" value="{{system.activeItem}}" data-dtype="String" data-tooltip="{{activeItemDescription}}">
+            {{selectOptions heldItemSelect selected=system.activeItem}}
+          </select>
+          {{else}}
+          <span class="dex-field-v" data-tooltip="{{activeItemDescription}}">{{activeItemName}}</span>
+          {{/unless}}
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

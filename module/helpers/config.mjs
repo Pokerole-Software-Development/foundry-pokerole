@@ -773,6 +773,22 @@ POKEROLE.vitaminAttributeBonus = 1;
 POKEROLE.vitaminHpMaxBonus = 2;
 POKEROLE.vitaminWillMaxBonus = 2;
 
+/**
+ * Value bonus an attribute's Vitamin/Rare Candy state grants, given its current value/max (pre-bonus).
+ * Shared by PokeroleActor#_applyEffects() (applies it to the attribute for display) and
+ * PokeroleActorBaseData#prepareDerivedData() (needs it independently, since that runs before
+ * _applyEffects() each cycle - see hp.max/will.max/derived.* there).
+ * @param {'none'|'vitamin'|'rareCandy'|undefined} state
+ * @param {number} currentValue
+ * @param {number} currentMax
+ * @returns {number} Integer bonus to add to currentValue (0 if state is 'none'/undefined).
+ */
+export function computeAttributeVitaminBonus(state, currentValue, currentMax) {
+  if (state !== 'vitamin' && state !== 'rareCandy') return 0;
+  const effectiveMax = currentMax + (state === 'rareCandy' ? POKEROLE.vitaminAttributeBonus : 0);
+  return Math.min(currentValue + POKEROLE.vitaminAttributeBonus, effectiveMax) - currentValue;
+}
+
 /** Turns one raw `system.evolutions[]` entry into `{label, kindLabel, detail}` display data, or `null` for kinds not shown (form/unrecognized). */
 export function buildEvolutionDisplayData(evolution) {
   switch (evolution.kind) {

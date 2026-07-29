@@ -1,0 +1,121 @@
+{{!-- Biography Tab - Pokédex Red skin --}}
+<section class="tab dex-panel {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
+  <div class="dex-bio-grid">
+
+    <div class="dex-col">
+      <div class="dex-box">
+        <div class="dex-box-title">
+          Pokédex Information
+          {{#unless limitedPermissions}}
+          <a class="dex-icon-btn" data-action="showSettings"><i class="fas fa-cogs"></i></a>
+          {{/unless}}
+        </div>
+
+        <div class="dex-two-up">
+          <div class="dex-bio-field">
+            <span class="dex-flabel">No.</span>
+            <input type="text" class="dex-fval-input" name="system.pokedexId" value="{{system.pokedexId}}" placeholder="0" data-dtype="Number">
+          </div>
+          <div class="dex-bio-field">
+            <span class="dex-flabel">Species</span>
+            <input type="text" class="dex-fval-input" name="system.species" value="{{system.species}}" placeholder="Species" data-dtype="String">
+          </div>
+        </div>
+        <div class="dex-bio-field">
+          <span class="dex-flabel">Category</span>
+          <input type="text" class="dex-fval-input" name="system.pokedexCategory" value="{{system.pokedexCategory}}" placeholder="Pokédex Category">
+        </div>
+        <div class="dex-bio-field">
+          <span class="dex-flabel">Pokédex Entry</span>
+          <textarea class="dex-textarea" name="system.pokedexDescription" {{#unless editable}}readonly{{/unless}}>{{ system.pokedexDescription }}</textarea>
+        </div>
+        <div class="dex-bio-field">
+          <span class="dex-flabel">Evolutions
+            {{#unless limitedPermissions}}
+            <a class="dex-mini-btn" data-action="editEvolutions" title="Edit evolutions"><i class="fas fa-plus"></i></a>
+            {{/unless}}
+          </span>
+          {{#if evolutions.length}}
+          {{#each evolutions}}
+          <div class="dex-evolution-row" data-action="evolve" data-species="{{this.species}}">
+            <span>{{this.label}}</span>
+            <span>{{this.species}}</span>
+            <a class="dex-info-icon" data-tooltip-html="{{this.tooltipHtml}}"><i class="fas fa-circle-info"></i></a>
+          </div>
+          {{/each}}
+          {{else}}
+          <p class="dex-hint">No evolutions defined — click + to add one.</p>
+          {{/if}}
+        </div>
+        <div class="dex-two-up">
+          <div class="dex-bio-field">
+            <span class="dex-flabel">Height</span>
+            <span class="dex-fval"><input type="text" class="dex-inline-input dex-small" name="system.height" value="{{system.height}}"> m / {{heightImperial}} ft</span>
+          </div>
+          <div class="dex-bio-field">
+            <span class="dex-flabel">Weight</span>
+            <span class="dex-fval"><input type="text" class="dex-inline-input dex-small" name="system.weight" value="{{system.weight}}"> kg / {{weightImperial}} lbs</span>
+          </div>
+        </div>
+      </div>
+
+      {{#unless limitedPermissions}}
+      <div class="dex-box">
+        <div class="dex-box-title">Abilities
+          {{#if editable}}
+          <a class="dex-mini-btn" data-action="createItem" title="Create ability" data-type="ability"><i class="fas fa-plus"></i></a>
+          {{/if}}
+        </div>
+        {{#each abilities as |item index|}}
+        <div class="dex-ability-entry" data-item-id="{{item.data._id}}">
+          <h5>
+            <a data-action="roll" data-roll-type="item">{{item.data.name}}</a>
+            {{#if ../editable}}
+            <span class="dex-item-ctrls">
+              <a data-action="editItem" title="Edit Ability"><i class="fas fa-edit"></i></a>
+              <a data-action="deleteItem" title="Delete Ability"><i class="fas fa-trash"></i></a>
+            </span>
+            {{/if}}
+          </h5>
+          {{#if item.data.system.description}}
+          <div class="dex-ability-desc">{{{item.data.system.description}}}</div>
+          {{/if}}
+        </div>
+        {{/each}}
+      </div>
+      {{/unless}}
+    </div>
+
+    <div class="dex-box">
+      <div class="dex-box-title">Character Data</div>
+      <div class="dex-two-up">
+        <div class="dex-bio-field">
+          <span class="dex-flabel">Nature <a class="dex-info-icon" data-tooltip-html="{{natureTooltipHtml}}"><i class="fas fa-circle-info"></i></a></span>
+          <select class="dex-select" name="system.personality" value="{{system.personality}}" data-dtype="String">
+            {{selectOptions natures selected=system.personality}}
+          </select>
+        </div>
+        {{#if (pkOptions "genderOption")}}
+        <div class="dex-bio-field">
+          <span class="dex-flabel">Gender</span>
+          <select class="dex-select" name="system.gender" value="{{system.gender}}" data-dtype="String">
+            {{selectOptions gender selected=system.gender}}
+          </select>
+        </div>
+        {{/if}}
+      </div>
+      <div class="dex-bio-field">
+        <span class="dex-flabel">Trait</span>
+        <input type="text" class="dex-fval-input" name="system.trait" value="{{system.trait}}" placeholder="None">
+      </div>
+
+      {{#unless limitedPermissions}}
+      <div class="dex-bio-field">
+        <span class="dex-flabel">Biography</span>
+        {{> pokerole.multi-editor editing=editingDescription html=biographyHtml key="system.biography" editable=(not locked)}}
+      </div>
+      {{/unless}}
+    </div>
+
+  </div>
+</section>

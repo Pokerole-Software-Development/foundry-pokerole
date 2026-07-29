@@ -12,6 +12,7 @@ import { PokeroleItemAbilityData } from "./data/item-ability.mjs";
 import { PokeroleItemEffectData } from "./data/item-effect.mjs";
 import { PokeroleCombat, PokeroleCombatTracker } from "./documents/combat.mjs";
 import { PokeroleActorSheet, registerActorSheetHooks } from "./sheets/actor-sheet.mjs";
+import { PokeroleDexActorSheet } from "./sheets/actor-sheet-dex.mjs";
 import { PokeroleAbilitySheet } from "./sheets/item-ability-sheet.mjs";
 import { PokeroleEffectSheet } from "./sheets/item-effect-sheet.mjs";
 import { PokeroleItemItemSheet } from "./sheets/item-item-sheet.mjs";
@@ -75,6 +76,10 @@ Hooks.once('init', async () => {
   // Register sheet application classes
   foundry.documents.collections.Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
   foundry.documents.collections.Actors.registerSheet("pokerole", PokeroleActorSheet, { makeDefault: true });
+  foundry.documents.collections.Actors.registerSheet("pokerole", PokeroleDexActorSheet, {
+    types: ["pokemon"],
+    label: "Pokédex Sheet"
+  });
   foundry.documents.collections.Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
   foundry.documents.collections.Items.registerSheet("pokerole", PokeroleAbilitySheet, { 
     types: ["ability"], 

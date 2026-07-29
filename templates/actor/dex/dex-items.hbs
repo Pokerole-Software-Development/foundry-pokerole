@@ -1,0 +1,50 @@
+{{!-- Items Tab - Pokédex Red skin --}}
+<section class="tab dex-panel {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
+
+  <div class="dex-inv-header">
+    <div class="dex-money-pill">
+      <img src="systems/pokerole/images/icons/money.png" alt="Pokedollar" width="18" height="18">
+      <input type="text" class="always-interactive" name="system.money" value="{{system.money}}" data-dtype="Number">
+    </div>
+    {{#if editable}}
+    <a class="dex-pill-btn" data-action="createItem" title="Create item" data-type="item"><i class="fas fa-plus"></i> Add</a>
+    {{/if}}
+    <select class="inventoryfilterclass dex-filter-pill always-interactive">
+      <option value="all">All Items</option>
+      {{selectOptions customitemdf selected=testvarso labelAttr="catname"}}
+    </select>
+  </div>
+
+  <div class="dex-geoboxer">
+    {{#each customitemdf as |custom key|}}
+    {{#if (categoryfilter key ../testvarso)}}
+    <div class="dex-item-pocket">
+      <div class="dex-item-pocket-header {{#if custom.hidden}}dex-translucent{{/if}}" data-action="togglePocket" data-group="{{key}}">
+        {{custom.catname}}
+      </div>
+      {{!-- list-{{key}} and items-hidden aren't styling hooks of ours - they're what the
+            shared #onTogglePocket handler (actor-sheet.mjs) looks up/toggles by name. --}}
+      <div class="dex-item-grid dex-item-list-{{key}} list-{{key}} {{#if custom.hidden}}items-hidden{{/if}}">
+        {{#each custom.customitemlist as |item id|}}
+        <div class="dex-item-row draggable" draggable="true" data-item-id="{{item.data._id}}">
+          <a class="dex-item-icon" data-action="roll" data-roll-type="item"><img src="{{item.data.img}}" title="{{item.data.name}}"/></a>
+          <span class="dex-item-name" data-tooltip="{{item.data.system.description}}">{{item.data.name}}</span>
+          <span class="dex-item-right">
+            <span class="dex-item-qty">×{{item.data.system.quantity}}</span>
+            {{#if ../../editable}}
+            <span class="dex-item-ctrls">
+              <a data-action="editItem" title="Edit Item"><i class="fas fa-edit"></i></a>
+              <a data-action="deleteItem" title="Delete Item"><i class="fas fa-trash"></i></a>
+            </span>
+            {{/if}}
+          </span>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+    {{/if}}
+    {{else}}
+    <p class="dex-hint">No inventory pockets configured.</p>
+    {{/each}}
+  </div>
+</section>

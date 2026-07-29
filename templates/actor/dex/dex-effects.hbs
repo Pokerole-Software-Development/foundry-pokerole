@@ -1,0 +1,152 @@
+{{!-- Effects Tab - Pokédex Red skin --}}
+<section class="tab dex-panel {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
+  <div class="dex-effects-grid">
+
+    <div class="dex-col">
+      {{#unless painPenaltyDisabled}}
+      <div class="dex-box">
+        <div class="dex-box-title">Pain Penalization</div>
+        <div class="dex-pain-row">
+          <div class="dex-pain-selects">
+            {{#if system.painPenalization.overrideEnabled}}
+            <select name="system.painPenalization.overrideLevel" class="dex-select always-interactive">
+              {{selectOptions painPenaltyLevelChoices selected=system.painPenalization.overrideLevel}}
+            </select>
+            {{else}}
+            <select class="dex-select" disabled>
+              {{selectOptions painPenaltyLevelChoices selected=system.painPenalization.level}}
+            </select>
+            {{/if}}
+            <select name="system.painPenalization.ignored" class="dex-select always-interactive">
+              {{selectOptions painPenaltyResistedChoices selected=system.painPenalization.ignored}}
+            </select>
+          </div>
+          <label class="dex-override-toggle">
+            Override
+            <input type="checkbox" name="system.painPenalization.overrideEnabled" {{checked system.painPenalization.overrideEnabled}} class="always-interactive" />
+          </label>
+        </div>
+      </div>
+      {{/unless}}
+
+      <div class="dex-box">
+        <div class="dex-box-title">Increases / Reductions
+          <span class="dex-mini-btn-group">
+            <a class="dex-mini-btn" title="Clear Increases" data-action="resetPositiveChanges">Clear +</a>
+            <a class="dex-mini-btn" title="Clear Decreases" data-action="resetNegativeChanges">Clear −</a>
+            <a class="dex-mini-btn" title="Clear All" data-action="resetStatChanges">Clear All</a>
+          </span>
+        </div>
+        {{#each system.statChanges as |change key|}}
+        <div class="dex-changerow">
+          <span class="dex-clabel">{{change.label}}</span>
+          <div class="dex-change-fields">
+            <span class="dex-change-sign dex-pos" title="Increase"><i class="fas fa-plus"></i></span>
+            <input type="number" min="0" max="9" class="dex-step-input always-interactive" value="{{change.plus}}"
+              data-key="system.statChanges.{{key}}.plus" name="system.statChanges.{{key}}.plus" data-dtype="Number">
+            <span class="dex-change-sign dex-neg" title="Decrease"><i class="fas fa-minus"></i></span>
+            <input type="number" min="0" max="9" class="dex-step-input always-interactive" value="{{change.minus}}"
+              data-key="system.statChanges.{{key}}.minus" name="system.statChanges.{{key}}.minus" data-dtype="Number">
+            <span class="dex-change-equals">=</span>
+            <input disabled type="text" maxlength="3" class="dex-cval dex-vitamin-note {{#if change.isPositive}}dex-increase{{/if}}{{#if change.isNegative}}dex-decrease{{/if}}"
+              value="{{#if change.isPositive}}+{{/if}}{{#if change.isNegative}}-{{/if}}{{change.displayValue}}"
+              data-display-value="{{change.displayValue}}" data-actual-value="{{change.value}}"
+              data-key="system.statChanges.{{key}}.value" name="system.statChanges.{{key}}.displayValue" data-dtype="Number">
+          </div>
+        </div>
+        {{/each}}
+        <div class="dex-changerow">
+          <span class="dex-clabel">Accuracy</span>
+          <div class="dex-change-fields">
+            <span class="dex-change-sign dex-pos" title="Increase"><i class="fas fa-plus"></i></span>
+            <input type="number" min="0" max="9" class="dex-step-input always-interactive" value="{{system.accuracyMod.plus}}"
+              data-key="system.accuracyMod.plus" name="system.accuracyMod.plus" data-dtype="Number">
+            <span class="dex-change-sign dex-neg" title="Decrease"><i class="fas fa-minus"></i></span>
+            <input type="number" min="0" max="9" class="dex-step-input always-interactive" value="{{system.accuracyMod.minus}}"
+              data-key="system.accuracyMod.minus" name="system.accuracyMod.minus" data-dtype="Number">
+            <span class="dex-change-equals">=</span>
+            <input disabled type="text" maxlength="3" class="dex-cval dex-vitamin-note {{#if system.accuracyMod.isPositive}}dex-increase{{/if}}{{#if system.accuracyMod.isNegative}}dex-decrease{{/if}}"
+              value="{{#if system.accuracyMod.isPositive}}+{{/if}}{{#if system.accuracyMod.isNegative}}-{{/if}}{{system.accuracyMod.displayValue}}"
+              data-display-value="{{system.accuracyMod.displayValue}}"
+              data-actual-value="{{system.accuracyMod.value}}" data-key="system.accuracyMod.value" name="system.accuracyMod.displayValue" data-dtype="Number">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dex-col">
+      <div class="dex-box">
+        <div class="dex-box-title">Conditions and Effects</div>
+
+        <div class="dex-sub-title">Status Conditions</div>
+        <div class="dex-ailment-quickrow">
+          {{#each quickAilmentList as |ailment|}}
+          {{#if ailment.buttonDisabled}}
+          <span class="dex-ailment-icon dex-disabled"><img src="{{ailment.icon}}"></span>
+          {{else}}
+          <a class="dex-ailment-icon" data-action="addAilment" title="{{ailment.label}}" data-ailment="{{ailment.key}}"><img src="{{ailment.icon}}"></a>
+          {{/if}}
+          {{/each}}
+        </div>
+        {{#each system.ailments as |ailment|}}
+        <div class="dex-status-chip" style="--ailment-tint: {{ailment.tint}};">
+          <img class="dex-ailment-img" src="{{ailment.icon}}" title="{{ailment.label}}">
+          <span>{{ailment.label}} — {{ailment.description}}</span>
+          <a class="dex-effect-ctrls" data-action="removeAilment" title="Remove Ailment" data-ailment="{{ailment.type}}"><i class="fas fa-trash"></i></a>
+        </div>
+        {{/each}}
+
+        <div class="dex-sub-title">Held Item &amp; Ability</div>
+        <div class="dex-effect-row {{#if activeAbilityItem}}{{#unless activeAbilityItem.system.enabled}}dex-translucent{{/unless}}{{else}}dex-translucent{{/if}}"
+          {{#if activeAbilityItem}}data-item-id="{{activeAbilityItem._id}}"{{/if}}>
+          {{#if activeAbilityItem}}
+          <img class="dex-effect-dot-img" src="{{activeAbilityItem.img}}" title="{{activeAbilityItem.name}}">
+          <span>{{activeAbilityItem.name}}</span>
+          <span class="dex-effect-ctrls">
+            <a data-action="toggleEffectEnabled" title="Toggle rules"><i class="fas {{#if activeAbilityItem.system.enabled}}fa-toggle-on{{else}}fa-toggle-off{{/if}}"></i></a>
+            {{#if editable}}<a data-action="editItem" title="Edit Ability"><i class="fas fa-edit"></i></a>{{/if}}
+          </span>
+          {{else}}
+          <img class="dex-effect-dot-img" src="icons/svg/item-bag.svg" title="No Ability equipped">
+          <span>Ability: Empty</span>
+          {{/if}}
+        </div>
+        <div class="dex-effect-row {{#if activeHeldItem}}{{#unless activeHeldItem.system.enabled}}dex-translucent{{/unless}}{{else}}dex-translucent{{/if}}"
+          {{#if activeHeldItem}}data-item-id="{{activeHeldItem._id}}"{{/if}}>
+          {{#if activeHeldItem}}
+          <img class="dex-effect-dot-img" src="{{activeHeldItem.img}}" title="{{activeHeldItem.name}}">
+          <span>{{activeHeldItem.name}}</span>
+          <span class="dex-effect-ctrls">
+            <a data-action="toggleEffectEnabled" title="Toggle rules"><i class="fas {{#if activeHeldItem.system.enabled}}fa-toggle-on{{else}}fa-toggle-off{{/if}}"></i></a>
+            {{#if editable}}<a data-action="editItem" title="Edit Item"><i class="fas fa-edit"></i></a>{{/if}}
+          </span>
+          {{else}}
+          <img class="dex-effect-dot-img" src="icons/svg/item-bag.svg" title="No Held Item equipped">
+          <span>Held Item: Empty</span>
+          {{/if}}
+        </div>
+
+        <div class="dex-sub-title">Custom Effects
+          {{#if editable}}
+          <a class="dex-mini-btn" data-action="createItem" title="Create effect" data-type="effect"><i class="fas fa-plus"></i> Add</a>
+          {{/if}}
+        </div>
+        {{#each customEffects as |effect i|}}
+        <div class="dex-effect-row draggable {{#unless effect.data.system.enabled}}dex-translucent{{/unless}}" draggable="true" data-item-id="{{effect.data._id}}">
+          <img class="dex-effect-dot-img" src="{{effect.data.img}}" title="{{effect.data.name}}">
+          <span>{{effect.data.name}}</span>
+          <span class="dex-effect-ctrls">
+            <a data-action="toggleVisible" title="Toggle visibility"><i class="fas {{#if effect.data.system.visible}}fa-eye{{else}}fa-eye-slash{{/if}}"></i></a>
+            <a data-action="toggleEffectEnabled" title="Toggle effect"><i class="fas {{#if effect.data.system.enabled}}fa-toggle-on{{else}}fa-toggle-off{{/if}}"></i></a>
+            {{#if ../editable}}
+            <a data-action="editItem" title="Edit Effect"><i class="fas fa-edit"></i></a>
+            <a data-action="deleteItem" title="Remove Effect"><i class="fas fa-trash"></i></a>
+            {{/if}}
+          </span>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+  </div>
+</section>
