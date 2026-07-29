@@ -24,7 +24,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     classes: ["pokerole", "sheet", "actor"],
     position: {
       width: 720,
-      height: 600
+      height: 650
     },
     actions: {
       editImage: PokeroleActorSheet.#onEditImage,
@@ -1077,7 +1077,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     li?.classList.toggle('translucent');
     const list = this.element.querySelector(`.list-${group}`);
     list?.classList.toggle('items-hidden');
-    
+
     const hiddenGroups = (this.constructor.HIDDEN_POCKET ?? []);
     const groupIndex = hiddenGroups.indexOf(group);
     if (groupIndex > -1) {
