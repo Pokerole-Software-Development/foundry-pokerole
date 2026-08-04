@@ -1,7 +1,7 @@
 <form>
   {{#if baseFormula}}
   <div class="form-group">
-    <label>Base Formula</label>
+    <label>Base Formula{{#if formulaTooltip}} <a class="formula-info" data-tooltip-html="{{formulaTooltip}}"><i class="fas fa-circle-info"></i></a>{{/if}}</label>
     <input type="text" value="{{baseFormula}}" disabled/>
   </div>
   {{/if}}

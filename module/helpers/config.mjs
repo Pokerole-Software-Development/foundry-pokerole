@@ -1161,9 +1161,67 @@ export function getLocalizedEntriesForSelect(category) {
   return entries;
 }
 
+/** Whether a Move's damagePool formula fully replaces the standard power+stat pool (so the Moves tab's base "dmgMod1 +power" text would be misleading and should be hidden) rather than adding onto it. */
+export function isDamagePoolOverridingBasePool(damagePool) {
+  if (!damagePool || damagePool.formula === 'standard') return false;
+  if (damagePool.formula === 'fixed') return true;
+  if (damagePool.formula === 'hpBased') return damagePool.resultAs === 'directDamage' || damagePool.diceMode === 'override';
+  if (damagePool.formula === 'statDiff') return damagePool.diceMode === 'override';
+  return false;
+}
+
+/** Builds a one-line, human-readable description of a Move's non-standard damagePool formula, for the Moves tab's "*" tooltip - null if the formula is 'standard' (nothing special to explain). */
+export function buildDamagePoolFormulaTooltip(damagePool) {
+  if (!damagePool || damagePool.formula === 'standard') return null;
+
+  const loc = (dict, key) => game.i18n.localize(dict[key]) ?? key;
+
+  // "Add" when the formula's dice stack onto the standard pool, "Use" when it fully replaces it.
+  const diceModeVerb = damagePool.diceMode === 'add' ? 'Add' : 'Use';
+
+  if (damagePool.formula === 'fixed') {
+    let text = `Deal ${damagePool.amount} direct damage`;
+    if (damagePool.ignoreTypeEffectiveness) text += ', ignoring type effectiveness';
+    return text;
+  }
+
+  if (damagePool.formula === 'hpBased') {
+    const hpLabel = loc(POKEROLE.i18n.damagePoolHpModes, damagePool.hpMode);
+    // diceMode (Add/Use) only applies when this formula actually produces dice to roll - a
+    // 'directDamage' result is always a flat number, there's no pool for it to add to or replace.
+    let text = damagePool.resultAs === 'directDamage'
+      ? `Deal ${damagePool.fraction}% of ${hpLabel} as direct damage`
+      : `${diceModeVerb} ${damagePool.fraction}% of ${hpLabel} as dice`;
+    if (damagePool.plusAmount) text += ` + ${damagePool.plusAmount}`;
+    if (damagePool.resultAs === 'diceToRoll' && damagePool.maxDice != null) text += `, max ${damagePool.maxDice}`;
+    return text;
+  }
+
+  if (damagePool.formula === 'statDiff') {
+    let text;
+    // Rank-based statDiff looks up dice count from a rank table (getRankDiceCount()), not perUnit/direction.
+    if (damagePool.stat === 'rank') {
+      text = `${diceModeVerb} dice based on ${game.i18n.localize('POKEROLE.Rank')} (${damagePool.rankTable} table)`;
+    } else {
+      const statLabel = damagePool.stat === 'weight' ? game.i18n.localize('POKEROLE.Weight') : loc(POKEROLE.i18n.attributes, damagePool.stat);
+      const whoHasIt = {
+        target: `${statLabel} the target has`,
+        user: `${statLabel} you have`,
+        userAbove: `${statLabel} you have above the target's`,
+        targetAbove: `${statLabel} the target has above yours`
+      }[damagePool.direction];
+      text = `${diceModeVerb} 1 die per ${damagePool.perUnit} ${whoHasIt}`;
+    }
+    if (damagePool.maxDice != null) text += `, max ${damagePool.maxDice}`;
+    return text;
+  }
+
+  return null;
+}
+
 /**
  * Get a localized string for a Pokémon type key
- * @param {string} type 
+ * @param {string} type
  * @returns {string}
  */
 export function getLocalizedType(type) {

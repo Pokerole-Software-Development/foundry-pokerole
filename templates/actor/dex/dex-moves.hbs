@@ -57,9 +57,14 @@
           <span class="dex-move-stat">{{item.locType}} ({{item.locCategory}})</span>
           <span class="dex-move-stat">{{item.data.system.accAttr1}}{{#if item.data.system.accAttr1var}}{{#if item.data.system.accAttr1}}/{{/if}}{{item.data.system.accAttr1var}}{{/if}}{{#if item.data.system.accSkill1}} + {{item.data.system.accSkill1}}{{/if}}{{#if item.data.system.accSkill1var}}{{#if item.data.system.accSkill1}}/{{else}} + {{/if}}{{item.data.system.accSkill1var}}{{/if}} (<b>{{item.accuracyPool}}</b>)</span>
           <span class="dex-move-stat">
+            {{#unless item.dmgPoolOverride}}
             {{#if item.dmgPool}}{{item.data.system.dmgMod1}}{{/if}}{{#if item.data.system.dmgMod1var}}{{#if item.data.system.dmgMod1}}/{{/if}}{{item.data.system.dmgMod1var}}{{/if}}{{#if item.data.system.power}} +{{item.data.system.power}}{{/if}}
-            {{#if item.dmgPool}}(<b>{{item.dmgPool}}</b>){{/if}}
-            {{#unless item.dmgPool}}-{{/unless}}
+            {{/unless}}
+            {{#if item.dmgPool}}
+              {{#if item.dmgPoolTooltip}}<span class="dmgpool-formula-marker" data-tooltip="{{item.dmgPoolTooltip}}">(<b>{{item.dmgPool}}</b>*)</span>{{else}}(<b>{{item.dmgPool}}</b>){{/if}}
+            {{else}}
+              {{#if item.dmgPoolTooltip}}<span class="dmgpool-formula-marker" data-tooltip="{{item.dmgPoolTooltip}}">(*)</span>{{else}}-{{/if}}
+            {{/if}}
           </span>
           <span class="dex-move-stat">{{item.locTarget}}</span>
         </span>

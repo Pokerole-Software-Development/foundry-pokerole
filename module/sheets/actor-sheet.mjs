@@ -2,7 +2,7 @@
  * Sheet class for both Actor types (Pokémon and Trainer), including the Trainer-only Team tab.
  * Biggest file in the codebase - context prep and most `data-action` button handlers live here.
  */
-import { getEffectiveTypeMatchups, getLocalizedType, getLocalizedTypesForSelect, getLocalizedEntriesForSelect, getHpBarBucket, buildEvolutionDisplayData, buildPhysicalCapacityDisplayData, POKEROLE } from "../helpers/config.mjs";
+import { getEffectiveTypeMatchups, getLocalizedType, getLocalizedTypesForSelect, getLocalizedEntriesForSelect, getHpBarBucket, buildEvolutionDisplayData, buildPhysicalCapacityDisplayData, buildDamagePoolFormulaTooltip, isDamagePoolOverridingBasePool, POKEROLE } from "../helpers/config.mjs";
 import { successRollAttributeDialog, successRollSkillDialog } from "../helpers/roll.mjs";
 import { addAilmentWithDialog } from "../helpers/effects.mjs";
 import { postTrainingChatMessage } from "../helpers/chat.mjs";
@@ -822,6 +822,8 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
           locCategory: game.i18n.localize(POKEROLE.i18n.moveCategories[i.system.category]) ?? i.system.category,
           accuracyPool: this.actor.getAccuracyPoolForMove(i),
           dmgPool: this.actor.getDamagePoolForMove(i),
+          dmgPoolTooltip: buildDamagePoolFormulaTooltip(i.system.damagePool),
+          dmgPoolOverride: isDamagePoolOverridingBasePool(i.system.damagePool),
           usable: !disabled && !i.system.usedInRound,
           disabled
         });

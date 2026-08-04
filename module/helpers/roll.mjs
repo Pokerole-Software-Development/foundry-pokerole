@@ -8,6 +8,7 @@ import {
   getEffectiveTypeMatchupScore,
   getConfusionModifier,
   getRankDiceCount,
+  buildDamagePoolFormulaTooltip,
   POKEROLE
 } from "./config.mjs";
 import { bulkApplyDamageValidated } from "./damage.mjs";
@@ -918,6 +919,7 @@ export async function rollDamage(item, actor, token) {
 
   const content = await foundry.applications.handlebars.renderTemplate(DAMAGE_ROLL_DIALOGUE_TEMPLATE, {
     baseFormula,
+    formulaTooltip: buildDamagePoolFormulaTooltip(item.system.damagePool),
     enemyDef: 0,
     ignoreDefenses: item.system.attributes?.ignoreDefenses,
     stab: item.system.stab,

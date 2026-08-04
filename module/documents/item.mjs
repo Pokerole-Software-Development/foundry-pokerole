@@ -91,7 +91,7 @@ export class PokeroleItem extends Item {
       if (this.system.accAttr1 || this.system.accSkill1 || this.system.accAttr1var || this.system.accSkill1var) {
         hasAccuracy = true;
       }
-      if (this.system.power || this.system.dmgMod1 || this.system.dmgMod1var) {
+      if (this.system.power || this.system.dmgMod1 || this.system.dmgMod1var || this.system.damagePool.formula !== 'standard') {
         hasDamage = true;
       }
 

@@ -545,6 +545,18 @@ slide-toggle[checked] .slide-toggle-thumb {
   margin-right: 6px;
 }
 
+.dmgpool-formula-marker {
+  text-decoration: underline dotted;
+  cursor: help;
+  margin-left: 2px;
+}
+
+.formula-info {
+  color: var(--color-pkmn-dkorange);
+  font-size: 16px;
+  cursor: help;
+}
+
 body,
 .pkmn-type-typeless {
   --pkmn-type-header-bg: #e7e7e8;
