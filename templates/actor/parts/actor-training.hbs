@@ -49,12 +49,16 @@
           <span class="vitamin-row-label {{#if willMaxVitaminActive}}overridden{{/if}}">Will</span>
           <input type="checkbox" name="system.vitamins.willpower" {{#if willMaxVitaminActive}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />
         </div>
+        <div class="vitamin-row vitamin-row-header">
+          <span class="vitamin-row-label"></span>
+          <label class="vitamin-checkbox-label">Vitamin</label>
+          <label class="vitamin-checkbox-label">Candy</label>
+        </div>
         {{#each system.attributes as |attribute key|}}
         <div class="vitamin-row">
           <span class="vitamin-row-label">{{attribute.label}}</span>
-          <select name="system.vitamins.{{key}}" {{#unless ../editable}}disabled{{/unless}}>
-            {{selectOptions ../vitaminStateChoices selected=(lookup ../system.vitamins key)}}
-          </select>
+          <input type="checkbox" name="system.vitamins.{{key}}.vitamin" title="Vitamin" {{#if (lookup (lookup ../system.vitamins key) "vitamin")}}checked{{/if}} {{#unless ../editable}}disabled{{/unless}} />
+          <input type="checkbox" name="system.vitamins.{{key}}.rareCandy" title="Rare Candy" {{#if (lookup (lookup ../system.vitamins key) "rareCandy")}}checked{{/if}} {{#unless ../editable}}disabled{{/unless}} />
         </div>
         {{/each}}
       </fieldset>

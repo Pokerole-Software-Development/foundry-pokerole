@@ -55,13 +55,16 @@ export class AdvancementDialog extends foundry.applications.api.DialogV2 {
     // Precompute display-ready vitamin indicators (not just raw state) so the template needs no string comparisons.
     const vitaminIndicators = {};
     for (const key of Object.keys(actor.system.attributes ?? {})) {
-      const state = actor.system.vitamins?.[key];
-      vitaminIndicators[key] = {
-        active: state === 'vitamin' || state === 'rareCandy',
-        title: state === 'rareCandy'
-          ? 'Rare Candy active - the value and max shown already include it'
-          : 'Vitamin active - the value shown already includes it, and it can\'t exceed the max shown'
-      };
+      const state = actor.system.vitamins?.[key] ?? {};
+      let title;
+      if (state.vitamin && state.rareCandy) {
+        title = 'Vitamin + Rare Candy active - the value and max shown already include both';
+      } else if (state.rareCandy) {
+        title = 'Rare Candy active - the value and max shown already include it';
+      } else {
+        title = 'Vitamin active - the value shown already includes it, and it can\'t exceed the max shown';
+      }
+      vitaminIndicators[key] = { active: !!(state.vitamin || state.rareCandy), title };
     }
 
     const content = await foundry.applications.handlebars.renderTemplate(this.TEMPLATE_PATH, {

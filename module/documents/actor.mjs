@@ -52,25 +52,25 @@ export class PokeroleActor extends Actor {
 
     // Vitamins (Issue #132, Pokémon-only) run first: a more fundamental/base modifier that later blocks
     // (statChanges, ailments, Custom Effects) compose on top of. The value clamp only considers this
-    // block's own Rare-Candy-boosted max, never anything a later block might add. Rare Candy is a strict
-    // upgrade over Vitamin - it grants the same value bonus, plus the max bonus.
+    // block's own Rare-Candy-boosted max, never anything a later block might add. Vitamin and Rare Candy
+    // are independent checkboxes that stack - Vitamin adds to value, Rare Candy adds to both value and max.
     if (this.type === 'pokemon') {
       for (const key of ['strength', 'dexterity', 'vitality', 'special', 'insight']) {
-        const state = this.system.vitamins[key];
+        const { vitamin, rareCandy } = this.system.vitamins[key];
         const maxPath = `system.attributes.${key}.max`;
         const valuePath = `system.attributes.${key}.value`;
 
-        if (state === 'rareCandy') {
+        if (rareCandy) {
           const currentMax = foundry.utils.getProperty(this, maxPath) ?? 0;
           overrides[maxPath] = currentMax + POKEROLE.vitaminAttributeBonus;
           original[maxPath] = currentMax;
         }
 
         let vitaminBonus = 0;
-        if (state === 'vitamin' || state === 'rareCandy') {
+        if (vitamin || rareCandy) {
           const currentValue = foundry.utils.getProperty(this, valuePath) ?? 0;
           const currentMax = foundry.utils.getProperty(this, maxPath) ?? 0;
-          vitaminBonus = computeAttributeVitaminBonus(state, currentValue, currentMax);
+          vitaminBonus = computeAttributeVitaminBonus(vitamin, rareCandy, currentValue, currentMax);
           overrides[valuePath] = currentValue + vitaminBonus;
           original[valuePath] = currentValue;
         }

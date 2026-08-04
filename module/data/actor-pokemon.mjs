@@ -53,13 +53,13 @@ export class PokeroleActorPokemonData extends PokeroleActorBaseData {
     };
   }
 
-  /** @override Migrates the brief pre-release `{vitamin, rareCandy}` object shape to the current single-state string. */
+  /** @override Migrates the brief single-state string (`'none'|'vitamin'|'rareCandy'`) back to the current independent `{vitamin, rareCandy}` checkboxes. */
   static migrateData(source) {
     if (source.vitamins) {
       for (const key of ['strength', 'dexterity', 'vitality', 'special', 'insight']) {
         const value = source.vitamins[key];
-        if (value && typeof value === 'object') {
-          source.vitamins[key] = value.rareCandy ? 'rareCandy' : (value.vitamin ? 'vitamin' : 'none');
+        if (typeof value === 'string') {
+          source.vitamins[key] = { vitamin: value === 'vitamin', rareCandy: value === 'rareCandy' };
         }
       }
     }

@@ -408,7 +408,6 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     if (this.actor.type === 'pokemon') {
       context.hpMaxVitaminActive = this.actor.system.vitamins.hp;
       context.willMaxVitaminActive = this.actor.system.vitamins.willpower;
-      context.vitaminStateChoices = { none: 'None', vitamin: 'Vitamin', rareCandy: 'Candy' };
 
       const rankIndex = POKEROLE.ranks.indexOf(this.actor.system.rank);
       const nextRank = POKEROLE.ranks[rankIndex + 1];

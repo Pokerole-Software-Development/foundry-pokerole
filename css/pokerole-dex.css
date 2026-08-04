@@ -1311,34 +1311,12 @@
 .pokerole-dex.actor.sheet .dex-tp-icon-img { width: 30px; height: 30px; flex: 0 0 auto; }
 .pokerole-dex.actor.sheet .dex-tp-label { flex: 1 1 auto; text-align: left; }
 .pokerole-dex.actor.sheet .dex-tp-progress { font-family: var(--dex-font-mono); font-weight: 400; color: var(--dex-text-dim); font-size: 11.5px; }
-.pokerole-dex.actor.sheet .dex-vitamin-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; padding: 4px 0; color: var(--dex-text); }
+.pokerole-dex.actor.sheet .dex-vitamin-row { display: grid; grid-template-columns: 1fr 48px 48px; align-items: center; gap: 8px; font-size: 11px; padding: 4px 0; color: var(--dex-text); }
 .pokerole-dex.actor.sheet .dex-vitamin-row + .dex-vitamin-row { border-top: 1px dashed color-mix(in srgb, var(--dex-outline) 65%, transparent); }
 .pokerole-dex.actor.sheet .dex-vlabel.dex-overridden { color: var(--dex-vitamin); font-weight: 700; }
-.pokerole-dex.actor.sheet .dex-vitamin-select {
-  font-family: var(--dex-font-mono);
-  font-size: 10.5px;
-  line-height: 1;
-  height: 21px;
-  /* Fixed instead of auto-width - without this, a bare <select>'s rendered width can follow
-     its currently-selected option's text length rather than the widest option in the shared
-     list, so rows landed at slightly different widths depending on which vitamin state was
-     picked, throwing off row-to-row alignment even with .dex-vitamin-row's space-between. */
-  width: 80px;
-  flex: 0 0 auto;
-  background-color: var(--dex-container-bg);
-  color: var(--dex-text);
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  border: 1.5px solid var(--dex-outline);
-  border-radius: 5px;
-  padding: 0 15px 0 5px;
-  box-sizing: border-box;
-  background-image:
-    linear-gradient(45deg, transparent 50%, var(--dex-text) 50%),
-    linear-gradient(135deg, var(--dex-text) 50%, transparent 50%);
-  background-position: calc(100% - 9px) center, calc(100% - 4px) center;
-  background-size: 5px 5px, 5px 5px;
-  background-repeat: no-repeat;
+.pokerole-dex.actor.sheet .dex-vitamin-check-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
 }
-.pokerole-dex.actor.sheet .dex-vitamin-check { width: 15px; height: 15px; accent-color: var(--dex-accent); }
+.pokerole-dex.actor.sheet .dex-vitamin-check { width: 15px; height: 15px; accent-color: var(--dex-accent); justify-self: center; }

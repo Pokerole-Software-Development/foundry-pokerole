@@ -1,7 +1,7 @@
 /**
  * Shared SchemaField factory functions reused across the actor/item data models.
  */
-const { SchemaField, NumberField, BooleanField, StringField } = foundry.data.fields;
+const { SchemaField, NumberField, BooleanField } = foundry.data.fields;
 
 /** A {value, min, max} resource block (HP, Will, Action Count) */
 export function resourceField(initialValue = 0, initialMax = 0) {
@@ -40,11 +40,14 @@ export function plusMinusField() {
 }
 
 /**
- * One attribute's vitamin state (see PokeroleActor#_applyEffects) - 'rareCandy' is a strict upgrade
- * over 'vitamin' (same value bonus, plus a max bonus), not an independent toggle.
+ * One attribute's Vitamin/Rare Candy state (see PokeroleActor#_applyEffects) - independent toggles:
+ * Vitamin adds to value, Rare Candy adds to both value and max, and both together stack.
  */
 export function vitaminAttributeStateField() {
-  return new StringField({ required: true, initial: 'none', choices: ['none', 'vitamin', 'rareCandy'] });
+  return new SchemaField({
+    vitamin: new BooleanField({ initial: false }),
+    rareCandy: new BooleanField({ initial: false })
+  });
 }
 
 /**

@@ -115,7 +115,8 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
     // is inert on Trainers.
     const vitaminValueBonus = {};
     for (const key of ['strength', 'dexterity', 'vitality', 'special', 'insight']) {
-      vitaminValueBonus[key] = computeAttributeVitaminBonus(this.vitamins?.[key], this.attributes[key].value, this.attributes[key].max);
+      const state = this.vitamins?.[key];
+      vitaminValueBonus[key] = computeAttributeVitaminBonus(state?.vitamin, state?.rareCandy, this.attributes[key].value, this.attributes[key].max);
     }
     const vitality = this.attributes.vitality.value + vitaminValueBonus.vitality;
     const insight = this.attributes.insight.value + vitaminValueBonus.insight;

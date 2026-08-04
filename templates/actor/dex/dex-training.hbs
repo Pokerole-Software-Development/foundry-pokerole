@@ -55,12 +55,16 @@
           <span class="dex-vlabel {{#if willMaxVitaminActive}}dex-overridden{{/if}}">Will</span>
           <input type="checkbox" class="dex-vitamin-check" name="system.vitamins.willpower" {{#if willMaxVitaminActive}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />
         </div>
+        <div class="dex-vitamin-row">
+          <span class="dex-vlabel"></span>
+          <label class="dex-vitamin-check-label">Vitamin</label>
+          <label class="dex-vitamin-check-label">Candy</label>
+        </div>
         {{#each system.attributes as |attribute key|}}
         <div class="dex-vitamin-row">
-          <span class="dex-vlabel {{#unless (eqpk (lookup ../system.vitamins key) "none")}}dex-overridden{{/unless}}">{{attribute.label}}</span>
-          <select class="dex-vitamin-select" name="system.vitamins.{{key}}" {{#unless ../editable}}disabled{{/unless}}>
-            {{selectOptions ../vitaminStateChoices selected=(lookup ../system.vitamins key)}}
-          </select>
+          <span class="dex-vlabel {{#if (or (lookup (lookup ../system.vitamins key) "vitamin") (lookup (lookup ../system.vitamins key) "rareCandy"))}}dex-overridden{{/if}}">{{attribute.label}}</span>
+          <input type="checkbox" class="dex-vitamin-check" name="system.vitamins.{{key}}.vitamin" title="Vitamin" {{#if (lookup (lookup ../system.vitamins key) "vitamin")}}checked{{/if}} {{#unless ../editable}}disabled{{/unless}} />
+          <input type="checkbox" class="dex-vitamin-check" name="system.vitamins.{{key}}.rareCandy" title="Rare Candy" {{#if (lookup (lookup ../system.vitamins key) "rareCandy")}}checked{{/if}} {{#unless ../editable}}disabled{{/unless}} />
         </div>
         {{/each}}
       </div>

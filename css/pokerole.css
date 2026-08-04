@@ -4036,19 +4036,27 @@ body.theme-light .pokerole.item.sheet:not(.theme-dark),
   margin-bottom: 0;
 }
 .pokerole.actor.sheet .tab[data-tab=training] .vitamin-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 56px 56px;
   align-items: center;
   gap: 8px;
   padding: 2px 0;
 }
 .pokerole.actor.sheet .tab[data-tab=training] .vitamin-row-label {
-  flex: 1;
   font-weight: 700;
   font-size: 13px;
 }
-.pokerole.actor.sheet .tab[data-tab=training] .vitamin-row select {
-  flex: 0 0 auto;
-  width: 90px;
+.pokerole.actor.sheet .tab[data-tab=training] .vitamin-checkbox-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+.pokerole.actor.sheet .tab[data-tab=training] .vitamin-row input[type=checkbox] {
+  justify-self: center;
+}
+.pokerole.actor.sheet .tab[data-tab=training] .vitamin-row-header {
+  font-size: 11px;
+  font-weight: 700;
 }
 .pokerole.actor.sheet .tab[data-tab=training] .tp-action-row {
   display: flex;
