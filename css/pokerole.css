@@ -502,10 +502,10 @@ slide-toggle[checked] .slide-toggle-thumb {
   width: -moz-fit-content;
   width: fit-content;
   margin-right: 1px;
-  color: var(--color-text-dark-5);
+  color: var(--color-text-subtle);
 }
 .combat-clash.active, .combat-evade.active {
-  color: var(--color-text-light-1);
+  color: var(--color-text-emphatic);
 }
 
 .combat-evade {
