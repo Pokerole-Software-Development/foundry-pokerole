@@ -1,7 +1,7 @@
 {{!-- Shared Custom Effect/Held Item/Ability rule-row editor - included by item-rules.hbs and
       item-effect-rules.hbs so both stay on the same guided rule-kind UI. --}}
 <h3>Custom rules</h3>
-<p>Attribute Override changes a value directly. Type Override replaces a Type slot. Damage Pool Bonus adds dice to a move's damage roll. Matchup Modifier grants or cancels weakness/resistance/immunity to an attacking type, without changing the Pokémon's actual type.</p>
+<p>Attribute Override changes a value directly. Type Override replaces a Type slot. Damage Pool Bonus adds dice to a move's damage roll. Matchup Modifier grants or cancels weakness/resistance/immunity to an attacking type, without changing the Pokémon's actual type. Ailment Immunity grants or removes immunity to a status condition.</p>
 
 <ol class="items-list effects-list">
   <li class="item flexrow items-header rule-row">
@@ -69,6 +69,15 @@
       {{selectOptions ../typeChoices selected=rule.scopeValue}}
     </select>
     {{/unless}}
+    {{/if}}
+
+    {{#if rule.isAilmentImmunityKind}}
+    <select class="rule-ailment-immunity-operation rule-field" data-index="{{i}}">
+      {{selectOptions ../ailmentImmunityOperations selected=rule.operation}}
+    </select>
+    <select class="rule-ailment-immunity-ailment rule-field" data-index="{{i}}">
+      {{selectOptions ../ailmentImmunityChoices selected=rule.ailment}}
+    </select>
     {{/if}}
 
     <div class="item-controls">

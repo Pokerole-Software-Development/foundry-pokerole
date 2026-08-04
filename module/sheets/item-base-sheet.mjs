@@ -2,7 +2,7 @@
  * Shared base class for all Pokérole item sheets (AppV2 ItemSheetV2), providing Play/Edit
  * mode toggling, rules-table editing, and other action handlers common to every item type.
  */
-import { getLocalizedEntriesForSelect, getLocalizedTypesForSelect, getRuleAttributeTargets, getDamagePoolCategoryChoices, POKEROLE } from "../helpers/config.mjs";
+import { getLocalizedEntriesForSelect, getLocalizedTypesForSelect, getRuleAttributeTargets, getDamagePoolCategoryChoices, getAilmentImmunityFamilyChoices, POKEROLE } from "../helpers/config.mjs";
 
 /**
  * Base ItemSheet with AppV2 - to be extended by type-specific sheets
@@ -118,13 +118,15 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
     // (targetGroups, selected, etc.) into what #onAddRule/the rule change handlers persist via item.update().
     if (this.item.system.rules) {
       context.operators = { add: 'Add', replace: 'Replace' };
-      context.ruleKinds = { attribute: 'Attribute Override', type: 'Type Override', damagePool: 'Damage Pool Bonus', matchup: 'Matchup Modifier' };
+      context.ruleKinds = { attribute: 'Attribute Override', type: 'Type Override', damagePool: 'Damage Pool Bonus', matchup: 'Matchup Modifier', ailmentImmunity: 'Ailment Immunity' };
       context.typeSlots = { type1: 'Type 1', type2: 'Type 2', type3: 'Type 3' };
       context.poolScopes = { all: 'All Moves', type: 'By Type', category: 'By Category' };
       context.typeChoices = getLocalizedTypesForSelect();
       context.categoryChoices = getDamagePoolCategoryChoices();
       context.matchupOperations = { grantWeakness: 'Grant Weakness', grantResistance: 'Grant Resistance', grantImmunity: 'Grant Immunity', cancelImmunity: 'Cancel Immunity' };
       context.matchupCancelScopes = { all: 'All Types', type: 'By Type' };
+      context.ailmentImmunityOperations = { grant: 'Grant Immunity', remove: 'Remove Immunity' };
+      context.ailmentImmunityChoices = getAilmentImmunityFamilyChoices();
 
       const targetGroups = getRuleAttributeTargets();
       context.ruleRows = this.item.system.rules.map(rule => {
@@ -135,7 +137,8 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
           isAttributeKind: kind === 'attribute',
           isTypeKind: kind === 'type',
           isDamagePoolKind: kind === 'damagePool',
-          isMatchupKind: kind === 'matchup'
+          isMatchupKind: kind === 'matchup',
+          isAilmentImmunityKind: kind === 'ailmentImmunity'
         };
         if (row.isAttributeKind) {
           row.targetGroups = targetGroups.map(group => ({
@@ -276,6 +279,14 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
       el.addEventListener('change', this._onRuleMatchupScopeValueChange.bind(this));
     });
 
+    // Ailment Immunity operation/ailment changes
+    htmlElement.querySelectorAll('.rule-ailment-immunity-operation').forEach(el => {
+      el.addEventListener('change', this._onRuleAilmentImmunityOperationChange.bind(this));
+    });
+    htmlElement.querySelectorAll('.rule-ailment-immunity-ailment').forEach(el => {
+      el.addEventListener('change', this._onRuleAilmentImmunityAilmentChange.bind(this));
+    });
+
     // Effect group condition changes
     htmlElement.querySelectorAll('.effect-group-condition').forEach(el => {
       el.addEventListener('change', this._onEffectGroupConditionChange.bind(this));
@@ -371,6 +382,9 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
       rule.operation ??= 'grantImmunity';
       rule.scope ??= 'type';
       rule.scopeValue ??= POKEROLE.types.find(t => t !== 'none') ?? 'normal';
+    } else if (rule.kind === 'ailmentImmunity') {
+      rule.operation ??= 'grant';
+      rule.ailment ??= 'poison';
     }
     await this.item.update({ "system.rules": this.item.system.rules });
   }
@@ -470,6 +484,26 @@ export class PokeroleItemBaseSheet extends foundry.applications.api.HandlebarsAp
   async _onRuleMatchupScopeValueChange(event) {
     const index = event.target.dataset.index;
     this.item.system.rules[index].scopeValue = event.target.value;
+    await this.item.update({ "system.rules": this.item.system.rules });
+  }
+
+  /**
+   * Handle Ailment Immunity operation changes (Grant Immunity / Remove Immunity).
+   * @param {Event} event  The triggering event.
+   */
+  async _onRuleAilmentImmunityOperationChange(event) {
+    const index = event.target.dataset.index;
+    this.item.system.rules[index].operation = event.target.value;
+    await this.item.update({ "system.rules": this.item.system.rules });
+  }
+
+  /**
+   * Handle Ailment Immunity ailment-family changes.
+   * @param {Event} event  The triggering event.
+   */
+  async _onRuleAilmentImmunityAilmentChange(event) {
+    const index = event.target.dataset.index;
+    this.item.system.rules[index].ailment = event.target.value;
     await this.item.update({ "system.rules": this.item.system.rules });
   }
 

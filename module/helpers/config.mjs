@@ -284,6 +284,28 @@ export function getAilmentList() {
   }));
 }
 
+// Ailment Immunity rule kind (TASK-51): the classic non-volatile status family a Grant/Remove Immunity
+// rule targets - "Poison"/"Burn" are single selectable options that expand to their sub-ranks, same
+// grouping POKEROLE.typeMatchups[type].ailmentImmunities already uses for the built-in type immunities
+// (e.g. steel: ['poison', 'badlyPoisoned']) and applyAilment()'s own family-deduping.
+POKEROLE.ailmentImmunityFamilies = {
+  paralysis: ['paralysis'],
+  frozen: ['frozen'],
+  sleep: ['sleep'],
+  poison: ['poison', 'badlyPoisoned'],
+  burn: ['burn1', 'burn2', 'burn3']
+};
+
+export function getAilmentImmunityFamilyChoices() {
+  return {
+    paralysis: game.i18n.localize('POKEROLE.StatusParalysis'),
+    frozen: game.i18n.localize('POKEROLE.StatusFrozen'),
+    sleep: game.i18n.localize('POKEROLE.StatusSleep'),
+    poison: game.i18n.localize('POKEROLE.StatusPoison'),
+    burn: game.i18n.localize('POKEROLE.StatusBurn1')
+  };
+}
+
 POKEROLE.specialStatusEffects = {
   BLIND: 'blind',
   DEFEATED: 'fainted',

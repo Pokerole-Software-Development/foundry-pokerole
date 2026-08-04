@@ -2,6 +2,11 @@
 
 import { POKEROLE } from "./config.mjs";
 
+/** The ailmentImmunityFamilies family key (e.g. 'poison') that a concrete ailment (e.g. 'badlyPoisoned') belongs to, or null if it's not part of any family (e.g. volatile ailments). */
+function getAilmentImmunityFamily(ailment) {
+  return Object.entries(POKEROLE.ailmentImmunityFamilies).find(([, members]) => members.includes(ailment))?.[0] ?? null;
+}
+
 export class TokenEffect {
   /**
    * 
@@ -357,9 +362,27 @@ export function isActorResistantAgainstAilment(actor, ailment) {
   const type2 = POKEROLE.typeMatchups[actor.system.type2] ?? POKEROLE.typeMatchups.none;
   const type3 = POKEROLE.typeMatchups[actor.system.type3] ?? POKEROLE.typeMatchups.none;
 
-  return type1.ailmentImmunities.includes(ailment)
+  const isTypeImmune = type1.ailmentImmunities.includes(ailment)
       || type2.ailmentImmunities.includes(ailment)
       || (type3.ailmentImmunities.includes(ailment) && actor.system.hasThirdType);
+
+  // Ailment Immunity rules (Custom Effect/Held Item/Ability) - Grant/Remove Immunity per ailment family.
+  // Mirrors Matchup Modifier's Cancel Immunity precedent: a Remove rule strips immunity even if the type
+  // itself would otherwise grant it, so it always has the final say over the type-based check above.
+  const family = getAilmentImmunityFamily(ailment);
+  let hasGrantRule = false;
+  let hasRemoveRule = false;
+  if (family && actor.getActiveRuleSources) {
+    for (const source of actor.getActiveRuleSources()) {
+      for (const rule of source.system.rules) {
+        if (rule.kind !== 'ailmentImmunity' || rule.ailment !== family) continue;
+        if (rule.operation === 'remove') hasRemoveRule = true;
+        else hasGrantRule = true;
+      }
+    }
+  }
+
+  return hasRemoveRule ? false : (isTypeImmune || hasGrantRule);
 }
 
 /**
