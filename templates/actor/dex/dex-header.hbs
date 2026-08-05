@@ -60,20 +60,24 @@
   <div class="dex-col dex-col-right">
     <div class="dex-vitals-row">
       <div class="dex-vital-row">
-        <label class="dex-vital-lbl" for="system.hp.value">HP</label>
-        <div class="dex-bar dex-bar-hp" data-bucket="{{hpBucket}}" style="--dex-bar-segments: {{hpSegments}};"><i style="width: {{hpPercent}}%;"></i></div>
-        <div class="dex-vital-nums">
-          <input type="number" min="0" name="system.hp.value" value="{{system.hp.value}}" data-dtype="Number" class="dex-vital-input always-interactive">
-          <span class="dex-vital-max">/ {{system.hp.max}}</span>
+        <div class="dex-vital-label-group">
+          <label class="dex-vital-lbl" for="system.hp.value">HP</label>
+          <div class="dex-vital-nums">
+            <input type="number" min="0" name="system.hp.value" value="{{system.hp.value}}" data-dtype="Number" class="dex-vital-input always-interactive">
+            <span class="dex-vital-max">{{system.hp.max}}</span>
+          </div>
         </div>
+        <div class="dex-bar dex-bar-hp" data-bucket="{{hpBucket}}" style="--dex-bar-segments: {{hpSegments}};"><i style="width: {{hpPercent}}%;"></i></div>
       </div>
       <div class="dex-vital-row">
-        <label class="dex-vital-lbl rollable" for="{{id}}-system-will-value" data-action="roll" data-roll-attribute="will" data-label="Will">WP</label>
-        <div class="dex-bar dex-bar-wp" style="--dex-bar-segments: {{wpSegments}};"><i style="width: {{wpPercent}}%;"></i></div>
-        <div class="dex-vital-nums">
-          <input id="{{id}}-system-will-value" type="number" min="0" name="system.will.value" value="{{system.will.value}}" data-dtype="Number" class="dex-vital-input always-interactive">
-          <span class="dex-vital-max">/ {{system.will.max}}</span>
+        <div class="dex-vital-label-group">
+          <label class="dex-vital-lbl rollable" for="{{id}}-system-will-value" data-action="roll" data-roll-attribute="will" data-label="Will">WP</label>
+          <div class="dex-vital-nums">
+            <input id="{{id}}-system-will-value" type="number" min="0" name="system.will.value" value="{{system.will.value}}" data-dtype="Number" class="dex-vital-input always-interactive">
+            <span class="dex-vital-max">{{system.will.max}}</span>
+          </div>
         </div>
+        <div class="dex-bar dex-bar-wp" style="--dex-bar-segments: {{wpSegments}};"><i style="width: {{wpPercent}}%;"></i></div>
       </div>
     </div>
 

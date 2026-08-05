@@ -148,38 +148,30 @@
   flex-direction: column;
   gap: 4px;
   flex: 0 0 auto;
-  min-width: 0;
 }
 .pokerole-dex.actor.sheet .dex-col-left {
   align-items: flex-start;
-  max-width: 400px;
-  /* Unlike the base .dex-col (flex-shrink:0), this column is allowed to shrink down to its
-     content's own floor (the 210px min-width on .dex-name-input/.dex-type-row) instead of
-     holding its full natural width, sharing the squeeze with .dex-col-right instead of
-     forcing all of it onto that column. Grow:1 (vs. .dex-col-right's grow:2) lets it still
-     stretch up toward its own max-width:400px once there's enough header space for both
-     columns to grow, but .dex-col-right claims a bigger share of any surplus first. */
+  min-width: 270px;
+  max-width: 300px;
+  /* Unlike the base .dex-col (flex-shrink:0), this column is allowed to shrink, sharing the
+     squeeze with .dex-col-right instead of forcing all of it onto that column. Grow:1 (vs.
+     .dex-col-right's grow:2) lets it still stretch up toward its own max-width once there's
+     enough header space for both columns to grow, but .dex-col-right claims a bigger share
+     of any surplus first. */
   flex: 1 1 auto;
-  /* No explicit min-width - .dex-name-input's own hard min-width:210px (plus the icon-btn/gap
-     next to it) is what actually can't shrink further, so the automatic flex minimum already
-     computes the correct floor (~234px) here. A hardcoded number drifts out of sync with
-     that whenever the name-row's contents change, which is what caused overflow last time. */
 }
 .pokerole-dex.actor.sheet .dex-col-portrait {
   align-items: center;
 }
 .pokerole-dex.actor.sheet .dex-col-right {
   /* Starts from a bigger basis (330px vs .dex-col-left's ~234px auto content size) with the
-     same grow factor, so it reaches its own max-width:400px cap sooner - the HP/WP/Rank/
-     Ability/Item area fills out before the name column keeps stretching further. */
+     same grow factor, so the HP/WP/Rank/Ability/Item area fills out before the name column
+     keeps stretching further. No max-width - free to keep growing. */
   flex: 1 1 330px;
-  max-width: 400px;
+  min-width: 300px;
   align-items: stretch;
   margin-left: auto;
   gap: 6px;
-  /* Same reasoning as .dex-col-left - relies on its children (.dex-rank-pill and the
-     Ability/Item pills, both now flex-shrinkable) to define the real floor instead of a
-     hand-maintained number that can end up smaller than what they actually need. */
 }
 .pokerole-dex.actor.sheet .dex-name-row {
   display: flex;
@@ -201,12 +193,9 @@
   border: 1.5px solid transparent;
   color: var(--dex-header-fg);
   text-shadow: 0 1px 0 rgba(0,0,0,.35);
-  /* Without an explicit width, a bare <input> falls back to the browser's own default text-
-     input sizing heuristic instead of respecting min-width as its preferred size - with this
-     font it was rendering closer to 270px. Pin both so 210px is what actually gets used as
-     the flex-basis .dex-col-left sizes itself from, not just an unused floor. */
-  width: 210px;
-  min-width: 210px;
+  /* Stretches to fill .dex-name-row's available width instead of the browser's own default
+     text-input sizing heuristic. */
+  flex: 1;
   padding: 1px 2px;
   box-sizing: border-box;
 }
@@ -433,11 +422,9 @@
   min-width: 0;
 }
 .pokerole-dex.actor.sheet .dex-rank-pill {
-  /* Shrinkable (unlike .dex-field-pill's own flex:0 0 auto default for Ability/Item, which
-     this overrides) so it can compress toward its real content floor - .dex-rank-icon (24px,
-     fixed) + gap + the select's own min-width below - instead of staying rigid at natural
-     size and overflowing .dex-rank-fields-row when the header runs out of room. */
-  flex: 0 1 auto;
+  /* Fixed, matching .dex-vital-label-group's own fixed width above, so the Rank box and the
+     HP/WP label+input blocks line up to the same left-column width. */
+  flex: 0 0 100px;
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
@@ -535,9 +522,16 @@
 .pokerole-dex.actor.sheet .dex-vital-row {
   display: flex;
   align-items: center;
+  gap: 8px;
+}
+.pokerole-dex.actor.sheet .dex-vital-label-group {
+  display: flex;
+  align-items: center;
   gap: 6px;
   font-size: 12px;
-  min-width: 160px;
+  /* Fixed, matching .dex-rank-pill's own fixed width below, so the label+input block and the
+     Rank box line up to the same left-column width regardless of either row's content. */
+  flex: 0 0 100px;
 }
 .pokerole-dex.actor.sheet .dex-vital-lbl {
   width: 28px;
@@ -584,7 +578,7 @@
 .pokerole-dex.actor.sheet .dex-vital-nums {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 0;
   flex: 0 0 auto;
 }
 .pokerole-dex.actor.sheet .dex-vital-input {
@@ -592,17 +586,28 @@
   height: 25px;
   box-sizing: border-box;
   font-family: var(--dex-font-mono);
-  font-size: 11.5px;
+  font-size: 13px;
   text-align: center;
   background: var(--dex-field-bg);
   color: var(--dex-text);
   border: 1px solid var(--dex-outline);
   border-radius: 3px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 .pokerole-dex.actor.sheet .dex-vital-max {
+  display: flex;
   font-family: var(--dex-font-mono);
-  font-size: 11px;
+  font-size: 13px;
   color: var(--dex-header-fg-dim);
+  background: rgb(45, 39, 24);
+  min-width: 30px;
+  min-height: stretch;
+  border-top-right-radius: 7px;
+  border-bottom-right-radius: 7px;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
 }
 
 /* ---- tab content shell ----
@@ -637,6 +642,7 @@
 .pokerole-dex.actor.sheet .dex-attr-grid .dex-box,
 .pokerole-dex.actor.sheet .dex-bio-grid .dex-box {
   margin-bottom: 0;
+  min-width: 210px;
 }
 .pokerole-dex.actor.sheet .dex-box-title {
   font-family: var(--dex-font-display);
@@ -810,8 +816,6 @@
   gap: 12px;
   align-items: start;
 }
-.pokerole-dex.actor.sheet .dex-col { min-width: 0; }
-
 .pokerole-dex.actor.sheet .dex-type-matchup-row {
   display: flex;
   align-items: center;
@@ -828,7 +832,7 @@
   letter-spacing: .05em;
 }
 .pokerole-dex.actor.sheet .dex-matchup-types { display: flex; gap: 4px; }
-.pokerole-dex.actor.sheet .dex-type-icon { width: 18px; height: 18px; }
+.pokerole-dex.actor.sheet .dex-type-icon { width: 20px; height: 20px; }
 
 .pokerole-dex.actor.sheet .dex-pill-btn {
   display: inline-flex;
