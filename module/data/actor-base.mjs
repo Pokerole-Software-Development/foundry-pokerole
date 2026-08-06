@@ -46,6 +46,10 @@ export class PokeroleActorBaseData extends foundry.abstract.TypeDataModel {
       ailments: new ArrayField(new ObjectField()),
 
       customInitiativeMod: new NumberField({ required: true, integer: true, initial: 0 }),
+      // Manual bonus to will.max, set via Actor Settings (see actor-settings.hbs) - was read by the
+      // will.max formula below and rendered in the settings form, but never actually declared here,
+      // so actor.update() silently dropped it (unknown fields don't survive schema validation).
+      willbonus: new NumberField({ required: true, integer: true, initial: 0, min: 0, max: 99 }),
       biography: new HTMLField({ required: true, initial: "" }),
       source: new StringField({ required: true, initial: "Homebrew" }),
 
