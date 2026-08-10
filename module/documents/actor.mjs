@@ -5,6 +5,8 @@ import { POKEROLE, migrateUnambiguousLegacyRankValue, getRuleAttributeTargetPath
 import { buildAilmentIconEffectData, buildCustomEffectIconData, buildStatChangeIconData, buildPainPenaltyIconData } from "../helpers/effects.mjs";
 import { MANEUVER_MOVES } from "../helpers/maneuvers.mjs";
 import { applyDamageEffectsHtml, createHealMessage } from "../helpers/damage.mjs";
+// TEMPORARY V13 compat - see module/helpers/v13-icon-compat.mjs for removal instructions.
+import { applyV13IconDurationCompat } from "../helpers/v13-icon-compat.mjs";
 
 /**
  * Extend the base Actor document by defining a custom roll data structure which is ideal for the Simple system.
@@ -566,7 +568,7 @@ export class PokeroleActor extends Actor {
     for (const [key, data] of desired) {
       const current = existingByKey.get(key);
       if (!current) {
-        toCreate.push(data);
+        toCreate.push(applyV13IconDurationCompat(data));
       } else if (current.name !== data.name || current.img !== data.img || current.tint !== data.tint) {
         // Keep the icon in sync if the source Item/ailment definition changes after creation (e.g. a GM swaps the effect Item's image) - creation alone only handles first-time sync.
         toUpdate.push({ _id: current.id, name: data.name, img: data.img, tint: data.tint });

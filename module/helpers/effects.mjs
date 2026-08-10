@@ -1,6 +1,8 @@
 /** Ailment/status-effect logic: token icon data builders, the Token HUD status list, and applying effects to actors. */
 
 import { POKEROLE } from "./config.mjs";
+// TEMPORARY V13 compat - see module/helpers/v13-icon-compat.mjs for removal instructions.
+import { SHOW_ICON_ALWAYS } from "./v13-icon-compat.mjs";
 
 /** The ailmentImmunityFamilies family key (e.g. 'poison') that a concrete ailment (e.g. 'badlyPoisoned') belongs to, or null if it's not part of any family (e.g. volatile ailments). */
 function getAilmentImmunityFamily(ailment) {
@@ -54,7 +56,7 @@ export function buildAilmentIconEffectData(ailment) {
     disabled: false,
     transfer: false,
     statuses: [ailment.type],
-    showIcon: CONST.ACTIVE_EFFECT_SHOW_ICON.ALWAYS,
+    showIcon: SHOW_ICON_ALWAYS,
     // Token#_drawEffects() reads flags.core.overlay directly, not CONFIG.statusEffects.overlay.
     flags: { core: { overlay: !!def.overlay }, pokerole: { iconOnly: true, iconKey: `ailment:${ailment.type}` } }
   };
@@ -72,7 +74,7 @@ export function buildCustomEffectIconData(item) {
     changes: [],
     disabled: false,
     transfer: false,
-    showIcon: CONST.ACTIVE_EFFECT_SHOW_ICON.ALWAYS,
+    showIcon: SHOW_ICON_ALWAYS,
     flags: { [game.system.id]: { iconOnly: true, iconKey: `effect:${item.id}` } }
   };
 }
@@ -98,7 +100,7 @@ export function buildStatChangeIconData(key, value) {
     changes: [],
     disabled: false,
     transfer: false,
-    showIcon: CONST.ACTIVE_EFFECT_SHOW_ICON.ALWAYS,
+    showIcon: SHOW_ICON_ALWAYS,
     flags: { [game.system.id]: { iconOnly: true, iconKey: `statChange:${key}` } }
   };
 }
@@ -116,7 +118,7 @@ export function buildPainPenaltyIconData(level, ignored) {
     changes: [],
     disabled: false,
     transfer: false,
-    showIcon: CONST.ACTIVE_EFFECT_SHOW_ICON.ALWAYS,
+    showIcon: SHOW_ICON_ALWAYS,
     flags: { [game.system.id]: { iconOnly: true, iconKey: 'painPenalty' } }
   };
 }
