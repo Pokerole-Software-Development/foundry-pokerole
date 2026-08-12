@@ -151,7 +151,7 @@
 }
 .pokerole-dex.actor.sheet .dex-col-left {
   align-items: flex-start;
-  min-width: 270px;
+  min-width: 240px;
   max-width: 300px;
   /* Unlike the base .dex-col (flex-shrink:0), this column is allowed to shrink, sharing the
      squeeze with .dex-col-right instead of forcing all of it onto that column. Grow:1 (vs.
@@ -1004,7 +1004,7 @@
   gap: 6px;
   font-family: var(--dex-font-mono);
   font-size: 11px;
-  padding: 5px 10px;
+  padding: 0px 8px;
   border-radius: 8px;
   background: var(--dex-field-bg);
   border: 1px solid var(--dex-outline);

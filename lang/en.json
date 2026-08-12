@@ -258,6 +258,7 @@
 
   "POKEROLE.Add": "Add",
   "POKEROLE.ActionWarningNoItem": "The item doesn't exist.",
+  "POKEROLE.NoItemEquipped": "- No Item -",
 
   "POKEROLE.BlockedMove": "Move: {move}",
   "POKEROLE.InflictedBy": "Inflicted by: {actor}",

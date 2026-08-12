@@ -96,7 +96,7 @@
             {{#unless locked}}
             <select name="system.activeItem" value="{{system.activeItem}}" data-dtype="String"
               data-tooltip="{{activeItemDescription}}" class="always-interactive">
-              {{selectOptions heldItemSelect selected=system.activeItem}}
+              {{selectOptions heldItemSelect selected=system.activeItem blank=noItemLabel}}
             </select>
             {{else}}
             <span data-tooltip="{{activeItemDescription}}">{{activeItemName}}</span>

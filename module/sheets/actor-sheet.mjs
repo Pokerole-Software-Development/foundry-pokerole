@@ -859,6 +859,7 @@ export class PokeroleActorSheet extends foundry.applications.api.HandlebarsAppli
     for (let ability of gear) {
       context.heldItemSelect[ability.data._id] = ability.data.name;
     }
+    context.noItemLabel = game.i18n.localize('POKEROLE.NoItemEquipped');
 
     let activeItem = gear.find(ability => ability.data._id === context.system.activeItem);
 

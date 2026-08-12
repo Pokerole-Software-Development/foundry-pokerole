@@ -106,7 +106,7 @@
           <span class="dex-field-k">Item</span>
           {{#unless locked}}
           <select class="dex-field-v always-interactive" name="system.activeItem" value="{{system.activeItem}}" data-dtype="String" data-tooltip="{{activeItemDescription}}">
-            {{selectOptions heldItemSelect selected=system.activeItem}}
+            {{selectOptions heldItemSelect selected=system.activeItem blank=noItemLabel}}
           </select>
           {{else}}
           <span class="dex-field-v" data-tooltip="{{activeItemDescription}}">{{activeItemName}}</span>
