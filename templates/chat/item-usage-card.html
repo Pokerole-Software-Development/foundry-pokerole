@@ -1,0 +1,27 @@
+<div class="pokerole chat-card item-card item-usage-card"
+    data-actor-id="{{actor._id}}"
+    data-item-id="{{item._id}}"
+    {{#if tokenId}}data-token-id="{{tokenId}}"{{/if}}>
+    <header class="card-header flexrow">
+        <img src="{{item.img}}" title="{{item.name}}" width="36" height="36"/>
+        <h3 class="item-name">{{item.name}}</h3>
+    </header>
+
+    <div class="card-content">
+        {{{item.system.description}}}
+    </div>
+
+    <div class="card-buttons">
+        {{#each lines}}
+        <button data-action="usageLine" data-line-index="{{this.index}}">{{this.buttonLabel}}</button>
+        {{/each}}
+
+        {{#if showRollback}}
+        {{#if rollbackUsed}}
+        <button data-action="rollbackUse" disabled>Spent Use Rewound</button>
+        {{else}}
+        <button data-action="rollbackUse">Rewind Spent Use</button>
+        {{/if}}
+        {{/if}}
+    </div>
+</div>

@@ -456,9 +456,12 @@ const ACCURACY_ROLL_DIALOGUE_TEMPLATE = "systems/pokerole/templates/chat/accurac
  * @param {boolean} canBeClashed Whether an option to clash should be provided
  * @param {boolean} canBeEvaded Whether an option to evade should be provided
  * @param {boolean} showPopup If `false`, the popup is skipped and default values are assumed
+ * @param {number | null} overrideDicePool If provided, used as the base dice pool instead of
+ *   `actor.getAccuracyPoolForMove(item)` - lets a non-Move caller (Item Usage Lines) supply a
+ *   pool computed from its own formula instead of Move's fixed attribute+skill pair.
  * @returns {boolean} `true` if accuracy was rolled, `false` if cancelled
  */
-export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeEvaded, showPopup = true) {
+export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeEvaded, showPopup = true, overrideDicePool = null) {
   let { accAttr1, accSkill1, accAttr1var, accSkill1var} = item.system;
   accAttr1 = accAttr1.trim();
   accSkill1 = accSkill1.trim();
@@ -495,7 +498,7 @@ export async function rollAccuracy(item, actor, actorToken, canBeClashed, canBeE
     }
   }
 
-  let dicePool = actor.getAccuracyPoolForMove(item);
+  let dicePool = overrideDicePool ?? actor.getAccuracyPoolForMove(item);
 
   let poolBonus = 0;
   let constantBonus = 0;
@@ -1443,4 +1446,289 @@ export function getEffectivenessText(effectiveness) {
     default:
       return undefined;
   }
+}
+
+/* -------------------------------------------- */
+/*  Item Usage Lines (gear Items)                */
+/* -------------------------------------------- */
+
+/**
+ * Adapted from parseExpressionForRollCountAndComment above, but resolves each term via
+ * Actor#getAttributeOrSkill (a superset covering derived stats too - Def, Sp.Def, Initiative,
+ * Evade, Clash Physical/Special) instead of the narrower attribute+skill-only lookup /sc uses.
+ * Only produces a total number - callers decide what it means (dice pool, flat damage, heal amount).
+ * @param {string} expr Expression such as `2 + Dexterity`
+ * @param {Actor} actor The actor to resolve stat names against.
+ * @returns {Promise<{total: number, comment: string}>}
+ */
+async function parseUsageLineExpression(expr, actor) {
+  expr = (expr ?? '').trim();
+  let [exprWithoutComment, comment] = expr.split('#');
+  let total = 0;
+  for (const rawTerm of exprWithoutComment.split('+')) {
+    const term = rawTerm.trim();
+    if (!term) continue;
+    const asInt = parseInt(term);
+    if (!isNaN(asInt)) {
+      total += asInt;
+      continue;
+    }
+    if (!actor) {
+      throw new Error('No actor selected');
+    }
+    const stat = actor.getAttributeOrSkill(term);
+    if (stat) total += stat.value;
+  }
+  return { total, comment: comment?.trim() ?? exprWithoutComment };
+}
+
+/**
+ * Builds a temporary, never-persisted Move-shaped Item so Usage Lines can call the real
+ * rollDamage()/rollAccuracy()/PokeroleItem#applyHeal() unmodified instead of reimplementing them.
+ * Never saved to the actor.
+ * @param {PokeroleItem} sourceItem The gear Item this line belongs to.
+ * @param {Actor} actor The actor using the item.
+ * @param {{name?: string, system?: object}} overrides
+ * @returns {PokeroleItem}
+ */
+function buildVirtualMoveItem(sourceItem, actor, overrides = {}) {
+  return new PokeroleItem({
+    name: overrides.name ?? sourceItem.name,
+    type: 'move',
+    img: sourceItem.img,
+    system: {
+      power: 0, dmgMod1: '', category: 'physical', type: 'none',
+      target: 'Foe', attributes: {}, damagePool: { formula: 'standard' },
+      heal: { type: 'none' }, accAttr1: '', accSkill1: '',
+      ...overrides.system
+    }
+  }, { parent: actor });
+}
+
+/**
+ * Resolves the single actor a line's formula reads stats from (Roll/Accuracy lines, and the base
+ * pool computation for Heal/Damage lines before rollDamage()/applyHeal() take over targeting).
+ * @param {object} line
+ * @param {Actor} actor The item's user.
+ * @returns {Actor | null} `null` (with an error notification) if `target: 'target'` but nothing is targeted.
+ */
+function resolveUsageLineActor(line, actor) {
+  if (line.target !== 'target') return actor;
+  const targeted = Array.from(game.user.targets).find(t => t.actor);
+  if (!targeted) {
+    ui.notifications.error('Select a target first.');
+    return null;
+  }
+  return targeted.actor;
+}
+
+/**
+ * Executes a 'roll' Usage Line - a bare /sc-style roll with no downstream effect (requirement:
+ * Roll lines have no Fixed option and never apply healing/damage/game-state changes). The chat
+ * flavor always shows the formula itself (like a plain /sc roll does), in addition to the line's
+ * label if it has one.
+ * @param {PokeroleItem} item The gear Item.
+ * @param {object} line The usage line being executed.
+ * @param {Actor} actor The actor using the item.
+ */
+export async function rollUsageLine(item, line, actor) {
+  const formulaActor = resolveUsageLineActor(line, actor);
+  if (!formulaActor) return false;
+  const { total } = await parseUsageLineExpression(line.formula, formulaActor);
+  const formulaText = line.formula?.trim();
+  const label = line.label || item.name;
+  const flavor = formulaText ? `${label} (${formulaText})` : label;
+  const chatData = { speaker: ChatMessage.implementation.getSpeaker({ actor, token: actor.token }) };
+  await successRoll(total, flavor, chatData);
+  return true;
+}
+
+/**
+ * Executes an 'accuracy' Usage Line by rolling it through the real rollAccuracy(), with the dice
+ * pool pre-computed from the line's formula instead of a Move's fixed attribute+skill pair.
+ * @param {PokeroleItem} item The gear Item.
+ * @param {object} line The usage line being executed.
+ * @param {Actor} actor The actor using the item.
+ * @param {TokenDocument} token The actor's token.
+ */
+export async function rollUsageLineAccuracy(item, line, actor, token) {
+  const formulaActor = resolveUsageLineActor(line, actor);
+  if (!formulaActor) return false;
+  const { total } = await parseUsageLineExpression(line.formula, formulaActor);
+  const virtualItem = buildVirtualMoveItem(item, actor, {
+    name: line.label || `${item.name} - Accuracy`,
+    system: { target: line.target === 'user' ? 'Self' : 'All Foes' }
+  });
+  return rollAccuracy(virtualItem, actor, token, virtualItem.canBeClashed(), virtualItem.canBeEvaded(), true, total);
+}
+
+/**
+ * Executes a 'damage' Usage Line by rolling it through the real rollDamage(). Roll mode pre-computes
+ * a dice pool from the line's formula, fed in as the virtual item's `power` (rolled normally, subject
+ * to Defenses unless Ignore Defenses is set). Fixed mode instead uses Move's own `damagePool: {formula:
+ * 'fixed'}` mechanism (the same one Dragon Rage/Sonic Boom-style moves use) so the configured amount is
+ * dealt directly with no roll - this never subtracts Defense (inherent to what "fixed damage" means in
+ * this system, same as a real Move's Fixed damage pool), so Ignore Defenses has no effect in Fixed mode.
+ * Both modes still apply type effectiveness for the chosen type/category like a real Move would - to
+ * emulate flat/raw damage, set the line's Type to 'none'.
+ * @param {PokeroleItem} item The gear Item.
+ * @param {object} line The usage line being executed.
+ * @param {Actor} actor The actor using the item.
+ * @param {TokenDocument} token The actor's token.
+ */
+export async function rollUsageLineDamage(item, line, actor, token) {
+  const dmg = line.damage;
+  const baseSystem = {
+    category: dmg.category,
+    type: dmg.type,
+    target: line.target === 'user' ? 'Self' : 'All Foes',
+    attributes: { ignoreDefenses: !!dmg.ignoreDefenses }
+  };
+
+  let system;
+  if (dmg.mode === 'fixed') {
+    system = { ...baseSystem, power: 0, damagePool: { formula: 'fixed', amount: dmg.amount } };
+  } else {
+    const formulaActor = resolveUsageLineActor(line, actor);
+    if (!formulaActor) return false;
+    const power = (await parseUsageLineExpression(line.formula, formulaActor)).total;
+    system = { ...baseSystem, power };
+  }
+
+  const virtualItem = buildVirtualMoveItem(item, actor, {
+    name: line.label || `${item.name} - Damage`,
+    system
+  });
+  return rollDamage(virtualItem, actor, token);
+}
+
+/**
+ * Executes a 'heal' Usage Line - Fixed mode heals a flat amount, Roll mode rolls the formula first
+ * (successes = HP healed) then applies that amount through the real PokeroleItem#applyHeal().
+ * @param {PokeroleItem} item The gear Item.
+ * @param {object} line The usage line being executed.
+ * @param {Actor} actor The actor using the item.
+ * @param {TokenDocument} token The actor's token.
+ */
+export async function applyUsageLineHeal(item, line, actor, token) {
+  let amount;
+  if (line.heal.mode === 'fixed') {
+    amount = line.heal.amount;
+  } else {
+    const formulaActor = resolveUsageLineActor(line, actor);
+    if (!formulaActor) return false;
+    const { total } = await parseUsageLineExpression(line.formula, formulaActor);
+    const chatData = { speaker: ChatMessage.implementation.getSpeaker({ actor, token }) };
+    amount = await successRoll(total, `${line.label || 'Heal'} roll`, chatData);
+  }
+
+  const virtualItem = buildVirtualMoveItem(item, actor, {
+    name: line.label || `${item.name} - Heal`,
+    system: {
+      target: line.target === 'user' ? 'Self' : 'All Allies',
+      heal: { type: 'custom', amount, willPointCost: 0, target: line.target === 'user' ? 'user' : 'targets' }
+    }
+  });
+  return virtualItem.applyHeal(actor, Array.from(game.user.targets));
+}
+
+/**
+ * Resolves every actor a Usage Line's effect should apply to. Heal Status/Effects lines don't
+ * delegate to a real Move mechanism (unlike Damage/Heal/Accuracy, which get multi-targeting for
+ * free from rollDamage()/applyHeal()'s own internals), so this is their own multi-target loop.
+ * @param {object} line
+ * @param {Actor} actor The item's user.
+ * @returns {Actor[]}
+ */
+function resolveUsageLineTargetActors(line, actor) {
+  if (line.target !== 'target') return [actor];
+  return Array.from(game.user.targets).filter(t => t.actor).map(t => t.actor);
+}
+
+/**
+ * Executes a 'healStatus' Usage Line - removes each configured ailment (if present) from every
+ * resolved target, immediately (no roll). Reuses PokeroleActor#removeAilment() unmodified.
+ * @param {PokeroleItem} item The gear Item.
+ * @param {object} line The usage line being executed.
+ * @param {Actor} actor The actor using the item.
+ * @param {TokenDocument} token The actor's token.
+ */
+export async function applyUsageLineHealStatus(item, line, actor, token) {
+  const ailments = line.healStatus?.ailments ?? [];
+  if (ailments.length === 0) {
+    return ui.notifications.warn('No ailments configured on this line.');
+  }
+  const targets = resolveUsageLineTargetActors(line, actor);
+  if (targets.length === 0) {
+    return ui.notifications.error('Select a target first.');
+  }
+
+  let content = '';
+  for (const targetActor of targets) {
+    const cured = ailments.filter(key => targetActor.hasAilment(key));
+    for (const key of cured) {
+      await targetActor.removeAilment(key);
+    }
+    const curedLabels = cured.map(key => game.i18n.localize(POKEROLE.i18n.ailments[key]));
+    content += cured.length > 0
+      ? `<p>${targetActor.name} was cured of: ${curedLabels.join(', ')}.</p>`
+      : `<p>${targetActor.name} had none of the listed status conditions.</p>`;
+  }
+
+  await ChatMessage.implementation.create({
+    content,
+    flavor: `${line.label || item.name} - Heal Status`,
+    speaker: ChatMessage.implementation.getSpeaker({ actor, token })
+  });
+  return true;
+}
+
+/**
+ * Executes an 'effects' Usage Line - posts one button per unconditional effect and one button per
+ * chance-dice-gated group, reusing the existing generic `applyEffect`/`chanceDiceRollEffect` chat
+ * actions (module/pokerole.mjs) completely unmodified - the same markup shape Move's own Effects tab
+ * produces via buildAccuracyResultHtml() below. The line's single `target` field is synthesized into
+ * every effect's `affects`, since Usage Lines don't expose Move's per-effect targeting.
+ * @param {PokeroleItem} item The gear Item.
+ * @param {object} line The usage line being executed.
+ * @param {Actor} actor The actor using the item.
+ * @param {TokenDocument} token The actor's token.
+ */
+export async function rollUsageLineEffects(item, line, actor, token) {
+  const groups = line.effectGroups ?? [];
+  const affects = line.target === 'user' ? 'user' : 'targets';
+  const tagEffect = effect => ({ ...effect, affects });
+
+  const unconditionalEffects = groups
+    .filter(group => group.condition.type === 'none')
+    .flatMap(group => group.effects)
+    .map(tagEffect);
+  const chanceDiceGroups = groups
+    .filter(group => group.condition.type === 'chanceDice')
+    .map(group => ({ ...group, effects: group.effects.map(tagEffect) }));
+
+  if (unconditionalEffects.length === 0 && chanceDiceGroups.length === 0) {
+    return ui.notifications.warn('No effects configured on this line.');
+  }
+
+  const dataTokenUuid = token ? `data-token-uuid="${token.uuid}"` : '';
+  let html = '<div class="pokerole"><div class="action-buttons">';
+  for (const effect of unconditionalEffects) {
+    html += `<button class="chat-action" data-action="applyEffect" data-actor-id="${actor.id}" ${dataTokenUuid} data-effect='${JSON.stringify(effect)}' data-might-target-user="true">
+  ${PokeroleItem.formatEffect(effect)}
+</button>`;
+  }
+  for (const group of chanceDiceGroups) {
+    html += `<button class="chat-action" data-action="chanceDiceRollEffect" data-actor-id="${actor.id}" ${dataTokenUuid} data-effect-group='${JSON.stringify(group)}' data-might-target-user="true">
+  ${PokeroleItem.formatChanceDiceGroup(group)}
+</button>`;
+  }
+  html += '</div></div>';
+
+  await ChatMessage.implementation.create({
+    content: html,
+    flavor: `${line.label || item.name} - Effects`,
+    speaker: ChatMessage.implementation.getSpeaker({ actor, token })
+  });
+  return true;
 }

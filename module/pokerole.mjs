@@ -792,7 +792,7 @@ async function onChatActionClick(event) {
           let targets = game.user.targets.map(t => t.actor)
           await applyEffectToActors(effect, attackerActor, attackerToken, targets, mightTargetUser === 'true');
         } else {
-          await applyEffectToActors(effect, attackerActor, attackerToken, actors, mightTargetUser === 'true');
+          await applyEffectToActors(effect, attackerActor, attackerToken, [attackerActor], mightTargetUser === 'true');
         }
 
         break;

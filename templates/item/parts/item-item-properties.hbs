@@ -1,8 +1,186 @@
-{{!-- Item (Gear) Properties Tab --}}
+{{!-- Item (Gear) Properties Tab - Usage Lines editor (Roll/Heal/Damage/Accuracy), each posting its
+      own button on a follow-up chat card when the item is used. --}}
 <section class="tab {{ tab.cssClass }}" data-tab="{{ tab.id }}" data-group="{{ tab.group }}">
-  {{!-- As you add new fields, add them in here! --}}
-  <div class="resource">
-    <label class="resource-label">Roll Formula</label>
-    <input disabled type="text" name="system.formula" value="{{system.formula}}" data-dtype="String"/>
-  </div>
+  <ol class="items-list usage-line-list">
+    <li class="item flexrow items-header">
+      <span class="usage-line-header-title">Item Actions <a class="formula-info" data-tooltip-html="{{usageLinesTooltip}}"><i class="fas fa-circle-info"></i></a></span>
+      <div class="item-controls">
+        <a class="item-control" title="Add usage line" data-action="addUsageLine"><i class="fas fa-plus"></i>Add</a>
+      </div>
+    </li>
+    {{#each usageLineRows as |line i|}}
+    <li class="usage-line-entry">
+      <div class="usage-line-number">{{line.number}}</div>
+
+      <div class="usage-line-fields">
+        <div class="usage-field">
+          <span class="usage-field-label">Name</span>
+          <input type="text" class="usage-line-label" value="{{line.label}}" data-index="{{i}}" placeholder="Label"/>
+        </div>
+
+        <div class="usage-field">
+          <span class="usage-field-label">Action</span>
+          <select class="usage-line-kind" data-index="{{i}}">
+            {{selectOptions ../usageLineKinds selected=line.kind}}
+          </select>
+        </div>
+
+        <div class="usage-field">
+          <span class="usage-field-label">Target</span>
+          <select class="usage-line-target" data-index="{{i}}">
+            {{selectOptions ../usageLineTargets selected=line.target}}
+          </select>
+        </div>
+
+        {{#if line.isHealKind}}
+        <div class="usage-field">
+          <span class="usage-field-label">Mode</span>
+          <select class="usage-heal-mode" data-index="{{i}}">
+            {{selectOptions ../usageModeChoices selected=line.heal.mode}}
+          </select>
+        </div>
+        {{#if line.healModeIsFixed}}
+        <div class="usage-field">
+          <span class="usage-field-label">Amount</span>
+          <input type="number" class="usage-heal-amount" value="{{line.heal.amount}}" data-index="{{i}}" data-dtype="Number"/>
+        </div>
+        {{/if}}
+        {{/if}}
+
+        {{#if line.isDamageKind}}
+        <div class="usage-field">
+          <span class="usage-field-label">Mode</span>
+          <select class="usage-damage-mode" data-index="{{i}}">
+            {{selectOptions ../usageModeChoices selected=line.damage.mode}}
+          </select>
+        </div>
+        {{#if line.damageModeIsFixed}}
+        <div class="usage-field">
+          <span class="usage-field-label">Amount</span>
+          <input type="number" class="usage-damage-amount" value="{{line.damage.amount}}" data-index="{{i}}" data-dtype="Number"/>
+        </div>
+        {{/if}}
+        <div class="usage-field">
+          <span class="usage-field-label">Type</span>
+          <select class="usage-damage-type" data-index="{{i}}">
+            {{selectOptions ../typeChoices selected=line.damage.type}}
+          </select>
+        </div>
+        <div class="usage-field">
+          <span class="usage-field-label">Category</span>
+          <select class="usage-damage-category" data-index="{{i}}">
+            {{selectOptions ../damageCategoryChoices selected=line.damage.category}}
+          </select>
+        </div>
+        <div class="usage-field">
+          <span class="usage-field-label">Ignore Defenses</span>
+          <select class="usage-damage-ignore-defenses" data-index="{{i}}">
+            {{selectOptions ../yesNoChoices selected=line.damage.ignoreDefenses}}
+          </select>
+        </div>
+        {{/if}}
+
+        {{#if line.isHealStatusKind}}
+        <div class="usage-field usage-heal-status-add">
+          <select class="usage-heal-status-picker">
+            {{selectOptions ../healStatusAilmentChoices}}
+          </select>
+          <a class="usage-field-add-btn" data-action="addHealStatusAilment" data-index="{{i}}" title="Add ailment"><i class="fas fa-plus"></i></a>
+        </div>
+        {{#each line.healStatus.ailments as |ailmentKey ai|}}
+        <span class="usage-chip">
+          {{lookup ../../healStatusAilmentChoices ailmentKey}}
+          <a data-action="removeHealStatusAilment" data-index="{{i}}" data-ailment-index="{{ai}}" title="Remove"><i class="fas fa-times"></i></a>
+        </span>
+        {{/each}}
+        {{/if}}
+
+        {{#if line.isEffectsKind}}
+        <div class="usage-effects-editor">
+          <a class="usage-field-add-btn" data-action="addUsageEffectGroup" data-index="{{i}}" title="Add effect group"><i class="fas fa-plus"></i> Add Group</a>
+          {{#each line.effectGroupRows as |group gi|}}
+          <div class="usage-effect-group">
+            <div class="usage-field">
+              <span class="usage-field-label">Condition</span>
+              <select class="usage-effect-group-condition" data-index="{{i}}" data-group-index="{{gi}}">
+                {{selectOptions ../../effectGroupConditions selected=group.condition.type}}
+              </select>
+            </div>
+            {{#if group.conditionIsChanceDice}}
+            <div class="usage-field">
+              <span class="usage-field-label">Dice</span>
+              <input type="number" class="usage-effect-group-condition-amount" value="{{group.condition.amount}}" data-index="{{i}}" data-group-index="{{gi}}" data-dtype="Number"/>
+            </div>
+            {{/if}}
+            <a class="usage-field-add-btn" data-action="addUsageEffect" data-index="{{i}}" data-group-index="{{gi}}" title="Add effect"><i class="fas fa-plus"></i></a>
+            <a class="item-control" data-action="deleteUsageEffectGroup" data-index="{{i}}" data-group-index="{{gi}}" title="Delete group"><i class="fas fa-trash"></i></a>
+
+            {{#each group.effects as |effect ei|}}
+            <div class="usage-effect-row">
+              <div class="usage-field">
+                <span class="usage-field-label">Type</span>
+                <select class="usage-effect-type" data-index="{{i}}" data-group-index="{{gi}}" data-effect-index="{{ei}}">
+                  {{selectOptions ../../../moveEffectTypes selected=effect.type}}
+                </select>
+              </div>
+              {{#if effect.isAilmentType}}
+              <div class="usage-field">
+                <span class="usage-field-label">Ailment</span>
+                <select class="usage-effect-ailment" data-index="{{i}}" data-group-index="{{gi}}" data-effect-index="{{ei}}">
+                  {{selectOptions ../../../effectAilmentChoices selected=effect.ailment}}
+                </select>
+              </div>
+              {{/if}}
+              {{#if effect.isStatChangeType}}
+              <div class="usage-field">
+                <span class="usage-field-label">Stat</span>
+                <select class="usage-effect-stat" data-index="{{i}}" data-group-index="{{gi}}" data-effect-index="{{ei}}">
+                  {{selectOptions ../../../effectStatChoices selected=effect.stat}}
+                </select>
+              </div>
+              <div class="usage-field">
+                <span class="usage-field-label">Amount</span>
+                <input type="number" class="usage-effect-amount" value="{{effect.amount}}" data-index="{{i}}" data-group-index="{{gi}}" data-effect-index="{{ei}}" data-dtype="Number"/>
+              </div>
+              {{/if}}
+              <a class="item-control" data-action="deleteUsageEffect" data-index="{{i}}" data-group-index="{{gi}}" data-effect-index="{{ei}}" title="Delete effect"><i class="fas fa-trash"></i></a>
+            </div>
+            {{/each}}
+          </div>
+          {{/each}}
+        </div>
+        {{/if}}
+
+        {{#if line.isRollKind}}
+        <div class="usage-field usage-field-formula">
+          <span class="usage-field-label">Formula</span>
+          <input type="text" class="usage-line-formula" value="{{line.formula}}" data-index="{{i}}" placeholder="2 + Dexterity"/>
+        </div>
+        {{/if}}
+        {{#if line.isAccuracyKind}}
+        <div class="usage-field usage-field-formula">
+          <span class="usage-field-label">Formula</span>
+          <input type="text" class="usage-line-formula" value="{{line.formula}}" data-index="{{i}}" placeholder="2 + Dexterity"/>
+        </div>
+        {{/if}}
+        {{#if line.isHealKind}}{{#unless line.healModeIsFixed}}
+        <div class="usage-field usage-field-formula">
+          <span class="usage-field-label">Formula</span>
+          <input type="text" class="usage-line-formula" value="{{line.formula}}" data-index="{{i}}" placeholder="2 + Insight"/>
+        </div>
+        {{/unless}}{{/if}}
+        {{#if line.isDamageKind}}{{#unless line.damageModeIsFixed}}
+        <div class="usage-field usage-field-formula">
+          <span class="usage-field-label">Formula</span>
+          <input type="text" class="usage-line-formula" value="{{line.formula}}" data-index="{{i}}" placeholder="2 + Strength"/>
+        </div>
+        {{/unless}}{{/if}}
+      </div>
+
+      <div class="usage-line-actions">
+        <a class="item-control" title="Delete usage line" data-action="deleteUsageLine" data-index="{{i}}"><i class="fas fa-trash"></i></a>
+      </div>
+    </li>
+    {{/each}}
+  </ol>
 </section>

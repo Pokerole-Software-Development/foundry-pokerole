@@ -3,7 +3,14 @@
  */
 import { POKEROLE, migrateUnambiguousLegacyRankValue } from "../helpers/config.mjs";
 import { bulkApplyHp, createHealMessage } from "../helpers/damage.mjs";
-import { rollAccuracy, rollDamage } from "../helpers/roll.mjs";
+import { rollAccuracy, rollDamage, rollUsageLine, rollUsageLineAccuracy, rollUsageLineDamage, applyUsageLineHeal, applyUsageLineHealStatus, rollUsageLineEffects } from "../helpers/roll.mjs";
+
+const USAGE_LINE_KIND_LABELS = { roll: 'Roll', heal: 'Heal', damage: 'Damage', accuracy: 'Accuracy', healStatus: 'Heal Status', effects: 'Effects' };
+
+/** Fallback chat-card button text for a Usage Line with no custom label set. */
+function defaultUsageLineLabel(line) {
+  return USAGE_LINE_KIND_LABELS[line.kind] ?? 'Use';
+}
 
 /**
  * Extend the basic Item with some very simple modifications.
@@ -53,6 +60,12 @@ export class PokeroleItem extends Item {
     Hooks.callAll("PokeroleItemPre", this);
 
     const token = this.actor.token;
+
+    // Gear Items with configured Usage Lines skip the plain description card entirely - clicking
+    // the item goes straight to the Consumable confirm (if applicable) and the line-buttons card.
+    if (this.type === 'item' && (this.system.usageLines?.length ?? 0) > 0) {
+      return this.useConsumable(this.actor, token);
+    }
 
     let properties = [];
     let hasAccuracy = false;
@@ -260,6 +273,163 @@ export class PokeroleItem extends Item {
   }
 
   /**
+   * Use a gear Item's configured Usage Lines (`system.usageLines`) - if Consumable, asks whether to
+   * spend 1 Quantity via a checkbox (checked by default, deleting the item entirely if it reaches
+   * 0) before posting the chat card with one button per line (see #postUsageLinesCard()).
+   * @param {Actor} actor The actor using the item.
+   * @param {TokenDocument} token The actor's token.
+   * @returns {Promise<boolean>} `true` if used, `false` if the dialog was cancelled/closed.
+   */
+  async useConsumable(actor, token) {
+    let spent = false;
+    // Snapshot taken before any change - if this use ends up spending the last Quantity, this is
+    // what #_onRollbackUse() recreates the item from (with Quantity reset to 1).
+    const preConsumeItemData = this.toObject(false);
+
+    if (this.system.consumable) {
+      const content = `<p>Use ${this.name}?</p>
+        <div class="form-group">
+          <label class="checkbox">
+            <input type="checkbox" name="consume" checked>
+            Consume 1 Quantity (${this.system.quantity} remaining)
+          </label>
+        </div>`;
+      const formData = await foundry.applications.api.DialogV2.wait({
+        window: { title: `Use ${this.name}` },
+        content,
+        buttons: [{
+          action: 'use',
+          label: 'Use',
+          default: true,
+          callback: (event, button) => new foundry.applications.ux.FormDataExtended(button.form).object
+        }],
+        rejectClose: false
+      });
+      if (!formData) return false;
+
+      if (formData.consume) {
+        spent = true;
+        const newQuantity = Math.max(this.system.quantity - 1, 0);
+        if (newQuantity <= 0) {
+          await this.delete();
+        } else {
+          await this.update({ 'system.quantity': newQuantity });
+        }
+      }
+    }
+
+    await this.postUsageLinesCard(actor, token, {
+      spent,
+      rollback: spent ? { itemId: this.id, itemData: preConsumeItemData, used: false } : null
+    });
+    return true;
+  }
+
+  /**
+   * Posts the "Use Item" follow-up chat card - one button per configured Usage Line, plus a
+   * "Rewind Spent Use" button when this use just spent a Consumable's Quantity. Snapshots this item's
+   * data onto the message's `itemData` flag so the line buttons keep working even if this item was
+   * just deleted (Consumable reaching 0) - `_onChatCardAction` already prefers that flag over a
+   * live actor-item lookup.
+   * @param {Actor} actor The actor using the item.
+   * @param {TokenDocument} token The actor's token.
+   * @param {{spent?: boolean, rollback?: object|null}} options `spent` varies the flavor text;
+   *   `rollback`, when set, renders a Rewind Spent Use button and is stored on the message's
+   *   `consumeRollback` flag for #_onRollbackUse() to act on.
+   */
+  async postUsageLinesCard(actor, token, { spent = false, rollback = null } = {}) {
+    const lines = (this.system.usageLines ?? []).map((line, index) => ({
+      ...line,
+      index,
+      buttonLabel: line.label || defaultUsageLineLabel(line)
+    }));
+
+    const templateData = {
+      actor: actor.toObject(false),
+      tokenId: token?.uuid || null,
+      item: this.toObject(false),
+      lines,
+      showRollback: !!rollback,
+      rollbackUsed: false
+    };
+    const html = await foundry.applications.handlebars.renderTemplate(
+      "systems/pokerole/templates/chat/item-usage-card.html", templateData);
+
+    let chatData = {
+      author: game.user.id,
+      style: CONST.CHAT_MESSAGE_STYLES.OTHER,
+      content: html,
+      flavor: spent ? `${actor.name} spent ${this.name}` : `${actor.name} used ${this.name}!`,
+      speaker: ChatMessage.getSpeaker({ actor, token }),
+      flags: {
+        "core.canPopout": true,
+        [game.system.id]: {
+          itemUse: true,
+          actorUuid: actor?.uuid,
+          tokenUuid: token?.uuid,
+          itemData: this.toObject(false),
+          consumeRollback: rollback
+        }
+      }
+    };
+    chatData = ChatMessage.implementation.applyRollMode(chatData, game.settings.get('core', 'rollMode'));
+    await ChatMessage.create(chatData);
+  }
+
+  /**
+   * Undoes a Consumable use - adds 1 Quantity back to the live item, or recreates it with Quantity
+   * 1 if it was deleted entirely (fully depleted). Disables the Rewind Spent Use button afterward by
+   * patching the message's stored content directly, so the disabled state survives a reload too.
+   * @param {Actor} actor The actor the item was used from.
+   * @param {ChatMessage} message The "Use Item" chat message carrying the `consumeRollback` flag.
+   */
+  static async _onRollbackUse(actor, message) {
+    const rollback = message.getFlag(game.system.id, "consumeRollback");
+    if (!rollback || rollback.used) return;
+
+    // Whether the item still exists is checked live (not stored) - covers it having been deleted
+    // by some other means since this message was posted, not just via this same Consumable flow.
+    const liveItem = actor.items.get(rollback.itemId);
+    if (liveItem) {
+      await liveItem.update({ 'system.quantity': liveItem.system.quantity + 1 });
+    } else {
+      const data = foundry.utils.deepClone(rollback.itemData);
+      delete data._id;
+      data.system = { ...data.system, quantity: 1 };
+      await actor.createEmbeddedDocuments('Item', [data]);
+    }
+
+    const disabledButton = '<button data-action="rollbackUse" disabled>Spent Use Rewound</button>';
+    const newContent = message.content.replace(
+      '<button data-action="rollbackUse">Rewind Spent Use</button>', disabledButton);
+    await message.update({
+      content: newContent,
+      [`flags.${game.system.id}.consumeRollback.used`]: true
+    });
+  }
+
+  /**
+   * Dispatches a single Usage Line button click to the matching roll.mjs function.
+   * @param {number} lineIndex Index into `system.usageLines`.
+   * @param {Actor} actor The actor using the item.
+   * @param {TokenDocument} token The actor's token.
+   */
+  async executeUsageLine(lineIndex, actor, token) {
+    const line = this.system.usageLines?.[lineIndex];
+    if (!line) {
+      return ui.notifications.error("This usage line no longer exists.");
+    }
+    switch (line.kind) {
+      case 'roll':       return rollUsageLine(this, line, actor);
+      case 'accuracy':   return rollUsageLineAccuracy(this, line, actor, token);
+      case 'damage':     return rollUsageLineDamage(this, line, actor, token);
+      case 'heal':       return applyUsageLineHeal(this, line, actor, token);
+      case 'healStatus': return applyUsageLineHealStatus(this, line, actor, token);
+      case 'effects':    return rollUsageLineEffects(this, line, actor, token);
+    }
+  }
+
+  /**
    * Get a list of all effects applied by this move that don't require a chance roll
    * @return {object[]} List of effects
    */
@@ -446,6 +616,12 @@ export class PokeroleItem extends Item {
         break;
       case 'heal':
         await item.applyHeal(actor, Array.from(game.user.targets));
+        break;
+      case 'usageLine':
+        await item.executeUsageLine(parseInt(button.dataset.lineIndex, 10), actor, token);
+        break;
+      case 'rollbackUse':
+        await this._onRollbackUse(actor, message);
         break;
     }
 
