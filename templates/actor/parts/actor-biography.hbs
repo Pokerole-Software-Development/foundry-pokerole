@@ -62,7 +62,7 @@
       </legend>
       <ul>
         {{#each abilities as |item index|}}
-        <li class="item" data-item-id="{{item.data._id}}">
+        <li class="item draggable" draggable="true" data-item-id="{{item.data._id}}">
           <h5>
             <a data-action="roll" data-roll-type="item">{{item.data.name}}</a>
             {{#if ../editable}}

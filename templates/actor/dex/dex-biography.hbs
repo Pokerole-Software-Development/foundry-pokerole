@@ -67,7 +67,7 @@
           {{/if}}
         </div>
         {{#each abilities as |item index|}}
-        <div class="dex-ability-entry" data-item-id="{{item.data._id}}">
+        <div class="dex-ability-entry draggable" draggable="true" data-item-id="{{item.data._id}}">
           <h5>
             <a data-action="roll" data-roll-type="item">{{item.data.name}}</a>
             {{#if ../editable}}
