@@ -581,7 +581,7 @@ export class PokeroleActor extends Actor {
   }
 
   /**
-   * Applies a stat change - doesn't stack, replaces the old value if higher (or adds if signs differ).
+   * Applies a stat change - doesn't stack, replaces the old value if higher.
    * @param {string} stat The stat to be changed.
    * @param {number} amount The amount by which the stat should be changed.
    * @throws {Error} If the stat is unknown.
@@ -606,13 +606,6 @@ export class PokeroleActor extends Actor {
     }
 
     const currentValue = foundry.utils.getProperty(this, key) ?? 0;
-
-    // Check if the signs of current value and amount are different
-    if ((currentValue < 0 && amount > 0) || (currentValue > 0 && amount < 0)) {
-      const newValue = currentValue + amount;
-      await this.update({ [key]: newValue });
-      return true;
-    }
 
     // Replace the old value if the new value's absolute value is higher
     if (Math.abs(amount) > Math.abs(currentValue)) {
