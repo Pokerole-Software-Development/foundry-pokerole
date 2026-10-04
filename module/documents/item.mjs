@@ -365,8 +365,10 @@ export class PokeroleItem extends Item {
         "core.canPopout": true,
         [game.system.id]: {
           itemUse: true,
+          isUsageLinesCard: true,
           actorUuid: actor?.uuid,
           tokenUuid: token?.uuid,
+          itemUuid: this.uuid,
           itemData: this.toObject(false),
           consumeRollback: rollback
         }
